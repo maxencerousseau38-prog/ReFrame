@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import DashboardPreview from "@/components/DashboardPreview";
+import Features from "@/components/Features";
 import Pricing from "@/components/Pricing";
 
 export default function Home() {
@@ -9,9 +10,10 @@ export default function Home() {
       <Navbar />
       <Hero />
       <DashboardPreview />
+      <Features />
       <Pricing />
 
-      {/* Sections à venir : Features, CRM Preview, Inventory, AI Assistant,
+      {/* Sections à venir : CRM Preview, Inventory, AI Assistant,
           Testimonials, FAQ, Footer. */}
     </main>
   );
