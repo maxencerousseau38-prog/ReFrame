@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Claude Code skills installed via `npx skills add` (not part of the app)
+.agents/
+skills-lock.json
