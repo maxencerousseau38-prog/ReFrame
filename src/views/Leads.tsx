@@ -1,70 +1,92 @@
 import { motion } from 'framer-motion'
-import { Icon } from '../icons'
+import { Mail, Phone, Plus } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import {
+  Table,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import { eur, leads } from '../data'
 import { listContainer, listItem } from '../animations'
 import { Pill } from '../components/Pill'
 
+const initials = (name: string) =>
+  name
+    .split(' ')
+    .map((p) => p[0])
+    .join('')
+
 export function Leads() {
   return (
-    <div className="view">
-      <div className="card">
-        <div className="card-head">
-          <div>
-            <h3>Tous les prospects</h3>
-            <p className="muted">{leads.length} prospects actifs dans le pipeline</p>
-          </div>
-          <button className="btn primary sm">
-            <Icon name="plus" size={16} />
-            Ajouter
-          </button>
-        </div>
-        <div className="table-wrap">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Client</th>
-                <th>Véhicule visé</th>
-                <th>Source</th>
-                <th>Statut</th>
-                <th className="num">Budget</th>
-                <th>Suivi</th>
-                <th />
-              </tr>
-            </thead>
-            <motion.tbody variants={listContainer} initial="initial" animate="animate">
-              {leads.map((l) => (
-                <motion.tr key={l.id} variants={listItem}>
-                  <td>
-                    <div className="cell-user">
-                      <span className="avatar sm">
-                        {l.name.split(' ').map((p) => p[0]).join('')}
-                      </span>
-                      {l.name}
-                    </div>
-                  </td>
-                  <td>{l.vehicle}</td>
-                  <td className="muted">{l.source}</td>
-                  <td>
-                    <Pill label={l.status} />
-                  </td>
-                  <td className="num">{eur(l.value)}</td>
-                  <td className="muted">{l.date}</td>
-                  <td>
-                    <div className="row-actions">
-                      <button className="icon-btn ghost sm" aria-label="Appeler">
-                        <Icon name="phone" size={16} />
-                      </button>
-                      <button className="icon-btn ghost sm" aria-label="E-mail">
-                        <Icon name="mail" size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </motion.tr>
-              ))}
-            </motion.tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Tous les prospects</CardTitle>
+        <p className="text-muted-foreground text-[13px]">
+          {leads.length} prospects actifs dans le pipeline
+        </p>
+        <Button size="sm" className="ml-auto self-center">
+          <Plus />
+          Ajouter
+        </Button>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Client</TableHead>
+              <TableHead>Véhicule visé</TableHead>
+              <TableHead>Source</TableHead>
+              <TableHead>Statut</TableHead>
+              <TableHead className="text-right">Budget</TableHead>
+              <TableHead>Suivi</TableHead>
+              <TableHead />
+            </TableRow>
+          </TableHeader>
+          <motion.tbody variants={listContainer} initial="initial" animate="animate">
+            {leads.map((l) => (
+              <motion.tr
+                key={l.id}
+                variants={listItem}
+                className="hover:bg-muted/50 border-b transition-colors last:border-0"
+              >
+                <TableCell className="py-3">
+                  <div className="flex items-center gap-2.5 font-medium">
+                    <Avatar className="size-7">
+                      <AvatarFallback className="bg-accent text-primary text-[11px] font-bold">
+                        {initials(l.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    {l.name}
+                  </div>
+                </TableCell>
+                <TableCell>{l.vehicle}</TableCell>
+                <TableCell className="text-muted-foreground">{l.source}</TableCell>
+                <TableCell>
+                  <Pill label={l.status} />
+                </TableCell>
+                <TableCell className="text-right font-semibold tabular-nums">
+                  {eur(l.value)}
+                </TableCell>
+                <TableCell className="text-muted-foreground">{l.date}</TableCell>
+                <TableCell>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" className="size-8" aria-label="Appeler">
+                      <Phone />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="size-8" aria-label="E-mail">
+                      <Mail />
+                    </Button>
+                  </div>
+                </TableCell>
+              </motion.tr>
+            ))}
+          </motion.tbody>
+        </Table>
+      </CardContent>
+    </Card>
   )
 }

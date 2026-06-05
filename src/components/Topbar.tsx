@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion'
-import { Icon } from '../icons'
+import { Bell, Menu, Moon, Plus, Search, Sun } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 interface TopbarProps {
   title: string
@@ -11,34 +13,49 @@ interface TopbarProps {
 
 export function Topbar({ title, subtitle, theme, onToggleTheme, onMenu }: TopbarProps) {
   return (
-    <header className="topbar">
-      <button className="icon-btn ghost menu-btn" onClick={onMenu} aria-label="Menu">
-        <Icon name="menu" />
-      </button>
+    <header className="bg-background/80 border-border sticky top-0 z-20 flex items-center gap-4 border-b px-5 py-3 backdrop-blur-md md:px-8">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="md:hidden"
+        onClick={onMenu}
+        aria-label="Menu"
+      >
+        <Menu />
+      </Button>
 
-      <div className="topbar-title">
-        <h1>{title}</h1>
-        <p>{subtitle}</p>
+      <div className="hidden md:block">
+        <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
+        <p className="text-muted-foreground text-[13px]">{subtitle}</p>
       </div>
 
-      <div className="search">
-        <Icon name="search" size={18} />
-        <input placeholder="Rechercher un véhicule, un client…" />
-        <kbd>⌘K</kbd>
+      <div className="relative ml-auto hidden w-full max-w-xs items-center sm:flex">
+        <Search className="text-muted-foreground absolute left-3 size-4" />
+        <Input
+          placeholder="Rechercher un véhicule, un client…"
+          className="bg-card pl-9"
+        />
       </div>
 
-      <div className="topbar-actions">
-        <button className="icon-btn" onClick={onToggleTheme} aria-label="Changer de thème">
-          <Icon name={theme === 'dark' ? 'sun' : 'moon'} />
-        </button>
-        <button className="icon-btn notif" aria-label="Notifications">
-          <Icon name="bell" />
-          <span className="dot" />
-        </button>
-        <motion.button className="btn primary" whileTap={{ scale: 0.96 }}>
-          <Icon name="plus" size={18} />
-          <span>Nouvelle vente</span>
-        </motion.button>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={onToggleTheme}
+          aria-label="Changer de thème"
+        >
+          {theme === 'dark' ? <Sun /> : <Moon />}
+        </Button>
+        <Button variant="outline" size="icon" className="relative" aria-label="Notifications">
+          <Bell />
+          <span className="bg-destructive border-background absolute right-2 top-2 size-2 rounded-full border-2" />
+        </Button>
+        <Button asChild className="shadow-lg shadow-primary/25">
+          <motion.button whileTap={{ scale: 0.96 }}>
+            <Plus />
+            <span className="hidden sm:inline">Nouvelle vente</span>
+          </motion.button>
+        </Button>
       </div>
     </header>
   )

@@ -8,7 +8,6 @@ import { Leads } from './views/Leads'
 import { Placeholder } from './views/Placeholder'
 import { pageVariants } from './animations'
 import type { ViewId } from './data'
-import './App.css'
 
 const meta: Record<ViewId, { title: string; subtitle: string }> = {
   dashboard: { title: 'Tableau de bord', subtitle: 'Vue d’ensemble de votre activité' },
@@ -27,7 +26,7 @@ function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme
+    document.documentElement.classList.toggle('dark', theme === 'dark')
   }, [theme])
 
   const renderView = () => {
@@ -52,9 +51,9 @@ function App() {
   }
 
   return (
-    <div className="app">
+    <div className="flex min-h-screen">
       <Sidebar active={view} onSelect={setView} open={navOpen} onClose={() => setNavOpen(false)} />
-      <div className="main">
+      <div className="flex min-w-0 flex-1 flex-col">
         <Topbar
           title={meta[view].title}
           subtitle={meta[view].subtitle}
@@ -62,7 +61,7 @@ function App() {
           onToggleTheme={() => setTheme((t) => (t === 'light' ? 'dark' : 'light'))}
           onMenu={() => setNavOpen(true)}
         />
-        <main className="content">
+        <main className="mx-auto w-full max-w-[1280px] flex-1 px-4 py-6 md:px-8">
           <AnimatePresence mode="wait">
             <motion.div
               key={view}
