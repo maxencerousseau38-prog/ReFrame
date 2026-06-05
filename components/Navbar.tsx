@@ -4,10 +4,10 @@ import { useRef } from "react";
 import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
 
 const LINKS = [
-  { label: "Produit", href: "#produit" },
   { label: "Fonctionnalités", href: "#features" },
+  { label: "Produit", href: "#produit" },
   { label: "Tarifs", href: "#pricing" },
-  { label: "Ressources", href: "#ressources" },
+  { label: "FAQ", href: "#faq" },
 ];
 
 export default function Navbar() {
