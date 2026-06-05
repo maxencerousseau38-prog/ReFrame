@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import DashboardPreview from "@/components/DashboardPreview";
+import Pricing from "@/components/Pricing";
 
 export default function Home() {
   return (
@@ -8,12 +9,10 @@ export default function Home() {
       <Navbar />
       <Hero />
       <DashboardPreview />
+      <Pricing />
 
-      {/* Sections à venir (Tier A → C) : Features, CRM Preview, Inventory,
-          AI Assistant, Testimonials, Pricing, FAQ, Footer. */}
-      <div className="px-6 py-24 text-center text-sm text-muted">
-        Benchmark Tier S — les sections suivantes arrivent après validation.
-      </div>
+      {/* Sections à venir : Features, CRM Preview, Inventory, AI Assistant,
+          Testimonials, FAQ, Footer. */}
     </main>
   );
 }
