@@ -3,8 +3,9 @@ DriveOS est une plateforme moderne de gestion des ventes automobiles conçue pou
 
 ## Stack technique
 - **Vite** + **React 19** + **TypeScript**
+- **Tailwind CSS v4** + **shadcn/ui** (composants compatibles 21st.dev)
 - **Framer Motion** pour les animations
-- Thème clair / sombre intégré
+- Thème clair / sombre intégré (classe `.dark`)
 
 ## Démarrage
 ```bash
@@ -18,11 +19,19 @@ npm run lint     # analyse statique ESLint
 ## Structure
 ```
 src/
-  components/   Sidebar, Topbar, Pill (briques d'interface réutilisables)
-  views/        Dashboard, Prospects, Stock véhicules, écrans à venir
-  data.ts       Données de démonstration et navigation
-  icons.tsx     Jeu d'icônes SVG
-  animations.ts Variantes d'animation Framer Motion
+  components/      Sidebar, Topbar, Pill (briques d'interface)
+  components/ui/   Primitives shadcn/ui (button, card, table, badge…)
+  views/           Dashboard, Prospects, Stock véhicules, écrans à venir
+  lib/utils.ts     Helper cn() (clsx + tailwind-merge)
+  data.ts          Données de démonstration et navigation
+  icons.tsx        Jeu d'icônes SVG
+  animations.ts    Variantes d'animation Framer Motion
+```
+
+## Ajouter des composants shadcn / 21st.dev
+```bash
+npx shadcn@latest add <composant>
+npx shadcn@latest add "https://21st.dev/r/..."
 ```
 
 > Interface de démonstration alimentée par des données factices. Le branchement
