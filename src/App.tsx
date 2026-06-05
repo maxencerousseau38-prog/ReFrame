@@ -1,127 +1,83 @@
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import { useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Sidebar } from './components/Sidebar'
+import { Topbar } from './components/Topbar'
+import { Dashboard } from './views/Dashboard'
+import { Inventory } from './views/Inventory'
+import { Leads } from './views/Leads'
+import { Placeholder } from './views/Placeholder'
+import { pageVariants } from './animations'
+import type { ViewId } from './data'
 import './App.css'
 
+const meta: Record<ViewId, { title: string; subtitle: string }> = {
+  dashboard: { title: 'Tableau de bord', subtitle: 'Vue d’ensemble de votre activité' },
+  leads: { title: 'Prospects', subtitle: 'Gérez votre pipeline commercial' },
+  inventory: { title: 'Stock véhicules', subtitle: 'Votre parc disponible à la vente' },
+  appointments: { title: 'Rendez-vous', subtitle: 'Essais, reprises et signatures' },
+  sales: { title: 'Ventes', subtitle: 'Suivi des transactions et contrats' },
+  documents: { title: 'Documents', subtitle: 'Contrats, factures et cartes grises' },
+  analytics: { title: 'Analyses', subtitle: 'Performances et tendances du garage' },
+  settings: { title: 'Paramètres', subtitle: 'Configuration de votre espace' },
+}
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [view, setView] = useState<ViewId>('dashboard')
+  const [navOpen, setNavOpen] = useState(false)
+  const [theme, setTheme] = useState<'light' | 'dark'>('light')
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+  }, [theme])
+
+  const renderView = () => {
+    switch (view) {
+      case 'dashboard':
+        return <Dashboard />
+      case 'inventory':
+        return <Inventory />
+      case 'leads':
+        return <Leads />
+      case 'appointments':
+        return <Placeholder icon="calendar" title="Agenda des rendez-vous" text="Planifiez essais, reprises et signatures au même endroit." />
+      case 'sales':
+        return <Placeholder icon="sales" title="Suivi des ventes" text="Retrouvez ici vos contrats, marges et objectifs mensuels." />
+      case 'documents':
+        return <Placeholder icon="documents" title="Coffre documentaire" text="Centralisez contrats, factures et cartes grises." />
+      case 'analytics':
+        return <Placeholder icon="analytics" title="Analyses avancées" text="Mesurez vos performances commerciales en temps réel." />
+      case 'settings':
+        return <Placeholder icon="settings" title="Paramètres" text="Personnalisez votre espace DriveOS et votre équipe." />
+    }
+  }
 
   return (
-    <>
-      <motion.section
-        id="center"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-      >
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </motion.section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+    <div className="app">
+      <Sidebar active={view} onSelect={setView} open={navOpen} onClose={() => setNavOpen(false)} />
+      <div className="main">
+        <Topbar
+          title={meta[view].title}
+          subtitle={meta[view].subtitle}
+          theme={theme}
+          onToggleTheme={() => setTheme((t) => (t === 'light' ? 'dark' : 'light'))}
+          onMenu={() => setNavOpen(true)}
+        />
+        <main className="content">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={view}
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={{ duration: 0.28, ease: 'easeOut' }}
+            >
+              {renderView()}
+            </motion.div>
+          </AnimatePresence>
+        </main>
+      </div>
+    </div>
   )
 }
 
