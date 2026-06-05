@@ -21,7 +21,7 @@
   }
 
   ::selection {
-    background: rgba(79, 70, 229, 0.18);
+    background: rgba(196, 189, 171, 0.55);
   }
 }
 
@@ -32,13 +32,13 @@
     padding-bottom: 0.05em; /* avoid descenders being clipped */
   }
 
-  /* Premium gradient keyword used in headings. */
+  /* Premium gradient keyword used in headings — monochrome ink → warm taupe. */
   .text-gradient {
     background: linear-gradient(
       100deg,
-      #4f46e5 0%,
-      #6366f1 40%,
-      #06b6d4 100%
+      #16140f 0%,
+      #5c554a 55%,
+      #9a9082 100%
     );
     -webkit-background-clip: text;
     background-clip: text;

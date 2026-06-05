@@ -115,14 +115,14 @@ export default function Hero() {
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10"
       >
-        <div className="absolute left-1/2 top-[-10%] h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(99,102,241,0.20),transparent)] blur-2xl animate-blob-slow" />
-        <div className="absolute right-[6%] top-[22%] h-[360px] w-[360px] rounded-full bg-[radial-gradient(closest-side,rgba(6,182,212,0.16),transparent)] blur-2xl animate-blob-slow [animation-delay:-6s]" />
+        <div className="absolute left-1/2 top-[-10%] h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(196,189,171,0.45),transparent)] blur-2xl animate-blob-slow" />
+        <div className="absolute right-[6%] top-[22%] h-[360px] w-[360px] rounded-full bg-[radial-gradient(closest-side,rgba(160,150,130,0.28),transparent)] blur-2xl animate-blob-slow [animation-delay:-6s]" />
         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent,var(--background))]" />
       </div>
 
       <div className="mx-auto max-w-3xl text-center">
         <p className="hero-eyebrow mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-line bg-white/60 px-4 py-1.5 text-[13px] text-muted backdrop-blur">
-          <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+          <span className="h-1.5 w-1.5 rounded-full bg-ink" />
           La plateforme de vente automobile nouvelle génération
         </p>
 
@@ -214,7 +214,7 @@ export default function Hero() {
                       key={item}
                       className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${
                         i === 0
-                          ? "bg-accent/10 font-medium text-accent"
+                          ? "bg-ink/[0.06] font-medium text-ink"
                           : "text-muted"
                       }`}
                     >
@@ -248,7 +248,7 @@ export default function Hero() {
                     <span className="text-sm font-medium text-ink">
                       Ventes — 30 derniers jours
                     </span>
-                    <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-600">
+                    <span className="rounded-full bg-beige-light px-2 py-0.5 text-xs font-medium text-ink">
                       +18,2 %
                     </span>
                   </div>
@@ -257,7 +257,7 @@ export default function Hero() {
                       (h, i) => (
                         <div
                           key={i}
-                          className="flex-1 rounded-t bg-gradient-to-t from-accent/30 to-accent"
+                          className="flex-1 rounded-t bg-gradient-to-t from-beige-dark to-ink"
                           style={{ height: `${h}%` }}
                         />
                       )

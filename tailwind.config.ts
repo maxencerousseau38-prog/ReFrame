@@ -8,17 +8,27 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Warm near-black — primary text & primary actions.
         ink: {
-          DEFAULT: "#0a0a0b",
-          soft: "#1c1c20",
+          DEFAULT: "#16140f",
+          soft: "#2b2823",
         },
-        paper: "#fbfbfd",
-        muted: "#71717a",
-        line: "rgba(10, 10, 15, 0.08)",
+        // Warm off-white page background.
+        paper: "#f5f3ee",
+        // Warm gray for secondary text.
+        muted: "#6f6b62",
+        line: "rgba(22, 20, 15, 0.10)",
+        // Beige grisé (greige) — the warm neutral that carries the brand.
+        beige: {
+          light: "#ece9e1",
+          DEFAULT: "#ddd7c9",
+          dark: "#c4bdab",
+        },
+        // "accent" stays as a token name but resolves to ink, so the palette
+        // remains strictly noir / blanc / beige grisé.
         accent: {
-          DEFAULT: "#4f46e5",
-          soft: "#6366f1",
-          cyan: "#06b6d4",
+          DEFAULT: "#16140f",
+          soft: "#3a362e",
         },
       },
       fontFamily: {

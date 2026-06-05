@@ -127,7 +127,7 @@ export default function DashboardPreview() {
     >
       <div className="mx-auto max-w-6xl">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="mb-3 text-sm font-medium uppercase tracking-wider text-accent">
+          <p className="mb-3 text-sm font-medium uppercase tracking-wider text-muted">
             Tableau de bord
           </p>
           <h2 className="text-balance text-3xl font-semibold tracking-tightest text-ink sm:text-4xl">
@@ -155,8 +155,8 @@ export default function DashboardPreview() {
                 {formatValue(k.target, k)}
               </div>
               <div
-                className={`mt-2 inline-flex items-center gap-1 text-xs font-medium ${
-                  k.positive ? "text-emerald-600" : "text-rose-500"
+                className={`mt-2 inline-flex items-center gap-1 rounded-full bg-beige-light px-2 py-0.5 text-xs font-medium ${
+                  k.positive ? "text-ink/75" : "text-ink/40"
                 }`}
               >
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
@@ -185,7 +185,7 @@ export default function DashboardPreview() {
                 </div>
                 <div className="text-xs text-muted">12 derniers mois</div>
               </div>
-              <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-600">
+              <span className="rounded-full bg-beige-light px-2.5 py-1 text-xs font-medium text-ink">
                 +24,6 %
               </span>
             </div>
@@ -197,8 +197,8 @@ export default function DashboardPreview() {
             >
               <defs>
                 <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#4f46e5" stopOpacity="0.22" />
-                  <stop offset="100%" stopColor="#4f46e5" stopOpacity="0" />
+                  <stop offset="0%" stopColor="#16140f" stopOpacity="0.16" />
+                  <stop offset="100%" stopColor="#16140f" stopOpacity="0" />
                 </linearGradient>
               </defs>
               {/* gridlines */}
@@ -221,7 +221,7 @@ export default function DashboardPreview() {
               <path
                 className="chart-line"
                 d="M0,175 C50,165 80,150 120,150 C170,150 190,120 240,122 C300,124 320,95 380,100 C430,104 460,70 510,60 C550,52 575,45 600,38"
-                stroke="#4f46e5"
+                stroke="#16140f"
                 strokeWidth="2.5"
                 strokeLinecap="round"
               />
@@ -253,7 +253,7 @@ export default function DashboardPreview() {
                     width={barW}
                     height={barH}
                     rx="5"
-                    fill={i === BARS.length - 1 ? "#4f46e5" : "#c7d2fe"}
+                    fill={i === BARS.length - 1 ? "#16140f" : "#ddd7c9"}
                     style={{ transformBox: "fill-box" }}
                   />
                 );
