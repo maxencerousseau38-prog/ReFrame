@@ -123,7 +123,7 @@ export default function DashboardPreview() {
     <section
       id="produit"
       ref={root}
-      className="relative px-6 py-24 md:py-32"
+      className="relative scroll-mt-20 px-6 py-24 md:py-32"
     >
       <div className="mx-auto max-w-6xl">
         <div className="mx-auto max-w-2xl text-center">

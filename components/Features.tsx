@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
+import UpsellButton from "@/components/UpsellButton";
 
 type Feature = {
   id: string;
@@ -185,7 +186,11 @@ export default function Features() {
   );
 
   return (
-    <section id="features" ref={root} className="relative px-6 py-24 md:py-32">
+    <section
+      id="features"
+      ref={root}
+      className="relative scroll-mt-20 px-6 py-24 md:py-32"
+    >
       <div className="mx-auto max-w-6xl">
         <div className="mx-auto max-w-2xl text-center">
           <p className="mb-3 text-sm font-medium uppercase tracking-wider text-muted">
@@ -246,6 +251,16 @@ export default function Features() {
                 </div>
               )}
 
+              {f.id === "crm" && (
+                <div className="mt-5">
+                  <UpsellButton
+                    label="Créer mes prospects en automatique"
+                    plan="Pro"
+                    icon="mail"
+                  />
+                </div>
+              )}
+
               {/* Narrative visual — AI compose teaser */}
               {f.id === "ia" && (
                 <div className="mt-6 rounded-xl bg-paper p-4">
@@ -261,10 +276,37 @@ export default function Features() {
                     <div className="ai-line h-2 w-[85%] rounded-full bg-beige" />
                     <div className="ai-line h-2 w-[40%] rounded-full bg-ink" />
                   </div>
+                  <div className="mt-4">
+                    <UpsellButton
+                      label="Automatiser mes emails"
+                      plan="Pro"
+                      icon="bolt"
+                    />
+                  </div>
                 </div>
               )}
             </article>
           ))}
+        </div>
+
+        {/* Premium capability teasers — "traps to subscribe" */}
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+          <span className="text-sm text-muted">Passez à la vitesse supérieure :</span>
+          <UpsellButton
+            label="Automatisation des emails"
+            plan="Pro"
+            icon="mail"
+          />
+          <UpsellButton
+            label="Relances SMS & WhatsApp"
+            plan="Business"
+            icon="chat"
+          />
+          <UpsellButton
+            label="IA de priorisation des prospects"
+            plan="Pro"
+            icon="target"
+          />
         </div>
       </div>
     </section>

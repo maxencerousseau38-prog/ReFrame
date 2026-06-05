@@ -142,7 +142,7 @@ export default function Hero() {
 
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <a
-            href="#"
+            href="#pricing"
             className="hero-cta group inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 font-medium text-paper transition-transform duration-200 hover:scale-[1.03] active:scale-95"
           >
             Démarrer gratuitement
@@ -177,7 +177,7 @@ export default function Hero() {
         </div>
 
         <p className="hero-proof mt-6 text-sm text-muted">
-          Sans carte bancaire · Déjà adopté par 400+ garages et concessions
+          7 jours gratuits · Sans carte bancaire · Déjà adopté par 400+ garages
         </p>
       </div>
 

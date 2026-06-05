@@ -113,7 +113,7 @@ export default function Navbar() {
             Connexion
           </a>
           <a
-            href="#"
+            href="#pricing"
             className="rounded-full bg-ink px-4 py-2 font-medium text-paper transition-transform duration-200 hover:scale-[1.03] active:scale-95"
           >
             Démarrer gratuitement

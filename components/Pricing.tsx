@@ -246,7 +246,11 @@ export default function Pricing() {
   };
 
   return (
-    <section id="pricing" ref={root} className="relative px-6 py-24 md:py-32">
+    <section
+      id="pricing"
+      ref={root}
+      className="relative scroll-mt-20 px-6 py-24 md:py-32"
+    >
       <div className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="mx-auto max-w-2xl text-center">
@@ -257,8 +261,8 @@ export default function Pricing() {
             Un plan pour chaque étape de votre croissance
           </h2>
           <p className="mt-4 text-pretty text-lg text-muted">
-            Commencez simplement, automatisez quand vous êtes prêt. Sans
-            engagement, changez de plan à tout moment.
+            Commencez simplement, automatisez quand vous êtes prêt.
+            7 jours gratuits à l’inscription, sans engagement.
           </p>
         </div>
 
@@ -377,6 +381,13 @@ export default function Pricing() {
                 >
                   {plan.cta}
                 </a>
+                <p
+                  className={`mt-2 text-center text-xs ${
+                    featured ? "text-paper/50" : "text-muted"
+                  }`}
+                >
+                  7 jours gratuits à l’inscription
+                </p>
 
                 {/* Features */}
                 <div
@@ -418,8 +429,8 @@ export default function Pricing() {
         {/* Reassurance + compare toggle */}
         <div className="mt-10 flex flex-col items-center gap-4">
           <p className="text-sm text-muted">
-            14 jours d&apos;essai · Sans carte bancaire · Changez de plan à tout
-            moment
+            7 jours gratuits après inscription · Sans carte bancaire · Sans
+            engagement
           </p>
           <button
             onClick={() => setShowCompare((v) => !v)}
