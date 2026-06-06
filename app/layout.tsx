@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
@@ -12,6 +12,18 @@ export const metadata: Metadata = {
   title: "DriveOS — Pilotez toutes vos ventes automobiles",
   description:
     "DriveOS centralise vos prospects, votre stock, vos rendez-vous et vos analyses. La plateforme moderne pour garages, concessions et mandataires.",
+  applicationName: "DriveOS",
+  appleWebApp: {
+    capable: true,
+    title: "DriveOS",
+    statusBarStyle: "default",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#f5f3ee",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
