@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Casselin 3D — Le matériel de cuisine professionnelle en immersion</title>
+  <meta name="description" content="Découvrez le matériel de cuisine professionnelle Casselin comme jamais : friteuses, planchas, vitrines réfrigérées, lave-verres et lignes modulaires explorables en 3D temps réel." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' font-weight='bold' fill='%23ff5722'>C</text></svg>" />
+</head>
+<body>
+
+  <!-- Loader -->
+  <div id="loader">
+    <div class="loader-inner">
+      <div class="loader-mark">CASSELIN</div>
+      <div class="loader-bar"><span></span></div>
+      <div class="loader-sub">Chargement de l'atelier 3D</div>
+    </div>
+  </div>
+
+  <div id="progress"></div>
+
+  <!-- Nav -->
+  <nav id="nav">
+    <a href="#hero" class="brand">CASSE<b>LIN</b></a>
+    <div id="nav-links">
+      <a href="#univers">Univers</a>
+      <a href="#categories">Catégories</a>
+      <a href="#produits">Produits</a>
+      <a href="#savoir-faire">Savoir-faire</a>
+      <a href="#contact" class="nav-cta">Demander un devis</a>
+    </div>
+    <button id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </nav>
+
+  <!-- Hero -->
+  <header id="hero">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-overlay">
+      <span class="hero-kicker"><i></i> Matériel de cuisine professionnelle</span>
+      <h1>La cuisine pro,<br /><em>en trois dimensions.</em></h1>
+      <p>
+        Friteuses, planchas, vitrines réfrigérées, trancheuses, lignes modulaires…
+        Faites tourner chaque appareil, inspectez-le sous toutes ses coutures et
+        composez la cuisine de vos rêves — directement dans votre navigateur.
+      </p>
+      <div class="hero-actions">
+        <a href="#categories" class="btn btn-primary">Explorer le catalogue</a>
+        <a href="#savoir-faire" class="btn btn-ghost">Notre savoir-faire</a>
+      </div>
+    </div>
+    <div class="hero-scroll">Défiler <span></span></div>
+  </header>
+
+  <!-- Univers / stats -->
+  <section id="univers">
+    <div class="section-head reveal">
+      <span class="section-tag">Notre univers</span>
+      <h2>Équiper les professionnels qui font la différence.</h2>
+      <p>
+        Du food-truck au restaurant étoilé, du coin snack à la grande brigade,
+        Casselin conçoit du matériel robuste, prêt à l'emploi et taillé pour le rush.
+        Voici notre univers en quelques chiffres.
+      </p>
+    </div>
+    <div class="stats">
+      <div class="stat reveal"><b data-count="9" data-suffix="">0</b><span>Familles de produits</span></div>
+      <div class="stat reveal" style="--delay:80ms"><b data-count="1200" data-suffix="+">0</b><span>Références au catalogue</span></div>
+      <div class="stat reveal" style="--delay:160ms"><b data-count="48" data-suffix="h">0</b><span>Expédition express</span></div>
+      <div class="stat reveal" style="--delay:240ms"><b data-count="2" data-suffix=" ans">0</b><span>Garantie pièces & main d'œuvre</span></div>
+    </div>
+  </section>
+
+  <!-- Catégories -->
+  <section id="categories">
+    <div class="section-head reveal">
+      <span class="section-tag">Le catalogue</span>
+      <h2>Neuf familles, une exigence : la performance.</h2>
+      <p>Cliquez sur « Explorer en 3D » pour faire pivoter chaque type d'appareil dans notre visionneuse temps réel.</p>
+    </div>
+    <div id="category-grid"></div>
+  </section>
+
+  <!-- Produits vedettes -->
+  <section id="produits">
+    <div class="section-head reveal">
+      <span class="section-tag">Sélection</span>
+      <h2>Les pièces maîtresses de votre cuisine.</h2>
+      <p>Une sélection de produits phares, avec fiches techniques et modèle 3D manipulable.</p>
+    </div>
+    <div id="product-grid"></div>
+  </section>
+
+  <!-- Savoir-faire / feature -->
+  <section id="savoir-faire">
+    <div class="feature">
+      <div class="feature-text reveal">
+        <span class="section-tag">Savoir-faire</span>
+        <h2>Pensé pour durer. Conçu pour le service.</h2>
+        <p style="color:var(--muted); margin-top:16px;">
+          Chaque appareil est éprouvé dans des conditions réelles de cuisine professionnelle.
+          Acier inoxydable, composants endurants et ergonomie au service de votre brigade.
+        </p>
+        <div class="feature-list">
+          <div class="feature-item"><i>◆</i><div><h4>Inox qualité alimentaire</h4><p>Châssis et plans de travail en acier inoxydable AISI 304, faciles à nettoyer et conformes HACCP.</p></div></div>
+          <div class="feature-item"><i>⚡</i><div><h4>Montée en température éclair</h4><p>Des résistances haute densité pour être opérationnel dès l'ouverture du service.</p></div></div>
+          <div class="feature-item"><i>♻</i><div><h4>Consommation maîtrisée</h4><p>Isolation renforcée et électronique intelligente pour réduire la facture énergétique.</p></div></div>
+          <div class="feature-item"><i>🛠</i><div><h4>SAV & pièces détachées</h4><p>Un réseau de revendeurs et un stock de pièces pour ne jamais interrompre votre activité.</p></div></div>
+        </div>
+      </div>
+      <div class="feature-visual reveal" style="--delay:120ms"><b>304L</b></div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section id="contact">
+    <div class="cta-band reveal">
+      <h2>Composons ensemble votre cuisine idéale.</h2>
+      <p>Recevez un devis personnalisé sous 48 h et profitez des conseils de nos experts en équipement professionnel.</p>
+      <a href="mailto:contact@casselin-3d.demo" class="btn btn-primary">Demander un devis gratuit</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <div class="brand">CASSE<b>LIN</b> · 3D</div>
+        <p>Le matériel de cuisine professionnelle, réinventé en expérience immersive. Une démonstration technique inspirée de l'univers Casselin.</p>
+        <div class="socials">
+          <a href="#" aria-label="LinkedIn">in</a>
+          <a href="#" aria-label="Instagram">◎</a>
+          <a href="#" aria-label="YouTube">▶</a>
+          <a href="#" aria-label="Facebook">f</a>
+        </div>
+      </div>
+      <div>
+        <h5>Catalogue</h5>
+        <a href="#categories">Snack & Cuisson</a>
+        <a href="#categories">Préparation</a>
+        <a href="#categories">Froid</a>
+        <a href="#categories">Laverie</a>
+      </div>
+      <div>
+        <h5>Société</h5>
+        <a href="#univers">Notre univers</a>
+        <a href="#savoir-faire">Savoir-faire</a>
+        <a href="#produits">Nouveautés</a>
+        <a href="#contact">Revendeurs</a>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <a href="#contact">Demander un devis</a>
+        <a href="#contact">Service après-vente</a>
+        <a href="#contact">Documentation</a>
+        <a href="#contact">Nous écrire</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Casselin 3D — Démonstration technique. Non affilié officiellement.</span>
+      <span>Conçu avec Three.js · WebGL temps réel</span>
+    </div>
+  </footer>
+
+  <!-- Modal 3D viewer -->
+  <div id="modal">
+    <div class="modal-box">
+      <button id="modal-close" aria-label="Fermer">×</button>
+      <div class="viewer-wrap">
+        <canvas id="viewer-canvas"></canvas>
+        <div class="viewer-hint">Glissez pour pivoter · molette pour zoomer</div>
+      </div>
+      <div class="modal-info">
+        <span class="badge">Modèle 3D interactif</span>
+        <h2 id="modal-title">Produit</h2>
+        <p id="modal-desc"></p>
+        <div id="modal-specs"></div>
+        <a href="#contact" class="btn btn-primary modal-cta" onclick="document.getElementById('modal').classList.remove('open');document.body.style.overflow='';">Demander un devis</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Three.js via import map -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./assets/vendor/three/three.module.js",
+      "three/addons/": "./assets/vendor/three/addons/"
+    }
+  }
+  </script>
+  <script type="module" src="assets/js/app.js"></script>
+</body>
+</html>
