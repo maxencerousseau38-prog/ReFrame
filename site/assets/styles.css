@@ -213,10 +213,19 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.035em; line-height: 1.05; }
 .car-card__price strong { font-size: 22px; font-weight: 700; }
 .car-card__price span { font-size: 13px; color: var(--grey-500); }
 
-/* Car-themed media backgrounds (placeholders, swap for real photos) */
-.media--gts { background: linear-gradient(135deg, #1c1f26 0%, #3a4a63 55%, #7da7d9 100%); }
-.media--alpine { background: linear-gradient(135deg, #06203f 0%, #0a4da2 60%, #2f8fff 100%); }
-.media--revuelto { background: linear-gradient(135deg, #2a1003 0%, #7a3b00 50%, #ffae34 100%); }
+/* Car-themed media backgrounds — provisional photos (Wikimedia / Unsplash) */
+.media--gts {
+  background: linear-gradient(to top, rgba(0, 0, 0, .45), rgba(0, 0, 0, 0) 55%), url("img/911-1.jpg") center/cover no-repeat;
+  background-color: #1c1f26;
+}
+.media--alpine {
+  background: linear-gradient(to top, rgba(0, 0, 0, .45), rgba(0, 0, 0, 0) 55%), url("img/alpine-1.jpg") center/cover no-repeat;
+  background-color: #06203f;
+}
+.media--revuelto {
+  background: linear-gradient(to top, rgba(0, 0, 0, .45), rgba(0, 0, 0, 0) 55%), url("img/revuelto-1.jpg") center/cover no-repeat;
+  background-color: #2a1003;
+}
 .car-silhouette { position: absolute; right: -4%; bottom: 8%; width: 78%; opacity: .9; }
 
 /* ---------- Features / tout compris ---------- */

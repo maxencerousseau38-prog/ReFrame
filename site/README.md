@@ -27,10 +27,30 @@ python3 -m http.server 8000
 # http://localhost:8000
 ```
 
+## Tarifs (alignés sur drive-turismo.fr)
+
+- **Abonnement One** : 4 780 € d'activation, puis 249 €/mois (accès aux 6 catégories, switch illimité).
+- **Abonnement Plus** : 1 980 € d'activation, puis 175 €/mois (catégories 1–2, switch 4×/an).
+- **Abonnement Single** : 750 € d'activation, mensualité selon options (engagement 12/24 mois).
+- **Forfait** : 2 000 km/mois inclus (jusqu'à 4 000 km en Single) — **+0,5 €/km** au-delà.
+- **Livraison à domicile** : 1,5 €/km.
+
+Les configurateurs par véhicule appliquent ces règles (forfait 2 000 km de base, +0,5 €/km au-delà). Les mensualités de base par modèle sont indicatives — les tarifs exacts par catégorie ne sont pas publics sur le site officiel (chargés après sélection du pays).
+
 ## Personnalisation
 
-- **Visuels** : les véhicules utilisent des dégradés + silhouettes SVG comme placeholders. Pour intégrer de vraies photos, remplacez les `<div class="...__media media--*">` par des `<img>` (ou ajustez les classes `.media--gts`, `.media--alpine`, `.media--revuelto` dans `styles.css`).
+- **Visuels** : photos provisoires dans `assets/img/`. Pour les remplacer, déposez vos fichiers sous les mêmes noms (`911-1.jpg`, `alpine-1.jpg`, `revuelto-1.jpg`, etc.) ou ajustez les classes `.media--gts`, `.media--alpine`, `.media--revuelto` dans `styles.css`.
 - **Tarifs / specs** : modifiables directement dans le HTML. Le configurateur lit le prix de base via l'attribut `data-base` et les écarts via `data-delta` sur chaque option.
 - **Couleurs / police** : variables CSS dans `:root` (`assets/styles.css`).
 
-> Les tarifs et caractéristiques sont indicatifs et destinés à la démonstration.
+## Crédits photos (provisoires)
+
+| Modèle | Source | Licence |
+| --- | --- | --- |
+| Porsche 911 (992) | Wikimedia Commons | CC BY-SA |
+| Porsche 911 / Panamera (galerie) | Unsplash | Licence Unsplash |
+| Alpine A110 S | Wikimedia Commons | CC BY-SA |
+| Lamborghini Revuelto | Wikimedia Commons | CC BY-SA |
+| Lamborghini (galerie) | Unsplash | Licence Unsplash |
+
+> Photos à usage provisoire (démonstration). Remplacez-les par vos propres visuels avant toute mise en production. Tarifs et caractéristiques indicatifs.
