@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Turismo — Abonnement automobile premium, tout compris</title>
+  <meta name="description" content="Premium car subscription. Choisissez votre véhicule d'exception — assurance, taxes, entretien, pneus et assistance 24/24 inclus. 911 Carrera GTS, Alpine A110, Lamborghini Revuelto." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <header class="nav">
+    <div class="container nav__inner">
+      <a href="index.html" class="brand">Turismo<span>.</span></a>
+      <nav class="nav__links">
+        <a href="#flotte">La flotte</a>
+        <a href="#inclus">Tout compris</a>
+        <a href="#abonnements">Abonnements</a>
+        <a href="#fonctionnement">Fonctionnement</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <div class="nav__cta">
+        <a href="#flotte" class="btn btn--primary btn--sm">Accéder à la flotte</a>
+      </div>
+      <button class="nav__toggle" aria-label="Menu"><i class="bi bi-list"></i></button>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero__glow"></div>
+    <div class="container">
+      <div class="hero__inner">
+        <p class="eyebrow">Premium car subscription</p>
+        <h1 class="h-display">L'exception<br />automobile,<br /><span class="accent">tout compris.</span></h1>
+        <p class="lead">Accédez à des loyers tout compris à partir d'un mois. Assurance, taxes, entretien, pneus été/hiver et assistance 24/24 inclus. Changez de modèle quand vous voulez, mettez en pause à tout moment.</p>
+        <div class="hero__cta">
+          <a href="#flotte" class="btn btn--primary">Découvrir la flotte</a>
+          <a href="#abonnements" class="btn btn--ghost">Voir les abonnements</a>
+        </div>
+        <div class="hero__stats">
+          <div class="hero__stat"><strong>3</strong><span>modèles d'exception</span></div>
+          <div class="hero__stat"><strong>24/24</strong><span>assistance incluse</span></div>
+          <div class="hero__stat"><strong>0</strong><span>frais cachés</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FLEET -->
+  <section class="section" id="flotte">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">La flotte</p>
+        <h2 class="h-1">Choisissez le véhicule<br />qui vous correspond.</h2>
+        <p class="lead">Sportive d'exception, pépite française ou hypercar hybride : conduisez ce dont vous avez envie, en abonnement tout compris.</p>
+      </div>
+
+      <div class="fleet">
+
+        <!-- 911 GTS -->
+        <article class="car-card" data-reveal>
+          <a href="porsche-911-carrera-gts.html" class="car-card__media media--gts">
+            <span class="badge">Sportive · Cat. 5</span>
+          </a>
+          <div class="car-card__body">
+            <h3>Porsche 911 Carrera GTS</h3>
+            <p class="car-card__sub">992.2 T-Hybrid · Flat-6 biturbo</p>
+            <div class="car-card__specs">
+              <div><strong>541</strong><span>ch</span></div>
+              <div><strong>3,0 s</strong><span>0–100 km/h</span></div>
+              <div><strong>312</strong><span>km/h</span></div>
+            </div>
+            <div class="car-card__foot">
+              <div class="car-card__price"><strong>2 290 €</strong><span> /mois · tout compris</span></div>
+              <a href="porsche-911-carrera-gts.html" class="link-arrow">Configurer <i class="bi bi-arrow-right"></i></a>
+            </div>
+          </div>
+        </article>
+
+        <!-- ALPINE A110 -->
+        <article class="car-card" data-reveal>
+          <a href="alpine-a110.html" class="car-card__media media--alpine">
+            <span class="badge">Sportive · Cat. 3</span>
+          </a>
+          <div class="car-card__body">
+            <h3>Alpine A110 GTS</h3>
+            <p class="car-card__sub">Châssis allégé · 1,8 L turbo</p>
+            <div class="car-card__specs">
+              <div><strong>300</strong><span>ch</span></div>
+              <div><strong>4,2 s</strong><span>0–100 km/h</span></div>
+              <div><strong>275</strong><span>km/h</span></div>
+            </div>
+            <div class="car-card__foot">
+              <div class="car-card__price"><strong>1 290 €</strong><span> /mois · tout compris</span></div>
+              <a href="alpine-a110.html" class="link-arrow">Configurer <i class="bi bi-arrow-right"></i></a>
+            </div>
+          </div>
+        </article>
+
+        <!-- LAMBORGHINI REVUELTO -->
+        <article class="car-card" data-reveal>
+          <a href="lamborghini-revuelto.html" class="car-card__media media--revuelto">
+            <span class="badge">Hypercar · Cat. 6</span>
+          </a>
+          <div class="car-card__body">
+            <h3>Lamborghini Revuelto</h3>
+            <p class="car-card__sub">V12 + hybride rechargeable</p>
+            <div class="car-card__specs">
+              <div><strong>1015</strong><span>ch</span></div>
+              <div><strong>2,5 s</strong><span>0–100 km/h</span></div>
+              <div><strong>&gt;350</strong><span>km/h</span></div>
+            </div>
+            <div class="car-card__foot">
+              <div class="car-card__price"><strong>6 900 €</strong><span> /mois · tout compris</span></div>
+              <a href="lamborghini-revuelto.html" class="link-arrow">Configurer <i class="bi bi-arrow-right"></i></a>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- INCLUDED / TOUT COMPRIS -->
+  <section class="section section--dark" id="inclus">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <p class="eyebrow">Tout compris</p>
+        <h2 class="h-1">Un seul loyer.<br />Zéro mauvaise surprise.</h2>
+        <p class="lead mx-auto">Avec les abonnements Turismo, tout est inclus dans votre mensualité. Vous n'avez plus qu'à conduire.</p>
+      </div>
+
+      <div class="features">
+        <div class="feature" data-reveal>
+          <div class="feature__icon"><i class="bi bi-shield-check"></i></div>
+          <h3>Assurance omnium</h3>
+          <p>Couverture tous risques incluse, conducteur principal et secondaire du même foyer.</p>
+        </div>
+        <div class="feature" data-reveal>
+          <div class="feature__icon"><i class="bi bi-tools"></i></div>
+          <h3>Entretien constructeur</h3>
+          <p>Entretiens, réparations mécaniques et révisions. Tous les coûts sont couverts.</p>
+        </div>
+        <div class="feature" data-reveal>
+          <div class="feature__icon"><i class="bi bi-snow"></i></div>
+          <h3>Pneus été &amp; hiver</h3>
+          <p>Jeux de pneus saisonniers fournis et montés, pour rouler en toute sécurité.</p>
+        </div>
+        <div class="feature" data-reveal>
+          <div class="feature__icon"><i class="bi bi-receipt"></i></div>
+          <h3>Taxes &amp; roulage</h3>
+          <p>Taxes de mise en circulation et de roulage prises en charge, sans frais additionnels.</p>
+        </div>
+        <div class="feature" data-reveal>
+          <div class="feature__icon"><i class="bi bi-headset"></i></div>
+          <h3>Assistance 24/24</h3>
+          <p>En cas de panne, notre assistance reste joignable 24 h/24 et 7 j/7, partout en Europe.</p>
+        </div>
+        <div class="feature" data-reveal>
+          <div class="feature__icon"><i class="bi bi-truck"></i></div>
+          <h3>Livraison à domicile</h3>
+          <p>Recevez votre véhicule chez vous et changez de modèle quand vous le souhaitez.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INCLUDED CHIPS STRIP -->
+  <section class="section--tight section--grey">
+    <div class="container">
+      <div class="included">
+        <span class="chip"><i class="bi bi-check-circle-fill"></i> Loyer</span>
+        <span class="chip"><i class="bi bi-check-circle-fill"></i> Assurance</span>
+        <span class="chip"><i class="bi bi-check-circle-fill"></i> Entretien</span>
+        <span class="chip"><i class="bi bi-check-circle-fill"></i> Pneus été/hiver</span>
+        <span class="chip"><i class="bi bi-check-circle-fill"></i> Taxes de roulage</span>
+        <span class="chip"><i class="bi bi-check-circle-fill"></i> Assistance 24/24</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLANS -->
+  <section class="section" id="abonnements">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <p class="eyebrow">Les abonnements</p>
+        <h2 class="h-1">Une formule pour chaque conducteur.</h2>
+        <p class="lead mx-auto">Choisissez une voiture, une durée et un forfait kilométrique. Le reste, c'est nous.</p>
+      </div>
+
+      <div class="plans">
+        <div class="plan" data-reveal>
+          <span class="plan__tag">Single</span>
+          <h3>Turismo Single</h3>
+          <div class="plan__price">750 €<span> activation</span></div>
+          <p class="plan__note">Puis une mensualité selon le véhicule et les options. Engagement 12 ou 24 mois.</p>
+          <ul>
+            <li><i class="bi bi-check-lg"></i> Le véhicule de votre choix, toutes catégories</li>
+            <li><i class="bi bi-check-lg"></i> Jusqu'à 4 000 km/mois inclus</li>
+            <li><i class="bi bi-check-lg"></i> Tout compris : assurance, entretien, taxes</li>
+            <li><i class="bi bi-check-lg"></i> 2 conducteurs inclus</li>
+          </ul>
+          <a href="#flotte" class="btn btn--ghost">Choisir un véhicule</a>
+        </div>
+
+        <div class="plan plan--featured" data-reveal>
+          <span class="plan__tag">Le plus populaire</span>
+          <h3>Turismo One</h3>
+          <div class="plan__price">249 €<span> /mois</span></div>
+          <p class="plan__note">Frais d'activation uniques de 4 780 €. Switch de véhicule illimité.</p>
+          <ul>
+            <li><i class="bi bi-check-lg"></i> Accès aux <strong>6 catégories</strong> de véhicules</li>
+            <li><i class="bi bi-check-lg"></i> Changez de modèle <strong>en illimité</strong></li>
+            <li><i class="bi bi-check-lg"></i> Mise en pause à tout moment</li>
+            <li><i class="bi bi-check-lg"></i> Tout compris + assistance 24/24</li>
+          </ul>
+          <a href="#flotte" class="btn btn--primary">Souscrire One</a>
+        </div>
+
+        <div class="plan" data-reveal>
+          <span class="plan__tag">Plus</span>
+          <h3>Turismo Plus</h3>
+          <div class="plan__price">175 €<span> /mois</span></div>
+          <p class="plan__note">Frais d'activation uniques de 1 980 €. Switch jusqu'à 4 fois par an.</p>
+          <ul>
+            <li><i class="bi bi-check-lg"></i> Accès aux catégories <strong>01</strong> et <strong>02</strong></li>
+            <li><i class="bi bi-check-lg"></i> Changez de modèle <strong>4 fois par an</strong></li>
+            <li><i class="bi bi-check-lg"></i> Mise en pause à tout moment</li>
+            <li><i class="bi bi-check-lg"></i> Tout compris + assistance 24/24</li>
+          </ul>
+          <a href="#flotte" class="btn btn--ghost">Souscrire Plus</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section section--dark" id="fonctionnement">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Comment ça marche</p>
+        <h2 class="h-1">Sur la route en 4 étapes.</h2>
+      </div>
+      <div class="steps">
+        <div class="step" data-reveal>
+          <div class="step__num">1</div>
+          <h3>Choisissez votre véhicule</h3>
+          <p>Parcourez la flotte et sélectionnez le modèle qui vous fait envie.</p>
+        </div>
+        <div class="step" data-reveal>
+          <div class="step__num">2</div>
+          <h3>Configurez l'abonnement</h3>
+          <p>Sélectionnez une durée et un forfait kilométrique adaptés à vos besoins.</p>
+        </div>
+        <div class="step" data-reveal>
+          <div class="step__num">3</div>
+          <h3>Validez en ligne</h3>
+          <p>Confirmez vos informations et recevez votre contrat tout compris.</p>
+        </div>
+        <div class="step" data-reveal>
+          <div class="step__num">4</div>
+          <h3>Recevez &amp; roulez</h3>
+          <p>Livraison à domicile disponible. Il ne reste plus qu'à prendre la route.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" id="faq">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <p class="eyebrow">FAQ</p>
+        <h2 class="h-1">Vos questions, nos réponses.</h2>
+      </div>
+      <div class="faq">
+        <div class="faq__item">
+          <button class="faq__q">Combien de km/mois sont inclus dans l'abonnement ? <span class="icon"><i class="bi bi-plus"></i></span></button>
+          <div class="faq__a"><p>La base de consommation kilométrique autorisée est de 2 000 km/mois et va jusqu'à 4 000 km/mois pour les abonnements Single. Chaque kilomètre supplémentaire est facturé selon la catégorie et le véhicule choisi.</p></div>
+        </div>
+        <div class="faq__item">
+          <button class="faq__q">Combien de fois puis-je switcher de véhicule ? <span class="icon"><i class="bi bi-plus"></i></span></button>
+          <div class="faq__a"><p>Avec l'abonnement Plus, vous pouvez switcher de véhicule 4 fois par an. Avec l'abonnement One, vous pouvez changer de modèle de manière illimitée.</p></div>
+        </div>
+        <div class="faq__item">
+          <button class="faq__q">Combien de conducteurs sont inclus dans mon abonnement ? <span class="icon"><i class="bi bi-plus"></i></span></button>
+          <div class="faq__a"><p>Avec les abonnements Turismo, 2 conducteurs du même foyer ou associés professionnels sont inclus dans la mensualité.</p></div>
+        </div>
+        <div class="faq__item">
+          <button class="faq__q">Comment fonctionne la livraison à domicile ? <span class="icon"><i class="bi bi-plus"></i></span></button>
+          <div class="faq__a"><p>La livraison de votre véhicule à domicile est disponible avec l'abonnement, moyennant un tarif de 1,5 € HTVA/km entre Turismo et le lieu de livraison.</p></div>
+        </div>
+        <div class="faq__item">
+          <button class="faq__q">Le service Turismo est-il disponible dans ma région ? <span class="icon"><i class="bi bi-plus"></i></span></button>
+          <div class="faq__a"><p>Le service Turismo est disponible au Luxembourg, en Belgique et en France. Si vous résidez dans l'une de ces régions, vous pouvez profiter de notre service d'abonnement.</p></div>
+        </div>
+        <div class="faq__item">
+          <button class="faq__q">Quelles sont les conditions d'éligibilité ? <span class="icon"><i class="bi bi-plus"></i></span></button>
+          <div class="faq__a"><p>Pour être éligible, vous devez être âgé d'au moins 23 ans et disposer d'un permis de conduire depuis au moins 5 ans.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER -->
+  <section class="section section--grey">
+    <div class="container cta-band">
+      <h2 class="h-2">Abonnez-vous à notre newsletter</h2>
+      <p class="lead mx-auto">Suivez les actualités de Turismo et du monde automobile.</p>
+      <form class="newsletter">
+        <input type="email" placeholder="Adresse e-mail" required />
+        <button class="btn btn--primary" type="submit">S'inscrire</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div>
+          <div class="brand">Turismo<span style="color:var(--blue)">.</span></div>
+          <p>Premium car subscription. Réservez facilement un véhicule d'exception, tout compris, et profitez d'une mobilité premium en Europe.</p>
+        </div>
+        <div>
+          <h4>La flotte</h4>
+          <ul>
+            <li><a href="porsche-911-carrera-gts.html">911 Carrera GTS</a></li>
+            <li><a href="alpine-a110.html">Alpine A110</a></li>
+            <li><a href="lamborghini-revuelto.html">Lamborghini Revuelto</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Abonnements</h4>
+          <ul>
+            <li><a href="#abonnements">Turismo Single</a></li>
+            <li><a href="#abonnements">Turismo One</a></li>
+            <li><a href="#abonnements">Turismo Plus</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Turismo</h4>
+          <ul>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a href="#inclus">Tout compris</a></li>
+            <li><a href="#">Conditions générales</a></li>
+            <li><a href="#">Politique de confidentialité</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 Turismo. Disponible en France, Belgique, Luxembourg &amp; Suisse.</span>
+        <span>Bruxelles, Belgique</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/main.js"></script>
+</body>
+</html>
