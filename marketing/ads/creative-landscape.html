@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root { --ink:#16140f; --paper:#f5f3ee; --muted:#6f6b62; --beige-light:#ece9e1; --beige:#ddd7c9; --beige-dark:#c4bdab; --line:rgba(22,20,15,.10); }
+  * { margin:0; box-sizing:border-box; }
+  html, body { width:1200px; height:628px; }
+  body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:var(--paper); color:var(--ink); -webkit-font-smoothing:antialiased; }
+  .ad { position:relative; width:1200px; height:628px; padding:60px; display:flex; align-items:center; gap:48px; overflow:hidden; }
+  .halo { position:absolute; border-radius:999px; filter:blur(60px); pointer-events:none; }
+  .h1 { top:-200px; left:-120px; width:600px; height:600px; background:radial-gradient(closest-side, rgba(196,189,171,.5), transparent); }
+  .h2 { right:-160px; bottom:-200px; width:560px; height:560px; background:radial-gradient(closest-side, rgba(160,150,130,.38), transparent); }
+  .left { flex:1; z-index:2; }
+  .logo { display:flex; align-items:center; gap:13px; font-weight:600; font-size:26px; letter-spacing:-.03em; }
+  .mark { width:42px; height:42px; border-radius:11px; background:var(--ink); color:var(--paper); display:grid; place-items:center; }
+  h1 { margin-top:26px; font-size:60px; line-height:1.02; letter-spacing:-.04em; font-weight:600; }
+  .grad { background:linear-gradient(100deg,#16140f 0%,#5c554a 55%,#9a9082 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub { margin-top:18px; font-size:23px; line-height:1.4; color:var(--muted); max-width:520px; }
+  .cta { margin-top:30px; display:inline-flex; align-items:center; gap:11px; background:var(--ink); color:var(--paper); font-weight:500; font-size:22px; padding:18px 30px; border-radius:999px; }
+  .reassure { margin-top:14px; font-size:17px; color:var(--muted); }
+
+  .card { width:430px; flex:none; border-radius:20px; background:#fff; border:1px solid var(--line); box-shadow:0 30px 70px -28px rgba(10,10,40,.30); padding:26px; z-index:2; }
+  .head { display:flex; align-items:center; gap:10px; padding-bottom:16px; border-bottom:1px solid var(--line); font-size:18px; font-weight:500; }
+  .spark { color:var(--ink); }
+  .tag { margin-left:auto; font-size:14px; color:var(--muted); background:var(--beige-light); padding:4px 10px; border-radius:999px; }
+  .prompt { display:inline-block; margin:18px 0 14px; font-size:16px; color:var(--muted); background:var(--paper); padding:10px 14px; border-radius:10px; }
+  .line { height:14px; border-radius:999px; background:var(--beige); margin-bottom:12px; }
+  .line.ink { background:var(--ink); }
+</style>
+</head>
+<body>
+  <div class="ad">
+    <div class="halo h1"></div>
+    <div class="halo h2"></div>
+
+    <div class="left">
+      <div class="logo"><span class="mark"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 13.5 5 7h14l2 6.5M5.5 17.5h.01M18.5 17.5h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 13.5h18v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span> DriveOS</div>
+      <h1>Une IA qui<br><span class="grad">vend avec vous.</span></h1>
+      <p class="sub">Relances, résumés clients, annonces : l'IA rédige, vous validez. Plus de ventes, moins d'oublis.</p>
+      <span class="cta">Essayer gratuitement →</span>
+      <div class="reassure">7 jours gratuits · sans carte bancaire</div>
+    </div>
+
+    <div class="card">
+      <div class="head"><span class="spark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M5 12H1M23 12h-4M6.3 6.3 4 4M20 20l-2.3-2.3M17.7 6.3 20 4M4 20l2.3-2.3"/></svg></span> Assistant DriveOS <span class="tag">Génération</span></div>
+      <span class="prompt">« Rédige une relance pour M. Dupont »</span>
+      <div class="line" style="width:96%"></div>
+      <div class="line" style="width:88%"></div>
+      <div class="line" style="width:92%"></div>
+      <div class="line" style="width:70%"></div>
+      <div class="line ink" style="width:40%"></div>
+    </div>
+  </div>
+</body>
+</html>
