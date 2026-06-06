@@ -64,7 +64,7 @@ export default function Footer() {
           </p>
           <div className="relative mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <a
-              href="#pricing"
+              href="/login"
               className="inline-flex items-center gap-2 rounded-full bg-paper px-6 py-3 font-medium text-ink transition-transform duration-200 hover:scale-[1.03] active:scale-95"
             >
               Démarrer gratuitement

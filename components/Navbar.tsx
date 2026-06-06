@@ -157,13 +157,13 @@ export default function Navbar() {
           {/* Desktop actions */}
           <div className="nav-stagger hidden items-center gap-3 text-sm md:flex">
             <a
-              href="#"
+              href="/login"
               className="text-muted transition-colors hover:text-ink"
             >
               Connexion
             </a>
             <a
-              href="#pricing"
+              href="/login"
               className="rounded-full bg-ink px-4 py-2 font-medium text-paper transition-transform duration-200 hover:scale-[1.03] active:scale-95"
             >
               Démarrer gratuitement
@@ -224,14 +224,14 @@ export default function Navbar() {
 
         <div className="mobile-item mt-auto flex flex-col gap-3 pb-10">
           <a
-            href="#"
+            href="/login"
             onClick={() => setOpen(false)}
             className="rounded-full border border-line py-3.5 text-center font-medium text-ink"
           >
             Connexion
           </a>
           <a
-            href="#pricing"
+            href="/login"
             onClick={() => setOpen(false)}
             className="rounded-full bg-ink py-3.5 text-center font-medium text-paper"
           >
