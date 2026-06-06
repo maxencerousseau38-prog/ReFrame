@@ -28,6 +28,9 @@ export default function Footer() {
         gsap.from(".footer-reveal", {
           autoAlpha: 0,
           y: 24,
+          rotateX: -12,
+          transformOrigin: "center top",
+          transformPerspective: 1000,
           duration: 0.8,
           stagger: 0.08,
           ease: "power3.out",

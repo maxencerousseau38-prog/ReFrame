@@ -7,6 +7,7 @@ export default function Hero() {
   const root = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const visualRef = useRef<HTMLDivElement>(null);
+  const depthRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
@@ -65,9 +66,13 @@ export default function Hero() {
             "-=1.1"
           );
 
-        // Subtle scroll parallax + depth on the product window.
-        gsap.to(visualRef.current, {
-          yPercent: -8,
+        // Scroll-driven 3D depth: the product window lays back into the scene
+        // as you scroll past the hero (Stripe/Arc-style). Kept on its own
+        // wrapper so it never fights the pointer tilt below.
+        gsap.to(depthRef.current, {
+          rotateX: 16,
+          scale: 0.93,
+          yPercent: -6,
           ease: "none",
           scrollTrigger: {
             trigger: root.current,
@@ -187,13 +192,18 @@ export default function Hero() {
         style={{ transformStyle: "preserve-3d" }}
       >
         <div
-          ref={visualRef}
-          className="glass-panel relative rounded-2xl p-2.5 will-change-transform"
-          style={{
-            transform: "translateY(40px) scale(0.96) rotateX(8deg)",
-            transformStyle: "preserve-3d",
-          }}
+          ref={depthRef}
+          className="will-change-transform"
+          style={{ transformStyle: "preserve-3d", transformOrigin: "center top" }}
         >
+          <div
+            ref={visualRef}
+            className="glass-panel relative rounded-2xl p-2.5 will-change-transform"
+            style={{
+              transform: "translateY(40px) scale(0.96) rotateX(8deg)",
+              transformStyle: "preserve-3d",
+            }}
+          >
           <div className="overflow-hidden rounded-xl bg-white">
             {/* Window chrome */}
             <div className="flex items-center gap-2 border-b border-line px-4 py-3">
@@ -266,6 +276,7 @@ export default function Hero() {
                 </div>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </div>

@@ -134,16 +134,23 @@ export default function Features() {
     () => {
       const mm = gsap.matchMedia();
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        gsap.set(".feat-card", { autoAlpha: 0, y: 28 });
+        gsap.set(".feat-card", {
+          autoAlpha: 0,
+          y: 28,
+          rotateX: -12,
+          transformOrigin: "center top",
+          transformPerspective: 1000,
+        });
 
         const tl = gsap.timeline({
           scrollTrigger: { trigger: root.current, start: "top 72%", once: true },
         });
 
-        // Intelligent stagger across the bento grid.
+        // Intelligent stagger across the bento grid (with a subtle 3D tilt).
         tl.to(".feat-card", {
           autoAlpha: 1,
           y: 0,
+          rotateX: 0,
           duration: 0.7,
           stagger: 0.08,
           ease: "power3.out",

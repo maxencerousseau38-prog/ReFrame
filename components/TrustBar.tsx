@@ -38,6 +38,9 @@ export default function TrustBar() {
         tl.from(".trust-col", {
           autoAlpha: 0,
           y: 16,
+          rotateX: -16,
+          transformOrigin: "center top",
+          transformPerspective: 800,
           duration: 0.7,
           stagger: 0.1,
         });

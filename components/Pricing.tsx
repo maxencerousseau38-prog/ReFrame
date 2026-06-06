@@ -164,10 +164,17 @@ export default function Pricing() {
     () => {
       const mm = gsap.matchMedia();
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        gsap.set(".price-card", { autoAlpha: 0, y: 28 });
+        gsap.set(".price-card", {
+          autoAlpha: 0,
+          y: 28,
+          rotateX: -12,
+          transformOrigin: "center top",
+          transformPerspective: 1000,
+        });
         gsap.to(".price-card", {
           autoAlpha: 1,
           y: 0,
+          rotateX: 0,
           duration: 0.8,
           stagger: 0.12,
           ease: "power3.out",

@@ -26,6 +26,9 @@ export default function CRMPreview() {
         gsap.from(".crm-reveal", {
           autoAlpha: 0,
           y: 24,
+          rotateX: -14,
+          transformOrigin: "center top",
+          transformPerspective: 1000,
           duration: 0.8,
           stagger: 0.1,
           ease: "power3.out",

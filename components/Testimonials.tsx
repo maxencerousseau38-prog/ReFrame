@@ -46,6 +46,9 @@ export default function Testimonials() {
         gsap.from(".quote-card", {
           autoAlpha: 0,
           y: 24,
+          rotateX: -16,
+          transformOrigin: "center top",
+          transformPerspective: 900,
           duration: 0.8,
           stagger: 0.12,
           ease: "power3.out",

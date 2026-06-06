@@ -45,7 +45,13 @@ export default function DashboardPreview() {
         const bars = gsap.utils.toArray<SVGRectElement>(".chart-bar");
 
         // Initial hidden states (inside no-preference branch only).
-        gsap.set(cards, { autoAlpha: 0, y: 28 });
+        gsap.set(cards, {
+          autoAlpha: 0,
+          y: 28,
+          rotateX: -12,
+          transformOrigin: "center top",
+          transformPerspective: 1000,
+        });
         counters.forEach((el) => {
           const k = JSON.parse(el.dataset.kpi!) as Kpi;
           el.textContent = formatValue(0, k);
@@ -60,10 +66,11 @@ export default function DashboardPreview() {
           },
         });
 
-        // 1) Cards reveal with an intelligent stagger.
+        // 1) Cards reveal with an intelligent stagger + subtle 3D tilt.
         tl.to(cards, {
           autoAlpha: 1,
           y: 0,
+          rotateX: 0,
           duration: 0.8,
           stagger: 0.1,
         });

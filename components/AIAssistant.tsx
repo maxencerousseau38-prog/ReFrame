@@ -18,6 +18,7 @@ const EMAIL =
 export default function AIAssistant() {
   const root = useRef<HTMLDivElement>(null);
   const out = useRef<HTMLParagraphElement>(null);
+  const mock = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
@@ -27,6 +28,9 @@ export default function AIAssistant() {
         gsap.from(".ai-reveal", {
           autoAlpha: 0,
           y: 24,
+          rotateX: -14,
+          transformOrigin: "center top",
+          transformPerspective: 1000,
           duration: 0.8,
           stagger: 0.1,
           ease: "power3.out",
@@ -53,7 +57,27 @@ export default function AIAssistant() {
           ease: "sine.inOut",
         });
 
+        // Pointer-driven 3D tilt on the generation panel.
+        const setRY = gsap.quickTo(mock.current, "rotateY", {
+          duration: 0.6,
+          ease: "power3.out",
+        });
+        const setRX = gsap.quickTo(mock.current, "rotateX", {
+          duration: 0.6,
+          ease: "power3.out",
+        });
+        const onMove = (e: PointerEvent) => {
+          const r = mock.current!.getBoundingClientRect();
+          const px = (e.clientX - r.left) / r.width - 0.5;
+          const py = (e.clientY - r.top) / r.height - 0.5;
+          setRY(gsap.utils.clamp(-7, 7, px * 14));
+          setRX(gsap.utils.clamp(-6, 6, -py * 12));
+        };
+        const panel = mock.current!;
+        panel.addEventListener("pointermove", onMove);
+
         return () => {
+          panel.removeEventListener("pointermove", onMove);
           ScrollTrigger.getAll().forEach((s) => {
             if (s.trigger === root.current) s.kill();
           });
@@ -114,8 +138,12 @@ export default function AIAssistant() {
         </div>
 
         {/* Right — generation mock */}
-        <div className="ai-reveal">
-          <div className="glass-panel rounded-2xl p-2">
+        <div className="ai-reveal [perspective:1400px]">
+          <div
+            ref={mock}
+            className="glass-panel rounded-2xl p-2 will-change-transform"
+            style={{ transformStyle: "preserve-3d" }}
+          >
             <div className="rounded-xl bg-white p-5">
               <div className="mb-4 flex items-center gap-2 border-b border-line pb-3">
                 <span className="ai-spark text-ink">

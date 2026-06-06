@@ -39,6 +39,9 @@ export default function Inventory() {
         gsap.from(".veh-card", {
           autoAlpha: 0,
           y: 28,
+          rotateX: -16,
+          transformOrigin: "center top",
+          transformPerspective: 900,
           duration: 0.7,
           stagger: 0.1,
           ease: "power3.out",

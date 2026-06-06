@@ -31,6 +31,9 @@ export default function HowItWorks() {
         gsap.from(".step-card", {
           autoAlpha: 0,
           y: 28,
+          rotateX: -16,
+          transformOrigin: "center top",
+          transformPerspective: 900,
           duration: 0.8,
           stagger: 0.15,
           ease: "power3.out",
