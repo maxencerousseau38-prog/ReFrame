@@ -104,7 +104,7 @@ export default function CRMPreview() {
                   >
                     <div className="text-sm font-medium text-ink">{c.name}</div>
                     <div className="mt-0.5 text-xs text-muted">{c.car}</div>
-                    <div className="mt-2 text-xs font-semibold text-ink">
+                    <div className="mt-2 whitespace-nowrap text-xs font-semibold text-ink">
                       {c.value}
                     </div>
                   </article>
