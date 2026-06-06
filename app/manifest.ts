@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "DriveOS — Gestion des ventes automobiles",
     short_name: "DriveOS",
     description:
-      "Centralisez vos prospects, votre stock, vos rendez-vous et vos analyses. La plateforme moderne pour les pros de l'automobile.",
+      "Centralisez vos prospects, votre stock, vos rendez-vous et vos analyses. Le logiciel moderne pensé pour les garagistes.",
     start_url: "/",
     display: "standalone",
     background_color: "#f5f3ee",

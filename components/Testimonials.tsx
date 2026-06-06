@@ -14,13 +14,13 @@ const QUOTES = [
     quote:
       "L’import automatique des emails dans le CRM m’a fait gagner près de 5 heures par semaine. Bluffant.",
     name: "Sophie L.",
-    role: "Concession · Bordeaux",
+    role: "Garage · Bordeaux",
   },
   {
     quote:
       "Les relances automatiques ont réveillé des clients que j’avais oubliés. +12 % de ventes en trois mois.",
     name: "Marc D.",
-    role: "Mandataire · Lille",
+    role: "Garage automobile · Lille",
   },
 ];
 

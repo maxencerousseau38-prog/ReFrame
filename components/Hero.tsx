@@ -128,7 +128,7 @@ export default function Hero() {
       <div className="mx-auto max-w-3xl text-center">
         <p className="hero-eyebrow mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-line bg-white/60 px-4 py-1.5 text-[13px] text-muted backdrop-blur">
           <span className="h-1.5 w-1.5 rounded-full bg-ink" />
-          La plateforme de vente automobile nouvelle génération
+          Le logiciel des garagistes nouvelle génération
         </p>
 
         <h1
@@ -141,8 +141,8 @@ export default function Hero() {
 
         <p className="hero-sub mx-auto mt-6 max-w-xl text-pretty text-lg leading-relaxed text-muted">
           DriveOS centralise vos prospects, votre stock, vos rendez-vous et vos
-          analyses. Conçu pour les garages, concessions et mandataires qui
-          veulent vendre plus, plus vite.
+          analyses. Conçu pour les garagistes qui veulent vendre plus de
+          véhicules, plus vite.
         </p>
 
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -182,7 +182,7 @@ export default function Hero() {
         </div>
 
         <p className="hero-proof mt-6 text-sm text-muted">
-          7 jours gratuits · Sans carte bancaire · Déjà adopté par 400+ garages
+          7 jours gratuits · Sans carte bancaire · Déjà adopté par 400+ garagistes
         </p>
       </div>
 

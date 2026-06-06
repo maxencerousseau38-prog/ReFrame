@@ -208,8 +208,8 @@ export default function Features() {
           </h2>
           <p className="mt-4 text-pretty text-lg text-muted">
             Fini Excel, WhatsApp et les notes papier. DriveOS réunit toute votre
-            activité commerciale dans une seule plateforme pensée pour
-            l’automobile.
+            activité commerciale dans une seule plateforme pensée pour les
+            garagistes.
           </p>
         </div>
 

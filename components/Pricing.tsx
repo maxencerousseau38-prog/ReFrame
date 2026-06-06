@@ -21,7 +21,7 @@ const PLANS: Plan[] = [
   {
     id: "starter",
     name: "Starter",
-    target: "Pour le vendeur indépendant qui démarre",
+    target: "Pour le garagiste qui démarre",
     promise: "Ne perdez plus un seul client.",
     monthly: 29,
     annual: 23,
@@ -63,7 +63,7 @@ const PLANS: Plan[] = [
   {
     id: "business",
     name: "Business",
-    target: "Pour les équipes qui veulent automatiser leur cycle de vente",
+    target: "Pour les garages qui veulent tout automatiser",
     promise: "Vendez en pilote automatique.",
     monthly: 149,
     annual: 119,
@@ -526,7 +526,7 @@ export default function Pricing() {
 
         {/* Enterprise line */}
         <p className="mt-10 text-center text-sm text-muted">
-          Vous gérez un groupe ou un réseau de concessions ?{" "}
+          Vous gérez plusieurs garages ou un atelier multi-sites ?{" "}
           <a href="#" className="font-medium text-ink underline-offset-4 hover:underline">
             Parlons de votre projet
           </a>

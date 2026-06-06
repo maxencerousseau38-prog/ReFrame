@@ -59,7 +59,7 @@ export default function Footer() {
             Prêt à vendre plus, plus vite ?
           </h2>
           <p className="relative mx-auto mt-4 max-w-md text-pretty text-paper/70">
-            Rejoignez les 400+ professionnels qui pilotent leurs ventes avec
+            Rejoignez les 400+ garagistes qui pilotent leurs ventes avec
             DriveOS. 7 jours gratuits, sans carte bancaire.
           </p>
           <div className="relative mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -91,8 +91,8 @@ export default function Footer() {
               DriveOS
             </div>
             <p className="mt-4 max-w-xs text-sm text-muted">
-              La plateforme de gestion commerciale pensée pour les
-              professionnels de la vente automobile.
+              Le logiciel de gestion commerciale pensé pour les garagistes
+              qui vendent des véhicules.
             </p>
           </div>
 
@@ -117,7 +117,7 @@ export default function Footer() {
 
         <div className="footer-reveal mt-12 flex flex-col items-center justify-between gap-4 border-t border-line pt-8 text-sm text-muted sm:flex-row">
           <span>© {new Date().getFullYear()} DriveOS. Tous droits réservés.</span>
-          <span>Conçu pour les pros de l’automobile · Hébergé en Europe</span>
+          <span>Conçu pour les garagistes · Hébergé en Europe</span>
         </div>
       </div>
     </footer>

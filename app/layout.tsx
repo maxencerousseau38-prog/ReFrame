@@ -11,7 +11,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "DriveOS — Pilotez toutes vos ventes automobiles",
   description:
-    "DriveOS centralise vos prospects, votre stock, vos rendez-vous et vos analyses. La plateforme moderne pour garages, concessions et mandataires.",
+    "DriveOS centralise vos prospects, votre stock, vos rendez-vous et vos analyses. Le logiciel moderne pensé pour les garagistes.",
   applicationName: "DriveOS",
   appleWebApp: {
     capable: true,

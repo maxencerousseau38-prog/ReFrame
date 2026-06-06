@@ -6,7 +6,7 @@ import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
 type Stat = { value: number; decimals?: number; prefix?: string; suffix?: string; label: string };
 
 const STATS: Stat[] = [
-  { value: 400, suffix: "+", label: "Professionnels équipés" },
+  { value: 400, suffix: "+", label: "Garagistes équipés" },
   { value: 12000, label: "Véhicules gérés" },
   { value: 38000, label: "Relances automatisées" },
   { value: 4.9, decimals: 1, suffix: "/5", label: "Satisfaction client" },
