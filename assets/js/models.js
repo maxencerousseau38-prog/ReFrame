@@ -70,7 +70,7 @@ function addFeet(group, w, d, y, h = 0.18, r = 0.05) {
 // ============================================================
 //  FRITEUSE
 // ============================================================
-export function fryer(accent = "#ff5722") {
+export function fryer(accent = "#e11d1d") {
   const g = new THREE.Group();
   const body = box(1.6, 1.1, 1.1, steel(), 0, 0.55, 0);
   g.add(body);
@@ -99,7 +99,7 @@ export function fryer(accent = "#ff5722") {
 // ============================================================
 //  PLANCHA / GRILL
 // ============================================================
-export function griddle(accent = "#ff5722") {
+export function griddle(accent = "#e11d1d") {
   const g = new THREE.Group();
   g.add(box(1.8, 0.45, 1.1, steel(), 0, 0.5, 0));
   // plaque acier
@@ -302,7 +302,7 @@ export function family(accent = "#e91e63") {
   // résistance (rougeoyante)
   g.add(
     box(1.1, 0.04, 0.6, new THREE.MeshStandardMaterial({
-      color: 0xff5722, emissive: 0xff5722, emissiveIntensity: 1.2,
+      color: 0xe11d1d, emissive: 0xe11d1d, emissiveIntensity: 1.2,
     }), 0, 0.89, 0)
   );
   // molette

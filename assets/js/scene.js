@@ -17,7 +17,7 @@ function makeEnv(renderer) {
   return env;
 }
 
-function studioLights(scene, accent = 0xff5722) {
+function studioLights(scene, accent = 0xe11d1d) {
   const key = new THREE.DirectionalLight(0xffffff, 2.2);
   key.position.set(4, 6, 5);
   key.castShadow = true;
@@ -77,15 +77,15 @@ export class HeroScene {
     this.scene.add(floor);
 
     // appareil vedette
-    this.hero = buildModel("range", "#ff5722");
+    this.hero = buildModel("range", "#e11d1d");
     this.hero.position.y = 0.2;
     this.scene.add(this.hero);
 
     // satellites en orbite
     this.satellites = [];
     const sats = [
-      ["fryer", "#ff5722"], ["slicer", "#00bcd4"], ["fridge", "#03a9f4"],
-      ["dishwasher", "#4caf50"], ["buffet", "#ffc107"], ["griddle", "#ff7043"],
+      ["fryer", "#e11d1d"], ["slicer", "#00bcd4"], ["fridge", "#03a9f4"],
+      ["dishwasher", "#4caf50"], ["buffet", "#ffc107"], ["griddle", "#ff4d4d"],
     ];
     sats.forEach(([m, c], i) => {
       const grp = buildModel(m, c);
@@ -108,7 +108,7 @@ export class HeroScene {
     pg.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     this.particles = new THREE.Points(
       pg,
-      new THREE.PointsMaterial({ color: 0xff8a50, size: 0.04, transparent: true, opacity: 0.55 })
+      new THREE.PointsMaterial({ color: 0xff4d4d, size: 0.04, transparent: true, opacity: 0.55 })
     );
     this.scene.add(this.particles);
 

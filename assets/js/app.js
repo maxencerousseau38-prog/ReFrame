@@ -38,7 +38,7 @@ function buildProducts() {
   const grid = document.getElementById("product-grid");
   PRODUCTS.forEach((p, i) => {
     const cat = CATEGORIES.find((c) => c.id === p.category);
-    const accent = cat ? cat.color : "#ff5722";
+    const accent = cat ? cat.color : "#e11d1d";
     const card = document.createElement("article");
     card.className = "prod-card reveal";
     card.style.setProperty("--accent", accent);
@@ -157,7 +157,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (prodBtn) {
       const p = PRODUCTS.find((x) => x.id === prodBtn.dataset.product);
       const cat = CATEGORIES.find((c) => c.id === p.category);
-      openModal(p.model, cat ? cat.color : "#ff5722", p.name, p.description, p.specs);
+      openModal(p.model, cat ? cat.color : "#e11d1d", p.name, p.description, p.specs);
     }
   });
 

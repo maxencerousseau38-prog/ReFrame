@@ -9,7 +9,7 @@ export const CATEGORIES = [
     id: "snack",
     name: "Snack & Cuisson",
     tagline: "La puissance du feu, maîtrisée.",
-    color: "#ff5722",
+    color: "#e11d1d",
     model: "fryer",
     description:
       "Friteuses, planchas, grills et plaques snacking. Une ligne pensée pour le rush du service, montée en température éclair et nettoyage sans effort.",
