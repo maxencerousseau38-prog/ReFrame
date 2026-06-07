@@ -14,8 +14,16 @@ Site vitrine statique reprenant le design et la configuration de [drive-turismo.
 | `porsche-911-carrera-gts.html` | Fiche détaillée + configurateur d'abonnement |
 | `alpine-a110.html` | Fiche détaillée + configurateur d'abonnement |
 | `lamborghini-revuelto.html` | Fiche détaillée + configurateur d'abonnement |
-| `assets/styles.css` | Design system (style Apple/premium, police Inter, accent `#007aff`) |
-| `assets/main.js` | Nav mobile, accordéon FAQ, configurateur de prix, animations |
+| `assets/styles.css` | Design system v2 (style Turismo, police Inter, accent `#0a6bff`) |
+| `assets/main.js` | Menu mobile, **filtres de catégories**, **favoris** (cœur, localStorage), accordéon FAQ, configurateur de prix, animations au scroll |
+| `assets/icons/` | Police d'icônes Bootstrap Icons **auto-hébergée** (aucune dépendance CDN) |
+
+## Design (repris de drive-turismo.fr)
+
+- **Header à deux niveaux** : barre utilitaire + barre de catégories à icônes (filtrante).
+- **Hero** « Votre voiture d'exception, en quelques clics » : texte à gauche + collage de photos incliné à droite.
+- **Cartes véhicules** style catalogue Turismo : photo, badge de disponibilité, cœur favori, micro-icônes de specs, pastilles de couleurs, prix « à partir de X €/mois ».
+- Sections sombres « tout compris » / « fonctionnement », pages détaillées cinématiques.
 
 ## Aperçu
 

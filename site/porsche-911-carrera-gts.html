@@ -8,31 +8,44 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+  <link rel="stylesheet" href="assets/icons/bootstrap-icons.css" />
   <link rel="stylesheet" href="assets/styles.css" />
 </head>
 <body>
 
-  <header class="nav">
-    <div class="container nav__inner">
-      <a href="index.html" class="brand">Turismo<span>.</span></a>
-      <nav class="nav__links">
+  <header class="topbar">
+    <div class="container topbar__row">
+      <a href="index.html" class="brand">TURISMO<span>.</span></a>
+      <nav class="topbar__nav">
         <a href="index.html#flotte">La flotte</a>
         <a href="#perf">Performances</a>
         <a href="#config">Configurer</a>
         <a href="index.html#inclus">Tout compris</a>
         <a href="index.html#faq">FAQ</a>
       </nav>
-      <div class="nav__cta">
+      <div class="topbar__right">
+        <a href="tel:+3220000000" class="topbar__phone"><i class="bi bi-headset"></i> <span>Contacter un conseiller</span></a>
         <a href="#config" class="btn btn--primary btn--sm">Configurer</a>
+        <button class="icon-btn topbar__toggle" aria-label="Menu"><i class="bi bi-list"></i></button>
       </div>
-      <button class="nav__toggle" aria-label="Menu"><i class="bi bi-list"></i></button>
     </div>
   </header>
+  <div class="filterbar">
+    <div class="container">
+      <div class="filterbar__track">
+        <a class="filt" href="index.html#flotte"><i class="bi bi-grid"></i> Tout</a>
+        <a class="filt active" href="index.html#flotte"><i class="bi bi-speedometer2"></i> Sportive</a>
+        <a class="filt" href="index.html#flotte"><i class="bi bi-stars"></i> GT</a>
+        <a class="filt" href="index.html#flotte"><i class="bi bi-lightning-charge"></i> Hypercar</a>
+        <a class="filt" href="index.html#flotte"><i class="bi bi-ev-station"></i> Électrifié</a>
+        <a class="filt" href="index.html#flotte"><i class="bi bi-arrow-right-circle"></i> Propulsion</a>
+      </div>
+    </div>
+  </div>
 
   <!-- DETAIL HERO -->
   <section class="detail-hero">
-    <div class="detail-hero__bg media--gts"></div>
+    <div class="detail-hero__bg bg-911"></div>
     <div class="container detail-hero__inner">
       <div class="badge-row">
         <span class="chip" style="background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#fff;"><i class="bi bi-stars" style="color:#fff"></i> Catégorie 5 · Sportive</span>
@@ -189,25 +202,35 @@
     <div class="container">
       <div class="section-head"><p class="eyebrow">Aussi dans la flotte</p><h2 class="h-2">Comparez nos véhicules.</h2></div>
       <div class="related">
-        <article class="car-card">
-          <a href="alpine-a110.html" class="car-card__media media--alpine"><span class="badge">Cat. 3</span></a>
+        <article class="car-card" data-reveal>
+          <a href="alpine-a110.html" class="car-card__media"><span class="badge"><i class="bi bi-circle-fill"></i> Disponible</span><div class="car-card__photo" style="background-image:url('assets/img/alpine-1.jpg')"></div></a>
           <div class="car-card__body">
             <h3>Alpine A110 GTS</h3>
-            <p class="car-card__sub">300 ch · 1 102 kg</p>
+            <p class="car-card__sub">Châssis allégé · Catégorie 3</p>
+            <div class="car-card__specs">
+              <span class="spec-pill"><i class="bi bi-lightning-charge"></i> 300 ch</span>
+              <span class="spec-pill"><i class="bi bi-speedometer"></i> 4,2 s</span>
+              <span class="spec-pill"><i class="bi bi-feather"></i> 1 102 kg</span>
+            </div>
             <div class="car-card__foot">
-              <div class="car-card__price"><strong>1 290 €</strong><span> /mois</span></div>
-              <a href="alpine-a110.html" class="link-arrow">Configurer <i class="bi bi-arrow-right"></i></a>
+              <div class="car-card__price"><small>À partir de</small><strong>1 290 €<span>/mois</span></strong></div>
+              <a href="alpine-a110.html" class="car-card__cta" aria-label="Configurer"><i class="bi bi-arrow-right"></i></a>
             </div>
           </div>
         </article>
-        <article class="car-card">
-          <a href="lamborghini-revuelto.html" class="car-card__media media--revuelto"><span class="badge">Cat. 6</span></a>
+        <article class="car-card" data-reveal>
+          <a href="lamborghini-revuelto.html" class="car-card__media"><span class="badge"><i class="bi bi-circle-fill"></i> Sur demande</span><div class="car-card__photo" style="background-image:url('assets/img/revuelto-1.jpg')"></div></a>
           <div class="car-card__body">
             <h3>Lamborghini Revuelto</h3>
-            <p class="car-card__sub">1015 ch · V12 hybride</p>
+            <p class="car-card__sub">V12 hybride · Catégorie 6</p>
+            <div class="car-card__specs">
+              <span class="spec-pill"><i class="bi bi-lightning-charge"></i> 1015 ch</span>
+              <span class="spec-pill"><i class="bi bi-speedometer"></i> 2,5 s</span>
+              <span class="spec-pill"><i class="bi bi-bezier2"></i> e-AWD</span>
+            </div>
             <div class="car-card__foot">
-              <div class="car-card__price"><strong>6 900 €</strong><span> /mois</span></div>
-              <a href="lamborghini-revuelto.html" class="link-arrow">Configurer <i class="bi bi-arrow-right"></i></a>
+              <div class="car-card__price"><small>À partir de</small><strong>6 900 €<span>/mois</span></strong></div>
+              <a href="lamborghini-revuelto.html" class="car-card__cta" aria-label="Configurer"><i class="bi bi-arrow-right"></i></a>
             </div>
           </div>
         </article>
