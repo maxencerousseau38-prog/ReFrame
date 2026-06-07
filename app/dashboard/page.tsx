@@ -39,7 +39,7 @@ export default function DashboardPage() {
           <div>
             <p className="eyebrow">Lundi · Marché ouvert</p>
             <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-              Bonjour Maxence 👋
+              Bonjour Maxence
             </h1>
             <p className="mt-1 text-sm text-mist-400">
               Voici l'état de votre univers d'investissement aujourd'hui.
@@ -126,7 +126,9 @@ export default function DashboardPage() {
                     className="flex items-center justify-between rounded-lg px-2 py-1.5 transition-colors hover:bg-white/[0.04]"
                   >
                     <div className="flex items-center gap-2.5">
-                      <span className="text-lg text-accent-soft">{c.logo}</span>
+                      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-white/[0.04] text-2xs font-semibold tracking-wide text-accent-soft">
+                        {c.logo}
+                      </span>
                       <span className="text-xs font-medium text-white">{c.name}</span>
                     </div>
                     <span className="num text-xs text-mist-300">{c.multiple}x rev.</span>

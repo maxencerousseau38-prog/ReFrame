@@ -145,7 +145,8 @@ export function RevenueDonut({ data }: { data: RevenueSegment[] }) {
 }
 
 export function CompetitorChart({ data }: { data: Competitor[] }) {
-  const rows = data.map((c) => ({ ...c, name: c.isSelf ? `${c.name} ★` : c.name }));
+  // The "self" bar is distinguished by its accent color (see Cell fill below).
+  const rows = data;
   return (
     <ResponsiveContainer width="100%" height={Math.max(180, rows.length * 52)}>
       <BarChart data={rows} layout="vertical" margin={{ top: 0, right: 16, left: 0, bottom: 0 }} barCategoryGap={14}>

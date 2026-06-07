@@ -67,7 +67,9 @@ export default function WatchlistPage() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2.5">
-                        <span className="text-2xl text-accent-soft">{c.logo}</span>
+                        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-ink-700 to-ink-800 text-xs font-semibold tracking-wide text-accent-soft">
+                          {c.logo}
+                        </span>
                         <div className="min-w-0">
                           <Link href={`/company/${c.id}`} className="block truncate text-base font-semibold text-white hover:underline">
                             {c.name}

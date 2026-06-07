@@ -106,7 +106,7 @@ export function AnalyzeFlow({ initialQuery = "" }: { initialQuery?: string }) {
                     onClick={() => setName(c.name)}
                     className="flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.02] px-3 py-1.5 text-xs text-mist-200 transition-colors hover:border-accent/30 hover:text-white"
                   >
-                    <span className="text-accent-soft">{c.logo}</span>
+                    <span className="text-2xs font-semibold tracking-wide text-accent-soft">{c.logo}</span>
                     {c.name}
                   </button>
                 ))}
@@ -122,7 +122,7 @@ export function AnalyzeFlow({ initialQuery = "" }: { initialQuery?: string }) {
           >
             <div className="surface p-8">
               <div className="flex items-center gap-4">
-                <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-ink-700 to-ink-800 text-2xl text-accent-soft">
+                <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-ink-700 to-ink-800 text-lg font-semibold tracking-wide text-accent-soft">
                   {target.logo}
                 </div>
                 <div className="min-w-0">

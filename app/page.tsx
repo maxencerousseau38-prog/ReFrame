@@ -183,7 +183,7 @@ export default function LandingPage() {
       {/* ───────────────────────── Footer ───────────────────────── */}
       <footer className="relative border-t border-white/[0.06] py-10">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 sm:flex-row">
-          <Logo />
+          <Logo showTagline />
           <p className="text-2xs text-mist-400">
             © {new Date().getFullYear()} Valoryx. Intelligence d'investissement. Les analyses sont fournies à titre informatif.
           </p>
@@ -199,7 +199,7 @@ function HeroPreview() {
       <div className="rounded-[1.4rem] border border-white/[0.05] bg-ink-850/80 p-6 sm:p-8">
         <div className="flex flex-col items-center gap-8 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
-            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-ink-700 to-ink-800 text-3xl text-accent-soft">
+            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-ink-700 to-ink-800 text-xl font-semibold tracking-wide text-accent-soft">
               {hero.logo}
             </div>
             <div>

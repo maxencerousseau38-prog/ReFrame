@@ -19,7 +19,7 @@ export function CompanyCard({ company, rank }: { company: Company; rank?: number
           {rank}
         </span>
       )}
-      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-ink-700 to-ink-800 text-xl text-accent-soft">
+      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-ink-700 to-ink-800 text-sm font-semibold tracking-wide text-accent-soft">
         {company.logo}
       </div>
 

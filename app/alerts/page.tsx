@@ -62,7 +62,7 @@ export default function AlertsPage() {
                   </div>
                   <p className="mt-0.5 text-xs text-mist-300">{a.detail}</p>
                   <p className="mt-1 flex items-center gap-1.5 text-2xs text-mist-400">
-                    <span className="text-accent-soft">{co?.logo}</span>
+                    <span className="font-semibold tracking-wide text-accent-soft">{co?.logo}</span>
                     {co?.name}
                   </p>
                 </div>

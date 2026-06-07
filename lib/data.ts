@@ -17,7 +17,7 @@ const RAW: Omit<Company, "score" | "verdict">[] = [
   {
     id: "nimbus-energy",
     name: "Nimbus Energy",
-    logo: "◈",
+    logo: "NE",
     sector: "Climate Tech · Énergie",
     location: "Lyon, France",
     website: "nimbusenergy.io",
@@ -153,7 +153,7 @@ const RAW: Omit<Company, "score" | "verdict">[] = [
   {
     id: "atlas-health",
     name: "Atlas Health",
-    logo: "✚",
+    logo: "AH",
     sector: "HealthTech · SaaS",
     location: "Paris, France",
     website: "atlashealth.eu",
@@ -217,7 +217,7 @@ const RAW: Omit<Company, "score" | "verdict">[] = [
   {
     id: "quanta-labs",
     name: "Quanta Labs",
-    logo: "⬡",
+    logo: "QL",
     sector: "Deep Tech · IA",
     location: "Grenoble, France",
     website: "quanta-labs.ai",
@@ -280,7 +280,7 @@ const RAW: Omit<Company, "score" | "verdict">[] = [
   {
     id: "lumen-retail",
     name: "Lumen Retail",
-    logo: "▦",
+    logo: "LR",
     sector: "Retail Tech · E-commerce",
     location: "Bordeaux, France",
     website: "lumenretail.com",
@@ -342,7 +342,7 @@ const RAW: Omit<Company, "score" | "verdict">[] = [
   {
     id: "veridian-pay",
     name: "Veridian Pay",
-    logo: "◆",
+    logo: "VP",
     sector: "Fintech · Paiement",
     location: "Paris, France",
     website: "veridianpay.com",
@@ -406,7 +406,7 @@ const RAW: Omit<Company, "score" | "verdict">[] = [
   {
     id: "fieldforge",
     name: "FieldForge",
-    logo: "⬢",
+    logo: "FF",
     sector: "Industrial SaaS · Robotique",
     location: "Toulouse, France",
     website: "fieldforge.io",

@@ -71,7 +71,7 @@ export default function CompanyPage({ params }: { params: { id: string } }) {
           <div className="pointer-events-none absolute -right-10 -top-16 h-48 w-48 rounded-full bg-accent/10 blur-3xl" />
           <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-              <div className="grid h-20 w-20 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-ink-700 to-ink-800 text-4xl text-accent-soft shadow-card">
+              <div className="grid h-20 w-20 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-ink-700 to-ink-800 text-2xl font-semibold tracking-wide text-accent-soft shadow-card">
                 {company.logo}
               </div>
               <div>
@@ -326,8 +326,12 @@ function CompetitorTable({ company }: { company: (typeof COMPANIES)[number] }) {
           {company.competitors.map((c) => (
             <tr key={c.name} className={`border-t border-white/[0.05] ${c.isSelf ? "text-white" : "text-mist-300"}`}>
               <td className="py-2.5 font-medium">
-                {c.isSelf && <span className="mr-1 text-accent-soft">★</span>}
-                {c.name}
+                <span className="inline-flex items-center gap-1.5">
+                  {c.isSelf && (
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent shadow-glow" />
+                  )}
+                  {c.name}
+                </span>
               </td>
               <td className="num py-2.5 text-right text-bull">{pct(c.growth, true)}</td>
               <td className="num py-2.5 text-right">{eur(c.valuation)}</td>
