@@ -13,7 +13,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { COMPANIES, searchCompanies } from "@/lib/data";
-import { CRITERION_ORDER, CRITERION_META } from "@/lib/scoring";
+import { usePlan } from "@/components/app/PlanProvider";
 
 const STEPS = [
   "Récupération des données légales (SIREN · INPI)",
@@ -34,10 +34,13 @@ export function AnalyzeFlow({ initialQuery = "" }: { initialQuery?: string }) {
   const [phase, setPhase] = useState<"form" | "analyzing">("form");
   const [step, setStep] = useState(0);
   const resolvedId = useRef<string | null>(null);
+  const { consume, remaining, plan, mounted } = usePlan();
 
   const target = resolveTarget(name);
 
   const start = () => {
+    // Enforce the monthly quota — opens the paywall when exhausted.
+    if (!consume()) return;
     setPhase("analyzing");
     setStep(0);
     resolvedId.current = null;
@@ -109,7 +112,11 @@ export function AnalyzeFlow({ initialQuery = "" }: { initialQuery?: string }) {
                 Lancer l'analyse
               </button>
               <p className="text-center text-2xs text-mist-500">
-                Décompte 1 analyse de votre quota mensuel · Plan Pro : 100/mois
+                {mounted
+                  ? plan.quota === Infinity
+                    ? `Plan ${plan.label} · analyses illimitées`
+                    : `Plan ${plan.label} · ${remaining} analyse${remaining > 1 ? "s" : ""} restante${remaining > 1 ? "s" : ""} ce mois`
+                  : "Décompte 1 analyse de votre quota mensuel"}
               </p>
             </div>
 

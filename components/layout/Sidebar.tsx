@@ -14,6 +14,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
+import { usePlan } from "@/components/app/PlanProvider";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -57,7 +58,7 @@ export function Sidebar() {
       </div>
 
       <div className="mt-auto flex flex-col gap-3">
-        <UpgradeCard />
+        <QuotaMeter />
         <nav className="flex flex-col gap-0.5">
           <NavLink href="/pricing" label="Abonnement" icon={CreditCard} active={isActive("/pricing")} />
           <NavLink href="/settings" label="Paramètres" icon={Settings} active={isActive("/settings")} />
@@ -110,26 +111,55 @@ function NavLink({
   );
 }
 
-function UpgradeCard() {
+function QuotaMeter() {
+  const { plan, used, remaining, mounted, openPaywall } = usePlan();
+  const unlimited = plan.quota === Infinity;
+  const pctUsed = unlimited ? 0 : Math.min(100, (used / plan.quota) * 100);
+  const low = !unlimited && remaining <= 1;
+
   return (
-    <Link
-      href="/pricing"
-      className="group relative overflow-hidden rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/[0.12] to-transparent p-3.5"
-    >
+    <div className="relative overflow-hidden rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/[0.1] to-transparent p-3.5">
       <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-accent/20 blur-2xl" />
-      <p className="text-xs font-semibold text-white">Passez à Investor</p>
-      <p className="mt-1 text-2xs leading-relaxed text-mist-300">
-        Analyses illimitées, alertes IA et valorisations avancées.
-      </p>
-      <span className="mt-2.5 inline-flex items-center gap-1 text-2xs font-semibold text-accent-soft">
-        Découvrir
-        <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
-      </span>
-    </Link>
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-white">{plan.label}</p>
+        {!unlimited && (
+          <span className="num text-2xs text-mist-300">
+            {mounted ? `${used}/${plan.quota}` : "—"}
+          </span>
+        )}
+      </div>
+
+      {unlimited ? (
+        <p className="mt-1 text-2xs text-mist-300">Analyses illimitées</p>
+      ) : (
+        <>
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/[0.08]">
+            <div
+              className={cn("h-full rounded-full transition-all", low ? "bg-bear" : "bg-gradient-to-r from-accent-deep to-accent-soft")}
+              style={{ width: `${mounted ? pctUsed : 0}%` }}
+            />
+          </div>
+          <p className="mt-1.5 text-2xs text-mist-400">
+            {mounted ? (remaining > 0 ? `${remaining} analyse${remaining > 1 ? "s" : ""} restante${remaining > 1 ? "s" : ""}` : "Quota atteint") : " "}
+          </p>
+        </>
+      )}
+
+      {!unlimited && (
+        <button
+          onClick={() => openPaywall()}
+          className="group mt-2.5 inline-flex items-center gap-1 text-2xs font-semibold text-accent-soft"
+        >
+          Améliorer mon plan
+          <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+        </button>
+      )}
+    </div>
   );
 }
 
 function UserChip() {
+  const { plan } = usePlan();
   return (
     <div className="flex items-center gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.02] px-2.5 py-2">
       <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-mist-300 to-mist-500 text-2xs font-bold text-ink-900">
@@ -137,7 +167,7 @@ function UserChip() {
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate text-xs font-medium text-white">Maxence R.</p>
-        <p className="truncate text-2xs text-mist-400">Plan Pro</p>
+        <p className="truncate text-2xs text-mist-400">Plan {plan.label}</p>
       </div>
     </div>
   );

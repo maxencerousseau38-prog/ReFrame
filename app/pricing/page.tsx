@@ -1,11 +1,12 @@
-import Link from "next/link";
-import { Check, Sparkles, ArrowRight } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Reveal } from "@/components/ui/Reveal";
+import { PlanCTA } from "@/components/app/PlanCTA";
 import { cn } from "@/lib/utils";
 
 const PLANS = [
   {
+    id: "starter" as const,
     name: "Starter",
     price: 29,
     tagline: "Pour explorer et tester des opportunités.",
@@ -19,6 +20,7 @@ const PLANS = [
     ],
   },
   {
+    id: "pro" as const,
     name: "Pro",
     price: 99,
     tagline: "Pour les investisseurs actifs et business angels.",
@@ -34,6 +36,7 @@ const PLANS = [
     ],
   },
   {
+    id: "investor" as const,
     name: "Investor",
     price: 299,
     tagline: "Pour les fonds et family offices exigeants.",
@@ -91,18 +94,7 @@ export default function PricingPage() {
               </div>
               <p className="mt-2 text-sm text-mist-300">{plan.tagline}</p>
 
-              <Link
-                href="/dashboard"
-                className={cn(
-                  "group mt-5 flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold transition-all active:scale-95",
-                  plan.highlight
-                    ? "bg-white text-ink-950 hover:scale-[1.02]"
-                    : "border border-white/[0.12] bg-white/[0.03] text-white hover:bg-white/[0.07]",
-                )}
-              >
-                {plan.cta}
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </Link>
+              <PlanCTA id={plan.id} label={plan.cta} highlight={plan.highlight} />
 
               <ul className="mt-6 space-y-3">
                 {plan.features.map((f) => (

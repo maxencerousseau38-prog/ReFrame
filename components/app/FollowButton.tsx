@@ -1,10 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, Check, Download } from "lucide-react";
+import { Eye, Check, Download, Lock } from "lucide-react";
+import { usePlan } from "@/components/app/PlanProvider";
 
 export function CompanyActions() {
   const [following, setFollowing] = useState(false);
+  const { plan, openPaywall } = usePlan();
+  const canExport = plan.features.pdfExport;
+
   return (
     <div className="flex items-center gap-2">
       <button
@@ -18,8 +22,11 @@ export function CompanyActions() {
         {following ? <Check className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
         {following ? "Suivi" : "Suivre"}
       </button>
-      <button className="flex items-center gap-2 rounded-xl bg-white px-3.5 py-2 text-sm font-semibold text-ink-950 transition-transform hover:scale-[1.02] active:scale-95">
-        <Download className="h-4 w-4" />
+      <button
+        onClick={() => canExport ? window.print() : openPaywall("pdfExport")}
+        className="flex items-center gap-2 rounded-xl bg-white px-3.5 py-2 text-sm font-semibold text-ink-950 transition-transform hover:scale-[1.02] active:scale-95"
+      >
+        {canExport ? <Download className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
         Export PDF
       </button>
     </div>
