@@ -35,16 +35,20 @@ import {
   CompetitorChart,
   CriteriaRadar,
 } from "@/components/charts/Charts";
-import { COMPANIES, getCompany } from "@/lib/data";
+import { COMPANIES } from "@/lib/data";
+import { resolveCompany } from "@/lib/server/resolveCompany";
 import { CRITERION_ORDER } from "@/lib/scoring";
 import { eur, pct } from "@/lib/utils";
+
+// Known fixtures are prerendered; freshly-analysed companies render on demand.
+export const dynamicParams = true;
 
 export function generateStaticParams() {
   return COMPANIES.map((c) => ({ id: c.id }));
 }
 
-export default function CompanyPage({ params }: { params: { id: string } }) {
-  const company = getCompany(params.id);
+export default async function CompanyPage({ params }: { params: { id: string } }) {
+  const company = await resolveCompany(params.id);
   if (!company) notFound();
 
   const m = company.metrics;

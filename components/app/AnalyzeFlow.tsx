@@ -33,18 +33,35 @@ export function AnalyzeFlow({ initialQuery = "" }: { initialQuery?: string }) {
   const [linkedin, setLinkedin] = useState("");
   const [phase, setPhase] = useState<"form" | "analyzing">("form");
   const [step, setStep] = useState(0);
+  const resolvedId = useRef<string | null>(null);
 
   const target = resolveTarget(name);
 
   const start = () => {
     setPhase("analyzing");
     setStep(0);
+    resolvedId.current = null;
+    // Kick off the real analysis in parallel with the progress animation.
+    // Falls back to the fixture id if the API is unavailable.
+    fetch("/api/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, website, siren, linkedin }),
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.id) resolvedId.current = d.id;
+      })
+      .catch(() => {});
   };
 
   useEffect(() => {
     if (phase !== "analyzing") return;
     if (step >= STEPS.length) {
-      const t = setTimeout(() => router.push(`/company/${target.id}`), 650);
+      const t = setTimeout(
+        () => router.push(`/company/${resolvedId.current ?? target.id}`),
+        650,
+      );
       return () => clearTimeout(t);
     }
     const t = setTimeout(() => setStep((s) => s + 1), 620);

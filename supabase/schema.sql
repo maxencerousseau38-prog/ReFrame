@@ -128,6 +128,21 @@ alter table analyses  enable row level security;
 create policy "read companies" on companies for select using (auth.role() = 'authenticated');
 create policy "read analyses"  on analyses  for select using (auth.role() = 'authenticated');
 
+-- ── Report cache (used by the running app) ───────────────────────────────────
+-- A JSON snapshot of each generated analysis, keyed by external id (SIREN /
+-- ticker / slug). The fully-normalized `analyses` table above is the production
+-- warehouse; this cache is what the result page reads for instant rendering.
+create table reports (
+  external_id text primary key,
+  company     jsonb not null,
+  mode        text  not null default 'live',
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+alter table reports enable row level security;
+create policy "read reports" on reports for select using (true);
+-- Writes are performed by the pipeline using the service role (bypasses RLS).
+
 -- ── Auto-provision a profile on signup ───────────────────────────────────────
 create or replace function handle_new_user() returns trigger as $$
 begin
