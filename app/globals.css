@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+@layer base {
+  * {
+    @apply border-white/[0.06];
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-ink-950 text-mist-100 font-sans antialiased;
+    font-feature-settings: "ss01", "cv11", "cv02";
+  }
+
+  ::selection {
+    background: rgba(91, 140, 255, 0.28);
+    color: #fff;
+  }
+
+  /* Premium thin scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.16);
+    background-clip: content-box;
+  }
+}
+
+@layer components {
+  /* Glass surface used across cards & panels */
+  .surface {
+    @apply rounded-2xl border border-white/[0.07] bg-ink-850/70 backdrop-blur-xl shadow-card;
+  }
+
+  .surface-hover {
+    @apply transition-all duration-300 hover:border-white/[0.12] hover:bg-ink-800/80;
+  }
+
+  /* Hairline label, à la Bloomberg terminal */
+  .eyebrow {
+    @apply text-2xs font-medium uppercase tracking-[0.18em] text-mist-400;
+  }
+
+  .num {
+    @apply font-mono tabular-nums;
+  }
+
+  /* Subtle animated gradient text for hero numbers */
+  .text-gradient {
+    @apply bg-gradient-to-br from-white via-mist-100 to-mist-400 bg-clip-text text-transparent;
+  }
+
+  /* Skeleton shimmer */
+  .shimmer {
+    @apply relative overflow-hidden;
+  }
+  .shimmer::after {
+    content: "";
+    @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/[0.06] to-transparent animate-shimmer;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .mask-fade-r {
+    -webkit-mask-image: linear-gradient(to right, #000 80%, transparent 100%);
+    mask-image: linear-gradient(to right, #000 80%, transparent 100%);
+  }
+}
