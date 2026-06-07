@@ -1,11 +1,9 @@
 name: Déploiement du site (GitHub Pages)
 
+# Déclenchement manuel uniquement.
+# Prérequis : GitHub Pages activé (Settings → Pages → Source : "GitHub Actions").
+# Pages sur dépôt privé nécessite un plan GitHub Pro/Team, ou rendre le dépôt public.
 on:
-  push:
-    branches: ["claude/car-showcase-sites-5R5Pe"]
-    paths:
-      - "site/**"
-      - ".github/workflows/deploy-pages.yml"
   workflow_dispatch:
 
 permissions:
