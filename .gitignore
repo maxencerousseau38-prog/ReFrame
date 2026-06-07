@@ -1,2 +1,6 @@
 # Generated preview screenshots (not versioned)
 site/preview/
+
+# Generated distributable archive
+turismo-site.zip
+*.zip
