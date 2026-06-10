@@ -59,11 +59,21 @@ export interface SiteAnalysis {
   brandName: string;
   industry: Industry;
   industryLabel: string;
+  /** True when we fetched and parsed real HTML; false when we used a fallback. */
+  fetched: boolean;
+  /** Real brand assets pulled from the source page, when available. */
+  brand?: {
+    logoUrl?: string;
+    accentColor?: string; // hex
+  };
   detectedSections: string[];
+  navItems: string[];
   extractedContent: {
     headline: string;
     description: string;
     services: string[];
+    heroImageUrl?: string;
+    images: string[];
     contactHint?: string;
   };
   scores: {

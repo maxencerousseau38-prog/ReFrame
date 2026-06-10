@@ -150,12 +150,43 @@ function AnalysisResult({
       transition={{ duration: 0.5 }}
       className="mt-12 space-y-8"
     >
+      {/* Brand row: logo, name, accent, crawl status */}
       <div className="flex flex-wrap items-center gap-3">
+        {analysis.brand?.logoUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={analysis.brand.logoUrl}
+            alt={`${analysis.brandName} logo`}
+            className="h-9 w-9 rounded-lg border border-border bg-white object-contain p-1"
+          />
+        )}
+        <span className="text-base font-semibold">{analysis.brandName}</span>
         <Badge variant="outline">{analysis.industryLabel}</Badge>
-        <span className="text-sm text-muted-foreground">
-          Analyzed <span className="font-medium text-foreground">{analysis.url}</span>
-        </span>
+        {analysis.brand?.accentColor && (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground">
+            <span className="h-3 w-3 rounded-full" style={{ background: analysis.brand.accentColor }} />
+            {analysis.brand.accentColor}
+          </span>
+        )}
+        <Badge variant={analysis.fetched ? "accent" : "default"}>
+          {analysis.fetched ? "Live crawl" : "Estimated (could not fetch)"}
+        </Badge>
       </div>
+
+      {/* Extracted images */}
+      {analysis.extractedContent.images.length > 0 && (
+        <div className="flex gap-3 overflow-x-auto pb-1">
+          {analysis.extractedContent.images.slice(0, 5).map((src) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={src}
+              src={src}
+              alt=""
+              className="h-24 w-36 shrink-0 rounded-xl border border-border object-cover"
+            />
+          ))}
+        </div>
+      )}
 
       {/* Scores */}
       <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-5">

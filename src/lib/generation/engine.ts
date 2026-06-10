@@ -1,3 +1,4 @@
+import { parse, type HTMLElement } from "node-html-parser";
 import type {
   Block,
   SiteAnalysis,
@@ -50,96 +51,300 @@ function clean(text: string): string {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Fetch the target site (best effort) and extract brand, sector, content and
- * an audit. If the fetch fails (network policy, blocked, timeout) we fall back
- * to a deterministic profile derived from the domain so the demo always works.
+ * Fetch the target site and extract real brand, content and audit signals by
+ * parsing its HTML. If the fetch fails (network policy, blocked, timeout) or the
+ * page is a thin JS shell, fall back to a deterministic profile derived from the
+ * domain so the flow always works.
  */
 export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
   const url = normalizeUrl(rawUrl);
-  const brandName = brandFromUrl(url);
 
   let html = "";
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 6000);
+    const timeout = setTimeout(() => controller.abort(), 7000);
     const res = await fetch(url, {
       signal: controller.signal,
-      headers: { "User-Agent": "ReFrameBot/1.0 (+https://reframe.design)" },
+      redirect: "follow",
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (compatible; ReFrameBot/1.0; +https://reframe.design)",
+        Accept: "text/html,application/xhtml+xml",
+      },
     });
     clearTimeout(timeout);
     if (res.ok) html = await res.text();
   } catch {
-    // swallow — handled by fallback below
+    // handled by the fallback below
   }
 
-  const text = clean(html).toLowerCase();
-  const industry: Industry = text ? detectIndustry(text) : detectIndustry(brandName.toLowerCase());
-  const profile = INDUSTRY_PROFILES[industry];
+  const bodyText = clean(html);
+  // A thin body with many scripts is almost certainly a client-rendered SPA
+  // shell: we still read its meta tags but treat content as unreliable.
+  const scriptCount = (html.match(/<script\b/gi) || []).length;
+  const isThin = bodyText.length < 220;
 
-  // Extract a headline (h1 / title) and description (meta description / first p).
-  const h1 = matchOne(html, /<h1[^>]*>([\s\S]*?)<\/h1>/i);
-  const title = matchOne(html, /<title[^>]*>([\s\S]*?)<\/title>/i);
+  if (!html || (isThin && scriptCount > 3 && bodyText.length < 80)) {
+    return fallbackAnalysis(url, !!html);
+  }
+
+  let root: HTMLElement;
+  try {
+    root = parse(html, { blockTextElements: { script: false, style: true } });
+  } catch {
+    return fallbackAnalysis(url, true);
+  }
+
+  const meta = (sel: string) => root.querySelector(sel)?.getAttribute("content")?.trim() || "";
+  const ogSiteName = meta('meta[property="og:site_name"]');
+  const titleRaw = clean(root.querySelector("title")?.text || "");
+  // Titles are usually "Page | Brand" or "Brand - tagline"; keep the brand part.
+  const titleBrand = titleRaw.split(/[|–\-·]/).map((s) => s.trim()).filter(Boolean).pop() || "";
+  // A brand name is short. Long candidates are taglines, so fall back to the
+  // domain rather than using a whole sentence as the brand.
+  const isShort = (s: string) => !!s && s.split(/\s+/).length <= 3;
+  const brandName =
+    [ogSiteName, meta('meta[name="application-name"]'), titleBrand].find(isShort) || brandFromUrl(url);
+
+  const h1 = clean(root.querySelector("h1")?.text || "");
+  const ogTitle = meta('meta[property="og:title"]');
+  const headlineRaw = h1 || ogTitle || titleRaw;
+
   const metaDesc =
-    matchAttr(html, /<meta[^>]+name=["']description["'][^>]*content=["']([^"']+)["']/i) ||
-    matchOne(html, /<p[^>]*>([\s\S]*?)<\/p>/i);
+    meta('meta[name="description"]') ||
+    meta('meta[property="og:description"]') ||
+    clean(root.querySelector("main p, article p, p")?.text || "");
 
-  const headline = clean(h1 || title || profile.defaults.headline) || profile.defaults.headline;
-  const description = clean(metaDesc || profile.defaults.description) || profile.defaults.description;
+  const profile = INDUSTRY_PROFILES[detectIndustry((bodyText + " " + titleRaw).toLowerCase())];
+  const headline = headlineRaw || profile.defaults.headline;
+  const description = metaDesc || profile.defaults.description;
 
-  // Build a believable, deterministic audit. Real fetches score slightly higher
-  // because we have real signal; either way the redesign always wins.
-  const seed = hashString(url);
+  // Brand assets
+  const logoUrl = findLogo(root, url);
+  const accentColor = findAccent(root);
+
+  // Images: og:image first, then sizeable content images
+  const ogImage = abs(meta('meta[property="og:image"]'), url);
+  const imgs = root
+    .querySelectorAll("img")
+    .map((el) => abs(el.getAttribute("src") || el.getAttribute("data-src") || "", url))
+    .filter((s) => s && !/\.svg($|\?)/i.test(s) && !s.startsWith("data:"));
+  const images = dedupe([ogImage, ...imgs].filter(Boolean)).slice(0, 6);
+  const heroImageUrl = images[0];
+
+  // Navigation labels double as a real list of what the business offers
+  const navItems = dedupe(
+    root
+      .querySelectorAll("nav a, header a")
+      .map((a) => clean(a.text))
+      .filter((t) => t.length >= 3 && t.length <= 22 && !/^(home|menu|login|sign in)$/i.test(t))
+  ).slice(0, 6);
+
+  // Industry: refine using nav labels too
+  const industry: Industry = detectIndustry((bodyText + " " + navItems.join(" ")).toLowerCase());
+  const finalProfile = INDUSTRY_PROFILES[industry];
+
+  // Real audit signals
+  const hasViewport = !!root.querySelector('meta[name="viewport"]');
+  const hasMetaDesc = !!meta('meta[name="description"]');
+  const hasLang = !!root.querySelector("html")?.getAttribute("lang");
+  const hasCanonical = !!root.querySelector('link[rel="canonical"]');
+  const hasOg = !!ogTitle || !!ogImage;
+  const imgEls = root.querySelectorAll("img");
+  const withAlt = imgEls.filter((el) => (el.getAttribute("alt") || "").trim().length > 0).length;
+  const altRatio = imgEls.length ? withAlt / imgEls.length : 1;
+  const legacy =
+    /<table[^>]+(role=["']?presentation|width=)/i.test(html) ||
+    /<(font|center|marquee)\b/i.test(html) ||
+    /bgcolor=/i.test(html);
+  const stylesheets = root.querySelectorAll('link[rel="stylesheet"]').length;
+
   const scores = {
-    design: 28 + (seed % 18),
-    performance: 41 + ((seed >> 2) % 25),
-    seo: 38 + ((seed >> 4) % 28),
-    mobile: 44 + ((seed >> 6) % 22),
-    accessibility: 35 + ((seed >> 8) % 26),
+    seo: clamp(
+      32 + (hasMetaDesc ? 16 : 0) + (h1 ? 12 : 0) + (hasOg ? 12 : 0) + (hasCanonical ? 10 : 0) + (titleRaw ? 6 : 0)
+    ),
+    mobile: hasViewport ? rangeFrom(url, 74, 92) : rangeFrom(url, 28, 46),
+    accessibility: clamp(28 + Math.round(altRatio * 42) + (hasLang ? 18 : 0)),
+    performance: clamp(94 - imgEls.length * 2 - scriptCount * 3 - stylesheets * 2),
+    design: legacy ? rangeFrom(url, 22, 38) : rangeFrom(url, 52, 70),
   };
 
-  const issues = buildIssues(scores);
+  const issues = buildIssues({
+    scores,
+    hasMetaDesc,
+    hasViewport,
+    hasH1: !!h1,
+    altRatio,
+    legacy,
+    isThin,
+  });
 
   return {
     url,
     brandName,
     industry,
-    industryLabel: profile.label,
-    detectedSections: ["Header", "Intro", "Services", "About", "Contact", "Footer"],
+    industryLabel: finalProfile.label,
+    fetched: true,
+    brand: { logoUrl, accentColor },
+    detectedSections: detectSections(root),
+    navItems,
     extractedContent: {
       headline,
       description,
-      services: profile.defaults.services,
-      contactHint: "Contact form detected",
+      services: navItems.length >= 3 ? navItems : finalProfile.defaults.services,
+      heroImageUrl,
+      images,
+      contactHint: root.querySelector("form") ? "Contact form detected" : undefined,
     },
     scores,
     issues,
   };
 }
 
-function matchOne(html: string, re: RegExp): string {
-  const m = html.match(re);
-  return m ? m[1] : "";
-}
-function matchAttr(html: string, re: RegExp): string {
-  const m = html.match(re);
-  return m ? m[1] : "";
-}
-function hashString(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) {
-    h = (h << 5) - h + s.charCodeAt(i);
-    h |= 0;
+/* ---- extraction helpers ---- */
+
+function abs(src: string, base: string): string {
+  if (!src) return "";
+  try {
+    return new URL(src, base).href;
+  } catch {
+    return "";
   }
-  return Math.abs(h);
 }
-function buildIssues(scores: SiteAnalysis["scores"]): string[] {
+
+function dedupe(arr: string[]): string[] {
+  return Array.from(new Set(arr));
+}
+
+function findLogo(root: HTMLElement, base: string): string | undefined {
+  // Prefer an explicit logo image, then touch icon / favicon.
+  const byImg = root
+    .querySelectorAll("img")
+    .find((el) => /logo|brand/i.test(`${el.getAttribute("class")} ${el.getAttribute("alt")} ${el.getAttribute("id")} ${el.getAttribute("src")}`));
+  if (byImg) {
+    const src = abs(byImg.getAttribute("src") || byImg.getAttribute("data-src") || "", base);
+    if (/^https?:/i.test(src)) return src;
+  }
+  const icon =
+    root.querySelector('link[rel="apple-touch-icon"]') ||
+    root.querySelector('link[rel~="icon"]');
+  const href = icon?.getAttribute("href");
+  const resolved = href ? abs(href, base) : "";
+  return /^https?:/i.test(resolved) ? resolved : undefined;
+}
+
+function findAccent(root: HTMLElement): string | undefined {
+  const theme = root.querySelector('meta[name="theme-color"]')?.getAttribute("content")?.trim();
+  if (theme && /^#?[0-9a-f]{3,8}$/i.test(theme)) return theme.startsWith("#") ? theme : `#${theme}`;
+
+  // Otherwise pick the most common saturated hex from inline <style> blocks.
+  const styles = root.querySelectorAll("style").map((s) => s.text).join(" ");
+  const hexes = (styles.match(/#[0-9a-f]{6}\b/gi) || []).map((h) => h.toLowerCase());
+  const counts: Record<string, number> = {};
+  for (const hex of hexes) {
+    if (isNeutral(hex)) continue;
+    counts[hex] = (counts[hex] || 0) + 1;
+  }
+  let best: string | undefined;
+  let bestN = 0;
+  for (const hex of Object.keys(counts)) {
+    if (counts[hex] > bestN) {
+      bestN = counts[hex];
+      best = hex;
+    }
+  }
+  return best;
+}
+
+function isNeutral(hex: string): boolean {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  // Low chroma (gray) or near-black / near-white are not brand accents.
+  return max - min < 28 || max < 24 || min > 232;
+}
+
+function detectSections(root: HTMLElement): string[] {
   const out: string[] = [];
-  if (scores.design < 50) out.push("Outdated visual design and inconsistent spacing");
-  if (scores.performance < 70) out.push("Slow load from unoptimized images and render-blocking assets");
-  if (scores.seo < 70) out.push("Missing meta tags and weak heading structure");
-  if (scores.mobile < 75) out.push("Layout not fully responsive on mobile");
-  if (scores.accessibility < 70) out.push("Low color contrast and missing alt text");
-  out.push("No clear call-to-action above the fold");
+  if (root.querySelector("header, nav")) out.push("Header");
+  if (root.querySelector("h1")) out.push("Hero");
+  if (root.querySelectorAll("h2").length >= 2) out.push("Content sections");
+  if (root.querySelector("form")) out.push("Contact form");
+  if (root.querySelector("footer")) out.push("Footer");
+  return out.length ? out : ["Header", "Intro", "Footer"];
+}
+
+function clamp(n: number, lo = 12, hi = 98): number {
+  return Math.max(lo, Math.min(hi, Math.round(n)));
+}
+
+/** Deterministic value in a range, seeded by the URL, for soft jitter. */
+function rangeFrom(url: string, lo: number, hi: number): number {
+  let h = 0;
+  for (let i = 0; i < url.length; i++) h = (h << 5) - h + url.charCodeAt(i);
+  return lo + (Math.abs(h) % (hi - lo + 1));
+}
+
+/** Deterministic profile when we cannot read real HTML (offline / SPA shell). */
+function fallbackAnalysis(url: string, fetched: boolean): SiteAnalysis {
+  const brandName = brandFromUrl(url);
+  const industry = detectIndustry(brandName.toLowerCase());
+  const profile = INDUSTRY_PROFILES[industry];
+  const scores = {
+    design: rangeFrom(url, 26, 44),
+    performance: rangeFrom(url + "p", 42, 66),
+    seo: rangeFrom(url + "s", 38, 64),
+    mobile: rangeFrom(url + "m", 40, 66),
+    accessibility: rangeFrom(url + "a", 35, 60),
+  };
+  return {
+    url,
+    brandName,
+    industry,
+    industryLabel: profile.label,
+    fetched,
+    detectedSections: ["Header", "Intro", "Services", "Contact", "Footer"],
+    navItems: [],
+    extractedContent: {
+      headline: profile.defaults.headline,
+      description: profile.defaults.description,
+      services: profile.defaults.services,
+      images: [],
+    },
+    scores,
+    issues: buildIssues({
+      scores,
+      hasMetaDesc: false,
+      hasViewport: false,
+      hasH1: false,
+      altRatio: 0,
+      legacy: false,
+      isThin: !fetched,
+    }),
+  };
+}
+
+function buildIssues(s: {
+  scores: SiteAnalysis["scores"];
+  hasMetaDesc: boolean;
+  hasViewport: boolean;
+  hasH1: boolean;
+  altRatio: number;
+  legacy: boolean;
+  isThin: boolean;
+}): string[] {
+  const out: string[] = [];
+  if (s.legacy) out.push("Legacy HTML (tables, font tags) driving an outdated look");
+  else if (s.scores.design < 55) out.push("Dated visual design and inconsistent spacing");
+  if (!s.hasViewport) out.push("No mobile viewport tag: layout breaks on phones");
+  if (s.scores.performance < 70) out.push("Heavy page weight from unoptimized images and scripts");
+  if (!s.hasMetaDesc) out.push("Missing meta description and weak heading structure");
+  else if (s.scores.seo < 70) out.push("Thin metadata and heading structure for SEO");
+  if (!s.hasH1) out.push("No clear H1 headline above the fold");
+  if (s.altRatio < 0.6) out.push("Images missing alt text, hurting accessibility and SEO");
+  if (out.length < 3) out.push("No clear call-to-action above the fold");
   return out;
 }
 
@@ -166,6 +371,7 @@ export function generateSite(analysis: SiteAnalysis): SiteSchema {
         subtitle: c.description,
         primaryCta: "Get started",
         secondaryCta: "Learn more",
+        image: c.heroImageUrl,
       },
     },
     {
@@ -231,12 +437,17 @@ export function generateSite(analysis: SiteAnalysis): SiteSchema {
     },
   ];
 
+  // Use the source site's real accent color when we found one, so the rebuild
+  // keeps the brand recognisable instead of imposing a generic palette.
+  const accent = analysis.brand?.accentColor;
+  const theme = accent ? { ...profile.theme, accent } : profile.theme;
+
   return {
     id: uid("site"),
     sourceUrl: analysis.url,
     industry: analysis.industry,
     brand: { name: analysis.brandName, tagline: c.headline },
-    theme: profile.theme,
+    theme,
     blocks,
   };
 }
@@ -320,8 +531,15 @@ export function applyAiEdit(schema: SiteSchema, instruction: string): AiEditResu
           brandName: next.brand.name,
           industry: next.industry,
           industryLabel: "",
+          fetched: false,
           detectedSections: [],
-          extractedContent: { headline: "", description: "", services: INDUSTRY_PROFILES[next.industry].defaults.services },
+          navItems: [],
+          extractedContent: {
+            headline: "",
+            description: "",
+            services: INDUSTRY_PROFILES[next.industry].defaults.services,
+            images: [],
+          },
           scores: { design: 0, performance: 0, seo: 0, mobile: 0, accessibility: 0 },
           issues: [],
         }).blocks.find((b) => b.type === target);

@@ -145,14 +145,17 @@ function HeroPremium2({ props }: { props: any }) {
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7 }}
-          className="relative aspect-[4/3] overflow-hidden"
-          style={{ borderRadius: "var(--brand-radius)" }}
+          className="relative aspect-[4/3] overflow-hidden bg-cover bg-center"
+          style={{
+            borderRadius: "var(--brand-radius)",
+            backgroundImage: props.image
+              ? `url(${props.image})`
+              : `linear-gradient(135deg, var(--brand-accent), var(--brand))`,
+          }}
         >
-          <div
-            className="absolute inset-0"
-            style={{ background: `linear-gradient(135deg, var(--brand-accent), var(--brand))` }}
-          />
-          <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_20%_20%,#fff_1px,transparent_1px)] [background-size:24px_24px]" />
+          {!props.image && (
+            <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_20%_20%,#fff_1px,transparent_1px)] [background-size:24px_24px]" />
+          )}
         </motion.div>
       </div>
     </section>
