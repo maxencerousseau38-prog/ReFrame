@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, Environment } from "@react-three/drei";
+import { Float } from "@react-three/drei";
 import * as THREE from "three";
 
 /**
@@ -26,10 +26,10 @@ function Knot() {
         <icosahedronGeometry args={[1, 1]} />
         <meshStandardMaterial
           color="#a78bfa"
-          roughness={0.15}
-          metalness={0.9}
+          roughness={0.35}
+          metalness={0.45}
           emissive="#4f46e5"
-          emissiveIntensity={0.25}
+          emissiveIntensity={0.45}
           flatShading
         />
       </mesh>
@@ -50,7 +50,6 @@ export default function HeroScene() {
       <pointLight position={[-4, -2, -2]} intensity={2} color="#ec4899" />
       <pointLight position={[4, 2, 2]} intensity={2} color="#6366f1" />
       <Knot />
-      <Environment preset="city" />
     </Canvas>
   );
 }
