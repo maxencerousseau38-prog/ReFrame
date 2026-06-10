@@ -14,6 +14,7 @@ const buttonVariants = cva(
         // primary CTA: lime fill, near-black label (WCAG AA pass)
         default:
           "bg-accent text-accent-foreground hover:bg-accent/90",
+        light: "bg-white text-neutral-950 hover:bg-white/90 shadow-[0_8px_30px_-8px_rgba(255,255,255,0.25)]",
         outline:
           "border border-white/15 bg-transparent text-white hover:border-white/30 hover:bg-white/5",
         secondary: "bg-white/8 text-white hover:bg-white/12",

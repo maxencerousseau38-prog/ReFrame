@@ -6,9 +6,9 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Faders, List, X } from "@phosphor-icons/react";
 
 const links = [
-  { label: "Features", href: "#features" },
-  { label: "How it works", href: "#how" },
-  { label: "Pricing", href: "#pricing" },
+  { label: "Before / after", href: "#compare" },
+  { label: "The engine", href: "#engine" },
+  { label: "Templates", href: "#templates" },
   { label: "Customers", href: "#customers" },
 ];
 

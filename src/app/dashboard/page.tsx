@@ -78,11 +78,11 @@ function DashboardInner() {
     <DashboardShell>
       <div className="mx-auto max-w-5xl px-6 py-10 sm:py-16">
         <div className="mb-10">
-          <Badge variant="accent" className="mb-3">
+          <Badge variant="outline" className="mb-3">
             <Sparkle weight="fill" className="h-3 w-3" /> New project
           </Badge>
-          <h1 className="text-3xl font-semibold tracking-tight">Rebuild a website</h1>
-          <p className="mt-2 text-muted-foreground">
+          <h1 className="text-4xl font-semibold tracking-[-0.02em]">Rebuild a website</h1>
+          <p className="mt-3 text-muted-foreground">
             Paste any URL. We analyze it and rebuild it into a fast, modern site.
           </p>
         </div>
@@ -108,6 +108,7 @@ function DashboardInner() {
           <Button
             type="submit"
             size="lg"
+            variant="light"
             disabled={phase === "analyzing" || phase === "generating" || !url.trim()}
           >
             Analyze <ArrowRight weight="bold" className="h-4 w-4" />
@@ -168,7 +169,7 @@ function AnalysisResult({
             {analysis.brand.accentColor}
           </span>
         )}
-        <Badge variant={analysis.fetched ? "accent" : "default"}>
+        <Badge variant="outline">
           {analysis.fetched ? "Live crawl" : "Estimated (could not fetch)"}
         </Badge>
       </div>
@@ -191,18 +192,18 @@ function AnalysisResult({
       {/* Scores */}
       <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {scores.map(([label, value]) => (
-          <div key={label} className="rounded-xl border border-border bg-card p-4">
-            <div className="text-xs uppercase tracking-wide text-muted-foreground">{label}</div>
-            <div className="mt-1 flex items-baseline gap-1">
-              <span className="text-2xl font-semibold">{value}</span>
+          <div key={label} className="rounded-2xl border border-white/8 bg-white/[0.02] p-5 shadow-[0_30px_80px_-50px_rgba(0,0,0,0.9)]">
+            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{label}</div>
+            <div className="mt-2 flex items-baseline gap-1">
+              <span className="text-3xl font-semibold tracking-tight">{value}</span>
               <span className="text-xs text-muted-foreground">/100</span>
             </div>
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-secondary">
+            <div className="mt-3 h-1 overflow-hidden rounded-full bg-white/10">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${value}%` }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className={value < 50 ? "h-full bg-red-400" : value < 75 ? "h-full bg-amber-400" : "h-full bg-lime-400"}
+                transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+                className="h-full rounded-full bg-white/85"
               />
             </div>
           </div>
@@ -211,7 +212,7 @@ function AnalysisResult({
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Extracted content */}
-        <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-6 shadow-[0_30px_80px_-50px_rgba(0,0,0,0.9)]">
           <h3 className="text-sm font-semibold">Extracted content</h3>
           <dl className="mt-4 space-y-3 text-sm">
             <div>
@@ -234,7 +235,7 @@ function AnalysisResult({
         </div>
 
         {/* Issues */}
-        <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-6 shadow-[0_30px_80px_-50px_rgba(0,0,0,0.9)]">
           <h3 className="text-sm font-semibold">What we fix</h3>
           <ul className="mt-4 space-y-2.5">
             {analysis.issues.map((issue) => (
@@ -248,7 +249,7 @@ function AnalysisResult({
       </div>
 
       <div className="flex justify-end">
-        <Button size="lg" onClick={onGenerate}>
+        <Button size="lg" variant="light" onClick={onGenerate}>
           Generate new site <Sparkle weight="fill" className="h-4 w-4" />
         </Button>
       </div>

@@ -1,12 +1,9 @@
 import { Navbar } from "@/components/landing/navbar";
 import { Hero } from "@/components/landing/hero";
-import { Logos } from "@/components/landing/logos";
-import { Manifesto } from "@/components/landing/manifesto";
-import { HowItWorks } from "@/components/landing/how-it-works";
-import { BeforeAfter } from "@/components/landing/before-after";
-import { Features } from "@/components/landing/features";
-import { Pricing } from "@/components/landing/pricing";
-import { Testimonials } from "@/components/landing/testimonials";
+import { Compare } from "@/components/landing/compare";
+import { EngineViz } from "@/components/landing/engine-viz";
+import { Templates } from "@/components/landing/templates";
+import { Results } from "@/components/landing/results";
 import { FinalCta } from "@/components/landing/cta";
 import { Footer } from "@/components/landing/footer";
 
@@ -15,13 +12,10 @@ export default function HomePage() {
     <main className="relative w-full max-w-full overflow-x-hidden">
       <Navbar />
       <Hero />
-      <Logos />
-      <Manifesto />
-      <Features />
-      <BeforeAfter />
-      <HowItWorks />
-      <Pricing />
-      <Testimonials />
+      <Compare />
+      <EngineViz />
+      <Templates />
+      <Results />
       <FinalCta />
       <Footer />
     </main>
