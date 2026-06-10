@@ -2,7 +2,16 @@
 
 import * as React from "react";
 import { motion } from "framer-motion";
-import * as Icons from "lucide-react";
+import {
+  Sparkle,
+  ShieldCheck,
+  Lightning,
+  Heart,
+  Star,
+  Check,
+  Plus,
+  type Icon as PhosphorIcon,
+} from "@phosphor-icons/react";
 import type { Block, SiteSchema, Theme } from "@/lib/generation/types";
 import { cn } from "@/lib/utils";
 
@@ -26,10 +35,19 @@ function themeStyle(theme: Theme): React.CSSProperties {
   };
 }
 
-function LucideIcon({ name, className }: { name: string; className?: string }) {
-  const icons = Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>;
-  const Cmp = icons[name] || Icons.Sparkles;
-  return <Cmp className={className} />;
+// Generated sites pick icons by name; map those names to Phosphor glyphs.
+const ICONS: Record<string, PhosphorIcon> = {
+  Sparkle,
+  ShieldCheck,
+  Lightning,
+  Heart,
+  Star,
+  Check,
+};
+
+function BlockIcon({ name, className }: { name: string; className?: string }) {
+  const Cmp = ICONS[name] || Sparkle;
+  return <Cmp weight="bold" className={className} />;
 }
 
 const fade = {
@@ -171,7 +189,7 @@ function FeaturesGrid1({ props }: { props: any }) {
                 className="mb-4 flex h-10 w-10 items-center justify-center text-white"
                 style={{ background: "var(--brand-accent)", borderRadius: "calc(var(--brand-radius) * 0.7)" }}
               >
-                <LucideIcon name={item.icon} className="h-5 w-5" />
+                <BlockIcon name={item.icon} className="h-5 w-5" />
               </div>
               <h3 className="text-base font-semibold" style={{ color: "var(--brand)" }}>
                 {item.title}
@@ -241,7 +259,7 @@ function FAQAccordion1({ props }: { props: any }) {
             <div key={i} className="px-6">
               <button onClick={() => setOpen(open === i ? -1 : i)} className="flex w-full items-center justify-between py-5 text-left">
                 <span className="text-[15px] font-medium" style={{ color: "var(--brand)" }}>{item.question}</span>
-                <Icons.Plus className={cn("h-5 w-5 text-neutral-400 transition-transform", open === i && "rotate-45")} />
+                <Plus weight="bold" className={cn("h-5 w-5 text-neutral-400 transition-transform", open === i && "rotate-45")} />
               </button>
               {open === i && <p className="pb-5 text-sm leading-relaxed text-neutral-500">{item.answer}</p>}
             </div>

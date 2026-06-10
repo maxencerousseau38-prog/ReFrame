@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus } from "lucide-react";
+import { Plus } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
 export function Accordion({
@@ -26,6 +26,7 @@ export function Accordion({
             >
               <span className="text-[15px] font-medium">{item.question}</span>
               <Plus
+                weight="bold"
                 className={cn(
                   "h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-300",
                   isOpen && "rotate-45"

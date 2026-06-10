@@ -178,7 +178,7 @@ export function generateSite(analysis: SiteAnalysis): SiteSchema {
         items: c.services.map((s, i) => ({
           title: s,
           description: featureBlurb(s, analysis.industry),
-          icon: ["Sparkles", "Shield", "Zap", "Heart", "Star", "Check"][i % 6],
+          icon: ["Sparkle", "ShieldCheck", "Lightning", "Heart", "Star", "Check"][i % 6],
         })),
       },
     },
