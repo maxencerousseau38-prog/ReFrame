@@ -1,2 +1,2 @@
-# DriveOS
-DriveOS est une plateforme moderne de gestion des ventes automobiles conçue pour les garages, concessionnaires et vendeurs de véhicules. Gérez vos prospects, votre stock, vos rendez-vous, vos ventes, vos documents et vos analyses depuis une seule plateforme.
+# ReFrame
+ReFrame AI transforms any existing website into a modern, premium, AI-editable experience. Paste a URL, analyze the site, extract content, generate a redesigned version using premium templates, and edit everything through an AI assistant.
