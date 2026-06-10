@@ -135,7 +135,7 @@ function hashString(s: string): number {
 function buildIssues(scores: SiteAnalysis["scores"]): string[] {
   const out: string[] = [];
   if (scores.design < 50) out.push("Outdated visual design and inconsistent spacing");
-  if (scores.performance < 70) out.push("Slow load — unoptimized images and render-blocking assets");
+  if (scores.performance < 70) out.push("Slow load from unoptimized images and render-blocking assets");
   if (scores.seo < 70) out.push("Missing meta tags and weak heading structure");
   if (scores.mobile < 75) out.push("Layout not fully responsive on mobile");
   if (scores.accessibility < 70) out.push("Low color contrast and missing alt text");
@@ -246,19 +246,19 @@ function featureBlurb(service: string, industry: Industry): string {
     "Free quotes": "Transparent, no-obligation pricing before any work begins.",
     "24/7 emergencies": "Real people on call, day or night, when you need us most.",
     "Licensed & insured": "Fully certified and covered for complete peace of mind.",
-    "Workmanship guarantee": "If it's not right, we make it right — guaranteed.",
+    "Workmanship guarantee": "If it's not right, we make it right, guaranteed.",
   };
   return (
     map[service] ||
-    `${service} — delivered to a standard our ${INDUSTRY_PROFILES[industry].label.toLowerCase()} clients trust.`
+    `${service}, delivered to a standard our ${INDUSTRY_PROFILES[industry].label.toLowerCase()} clients trust.`
   );
 }
 
 function defaultFaq(industry: Industry, brand: string) {
   return [
-    { question: `How quickly can ${brand} get started?`, answer: "Most projects begin within a few days of your first message — just reach out and we'll find a slot." },
+    { question: `How quickly can ${brand} get started?`, answer: "Most projects begin within a few days of your first message. Just reach out and we'll find a slot." },
     { question: "How much does it cost?", answer: "Every project is quoted transparently up front, with no hidden fees and no surprises." },
-    { question: "Do you offer guarantees?", answer: "Yes — we stand behind our work and won't consider it done until you're delighted." },
+    { question: "Do you offer guarantees?", answer: "Yes. We stand behind our work and won't consider it done until you're delighted." },
     { question: "What areas do you serve?", answer: "We serve the local area and surrounding regions. Ask us about your location." },
   ];
 }
@@ -363,7 +363,7 @@ export function applyAiEdit(schema: SiteSchema, instruction: string): AiEditResu
   if (/(premium|luxur|elegant|bold|modern|minimal)/.test(text)) {
     next.theme.mood = /bold/.test(text) ? "bold" : /elegant|luxur/.test(text) ? "elegant" : "minimal";
     next.theme.radius = "xl";
-    return { schema: next, message: "Elevated the design — softer corners, refined spacing and a more premium mood.", changed: true };
+    return { schema: next, message: "Elevated the design. Softer corners, refined spacing and a more premium mood.", changed: true };
   }
 
   // 7. SEO

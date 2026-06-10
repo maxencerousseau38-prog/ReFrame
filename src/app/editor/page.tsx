@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Loader2, ArrowLeft, Wand2, Rocket, Check } from "lucide-react";
+import { PaperPlaneTilt, CircleNotch, ArrowLeft, MagicWand, RocketLaunch, Check } from "@phosphor-icons/react";
 import { DashboardShell } from "@/components/dashboard/shell";
 import { SiteRenderer } from "@/components/blocks";
 import { Button } from "@/components/ui/button";
@@ -32,7 +32,7 @@ export default function EditorPage() {
     {
       role: "assistant",
       content:
-        "Hi! I'm your AI editor. Tell me what to change — try “Add an FAQ section” or “Make it more premium”. I'll update the live preview instantly.",
+        "Hi, I'm your AI editor. Tell me what to change. Try “Add an FAQ section” or “Make it more premium” and I'll update the live preview instantly.",
     },
   ]);
   const [input, setInput] = React.useState("");
@@ -93,7 +93,7 @@ export default function EditorPage() {
     return (
       <DashboardShell>
         <div className="flex h-screen items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <CircleNotch weight="bold" className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
       </DashboardShell>
     );
@@ -106,8 +106,8 @@ export default function EditorPage() {
         <div className="flex w-full flex-col border-r border-border bg-background lg:w-[400px]">
           <div className="flex items-center justify-between border-b border-border px-5 py-4">
             <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600 to-fuchsia-600 text-white">
-                <Wand2 className="h-4 w-4" />
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+                <MagicWand weight="bold" className="h-4 w-4" />
               </span>
               <div>
                 <div className="text-sm font-semibold">AI Editor</div>
@@ -115,7 +115,7 @@ export default function EditorPage() {
               </div>
             </div>
             <Link href="/result">
-              <Button variant="ghost" size="sm"><ArrowLeft className="h-4 w-4" /></Button>
+              <Button variant="ghost" size="sm"><ArrowLeft weight="bold" className="h-4 w-4" /></Button>
             </Link>
           </div>
 
@@ -130,7 +130,7 @@ export default function EditorPage() {
                 <div
                   className={
                     m.role === "user"
-                      ? "max-w-[85%] rounded-2xl rounded-br-sm bg-foreground px-4 py-2.5 text-sm text-background"
+                      ? "max-w-[85%] rounded-2xl rounded-br-sm bg-accent px-4 py-2.5 text-sm text-accent-foreground"
                       : "max-w-[85%] rounded-2xl rounded-bl-sm border border-border bg-card px-4 py-2.5 text-sm"
                   }
                 >
@@ -140,7 +140,7 @@ export default function EditorPage() {
             ))}
             {busy && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Applying…
+                <CircleNotch weight="bold" className="h-3.5 w-3.5 animate-spin" /> Applying
               </div>
             )}
           </div>
@@ -174,8 +174,8 @@ export default function EditorPage() {
               disabled={busy}
               className="h-11 flex-1 rounded-xl border border-border bg-background px-4 text-sm outline-none focus:border-foreground/20 focus:ring-4 focus:ring-foreground/5"
             />
-            <Button type="submit" size="icon" variant="gradient" disabled={busy || !input.trim()} className="h-11 w-11 rounded-xl">
-              <Send className="h-4 w-4" />
+            <Button type="submit" size="icon" disabled={busy || !input.trim()} className="h-11 w-11">
+              <PaperPlaneTilt weight="bold" className="h-4 w-4" />
             </Button>
           </form>
         </div>
@@ -186,10 +186,10 @@ export default function EditorPage() {
             <span className="text-xs font-medium text-muted-foreground">Live preview</span>
             {published ? (
               <a href={published} target="_blank" rel="noreferrer">
-                <Button size="sm" variant="gradient"><Check className="h-4 w-4" /> Live</Button>
+                <Button size="sm"><Check weight="bold" className="h-4 w-4" /> Live</Button>
               </a>
             ) : (
-              <Button size="sm" variant="gradient" onClick={publish}><Rocket className="h-4 w-4" /> Publish</Button>
+              <Button size="sm" onClick={publish}><RocketLaunch weight="bold" className="h-4 w-4" /> Publish</Button>
             )}
           </div>
           <div className="flex-1 overflow-y-auto p-6">

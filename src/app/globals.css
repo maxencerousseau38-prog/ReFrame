@@ -2,25 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+  SiteRevive design tokens.
+  Theme lock: dark only (one theme for the whole marketing surface).
+  Accent lock: lime. One accent, used identically across every section.
+  Shape lock: cards = rounded-2xl, inputs = rounded-xl, interactive = pill.
+  Neutral base: zinc (no pure #000 / #fff).
+*/
+
 @layer base {
   :root {
-    /* Dark, premium palette (Framer-inspired) */
-    --background: 240 12% 4%;        /* near-black with a faint blue cast */
-    --foreground: 240 6% 93%;
-    --card: 240 10% 7%;
-    --card-foreground: 240 6% 93%;
-    --primary: 0 0% 100%;
-    --primary-foreground: 240 10% 6%;
-    --secondary: 240 6% 12%;
-    --secondary-foreground: 240 6% 90%;
-    --muted: 240 6% 12%;
-    --muted-foreground: 240 5% 58%;
-    --accent: 252 95% 68%;
-    --accent-foreground: 0 0% 100%;
-    --border: 240 6% 16%;
-    --input: 240 6% 16%;
-    --ring: 252 95% 68%;
-    --radius: 0.875rem;
+    --background: 240 6% 5%;          /* zinc-950-ish, warm near-black */
+    --foreground: 0 0% 98%;
+    --card: 240 5% 8%;
+    --card-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 6% 6%;
+    --secondary: 240 4% 12%;
+    --secondary-foreground: 0 0% 96%;
+    --muted: 240 4% 12%;
+    --muted-foreground: 240 5% 62%;
+    --accent: 82 78% 55%;             /* lime */
+    --accent-foreground: 240 6% 6%;
+    --border: 240 5% 16%;
+    --input: 240 5% 16%;
+    --ring: 82 78% 55%;
+    --radius: 1rem;
   }
 
   * {
@@ -39,7 +46,8 @@
   }
 
   ::selection {
-    @apply bg-violet-500/30 text-white;
+    background: hsl(var(--accent) / 0.35);
+    color: #fff;
   }
 }
 
@@ -48,110 +56,71 @@
     text-wrap: balance;
   }
 
-  /* Faint dotted grid that fades from the top */
+  /* Faint dotted grid that fades out from the top-left of the hero */
   .bg-grid {
     background-image: radial-gradient(
-      hsl(var(--border) / 0.7) 1px,
+      hsl(var(--border) / 0.9) 1px,
       transparent 1px
     );
-    background-size: 26px 26px;
+    background-size: 28px 28px;
   }
-  .bg-radial-fade {
-    -webkit-mask-image: radial-gradient(ellipse 70% 55% at 50% 0%, #000 30%, transparent 100%);
-    mask-image: radial-gradient(ellipse 70% 55% at 50% 0%, #000 30%, transparent 100%);
-  }
-
-  /* Animated signature gradient text */
-  .gradient-text {
-    background: linear-gradient(110deg, #fff 20%, #a78bfa 45%, #38bdf8 60%, #fff 80%);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: text-shine 6s linear infinite;
+  .bg-fade-tl {
+    -webkit-mask-image: radial-gradient(ellipse 90% 80% at 0% 0%, #000 20%, transparent 75%);
+    mask-image: radial-gradient(ellipse 90% 80% at 0% 0%, #000 20%, transparent 75%);
   }
 
-  /* Soft brand glow blob */
-  .glow {
+  /* A single soft accent wash. Not a neon glow, not a purple mesh: a low-key
+     tinted light source used once or twice for depth. */
+  .accent-wash {
     background: radial-gradient(
-      45% 50% at 50% 50%,
-      rgba(139, 92, 246, 0.45) 0%,
-      rgba(56, 189, 248, 0.18) 45%,
-      transparent 100%
-    );
-  }
-  .glow-pink {
-    background: radial-gradient(
-      45% 50% at 50% 50%,
-      rgba(236, 72, 153, 0.35) 0%,
+      50% 55% at 50% 45%,
+      hsl(var(--accent) / 0.16) 0%,
       transparent 70%
     );
   }
 
-  /* Glass surfaces */
+  /* Glass surface with a 1px inner-refraction edge (Section 5 spec) */
   .glass {
-    background: hsl(240 10% 8% / 0.6);
+    background: hsl(240 5% 9% / 0.6);
     backdrop-filter: blur(16px);
     border: 1px solid hsl(0 0% 100% / 0.08);
-  }
-  .glass-hover {
-    transition: background 0.3s, border-color 0.3s;
-  }
-  .glass-hover:hover {
-    background: hsl(240 10% 11% / 0.7);
-    border-color: hsl(0 0% 100% / 0.16);
+    box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.06);
   }
 
-  /* Gradient hairline border via mask */
-  .gradient-border {
-    position: relative;
-  }
-  .gradient-border::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(135deg, hsl(0 0% 100% / 0.22), hsl(0 0% 100% / 0.02) 40%, transparent 70%);
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-  }
-
-  /* Subtle film grain */
+  /* Subtle film grain on a fixed, pointer-events-none layer only */
   .grain::after {
     content: "";
     position: fixed;
     inset: 0;
     z-index: 60;
     pointer-events: none;
-    opacity: 0.035;
+    opacity: 0.03;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 }
 
-@keyframes text-shine {
-  to {
-    background-position: 200% center;
-  }
-}
 @keyframes marquee {
   to {
     transform: translateX(-50%);
   }
 }
 
-/* Thin dark scrollbar */
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none !important;
+  }
+}
+
+/* Thin neutral scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(240 6% 20%);
+  background: hsl(240 5% 20%);
   border-radius: 9999px;
   border: 3px solid hsl(var(--background));
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(240 6% 28%);
+  background: hsl(240 5% 28%);
 }

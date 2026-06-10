@@ -4,20 +4,21 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
+// Press feedback + entrance easing follow Emil Kowalski's spec:
+// transition only transform (not `all`), strong ease-out, scale-on-active.
 const buttonVariants = cva(
-  "relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 active:scale-[0.97]",
+  "relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-[transform,background-color,border-color,color] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 active:scale-[0.97]",
   {
     variants: {
       variant: {
+        // primary CTA: lime fill, near-black label (WCAG AA pass)
         default:
-          "bg-white text-neutral-950 hover:bg-white/90 shadow-[0_1px_0_0_rgba(255,255,255,0.4)_inset]",
+          "bg-accent text-accent-foreground hover:bg-accent/90",
         outline:
-          "border border-white/15 bg-white/5 text-white backdrop-blur hover:border-white/25 hover:bg-white/10",
+          "border border-white/15 bg-transparent text-white hover:border-white/30 hover:bg-white/5",
         secondary: "bg-white/8 text-white hover:bg-white/12",
-        ghost: "text-neutral-300 hover:bg-white/8 hover:text-white",
+        ghost: "text-zinc-300 hover:bg-white/8 hover:text-white",
         link: "text-white underline-offset-4 hover:underline",
-        gradient:
-          "text-white shadow-lg shadow-violet-600/30 bg-[linear-gradient(110deg,#6366f1,#8b5cf6,#d946ef)] hover:shadow-xl hover:shadow-violet-600/40 hover:brightness-110",
       },
       size: {
         default: "h-10 px-5 py-2",

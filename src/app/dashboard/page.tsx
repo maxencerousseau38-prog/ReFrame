@@ -4,7 +4,7 @@ import * as React from "react";
 import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowRight, Globe, Sparkles, AlertCircle } from "lucide-react";
+import { ArrowRight, Globe, Sparkle, Warning } from "@phosphor-icons/react";
 import { DashboardShell } from "@/components/dashboard/shell";
 import { AnalyzeLoader } from "@/components/dashboard/analyze-loader";
 import { Button } from "@/components/ui/button";
@@ -78,12 +78,12 @@ function DashboardInner() {
     <DashboardShell>
       <div className="mx-auto max-w-5xl px-6 py-10 sm:py-16">
         <div className="mb-10">
-          <Badge variant="glow" className="mb-3">
-            <Sparkles className="h-3 w-3" /> New project
+          <Badge variant="accent" className="mb-3">
+            <Sparkle weight="fill" className="h-3 w-3" /> New project
           </Badge>
-          <h1 className="text-3xl font-semibold tracking-tight">Revive a website</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">Rebuild a website</h1>
           <p className="mt-2 text-muted-foreground">
-            Paste any URL. We&apos;ll analyze it and rebuild it into a premium site.
+            Paste any URL. We analyze it and rebuild it into a fast, modern site.
           </p>
         </div>
 
@@ -96,7 +96,7 @@ function DashboardInner() {
           className="flex flex-col gap-3 sm:flex-row"
         >
           <div className="relative flex-1">
-            <Globe className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+            <Globe weight="bold" className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
             <input
               value={url}
               onChange={(e) => setUrl(e.target.value)}
@@ -108,16 +108,15 @@ function DashboardInner() {
           <Button
             type="submit"
             size="lg"
-            variant="gradient"
             disabled={phase === "analyzing" || phase === "generating" || !url.trim()}
           >
-            Analyze <ArrowRight className="h-4 w-4" />
+            Analyze <ArrowRight weight="bold" className="h-4 w-4" />
           </Button>
         </form>
 
         {error && (
           <div className="mt-4 flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-            <AlertCircle className="h-4 w-4" /> {error}
+            <Warning weight="bold" className="h-4 w-4" /> {error}
           </div>
         )}
 
@@ -172,7 +171,7 @@ function AnalysisResult({
                 initial={{ width: 0 }}
                 animate={{ width: `${value}%` }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
-                className={value < 50 ? "h-full bg-red-400" : value < 75 ? "h-full bg-amber-400" : "h-full bg-emerald-400"}
+                className={value < 50 ? "h-full bg-red-400" : value < 75 ? "h-full bg-amber-400" : "h-full bg-lime-400"}
               />
             </div>
           </div>
@@ -205,11 +204,11 @@ function AnalysisResult({
 
         {/* Issues */}
         <div className="rounded-2xl border border-border bg-card p-6">
-          <h3 className="text-sm font-semibold">What we&apos;ll fix</h3>
+          <h3 className="text-sm font-semibold">What we fix</h3>
           <ul className="mt-4 space-y-2.5">
             {analysis.issues.map((issue) => (
               <li key={issue} className="flex items-start gap-2 text-sm text-muted-foreground">
-                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+                <Warning weight="bold" className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
                 {issue}
               </li>
             ))}
@@ -218,8 +217,8 @@ function AnalysisResult({
       </div>
 
       <div className="flex justify-end">
-        <Button size="lg" variant="gradient" onClick={onGenerate}>
-          Generate premium site <Sparkles className="h-4 w-4" />
+        <Button size="lg" onClick={onGenerate}>
+          Generate new site <Sparkle weight="fill" className="h-4 w-4" />
         </Button>
       </div>
     </motion.div>

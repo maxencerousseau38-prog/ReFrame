@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/landing/navbar";
 import { Hero } from "@/components/landing/hero";
+import { Logos } from "@/components/landing/logos";
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { BeforeAfter } from "@/components/landing/before-after";
 import { Features } from "@/components/landing/features";
@@ -13,6 +14,7 @@ export default function HomePage() {
     <main className="relative">
       <Navbar />
       <Hero />
+      <Logos />
       <HowItWorks />
       <BeforeAfter />
       <Features />

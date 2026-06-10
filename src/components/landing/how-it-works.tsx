@@ -1,65 +1,67 @@
 "use client";
 
-import { Search, Wand2, Rocket } from "lucide-react";
-import { Reveal } from "@/components/ui/reveal";
+import { motion, useReducedMotion } from "framer-motion";
+import { MagnifyingGlass, MagicWand, RocketLaunch } from "@phosphor-icons/react";
 
 const steps = [
   {
-    icon: Search,
-    step: "01",
+    n: "1",
+    icon: MagnifyingGlass,
     title: "Analyze",
-    desc: "Paste your URL. We detect your industry, extract your content, images and structure, and audit performance & SEO.",
+    body: "We crawl your site, detect your industry, and pull out your copy, images and structure.",
   },
   {
-    icon: Wand2,
-    step: "02",
-    title: "Redesign",
-    desc: "Our engine assembles a coherent, premium site from modular blocks — tailored to your sector, not a random template.",
+    n: "2",
+    icon: MagicWand,
+    title: "Rebuild",
+    body: "A new design assembles from modular blocks chosen for your sector, not a random template.",
   },
   {
-    icon: Rocket,
-    step: "03",
-    title: "Edit & Publish",
-    desc: "Refine everything with the AI editor in plain English, then publish instantly to a global edge network.",
+    n: "3",
+    icon: RocketLaunch,
+    title: "Edit and ship",
+    body: "Refine anything by chatting, then publish to a fast global network in one click.",
   },
 ];
 
 export function HowItWorks() {
+  const reduce = useReducedMotion();
   return (
-    <section id="how" className="relative py-24 sm:py-32">
-      <div className="container">
-        <Reveal className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-medium uppercase tracking-widest text-violet-400">
-            How it works
-          </p>
-          <h2 className="mt-3 text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-            From dated to dazzling in three steps
+    <section id="how" className="py-24 sm:py-32">
+      <div className="mx-auto grid max-w-[1400px] gap-12 px-6 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+        <div className="lg:sticky lg:top-28 lg:self-start">
+          <h2 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+            Three steps from dated to done.
           </h2>
-          <p className="mt-4 text-lg text-neutral-400">
-            No designers, no developers, no months of back-and-forth.
+          <p className="mt-4 max-w-sm text-zinc-400">
+            No designers, no developers, no months of back and forth.
           </p>
-        </Reveal>
-
-        <div className="mt-16 grid gap-6 md:grid-cols-3">
-          {steps.map((s, i) => (
-            <Reveal key={s.step} delay={i * 0.1}>
-              <div className="group gradient-border relative h-full overflow-hidden rounded-2xl border border-white/8 bg-white/[0.03] p-8 transition-all duration-300 hover:-translate-y-1">
-                {/* hover glow */}
-                <div className="pointer-events-none absolute -inset-px -z-10 rounded-2xl opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-100 glow" />
-                <div className="absolute right-6 top-6 text-5xl font-bold text-white/[0.06] transition-colors group-hover:text-white/10">
-                  {s.step}
-                </div>
-                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#6366f1,#d946ef)] text-white shadow-lg shadow-violet-600/30">
-                  <s.icon className="h-6 w-6" />
-                </div>
-                <h3 className="text-xl font-semibold text-white">{s.title}</h3>
-                <p className="mt-3 text-[15px] leading-relaxed text-neutral-400">
-                  {s.desc}
-                </p>
-              </div>
-            </Reveal>
-          ))}
         </div>
+
+        <ol className="relative">
+          <span className="absolute left-[27px] top-2 bottom-2 w-px bg-white/10" aria-hidden />
+          {steps.map((s, i) => (
+            <motion.li
+              key={s.n}
+              initial={reduce ? false : { opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 0.5, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+              className="relative flex gap-6 pb-12 last:pb-0"
+            >
+              <span className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-card text-accent">
+                <s.icon weight="bold" className="h-6 w-6" />
+              </span>
+              <div className="pt-1.5">
+                <div className="flex items-baseline gap-3">
+                  <span className="font-mono text-sm text-zinc-600">{s.n}</span>
+                  <h3 className="text-xl font-semibold text-white">{s.title}</h3>
+                </div>
+                <p className="mt-2 max-w-md leading-relaxed text-zinc-400">{s.body}</p>
+              </div>
+            </motion.li>
+          ))}
+        </ol>
       </div>
     </section>
   );

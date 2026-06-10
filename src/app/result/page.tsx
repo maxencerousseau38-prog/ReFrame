@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Wand2, Rocket, Check, ExternalLink, Loader2, ArrowLeft } from "lucide-react";
+import { MagicWand, RocketLaunch, Check, ArrowSquareOut, CircleNotch, ArrowLeft } from "@phosphor-icons/react";
 import { DashboardShell } from "@/components/dashboard/shell";
 import { SiteRenderer } from "@/components/blocks";
 import { Button } from "@/components/ui/button";
@@ -51,7 +51,7 @@ export default function ResultPage() {
     return (
       <DashboardShell>
         <div className="flex h-screen items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <CircleNotch weight="bold" className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
       </DashboardShell>
     );
@@ -63,7 +63,7 @@ export default function ResultPage() {
       <div className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-3 border-b border-border bg-background/80 px-6 py-3 backdrop-blur-xl">
         <div className="flex items-center gap-3">
           <Link href="/dashboard">
-            <Button variant="ghost" size="sm"><ArrowLeft className="h-4 w-4" /></Button>
+            <Button variant="ghost" size="sm"><ArrowLeft weight="bold" className="h-4 w-4" /></Button>
           </Link>
           <div>
             <div className="text-sm font-semibold">{schema.brand.name}</div>
@@ -91,15 +91,15 @@ export default function ResultPage() {
 
         <div className="flex items-center gap-2">
           <Link href="/editor">
-            <Button variant="outline" size="sm"><Wand2 className="h-4 w-4" /> Edit with AI</Button>
+            <Button variant="outline" size="sm"><MagicWand weight="bold" className="h-4 w-4" /> Edit with AI</Button>
           </Link>
           {published ? (
             <a href={published} target="_blank" rel="noreferrer">
-              <Button size="sm" variant="gradient"><Check className="h-4 w-4" /> Live</Button>
+              <Button size="sm"><Check weight="bold" className="h-4 w-4" /> Live</Button>
             </a>
           ) : (
-            <Button size="sm" variant="gradient" onClick={publish} disabled={publishing}>
-              {publishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Rocket className="h-4 w-4" />}
+            <Button size="sm" onClick={publish} disabled={publishing}>
+              {publishing ? <CircleNotch weight="bold" className="h-4 w-4 animate-spin" /> : <RocketLaunch weight="bold" className="h-4 w-4" />}
               Publish
             </Button>
           )}
@@ -108,11 +108,11 @@ export default function ResultPage() {
 
       {published && (
         <div className="flex items-center justify-center gap-2 border-b border-emerald-500/30 bg-emerald-500/10 px-6 py-2.5 text-sm text-emerald-300">
-          <Check className="h-4 w-4" /> Published to
+          <Check weight="bold" className="h-4 w-4" /> Published to
           <a href={published} target="_blank" rel="noreferrer" className="font-medium underline underline-offset-2">
             {published.replace("https://", "")}
           </a>
-          <ExternalLink className="h-3.5 w-3.5" />
+          <ArrowSquareOut weight="bold" className="h-3.5 w-3.5" />
         </div>
       )}
 

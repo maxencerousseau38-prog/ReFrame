@@ -63,7 +63,7 @@ export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
     theme: { primary: "#0a0a0a", accent: "#6366f1", radius: "lg", font: "inter", mood: "minimal" },
     defaults: {
       headline: "The platform your team will actually use",
-      description: "Powerful, fast and beautifully simple — built to remove busywork from your day.",
+      description: "Powerful, fast and beautifully simple, built to remove busywork from your day.",
       services: ["Automation", "Integrations", "Analytics", "Team collaboration"],
     },
     preferred: { hero: "HeroPremium1", features: "FeaturesGrid1" },
@@ -111,7 +111,7 @@ export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
     theme: { primary: "#0a0a0a", accent: "#6366f1", radius: "lg", font: "inter", mood: "minimal" },
     defaults: {
       headline: "Something better, built for you",
-      description: "A modern home for your business — clear, fast and made to convert.",
+      description: "A modern home for your business. Clear, fast and made to convert.",
       services: ["Quality first", "Trusted by clients", "Fast turnaround", "Personal service"],
     },
     preferred: { hero: "HeroPremium1", features: "FeaturesGrid1" },

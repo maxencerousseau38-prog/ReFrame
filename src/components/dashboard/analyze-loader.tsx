@@ -1,22 +1,23 @@
 "use client";
 
 import * as React from "react";
-import { motion } from "framer-motion";
-import { Check, Loader2 } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { Check, CircleNotch } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
 const STEPS = [
   "Fetching your website",
   "Detecting your industry",
-  "Extracting content & media",
-  "Auditing SEO & performance",
-  "Selecting premium templates",
+  "Extracting content and media",
+  "Auditing SEO and performance",
+  "Selecting layout blocks",
   "Assembling your new site",
 ];
 
-/** Premium multi-step loader shown while analyzing + generating. */
+/** Premium multi-step loader shown while analyzing and generating. */
 export function AnalyzeLoader({ done }: { done?: boolean }) {
   const [active, setActive] = React.useState(0);
+  const reduce = useReducedMotion();
 
   React.useEffect(() => {
     if (done) {
@@ -31,43 +32,41 @@ export function AnalyzeLoader({ done }: { done?: boolean }) {
 
   return (
     <div className="mx-auto max-w-md">
-      <div className="relative mb-8 flex justify-center">
-        <div className="absolute h-28 w-28 animate-ping rounded-full bg-violet-500/20" />
-        <div className="absolute h-32 w-32 glow blur-2xl" />
-        <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#6366f1,#d946ef)] text-white shadow-xl shadow-violet-600/40">
-          <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="mb-8 flex justify-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
+          <CircleNotch weight="bold" className={cn("h-7 w-7", !reduce && "animate-spin")} />
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         {STEPS.map((step, i) => {
           const complete = i < active || done;
           const current = i === active && !done;
           return (
             <motion.div
               key={step}
-              initial={{ opacity: 0, x: -8 }}
+              initial={reduce ? false : { opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.06 }}
+              transition={{ delay: i * 0.05 }}
               className={cn(
-                "flex items-center gap-3 rounded-lg border px-4 py-3 text-sm transition-colors",
+                "flex items-center gap-3 rounded-xl border px-4 py-3 text-sm transition-colors",
                 complete
-                  ? "border-white/8 bg-white/[0.03] text-white"
+                  ? "border-white/8 bg-card text-white"
                   : current
-                  ? "border-violet-400/30 bg-violet-500/10 text-white"
-                  : "border-transparent text-neutral-500"
+                  ? "border-accent/30 bg-accent/10 text-white"
+                  : "border-transparent text-zinc-500"
               )}
             >
               <span
                 className={cn(
                   "flex h-5 w-5 items-center justify-center rounded-full",
-                  complete ? "bg-violet-500 text-white" : current ? "bg-violet-500/20" : "bg-white/8"
+                  complete ? "bg-accent text-accent-foreground" : current ? "bg-accent/20" : "bg-white/8"
                 )}
               >
                 {complete ? (
-                  <Check className="h-3 w-3" />
+                  <Check weight="bold" className="h-3 w-3" />
                 ) : current ? (
-                  <Loader2 className="h-3 w-3 animate-spin text-violet-300" />
+                  <CircleNotch weight="bold" className={cn("h-3 w-3 text-accent", !reduce && "animate-spin")} />
                 ) : null}
               </span>
               {step}
