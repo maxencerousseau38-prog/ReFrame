@@ -61,15 +61,8 @@ export function Features() {
   return (
     <section id="features" className="px-6 py-32">
       <div className="mx-auto max-w-[1200px]">
-        {/* Inline-image headline */}
-        <h2 className="mx-auto max-w-4xl text-balance text-center font-semibold leading-[1.05] tracking-tight text-white [font-size:clamp(2rem,4.5vw,3.25rem)]">
-          From a tired homepage
-          <span
-            className="mx-3 inline-block h-9 w-16 translate-y-1 rounded-full bg-cover bg-center align-middle md:h-11 md:w-20"
-            style={{ backgroundImage: "url(https://picsum.photos/seed/reframe-canvas/200/120)" }}
-            aria-hidden
-          />
-          to a site people actually finish.
+        <h2 className="mx-auto max-w-3xl text-balance text-center font-semibold leading-[1.05] tracking-tight text-white [font-size:clamp(2rem,4.5vw,3.25rem)]">
+          From a tired homepage to a site people actually finish.
         </h2>
 
         <div className="mt-14 grid auto-rows-[minmax(0,1fr)] grid-cols-1 gap-3 [grid-auto-flow:dense] md:grid-cols-6">
