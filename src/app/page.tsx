@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/landing/navbar";
 import { Hero } from "@/components/landing/hero";
 import { Logos } from "@/components/landing/logos";
+import { Manifesto } from "@/components/landing/manifesto";
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { BeforeAfter } from "@/components/landing/before-after";
 import { Features } from "@/components/landing/features";
@@ -11,13 +12,14 @@ import { Footer } from "@/components/landing/footer";
 
 export default function HomePage() {
   return (
-    <main className="relative">
+    <main className="relative w-full max-w-full overflow-x-hidden">
       <Navbar />
       <Hero />
       <Logos />
-      <HowItWorks />
-      <BeforeAfter />
+      <Manifesto />
       <Features />
+      <BeforeAfter />
+      <HowItWorks />
       <Pricing />
       <Testimonials />
       <FinalCta />

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Sparkle } from "@phosphor-icons/react";
 import { IslandButton } from "@/components/ui/island-button";
 import { Bezel } from "@/components/ui/bezel";
@@ -12,6 +12,16 @@ export function Hero() {
   const reduce = useReducedMotion();
   const [url, setUrl] = React.useState("");
 
+  // Gentle parallax: the product canvas drifts up and grows slightly as the
+  // hero scrolls away, giving depth without a heavy scroll-jack.
+  const sectionRef = React.useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  });
+  const canvasY = useTransform(scrollYProgress, [0, 1], [0, -70]);
+  const canvasScale = useTransform(scrollYProgress, [0, 1], [1, 1.05]);
+
   function go(e?: React.FormEvent) {
     e?.preventDefault();
     if (!url.trim()) return;
@@ -19,7 +29,10 @@ export function Hero() {
   }
 
   return (
-    <section className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden px-6 pt-32 pb-20 text-center">
+    <section
+      ref={sectionRef}
+      className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden px-6 pt-32 pb-20 text-center"
+    >
       {/* ambient cyan mesh + grid, faded into the page */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-grid bg-fade-b opacity-60" />
@@ -64,6 +77,7 @@ export function Hero() {
         initial={reduce ? false : { opacity: 0, y: 60, filter: "blur(16px)" }}
         animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
         transition={{ duration: 1, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+        style={reduce ? undefined : { y: canvasY, scale: canvasScale }}
         className="relative mt-16 w-full max-w-5xl"
       >
         <div className="absolute -inset-10 -z-10 ambient-soft blur-[60px]" />
