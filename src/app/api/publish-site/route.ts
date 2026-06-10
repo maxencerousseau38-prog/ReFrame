@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       ok: true,
-      url: `https://${slug}.siterevive.app`,
+      url: `https://${slug}.reframe.site`,
       deployedAt: new Date().toISOString(),
       blocks: schema.blocks.length,
     });

@@ -124,7 +124,7 @@ export default function ResultPage() {
             <span className="h-3 w-3 rounded-full bg-yellow-400" />
             <span className="h-3 w-3 rounded-full bg-green-400" />
             <div className="ml-3 flex-1 truncate rounded-md bg-white/5 px-3 py-1 text-xs text-muted-foreground">
-              {view === "after" ? `${schema.brand.name.toLowerCase().replace(/\s+/g, "")}.siterevive.app` : schema.sourceUrl}
+              {view === "after" ? `${schema.brand.name.toLowerCase().replace(/\s+/g, "")}.reframe.site` : schema.sourceUrl}
             </div>
           </div>
           <div className="max-h-[70vh] overflow-y-auto">

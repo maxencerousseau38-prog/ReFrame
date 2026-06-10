@@ -64,7 +64,7 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
     const timeout = setTimeout(() => controller.abort(), 6000);
     const res = await fetch(url, {
       signal: controller.signal,
-      headers: { "User-Agent": "SiteReviveBot/1.0 (+https://siterevive.ai)" },
+      headers: { "User-Agent": "ReFrameBot/1.0 (+https://reframe.design)" },
     });
     clearTimeout(timeout);
     if (res.ok) html = await res.text();

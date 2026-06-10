@@ -4,14 +4,13 @@ import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "SiteRevive AI - rebuild any website into a site that converts",
+  title: "ReFrame - reframe any website into something worth visiting",
   description:
-    "Paste a URL. SiteRevive analyzes your existing website and rebuilds it into a fast, modern site you can edit by chatting with AI. Live in minutes.",
-  metadataBase: new URL("https://siterevive.ai"),
+    "Paste a link. ReFrame analyzes your existing website and rebuilds it into a fast, modern site you can edit by chatting with AI. Live in minutes.",
+  metadataBase: new URL("https://reframe.design"),
   openGraph: {
-    title: "SiteRevive AI",
-    description:
-      "Rebuild any website into a fast, modern site you can edit with AI.",
+    title: "ReFrame",
+    description: "Reframe any website into a fast, modern site you edit with AI.",
     type: "website",
   },
 };

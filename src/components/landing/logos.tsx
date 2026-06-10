@@ -1,31 +1,29 @@
-// Social-proof logo wall. Real brand SVGs via Simple Icons CDN, logo-only
-// (no category labels), sitting directly under the hero (not inside it).
+// Partner logo marquee (the page's single marquee). Real brand SVGs via Simple
+// Icons, logo-only, no category labels.
 const logos = [
-  { name: "Vercel", slug: "vercel" },
-  { name: "Linear", slug: "linear" },
-  { name: "Framer", slug: "framer" },
-  { name: "Stripe", slug: "stripe" },
-  { name: "Notion", slug: "notion" },
-  { name: "Shopify", slug: "shopify" },
+  "vercel", "linear", "framer", "stripe", "notion", "shopify", "figma", "loom",
 ];
 
 export function Logos() {
+  const row = [...logos, ...logos];
   return (
-    <section className="border-y border-white/8 py-10">
-      <div className="mx-auto max-w-[1400px] px-6">
-        <p className="text-center text-sm text-zinc-500">
-          Agencies and founders rebuild their sites with SiteRevive
-        </p>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-x-12 gap-y-6">
-          {logos.map((logo) => (
+    <section className="overflow-hidden py-16">
+      <p className="mb-8 text-center text-sm text-zinc-500">
+        Agencies and founders reframe their sites with us
+      </p>
+      <div className="relative">
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-32 bg-gradient-to-r from-background to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-32 bg-gradient-to-l from-background to-transparent" />
+        <div className="flex w-max items-center gap-16 animate-marquee">
+          {row.map((slug, i) => (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              key={logo.slug}
-              src={`https://cdn.simpleicons.org/${logo.slug}/a1a1aa`}
-              alt={logo.name}
-              width={92}
+              key={`${slug}-${i}`}
+              src={`https://cdn.simpleicons.org/${slug}/9a9a9a`}
+              alt={slug}
+              width={96}
               height={28}
-              className="h-6 w-auto opacity-60 grayscale transition-opacity duration-200 hover:opacity-100"
+              className="h-6 w-auto opacity-50 grayscale transition-opacity duration-200 hover:opacity-90"
             />
           ))}
         </div>

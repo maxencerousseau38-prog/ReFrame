@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  ArrowsClockwise,
+  Faders,
   SquaresFour,
   Sparkle,
   MagicWand,
@@ -25,9 +25,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-white/8 bg-white/[0.02] p-4 lg:flex">
         <Link href="/" className="flex items-center gap-2.5 px-2 py-3">
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-accent-foreground">
-            <ArrowsClockwise weight="bold" className="h-[18px] w-[18px]" />
+            <Faders weight="bold" className="h-[18px] w-[18px]" />
           </span>
-          <span className="text-[15px] font-semibold tracking-tight text-white">SiteRevive</span>
+          <span className="text-[15px] font-semibold tracking-tight text-white">ReFrame</span>
         </Link>
 
         <nav className="mt-6 flex flex-1 flex-col gap-1">

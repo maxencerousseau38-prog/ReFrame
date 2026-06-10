@@ -9,18 +9,18 @@ const columns = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-white/8">
-      <div className="mx-auto max-w-[1400px] px-6 py-16">
+    <footer className="border-t border-white/8 px-6">
+      <div className="mx-auto max-w-[1200px] py-16">
         <div className="grid gap-12 lg:grid-cols-[1.5fr_repeat(4,1fr)]">
           <div>
-            <Link href="/" className="flex items-center gap-2.5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-lg font-bold text-accent-foreground">
-                S
+            <Link href="/" className="flex items-center gap-2">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-sm font-bold text-accent-foreground">
+                R
               </span>
-              <span className="text-[15px] font-semibold tracking-tight text-white">SiteRevive</span>
+              <span className="text-[15px] font-semibold tracking-tight text-white">ReFrame</span>
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-zinc-400">
-              Rebuild any website into a fast, modern site you can edit by
+              Reframe any website into a fast, modern site you can edit by
               chatting. Live in minutes.
             </p>
           </div>
@@ -42,9 +42,7 @@ export function Footer() {
         </div>
 
         <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-white/8 pt-8 sm:flex-row">
-          <p className="text-sm text-zinc-500">
-            © {new Date().getFullYear()} SiteRevive. All rights reserved.
-          </p>
+          <p className="text-sm text-zinc-500">© {new Date().getFullYear()} ReFrame. All rights reserved.</p>
           <p className="text-sm text-zinc-500">Built for the modern web.</p>
         </div>
       </div>

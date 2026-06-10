@@ -1,4 +1,4 @@
-# SiteRevive AI
+# ReFrame
 
 Turn any website into a modern, premium, AI-editable experience. Paste a URL →
 the engine analyzes the site → it rebuilds it from a library of premium UI blocks

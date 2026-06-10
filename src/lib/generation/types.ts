@@ -1,5 +1,5 @@
 /**
- * Core data model for SiteRevive AI.
+ * Core data model for ReFrame.
  *
  * A generated site is a `SiteSchema`: ordered, typed UI blocks plus a theme.
  * The generation engine never produces free-form markup — it only selects and

@@ -3,117 +3,132 @@
 import * as React from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import {
-  ChatCircleDots,
+  ChatCircle,
   MagnifyingGlass,
-  Layout,
+  SquaresFour,
   Gauge,
   RocketLaunch,
+  ArrowRight,
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
+/** Double-bezel bento cell: outer shell + inner core (high-end 4.A). */
 function Cell({
-  className,
-  children,
+  span,
   i,
+  inner,
+  children,
 }: {
-  className?: string;
-  children: React.ReactNode;
+  span: string;
   i: number;
+  inner?: string;
+  children: React.ReactNode;
 }) {
   const reduce = useReducedMotion();
   return (
     <motion.div
-      initial={reduce ? false : { opacity: 0, y: 18 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.3 }}
-      transition={{ duration: 0.5, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }}
-      className={cn(
-        "relative overflow-hidden rounded-2xl border border-white/10 bg-card p-6",
-        className
-      )}
+      initial={reduce ? false : { opacity: 0, y: 30, filter: "blur(10px)" }}
+      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.7, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }}
+      className={cn("rounded-[1.75rem] bg-white/[0.04] p-1.5 ring-1 ring-inset ring-white/10", span)}
     >
-      {children}
+      <div className={cn("bezel-core flex h-full flex-col rounded-[1.4rem] p-6", inner ?? "bg-card")}>
+        {children}
+      </div>
     </motion.div>
   );
 }
 
-function Label({ icon: Icon, title, body }: { icon: any; title: string; body: string }) {
+function Head({ icon: Icon, title, body, dark }: { icon: any; title: string; body: string; dark?: boolean }) {
   return (
     <>
-      <span className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-accent">
+      <span
+        className={cn(
+          "mb-4 flex h-10 w-10 items-center justify-center rounded-xl",
+          dark ? "bg-black/10 text-accent-foreground" : "bg-white/5 text-accent ring-1 ring-inset ring-white/10"
+        )}
+      >
         <Icon weight="bold" className="h-5 w-5" />
       </span>
-      <h3 className="text-lg font-semibold text-white">{title}</h3>
-      <p className="mt-2 text-sm leading-relaxed text-zinc-400">{body}</p>
+      <h3 className={cn("text-lg font-semibold", dark ? "text-accent-foreground" : "text-white")}>{title}</h3>
+      <p className={cn("mt-2 text-sm leading-relaxed", dark ? "text-accent-foreground/70" : "text-zinc-400")}>{body}</p>
     </>
   );
 }
 
 export function Features() {
   return (
-    <section id="features" className="py-24 sm:py-32">
-      <div className="mx-auto max-w-[1400px] px-6">
-        <h2 className="max-w-2xl text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-          Everything from analysis to live site.
+    <section id="features" className="px-6 py-32">
+      <div className="mx-auto max-w-[1200px]">
+        {/* Inline-image headline */}
+        <h2 className="mx-auto max-w-4xl text-balance text-center font-semibold leading-[1.05] tracking-tight text-white [font-size:clamp(2rem,4.5vw,3.25rem)]">
+          From a tired homepage
+          <span
+            className="mx-3 inline-block h-9 w-16 translate-y-1 rounded-full bg-cover bg-center align-middle md:h-11 md:w-20"
+            style={{ backgroundImage: "url(https://picsum.photos/seed/reframe-canvas/200/120)" }}
+            aria-hidden
+          />
+          to a site people actually finish.
         </h2>
-        <p className="mt-4 max-w-md text-zinc-400">
-          One tool does the audit, the redesign, the edits and the deploy.
-        </p>
 
-        <div className="mt-12 grid grid-cols-1 gap-4 lg:grid-cols-3 lg:grid-rows-3">
-          {/* Big feature: the AI editor, shown as a real mini chat */}
-          <Cell i={0} className="lg:col-span-2 lg:row-span-2">
-            <Label
-              icon={ChatCircleDots}
+        <div className="mt-14 grid auto-rows-[minmax(0,1fr)] grid-cols-1 gap-3 [grid-auto-flow:dense] md:grid-cols-6">
+          {/* Big: AI editor as a real mini chat */}
+          <Cell i={0} span="md:col-span-4 md:row-span-2">
+            <Head
+              icon={ChatCircle}
               title="Edit by chatting"
-              body="Type what you want changed and watch it happen. No menus, no code, no waiting on a developer."
+              body="Type what you want changed and watch it happen live. No menus, no code, no waiting on a developer."
             />
-            <div className="mt-6 space-y-3 rounded-xl border border-white/8 bg-background/60 p-4">
+            <div className="mt-auto space-y-3 rounded-2xl border border-white/8 bg-background/60 p-4">
               <div className="flex justify-end">
-                <span className="max-w-[80%] rounded-2xl rounded-br-sm bg-accent px-3.5 py-2 text-[13px] text-accent-foreground">
+                <span className="max-w-[78%] rounded-2xl rounded-br-md bg-accent px-3.5 py-2 text-[13px] text-accent-foreground">
                   Make the hero punchier and add a booking section
                 </span>
               </div>
               <div className="flex justify-start">
-                <span className="max-w-[80%] rounded-2xl rounded-bl-sm border border-white/10 bg-white/5 px-3.5 py-2 text-[13px] text-zinc-200">
+                <span className="max-w-[78%] rounded-2xl rounded-bl-md border border-white/10 bg-white/5 px-3.5 py-2 text-[13px] text-zinc-200">
                   Done. New headline is live and a booking block sits under it.
                 </span>
               </div>
             </div>
           </Cell>
 
-          <Cell i={1}>
-            <Label
+          <Cell i={1} span="md:col-span-2">
+            <Head
               icon={MagnifyingGlass}
               title="Reads your business"
-              body="It detects your industry and pulls your real copy, images and structure before redesigning."
+              body="Detects your industry and pulls your real copy, images and structure first."
             />
           </Cell>
 
-          <Cell i={2}>
-            <Label
-              icon={Layout}
+          <Cell i={2} span="md:col-span-2">
+            <Head
+              icon={SquaresFour}
               title="Picks the right layout"
-              body="Sections are chosen for your sector from a vetted block library, never a random template."
+              body="Sections chosen for your sector from a vetted block library, never random."
             />
           </Cell>
 
-          {/* Wide cell */}
-          <Cell i={3} className="lg:col-span-2">
-            <Label
+          <Cell i={3} span="md:col-span-3">
+            <Head
               icon={Gauge}
               title="Fast and findable"
-              body="Clean semantic markup, quick load times and sensible metadata are built in from the first render."
+              body="Clean semantic markup, quick loads and sensible metadata are built in from the first render."
             />
           </Cell>
 
-          {/* Accent-tinted cell for visual variety */}
-          <Cell i={4} className="border-accent/25 bg-accent/[0.07]">
-            <Label
+          {/* Accent inner core for visual variety */}
+          <Cell i={4} span="md:col-span-3" inner="bg-accent">
+            <Head
+              dark
               icon={RocketLaunch}
               title="Ships to the edge"
               body="Publish to a global network in one click. Custom domains and SSL handled for you."
             />
+            <span className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-medium text-accent-foreground">
+              Go live in seconds <ArrowRight weight="bold" className="h-3.5 w-3.5" />
+            </span>
           </Cell>
         </div>
       </div>
