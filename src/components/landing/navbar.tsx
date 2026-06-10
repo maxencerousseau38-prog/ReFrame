@@ -33,19 +33,19 @@ export function Navbar() {
     >
       <nav
         className={cn(
-          "flex w-full max-w-5xl items-center justify-between rounded-full border px-3 py-2 transition-all duration-300",
+          "flex w-full max-w-5xl items-center justify-between rounded-full px-3 py-2 transition-all duration-300",
           scrolled
-            ? "border-border bg-white/80 shadow-sm backdrop-blur-xl"
-            : "border-transparent bg-transparent"
+            ? "border border-white/10 bg-black/50 shadow-2xl shadow-black/40 backdrop-blur-xl"
+            : "border border-transparent"
         )}
       >
         <Link href="/" className="flex items-center gap-2 pl-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600 to-fuchsia-600 text-white">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[linear-gradient(135deg,#6366f1,#d946ef)] text-white shadow-lg shadow-violet-600/30">
             <Sparkles className="h-4 w-4" />
           </span>
-          <span className="text-[15px] font-semibold tracking-tight">
+          <span className="text-[15px] font-semibold tracking-tight text-white">
             SiteRevive
-            <span className="text-muted-foreground"> AI</span>
+            <span className="text-neutral-500"> AI</span>
           </span>
         </Link>
 
@@ -54,7 +54,7 @@ export function Navbar() {
             <Link
               key={l.href}
               href={l.href}
-              className="rounded-full px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              className="rounded-full px-4 py-2 text-sm text-neutral-400 transition-colors hover:bg-white/5 hover:text-white"
             >
               {l.label}
             </Link>

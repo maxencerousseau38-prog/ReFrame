@@ -82,7 +82,7 @@ export default function ResultPage() {
               )}
             >
               {view === v && (
-                <motion.span layoutId="result-pill" className="absolute inset-0 rounded-full bg-white shadow-sm" transition={{ type: "spring", stiffness: 350, damping: 30 }} />
+                <motion.span layoutId="result-pill" className="absolute inset-0 rounded-full bg-white/10 shadow-sm" transition={{ type: "spring", stiffness: 350, damping: 30 }} />
               )}
               <span className="relative">{v}</span>
             </button>
@@ -107,7 +107,7 @@ export default function ResultPage() {
       </div>
 
       {published && (
-        <div className="flex items-center justify-center gap-2 border-b border-emerald-200 bg-emerald-50 px-6 py-2.5 text-sm text-emerald-700">
+        <div className="flex items-center justify-center gap-2 border-b border-emerald-500/30 bg-emerald-500/10 px-6 py-2.5 text-sm text-emerald-300">
           <Check className="h-4 w-4" /> Published to
           <a href={published} target="_blank" rel="noreferrer" className="font-medium underline underline-offset-2">
             {published.replace("https://", "")}
@@ -123,7 +123,7 @@ export default function ResultPage() {
             <span className="h-3 w-3 rounded-full bg-red-400" />
             <span className="h-3 w-3 rounded-full bg-yellow-400" />
             <span className="h-3 w-3 rounded-full bg-green-400" />
-            <div className="ml-3 flex-1 truncate rounded-md bg-white px-3 py-1 text-xs text-muted-foreground">
+            <div className="ml-3 flex-1 truncate rounded-md bg-white/5 px-3 py-1 text-xs text-muted-foreground">
               {view === "after" ? `${schema.brand.name.toLowerCase().replace(/\s+/g, "")}.siterevive.app` : schema.sourceUrl}
             </div>
           </div>

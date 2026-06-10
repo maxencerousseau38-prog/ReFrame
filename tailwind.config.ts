@@ -72,6 +72,7 @@ const config: Config = {
         shimmer: "shimmer 2s infinite",
         "fade-up": "fade-up 0.6s ease-out forwards",
         float: "float 6s ease-in-out infinite",
+        marquee: "marquee 30s linear infinite",
       },
     },
   },

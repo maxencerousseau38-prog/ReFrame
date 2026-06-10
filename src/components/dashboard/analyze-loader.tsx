@@ -32,8 +32,9 @@ export function AnalyzeLoader({ done }: { done?: boolean }) {
   return (
     <div className="mx-auto max-w-md">
       <div className="relative mb-8 flex justify-center">
-        <div className="absolute h-24 w-24 animate-ping rounded-full bg-violet-500/20" />
-        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-fuchsia-600 text-white shadow-xl shadow-violet-600/30">
+        <div className="absolute h-28 w-28 animate-ping rounded-full bg-violet-500/20" />
+        <div className="absolute h-32 w-32 glow blur-2xl" />
+        <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#6366f1,#d946ef)] text-white shadow-xl shadow-violet-600/40">
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
       </div>
@@ -51,22 +52,22 @@ export function AnalyzeLoader({ done }: { done?: boolean }) {
               className={cn(
                 "flex items-center gap-3 rounded-lg border px-4 py-3 text-sm transition-colors",
                 complete
-                  ? "border-border bg-card text-foreground"
+                  ? "border-white/8 bg-white/[0.03] text-white"
                   : current
-                  ? "border-violet-200 bg-violet-50/60 text-foreground"
-                  : "border-transparent text-muted-foreground"
+                  ? "border-violet-400/30 bg-violet-500/10 text-white"
+                  : "border-transparent text-neutral-500"
               )}
             >
               <span
                 className={cn(
                   "flex h-5 w-5 items-center justify-center rounded-full",
-                  complete ? "bg-violet-600 text-white" : current ? "bg-violet-100" : "bg-secondary"
+                  complete ? "bg-violet-500 text-white" : current ? "bg-violet-500/20" : "bg-white/8"
                 )}
               >
                 {complete ? (
                   <Check className="h-3 w-3" />
                 ) : current ? (
-                  <Loader2 className="h-3 w-3 animate-spin text-violet-600" />
+                  <Loader2 className="h-3 w-3 animate-spin text-violet-300" />
                 ) : null}
               </span>
               {step}

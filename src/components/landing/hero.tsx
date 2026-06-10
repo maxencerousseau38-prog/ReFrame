@@ -4,9 +4,8 @@ import * as React from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowRight, Globe, Loader2 } from "lucide-react";
+import { ArrowRight, Globe, Loader2, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 // 3D scene loaded client-side only to keep the initial bundle light.
 const HeroScene = dynamic(() => import("@/components/three/hero-scene"), {
@@ -27,16 +26,26 @@ export function Hero() {
   }
 
   return (
-    <section className="relative overflow-hidden pt-36 pb-24 sm:pt-44 sm:pb-32">
-      {/* Background layers: grid + controlled glow */}
+    <section className="relative overflow-hidden pt-40 pb-28 sm:pt-52 sm:pb-36">
+      {/* Background: animated mesh glow + dotted grid */}
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-grid bg-radial-fade opacity-60" />
-        <div className="absolute left-1/2 top-0 h-[600px] w-[900px] -translate-x-1/2 glow blur-2xl" />
-      </div>
-
-      {/* Subtle 3D object floating top-right */}
-      <div className="pointer-events-none absolute right-[-6%] top-20 hidden h-[420px] w-[420px] opacity-90 lg:block">
-        <HeroScene />
+        <div className="absolute inset-0 bg-grid bg-radial-fade opacity-50" />
+        <motion.div
+          animate={{ x: [-40, 40, -40], y: [0, 30, 0], scale: [1, 1.1, 1] }}
+          transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute left-1/2 top-[-6rem] h-[640px] w-[940px] -translate-x-1/2 glow blur-[90px]"
+        />
+        <motion.div
+          animate={{ x: [60, -30, 60], opacity: [0.6, 1, 0.6] }}
+          transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute right-[12%] top-40 h-[360px] w-[360px] glow-pink blur-[80px]"
+        />
+        {/* contained 3D accent floating near the top */}
+        <div className="absolute left-1/2 top-16 h-[420px] w-[620px] -translate-x-1/2 sm:top-20">
+          <HeroScene />
+        </div>
+        {/* fade the bottom into the page */}
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-background" />
       </div>
 
       <div className="container relative">
@@ -46,22 +55,23 @@ export function Hero() {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className="mx-auto max-w-3xl text-center"
         >
-          <div className="mb-6 flex justify-center">
-            <Badge variant="glow">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-violet-500 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-violet-600" />
+          <div className="mb-7 flex justify-center">
+            <div className="group flex items-center gap-2 rounded-full border border-white/10 bg-white/5 py-1 pl-1 pr-3 text-xs backdrop-blur">
+              <span className="flex items-center gap-1 rounded-full bg-[linear-gradient(110deg,#6366f1,#d946ef)] px-2 py-0.5 font-medium text-white">
+                <Star className="h-3 w-3 fill-white" /> New
               </span>
-              Now with AI redesign engine v2
-            </Badge>
+              <span className="text-neutral-300">AI redesign engine v2 is live</span>
+              <ArrowRight className="h-3 w-3 text-neutral-500 transition-transform group-hover:translate-x-0.5" />
+            </div>
           </div>
 
-          <h1 className="text-balance text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl md:text-7xl">
+          <h1 className="text-balance text-5xl font-semibold leading-[1.02] tracking-tight text-white sm:text-6xl md:text-7xl">
             Turn any website into a
+            <br className="hidden sm:block" />
             <span className="gradient-text"> premium experience</span>
           </h1>
 
-          <p className="mx-auto mt-6 max-w-xl text-balance text-lg leading-relaxed text-muted-foreground">
+          <p className="mx-auto mt-7 max-w-xl text-balance text-lg leading-relaxed text-neutral-400">
             Paste a URL. SiteRevive AI analyzes your existing site and rebuilds
             it into a modern, high-converting experience — fully editable with a
             built-in AI editor.
@@ -70,15 +80,15 @@ export function Hero() {
           {/* Primary CTA — the URL analyzer */}
           <form
             onSubmit={handleAnalyze}
-            className="mx-auto mt-10 flex max-w-xl flex-col gap-3 sm:flex-row"
+            className="group mx-auto mt-10 flex max-w-xl flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-2 backdrop-blur-xl sm:flex-row sm:items-center sm:rounded-full sm:p-1.5"
           >
             <div className="relative flex-1">
-              <Globe className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+              <Globe className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-500" />
               <input
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="yourwebsite.com"
-                className="h-14 w-full rounded-xl border border-border bg-white/80 pl-12 pr-4 text-[15px] shadow-sm backdrop-blur transition-all focus:border-foreground/20 focus:outline-none focus:ring-4 focus:ring-foreground/5"
+                className="h-12 w-full rounded-full bg-transparent pl-12 pr-4 text-[15px] text-white placeholder:text-neutral-500 focus:outline-none"
               />
             </div>
             <Button
@@ -86,20 +96,20 @@ export function Hero() {
               size="lg"
               variant="gradient"
               disabled={loading}
-              className="h-14 px-7"
+              className="h-12 px-7"
             >
               {loading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
                 <>
-                  Analyze your website
+                  Analyze
                   <ArrowRight className="h-4 w-4" />
                 </>
               )}
             </Button>
           </form>
 
-          <p className="mt-4 text-xs text-muted-foreground">
+          <p className="mt-4 text-xs text-neutral-500">
             No credit card required · First redesign free · Ready in ~3 minutes
           </p>
         </motion.div>
@@ -109,12 +119,15 @@ export function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="mx-auto mt-20 flex max-w-2xl flex-wrap items-center justify-center gap-x-10 gap-y-4 opacity-60"
+          className="mx-auto mt-24 flex max-w-2xl flex-wrap items-center justify-center gap-x-10 gap-y-4"
         >
+          <span className="w-full text-center text-xs uppercase tracking-widest text-neutral-600">
+            Trusted by teams who care about craft
+          </span>
           {["Vercel", "Linear", "Framer", "Stripe", "Supabase"].map((n) => (
             <span
               key={n}
-              className="text-sm font-semibold tracking-tight text-muted-foreground"
+              className="text-sm font-semibold tracking-tight text-neutral-500 transition-colors hover:text-neutral-300"
             >
               {n}
             </span>
