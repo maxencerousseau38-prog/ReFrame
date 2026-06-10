@@ -1,18 +1,19 @@
 # ReFrame
 
-Turn any website into a modern, premium, AI-editable experience. Paste a URL →
-the engine analyzes the site → it rebuilds it from a library of premium UI blocks
-→ you refine everything with a built-in AI editor → publish instantly.
+Paste a link. ReFrame analyzes your existing website, rebuilds it into a fast,
+modern version of itself, and lets you refine everything by chatting. Live in
+minutes.
 
-> A Silicon-Valley-grade SaaS scaffold (Framer / Linear / Stripe aesthetic).
+> An editorial, AI-tech product surface inspired by Framer / Linear / Apple.
 
 ## Stack
 
 - **Next.js 14** (App Router) + **TypeScript**
-- **TailwindCSS** with a Shadcn-style design system
-- **Framer Motion** for animations & micro-interactions
-- **React Three Fiber / Three.js** for the subtle 3D hero
-- **Node.js** API routes (drop-in points for Supabase / Postgres + Auth)
+- **TailwindCSS** with a dark, single-accent (cyan) design system
+- **Geist** + Geist Mono (`geist`), **Phosphor** icons (one family)
+- **Framer Motion** for scroll reveals, parallax and physical transitions
+- **node-html-parser** for the real website crawl
+- **Node.js** API routes (drop-in points for an LLM, Auth and a DB)
 
 ## Getting started
 
@@ -27,63 +28,49 @@ npm run build    # production build
 ```
 src/
 ├── app/
-│   ├── page.tsx                 # Landing page (hero, how-it-works, before/after,
-│   │                            #   features, pricing, testimonials, CTA, footer)
-│   ├── dashboard/page.tsx       # URL input → analysis → premium loader → audit
+│   ├── page.tsx                 # Landing: hero, before/after slider, AI engine,
+│   │                            #   templates, results, CTA, footer
+│   ├── dashboard/page.tsx       # URL -> live crawl + audit -> generate
 │   ├── result/page.tsx          # Before/after preview, publish, edit-with-AI
-│   ├── editor/page.tsx          # AI chatbot editor + live preview
-│   ├── globals.css              # Design tokens & premium utilities
+│   ├── editor/page.tsx          # AI chat editor + live preview
+│   ├── globals.css              # Design tokens (OLED base, cyan accent)
 │   └── api/
-│       ├── analyze-url/         # POST  analyze an existing site
-│       ├── generate-site/       # POST  build a SiteSchema from analysis
+│       ├── analyze-url/         # POST  real crawl + audit of the source site
+│       ├── generate-site/       # POST  build a SiteSchema from the analysis
 │       ├── ai-edit/             # POST  apply a natural-language edit
 │       └── publish-site/        # POST  simulate edge deployment
 ├── components/
-│   ├── ui/                      # Button, Card, Input, Badge, Accordion, Reveal
-│   ├── landing/                 # All landing-page sections
-│   ├── dashboard/               # Shell (sidebar) + premium analyze loader
-│   ├── three/hero-scene.tsx     # Subtle R3F hero object
-│   └── blocks/                  # Template library + <SiteRenderer/>
+│   ├── ui/                      # Bezel, IslandButton, BlurReveal, Button, ...
+│   ├── landing/                 # navbar, hero, compare, engine-viz, templates,
+│   │                            #   results, cta, footer
+│   ├── dashboard/               # shell (sidebar) + analyze loader
+│   └── blocks/                  # generated-site template library + SiteRenderer
 └── lib/
     ├── generation/
     │   ├── types.ts             # SiteSchema, Block, Theme, SiteAnalysis
-    │   ├── industries.ts        # Sector detection + per-sector theming
-    │   └── engine.ts            # analyzeUrl · generateSite · applyAiEdit
-    ├── store.ts                 # Client persistence for the demo flow
+    │   ├── industries.ts        # sector detection + per-sector theming
+    │   └── engine.ts            # analyzeUrl (real crawl) · generateSite · applyAiEdit
+    ├── store.ts                 # client persistence for the demo flow
     └── utils.ts
 ```
 
-## How generation works
+## How it works
 
-Generation is **never random**. The engine:
-
-1. **Analyzes** the URL — fetches the page (best-effort), detects the industry
-   from keyword signals, extracts headline/description/services, and produces a
-   design/performance/SEO/mobile/accessibility audit. Falls back to a
-   deterministic profile when a site can't be fetched.
-2. **Selects** premium blocks (`HeroPremium1/2`, `FeaturesGrid1`,
-   `TestimonialsSlider1`, `FAQAccordion1`, `CTASection1`, `ContactFormPremium1`,
-   `Footer1`) using the detected sector's preferred variants and theme.
-3. **Assembles** a coherent `SiteSchema` (typed, ordered blocks + theme) that
-   `<SiteRenderer/>` renders into a real, themed site.
-
-## The AI editor
-
-`applyAiEdit()` is a deterministic intent router — the slot where a real LLM call
-lives in production. It already handles:
-
-- "Change hero title to …"
-- "Add an FAQ / testimonials / contact / CTA section"
-- "Remove the … section"
-- "Change the accent color to teal/violet/…"
-- "Make it more premium / bold / elegant"
-- "Improve SEO / conversion"
+1. **Analyze** (`/api/analyze-url`) — fetches the live page and parses real HTML:
+   brand, logo, accent color, hero/content images, nav labels, headline and
+   description. Audit scores come from real signals (viewport tag, meta
+   description, h1, canonical, OG, alt-text ratio, lang, asset counts, legacy
+   markup). Thin JS shells and unreachable sites fall back to a deterministic
+   profile (shown as "Estimated").
+2. **Generate** (`/api/generate-site`) — assembles a coherent `SiteSchema` from
+   a vetted block library using the detected sector's preferred variants, and
+   keeps the source brand recognisable (extracted accent + hero image).
+3. **Edit** (`/api/ai-edit`) — a deterministic intent router (the slot where a
+   real LLM call lives in production) interprets plain-English instructions.
+4. **Publish** (`/api/publish-site`) — simulates an edge deploy.
 
 ## Production next steps
 
-- Swap `applyAiEdit` / `analyzeUrl` internals for real LLM + crawler calls.
-- Add Auth (NextAuth or Supabase Auth) and persist projects in Supabase/Postgres
-  instead of `sessionStorage`.
-- Wire `publish-site` to a real edge deploy + custom domains.
-- Upgrade to Next.js 16 / React 19 when migrating R3F to v9 to clear remaining
-  framework CVEs flagged by `npm audit`.
+- Swap `applyAiEdit` for a real LLM call (Claude) behind an API key.
+- Add Auth + persist projects in a database instead of `sessionStorage`.
+- Make `publish-site` a real export / edge deploy with custom domains.
