@@ -1,4 +1,55 @@
+import { lookup } from "node:dns/promises";
 import { parse, type HTMLElement } from "node-html-parser";
+
+/** Thrown when a URL targets a private/blocked address (SSRF protection). */
+export class BlockedUrlError extends Error {
+  constructor(msg = "This URL is not allowed.") {
+    super(msg);
+    this.name = "BlockedUrlError";
+  }
+}
+
+function isPrivateIp(ip: string): boolean {
+  // IPv4 private / loopback / link-local / cloud metadata
+  if (/^(10|127)\./.test(ip)) return true;
+  if (/^169\.254\./.test(ip)) return true; // includes 169.254.169.254 metadata
+  if (/^192\.168\./.test(ip)) return true;
+  if (/^172\.(1[6-9]|2\d|3[01])\./.test(ip)) return true;
+  if (ip === "0.0.0.0") return true;
+  // IPv6 loopback / unique-local / link-local
+  const v6 = ip.toLowerCase();
+  if (v6 === "::1" || v6.startsWith("fc") || v6.startsWith("fd") || v6.startsWith("fe80")) return true;
+  return false;
+}
+
+/**
+ * SSRF guard: only http/https, never private/loopback/metadata addresses.
+ * Resolves the hostname so an attacker can't point a public name at 127.0.0.1.
+ */
+async function assertSafeTarget(rawUrl: string): Promise<void> {
+  let u: URL;
+  try {
+    u = new URL(rawUrl);
+  } catch {
+    throw new BlockedUrlError("Invalid URL.");
+  }
+  if (u.protocol !== "http:" && u.protocol !== "https:") {
+    throw new BlockedUrlError("Only http and https URLs are supported.");
+  }
+  const host = u.hostname.toLowerCase();
+  if (host === "localhost" || host.endsWith(".local") || host.endsWith(".internal")) {
+    throw new BlockedUrlError();
+  }
+  let results: { address: string }[] = [];
+  try {
+    results = await lookup(host, { all: true });
+  } catch {
+    // DNS failure is not an SSRF risk (the host simply does not resolve); let
+    // the subsequent fetch fail and fall back to the deterministic profile.
+    return;
+  }
+  if (results.some((r) => isPrivateIp(r.address))) throw new BlockedUrlError();
+}
 import type {
   Block,
   SiteAnalysis,
@@ -58,6 +109,7 @@ function clean(text: string): string {
  */
 export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
   const url = normalizeUrl(rawUrl);
+  await assertSafeTarget(url);
 
   let html = "";
   try {

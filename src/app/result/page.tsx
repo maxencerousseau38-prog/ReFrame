@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { MagicWand, RocketLaunch, Check, ArrowSquareOut, CircleNotch, ArrowLeft } from "@phosphor-icons/react";
+import { MagicWand, RocketLaunch, Check, ArrowSquareOut, CircleNotch, ArrowLeft, DownloadSimple } from "@phosphor-icons/react";
 import { DashboardShell } from "@/components/dashboard/shell";
 import { SiteRenderer } from "@/components/blocks";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,25 @@ export default function ResultPage() {
     setSchema(s);
     setAnalysis(loadAnalysis());
   }, [router]);
+
+  async function downloadHtml() {
+    if (!schema) return;
+    const res = await fetch("/api/export", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ schema }),
+    });
+    if (!res.ok) return;
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${schema.brand.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "site"}.html`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
 
   async function publish() {
     if (!schema) return;
@@ -90,6 +109,9 @@ export default function ResultPage() {
         </div>
 
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={downloadHtml}>
+            <DownloadSimple weight="bold" className="h-4 w-4" /> Download
+          </Button>
           <Link href="/editor">
             <Button variant="outline" size="sm"><MagicWand weight="bold" className="h-4 w-4" /> Edit with AI</Button>
           </Link>
