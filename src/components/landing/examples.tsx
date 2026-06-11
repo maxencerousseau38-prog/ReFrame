@@ -1,38 +1,13 @@
 "use client";
 
 import { BlurReveal } from "@/components/ui/blur-reveal";
-import { cn } from "@/lib/utils";
 
-type Ex = {
-  brand: string;
-  sector: string;
-  title: string;
-  grad: string;
-  tint: string;
-};
+type Ex = { brand: string; sector: string; title: string; img: string };
 
 const examples: Ex[] = [
-  {
-    brand: "Komorebi",
-    sector: "Restaurant",
-    title: "A table you'll remember.",
-    grad: "from-amber-100 via-white to-white",
-    tint: "bg-amber-100 text-amber-700",
-  },
-  {
-    brand: "Field Studio",
-    sector: "Agency",
-    title: "Work that earns attention.",
-    grad: "from-stone-200 via-white to-white",
-    tint: "bg-stone-200 text-stone-700",
-  },
-  {
-    brand: "Crest Homes",
-    sector: "Real estate",
-    title: "The place you pictured.",
-    grad: "from-emerald-100 via-white to-white",
-    tint: "bg-emerald-100 text-emerald-700",
-  },
+  { brand: "Komorebi", sector: "Restaurant", title: "A table you'll remember.", img: "/brand/scene-1.jpg" },
+  { brand: "Field Studio", sector: "Agency", title: "Work that earns attention.", img: "/brand/scene-2.jpg" },
+  { brand: "Crest Homes", sector: "Real estate", title: "The place you pictured.", img: "/brand/scene-3.jpg" },
 ];
 
 export function Examples() {
@@ -63,33 +38,39 @@ export function Examples() {
 
 function Card({ e }: { e: Ex }) {
   return (
-    <div className="group relative overflow-hidden rounded-[1.5rem] border border-white/12 bg-zinc-900 shadow-[0_30px_90px_-40px_rgba(0,0,0,0.85)] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5">
-      {/* after preview */}
-      <div className="relative h-52 overflow-hidden bg-white text-zinc-900">
-        <div className={cn("absolute right-0 top-0 h-full w-1/2 bg-gradient-to-bl", e.grad)} />
-        <div className="relative flex h-full flex-col justify-center px-6">
-          <span className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-500">
-            <span className="h-4 w-4 rounded bg-zinc-900" /> {e.brand}
-          </span>
-          <h3 className="mt-3 max-w-[16ch] text-xl font-semibold leading-tight tracking-tight">{e.title}</h3>
-          <span className="mt-4 w-fit rounded-full bg-zinc-900 px-3.5 py-1.5 text-[11px] font-medium text-white">Get started</span>
-        </div>
+    <div className="group overflow-hidden rounded-[1.5rem] border border-accent/15 bg-[#16140f] shadow-[0_30px_90px_-40px_rgba(0,0,0,0.85)] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5">
+      {/* elevated visual: grayscale landscape under a warm gold wash */}
+      <div className="relative h-56 overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center grayscale transition-transform duration-700 ease-out group-hover:scale-105"
+          style={{ backgroundImage: `url(${e.img})` }}
+          role="img"
+          aria-label={`${e.brand} reframed`}
+        />
+        <div className="pointer-events-none absolute inset-0 bg-accent/20 mix-blend-overlay" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#16140f] via-[#16140f]/40 to-transparent" />
 
         {/* before thumbnail, telling the transformation story */}
-        <div className="absolute bottom-3 left-3 w-20 -rotate-3 overflow-hidden rounded-md border border-zinc-300 opacity-90 shadow">
-          <div className="bg-[#eceae3] p-1.5 font-serif text-[#2b2b2b]">
-            <div className="h-1.5 w-3/4 bg-[#1f4e79]" />
-            <div className="mt-1 h-5 w-full bg-[#c9c7bb]" />
-            <div className="mt-1 h-1 w-2/3 bg-[#cfcdc2]" />
-          </div>
+        <div className="absolute left-4 top-4 w-16 -rotate-3 overflow-hidden rounded-md bg-[#f3f1ec] p-1.5 shadow ring-1 ring-black/10">
+          <div className="h-1 w-3/4 rounded bg-[#1f4e79]" />
+          <div className="mt-1 h-5 w-full rounded-sm bg-[#c9c7bb] grayscale" />
+          <div className="mt-1 h-0.5 w-2/3 rounded bg-[#cfcdc2]" />
         </div>
-        <span className="absolute bottom-3 left-24 rounded-full bg-black/70 px-2 py-0.5 text-[9px] font-medium text-white backdrop-blur">
+        <span className="absolute left-[5.5rem] top-4 rounded-full bg-black/60 px-2 py-0.5 text-[9px] font-medium text-white backdrop-blur">
           before
         </span>
+
+        {/* brand + title over the image */}
+        <div className="absolute inset-x-0 bottom-0 p-5">
+          <span className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-300">
+            <span className="h-3.5 w-3.5 rounded bg-accent" /> {e.brand}
+          </span>
+          <h3 className="mt-1.5 max-w-[18ch] text-xl font-semibold leading-tight tracking-tight text-white">{e.title}</h3>
+        </div>
       </div>
 
-      <div className="flex items-center justify-between px-6 py-4">
-        <span className={cn("rounded-full px-2.5 py-1 text-[11px] font-medium", e.tint)}>{e.sector}</span>
+      <div className="flex items-center justify-between px-5 py-4">
+        <span className="rounded-full bg-accent/15 px-2.5 py-1 text-[11px] font-medium text-accent">{e.sector}</span>
         <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Transformed</span>
       </div>
     </div>
