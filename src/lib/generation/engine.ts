@@ -286,26 +286,67 @@ function findLogo(root: HTMLElement, base: string): string | undefined {
 }
 
 function findAccent(root: HTMLElement): string | undefined {
-  const theme = root.querySelector('meta[name="theme-color"]')?.getAttribute("content")?.trim();
-  if (theme && /^#?[0-9a-f]{3,8}$/i.test(theme)) return theme.startsWith("#") ? theme : `#${theme}`;
+  // 1) Explicit brand-color signals, in order of reliability.
+  const signals = [
+    root.querySelector('link[rel*="mask-icon"]')?.getAttribute("color"), // Safari pinned tab = usually the true brand color
+    root.querySelector('meta[name="theme-color"]')?.getAttribute("content"),
+    root.querySelector('meta[name="msapplication-TileColor"]')?.getAttribute("content"),
+  ];
+  for (const s of signals) {
+    const c = usableAccent(s || "");
+    if (c) return c;
+  }
 
-  // Otherwise pick the most common saturated hex from inline <style> blocks.
-  const styles = root.querySelectorAll("style").map((s) => s.text).join(" ");
-  const hexes = (styles.match(/#[0-9a-f]{6}\b/gi) || []).map((h) => h.toLowerCase());
+  // 2) Fallback: most frequent *usable* hex across <style> and inline styles.
+  const styleText = root.querySelectorAll("style").map((s) => s.text).join(" ");
+  const inline = root.querySelectorAll("[style]").map((e) => e.getAttribute("style") || "").join(" ");
+  const hexes = ((styleText + " " + inline).match(/#[0-9a-f]{3,8}\b/gi) || []);
   const counts: Record<string, number> = {};
-  for (const hex of hexes) {
-    if (isNeutral(hex)) continue;
-    counts[hex] = (counts[hex] || 0) + 1;
+  for (const raw of hexes) {
+    const c = usableAccent(raw);
+    if (c) counts[c] = (counts[c] || 0) + 1;
   }
   let best: string | undefined;
-  let bestN = 0;
+  let bestScore = 0;
   for (const hex of Object.keys(counts)) {
-    if (counts[hex] > bestN) {
-      bestN = counts[hex];
+    const chroma = hexChroma(hex);
+    const score = counts[hex] * 100 + chroma; // frequency first, vividness as tie-break
+    if (score > bestScore) {
+      bestScore = score;
       best = hex;
     }
   }
   return best;
+}
+
+/** Normalize a hex and accept it only if it works as an accent (a button fill). */
+function usableAccent(raw: string): string | undefined {
+  let h = raw.trim().toLowerCase();
+  if (!h) return undefined;
+  if (!h.startsWith("#")) h = `#${h}`;
+  const m = /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/.exec(h);
+  if (!m) return undefined;
+  let hex = m[1];
+  if (hex.length === 3) hex = hex.split("").map((c) => c + c).join("");
+  hex = `#${hex.slice(0, 6)}`;
+  if (isNeutral(hex)) return undefined;
+  const l = hexLightness(hex);
+  if (l < 0.22 || l > 0.75) return undefined; // too dark/light => unusable as an accent
+  return hex;
+}
+
+function hexLightness(hex: string): number {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return (Math.max(r, g, b) + Math.min(r, g, b)) / 2 / 255;
+}
+
+function hexChroma(hex: string): number {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return Math.max(r, g, b) - Math.min(r, g, b);
 }
 
 function isNeutral(hex: string): boolean {
