@@ -17,12 +17,12 @@ interface Message {
 }
 
 const SUGGESTIONS = [
-  "Change hero title to “Built for what’s next”",
-  "Add an FAQ section",
+  "Change the hero title",
+  "Add a FAQ section",
+  "Add testimonials",
+  "Create a pricing section",
+  "Improve SEO",
   "Make it more premium",
-  "Change the accent color to teal",
-  "Add a testimonials section",
-  "Improve conversion",
 ];
 
 export default function EditorPage() {

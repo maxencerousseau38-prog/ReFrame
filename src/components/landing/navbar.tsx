@@ -3,13 +3,14 @@
 import * as React from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Faders, List, X } from "@phosphor-icons/react";
+import { List, X } from "@phosphor-icons/react";
+import { Logo } from "@/components/brand/logo";
 
 const links = [
   { label: "Before / after", href: "#compare" },
-  { label: "The engine", href: "#engine" },
-  { label: "Templates", href: "#templates" },
-  { label: "Customers", href: "#customers" },
+  { label: "How it works", href: "#how" },
+  { label: "Examples", href: "#examples" },
+  { label: "Pricing", href: "#pricing" },
 ];
 
 export function Navbar() {
@@ -24,13 +25,9 @@ export function Navbar() {
       className="fixed inset-x-0 top-4 z-50 flex justify-center px-4"
     >
       <div className="w-full max-w-3xl">
-        {/* Fluid island: a floating glass pill detached from the top edge */}
-        <nav className="flex h-14 items-center justify-between rounded-full border border-white/10 bg-black/40 pl-5 pr-2 backdrop-blur-xl">
-          <Link href="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-accent-foreground">
-              <Faders weight="bold" className="h-4 w-4" />
-            </span>
-            <span className="text-[15px] font-semibold tracking-tight text-white">ReFrame</span>
+        <nav className="flex h-14 items-center justify-between rounded-full border border-white/10 bg-black/40 pl-4 pr-2 backdrop-blur-xl">
+          <Link href="/">
+            <Logo />
           </Link>
 
           <div className="hidden items-center gap-1 md:flex">
@@ -50,7 +47,7 @@ export function Navbar() {
               href="/dashboard"
               className="rounded-full bg-white px-4 py-2 text-[13px] font-medium text-neutral-950 transition-transform duration-200 ease-out active:scale-95"
             >
-              Start free
+              Transform a site
             </Link>
             <button
               onClick={() => setOpen((v) => !v)}
@@ -62,7 +59,6 @@ export function Navbar() {
           </div>
         </nav>
 
-        {/* Mobile menu */}
         <AnimatePresence>
           {open && (
             <motion.div

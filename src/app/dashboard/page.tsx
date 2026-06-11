@@ -81,9 +81,9 @@ function DashboardInner() {
           <Badge variant="outline" className="mb-3">
             <Sparkle weight="fill" className="h-3 w-3" /> New project
           </Badge>
-          <h1 className="text-4xl font-semibold tracking-[-0.02em]">Rebuild a website</h1>
+          <h1 className="text-4xl font-semibold tracking-[-0.02em]">Transform a website</h1>
           <p className="mt-3 text-muted-foreground">
-            Paste any URL. We analyze it and rebuild it into a fast, modern site.
+            Paste your URL. ReFrame analyzes your existing site and rebuilds it into a modern version.
           </p>
         </div>
 
@@ -250,7 +250,7 @@ function AnalysisResult({
 
       <div className="flex justify-end">
         <Button size="lg" variant="light" onClick={onGenerate}>
-          Generate new site <Sparkle weight="fill" className="h-4 w-4" />
+          Transform my site <Sparkle weight="fill" className="h-4 w-4" />
         </Button>
       </div>
     </motion.div>
