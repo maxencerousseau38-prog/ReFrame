@@ -12,6 +12,7 @@ export const metadata: Metadata = {
     title: "ReFrame",
     description: "Reframe any website into a fast, modern site you edit with AI.",
     type: "website",
+    images: ["/brand/reframe-logo.png"],
   },
 };
 
