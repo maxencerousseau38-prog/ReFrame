@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, Globe, Sparkle } from "@phosphor-icons/react";
+import { ArrowRight, Globe, Sparkle, Lightning, ShieldCheck, Star } from "@phosphor-icons/react";
 import { IslandButton } from "@/components/ui/island-button";
 
 /**
@@ -95,58 +95,83 @@ export function Hero() {
 /** Two stacked frames: the old site and the Reframed-by-AI result. */
 function HeroTransform() {
   return (
-    <div className="relative mx-auto max-w-md pt-6 lg:max-w-none">
-      <div className="pointer-events-none absolute -inset-10 -z-10 ambient-soft blur-[70px] opacity-70" />
+    <div className="relative mx-auto max-w-md pt-4 lg:max-w-none">
+      <div className="pointer-events-none absolute -inset-10 -z-10 ambient-soft blur-[80px] opacity-70" />
 
-      {/* BEFORE — set back, top-right */}
-      <div className="absolute right-0 top-0 z-0 w-[60%] rotate-3 overflow-hidden rounded-xl border border-white/10 bg-zinc-900 opacity-90 shadow-xl">
-        <div className="flex items-center gap-1.5 px-3 py-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-zinc-700" />
-          <span className="h-1.5 w-1.5 rounded-full bg-zinc-700" />
-          <span className="ml-1.5 font-mono text-[9px] text-zinc-600">hartleyandsons.co.uk</span>
-          <span className="ml-auto rounded-full bg-white/5 px-2 py-0.5 text-[8px] font-medium text-zinc-400">Before</span>
+      {/* BEFORE — Traditional Experience, light, set back */}
+      <div className="absolute right-0 top-0 z-0 w-[62%] rotate-2 overflow-hidden rounded-xl bg-[#f3f1ec] shadow-xl ring-1 ring-black/10">
+        <div className="flex items-center gap-1.5 border-b border-black/5 px-3 py-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-zinc-400" />
+          <span className="h-1.5 w-1.5 rounded-full bg-zinc-400" />
+          <span className="h-1.5 w-1.5 rounded-full bg-zinc-400" />
         </div>
-        <div className="bg-[#eceae3] p-3 font-serif text-[#2b2b2b] grayscale">
-          <div className="mb-1.5 flex items-center justify-between border-b border-[#9a9a8e] pb-1">
-            <span className="text-[9px] font-bold text-[#1f4e79]">HARTLEY &amp; SONS</span>
-            <span className="text-[7px] text-[#1f4e79] underline">Home · Contact</span>
+        <div className="p-4 text-[#2b2a27]">
+          <p className="text-[8px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Before</p>
+          <h4 className="mt-1.5 font-serif text-[15px] font-semibold leading-tight">Traditional<br />Experience</h4>
+          <div className="mt-2 space-y-1">
+            <div className="h-1 w-full rounded bg-zinc-300" />
+            <div className="h-1 w-2/3 rounded bg-zinc-300" />
           </div>
-          <div className="mb-1.5 h-9 w-full bg-[#c9c7bb]" />
-          <div className="text-[8px] font-bold">Welcome to our website</div>
-          <div className="mt-1 h-1 w-3/4 bg-[#cfcdc2]" />
+          <div
+            className="mt-3 h-16 w-full rounded bg-cover bg-center grayscale"
+            style={{ backgroundImage: "url(/brand/mountain.jpg)" }}
+            role="img"
+            aria-label="Mountain landscape"
+          />
         </div>
       </div>
 
-      {/* AFTER — Reframed by AI, prominent, front */}
-      <div className="relative z-10 mt-16 w-[94%] overflow-hidden rounded-2xl border border-white/12 bg-zinc-900 shadow-[0_50px_120px_-30px_rgba(0,0,0,0.85)]">
+      {/* AFTER — Elevated Experience, dark + gold, prominent */}
+      <div className="relative z-10 mt-20 w-[94%] overflow-hidden rounded-2xl border border-accent/25 bg-[#16140f] shadow-[0_50px_120px_-30px_rgba(0,0,0,0.9)]">
         <div className="flex items-center gap-1.5 border-b border-white/8 px-3 py-2.5">
           <span className="h-2.5 w-2.5 rounded-full bg-zinc-700" />
           <span className="h-2.5 w-2.5 rounded-full bg-zinc-700" />
           <span className="h-2.5 w-2.5 rounded-full bg-zinc-700" />
-          <span className="ml-2 rounded bg-white/5 px-2 py-0.5 font-mono text-[10px] text-zinc-500">hartleyandsons.co.uk</span>
           <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-medium text-accent-foreground">
             <Sparkle weight="fill" className="h-2.5 w-2.5" /> Reframed by AI
           </span>
         </div>
-        <div className="relative overflow-hidden bg-white px-6 py-7 text-zinc-900">
-          <div className="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-bl from-amber-100 via-white to-white" />
-          <div className="relative">
-            <span className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-500">
-              <span className="h-4 w-4 rounded bg-zinc-900" /> Hartley &amp; Sons
-            </span>
-            <h3 className="mt-4 max-w-[14ch] text-[26px] font-semibold leading-[0.98] tracking-tight">
-              Plumbing done right, the first time.
+
+        <div className="grid grid-cols-[1.05fr_0.95fr] gap-4 p-5">
+          <div>
+            <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-accent">After</p>
+            <h3 className="mt-2 text-[22px] font-semibold leading-[1.02] tracking-tight text-white">
+              Elevated
+              <br /> Experience
             </h3>
-            <p className="mt-2 max-w-[28ch] text-[12px] leading-relaxed text-zinc-500">
-              Upfront pricing, on-time arrival, guaranteed work.
+            <p className="mt-2 text-[11px] leading-relaxed text-zinc-400">
+              The same business, reframed into a site that converts.
             </p>
-            <div className="mt-4 flex gap-2">
-              <span className="rounded-full bg-zinc-900 px-3.5 py-1.5 text-[11px] font-medium text-white">Get a free quote</span>
-              <span className="inline-flex items-center gap-1 rounded-full border border-zinc-300 px-3.5 py-1.5 text-[11px] font-medium text-zinc-700">
-                Our work <ArrowRight weight="bold" className="h-3 w-3" />
-              </span>
-            </div>
+            <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-accent px-3.5 py-1.5 text-[11px] font-medium text-accent-foreground">
+              Explore more <ArrowRight weight="bold" className="h-3 w-3" />
+            </span>
           </div>
+          {/* mountain visual, grayscale with a warm gold wash */}
+          <div className="relative overflow-hidden rounded-xl">
+            <div
+              className="h-full min-h-[120px] w-full bg-cover bg-center grayscale"
+              style={{ backgroundImage: "url(/brand/mountain.jpg)" }}
+              role="img"
+              aria-label="Mountain landscape"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#16140f] via-transparent to-transparent" />
+            <div className="pointer-events-none absolute inset-0 mix-blend-overlay bg-accent/25" />
+          </div>
+        </div>
+
+        {/* feature row */}
+        <div className="grid grid-cols-4 gap-px border-t border-white/8 bg-white/5">
+          {[
+            { icon: Sparkle, label: "Modern" },
+            { icon: Lightning, label: "Faster" },
+            { icon: ShieldCheck, label: "Trusted" },
+            { icon: Star, label: "Premium" },
+          ].map((f) => (
+            <div key={f.label} className="flex flex-col items-center gap-1 bg-[#16140f] py-3">
+              <f.icon weight="bold" className="h-3.5 w-3.5 text-accent" />
+              <span className="text-[9px] text-zinc-400">{f.label}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>
