@@ -2,7 +2,7 @@ import { Navbar } from "@/components/landing/navbar";
 import { Hero } from "@/components/landing/hero";
 import { Compare } from "@/components/landing/compare";
 import { HowItWorks } from "@/components/landing/how-it-works";
-import { EngineViz } from "@/components/landing/engine-viz";
+import { TransformScroll } from "@/components/landing/transform-scroll";
 import { Examples } from "@/components/landing/examples";
 import { Results } from "@/components/landing/results";
 import { Pricing } from "@/components/landing/pricing";
@@ -16,7 +16,7 @@ export default function HomePage() {
       <Hero />
       <Compare />
       <HowItWorks />
-      <EngineViz />
+      <TransformScroll />
       <Examples />
       <Results />
       <Pricing />
