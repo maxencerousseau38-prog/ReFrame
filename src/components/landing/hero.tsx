@@ -121,8 +121,8 @@ function HeroTransform() {
         </div>
       </div>
 
-      {/* AFTER — Elevated Experience, dark + gold, prominent */}
-      <div className="relative z-10 mt-20 w-[94%] overflow-hidden rounded-2xl border border-accent/25 bg-[#16140f] shadow-[0_50px_120px_-30px_rgba(0,0,0,0.9)]">
+      {/* AFTER — modern, dark, lime-accented, prominent */}
+      <div className="relative z-10 mt-20 w-[94%] overflow-hidden rounded-2xl border border-accent/30 bg-[#0f0f11] shadow-[0_50px_120px_-30px_rgba(0,0,0,0.9)]">
         <div className="flex items-center gap-1.5 border-b border-white/8 px-3 py-2.5">
           <span className="h-2.5 w-2.5 rounded-full bg-zinc-700" />
           <span className="h-2.5 w-2.5 rounded-full bg-zinc-700" />
@@ -146,16 +146,16 @@ function HeroTransform() {
               Explore more <ArrowRight weight="bold" className="h-3 w-3" />
             </span>
           </div>
-          {/* mountain visual, grayscale with a warm gold wash */}
-          <div className="relative overflow-hidden rounded-xl">
+          {/* clean editorial visual, grayscale with a faint lime lift */}
+          <div className="relative overflow-hidden rounded-xl ring-1 ring-white/10">
             <div
-              className="h-full min-h-[120px] w-full bg-cover bg-center grayscale"
+              className="h-full min-h-[120px] w-full bg-cover bg-center grayscale contrast-110"
               style={{ backgroundImage: "url(/brand/mountain.jpg)" }}
               role="img"
-              aria-label="Mountain landscape"
+              aria-label="Editorial landscape"
             />
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#16140f] via-transparent to-transparent" />
-            <div className="pointer-events-none absolute inset-0 mix-blend-overlay bg-accent/25" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0f0f11] via-transparent to-transparent" />
+            <div className="pointer-events-none absolute inset-0 mix-blend-soft-light bg-accent/20" />
           </div>
         </div>
 
@@ -167,7 +167,7 @@ function HeroTransform() {
             { icon: ShieldCheck, label: "Trusted" },
             { icon: Star, label: "Premium" },
           ].map((f) => (
-            <div key={f.label} className="flex flex-col items-center gap-1 bg-[#16140f] py-3">
+            <div key={f.label} className="flex flex-col items-center gap-1 bg-[#0f0f11] py-3">
               <f.icon weight="bold" className="h-3.5 w-3.5 text-accent" />
               <span className="text-[9px] text-zinc-400">{f.label}</span>
             </div>

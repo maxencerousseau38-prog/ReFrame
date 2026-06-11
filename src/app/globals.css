@@ -4,30 +4,33 @@
 
 /*
   ReFrame design tokens.
-  Vibe: Editorial Luxury. Warm charcoal base, antique-gold accent, soft glass.
-  Accent lock: antique gold (~#C9A24A). One accent across the whole surface.
-  Shape lock: squircle bezels (rounded-[2rem]) for big containers, pill for
-  interactive, rounded-xl for inputs.
+  Vibe: modern dark-tech, Linear-clean. Neutral zinc off-black canvas, one
+  electric lime accent, crisp white type. Geist throughout.
+  Accent lock: lime (~#9FDE3F). One accent across the whole product surface.
+  Shape lock: rounded-[1.25rem] for big containers, pill for interactive,
+  rounded-xl for inputs. Page theme lock: dark, always.
+  (Generated client sites under /s and the block renderer are brand-agnostic
+   and intentionally NOT themed by these tokens.)
 */
 
 @layer base {
   :root {
-    --background: 34 14% 8%;          /* warm charcoal */
-    --foreground: 38 28% 96%;
-    --card: 32 12% 11%;
-    --card-foreground: 38 28% 96%;
-    --primary: 38 28% 97%;
-    --primary-foreground: 34 20% 9%;
-    --secondary: 32 9% 15%;
-    --secondary-foreground: 38 24% 94%;
-    --muted: 32 9% 15%;
-    --muted-foreground: 36 10% 62%;
-    --accent: 42 52% 56%;            /* antique gold */
-    --accent-foreground: 34 30% 10%;
-    --border: 34 11% 18%;
-    --input: 34 11% 18%;
-    --ring: 42 52% 56%;
-    --radius: 1rem;
+    --background: 240 6% 7%;          /* deep neutral zinc */
+    --foreground: 0 0% 98%;
+    --card: 240 5% 10%;
+    --card-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 6% 7%;
+    --secondary: 240 4% 14%;
+    --secondary-foreground: 0 0% 96%;
+    --muted: 240 4% 14%;
+    --muted-foreground: 240 5% 64%;
+    --accent: 80 76% 55%;            /* electric lime */
+    --accent-foreground: 100 30% 7%;
+    --border: 240 4% 15%;
+    --input: 240 4% 15%;
+    --ring: 80 76% 55%;
+    --radius: 1.25rem;
   }
 
   * {
@@ -46,8 +49,8 @@
   }
 
   ::selection {
-    background: hsl(var(--accent) / 0.3);
-    color: #fff;
+    background: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
   }
 }
 
@@ -56,19 +59,20 @@
     text-wrap: balance;
   }
 
-  /* Ambient warm-gold mesh, used sparingly for depth (not a flat color) */
+  /* Ambient depth: a faint lime aura plus a cool white lift. Used sparingly,
+     low opacity, never as a neon default. */
   .ambient {
     background:
-      radial-gradient(40% 45% at 25% 20%, hsl(var(--accent) / 0.16) 0%, transparent 70%),
-      radial-gradient(35% 40% at 80% 30%, hsl(28 55% 45% / 0.12) 0%, transparent 70%);
+      radial-gradient(42% 46% at 22% 18%, hsl(var(--accent) / 0.14) 0%, transparent 70%),
+      radial-gradient(38% 42% at 82% 28%, hsl(0 0% 100% / 0.06) 0%, transparent 70%);
   }
   .ambient-soft {
-    background: radial-gradient(50% 55% at 50% 40%, hsl(var(--accent) / 0.14) 0%, transparent 70%);
+    background: radial-gradient(50% 55% at 50% 40%, hsl(var(--accent) / 0.12) 0%, transparent 70%);
   }
 
   /* Faint dotted grid */
   .bg-grid {
-    background-image: radial-gradient(hsl(0 0% 100% / 0.05) 1px, transparent 1px);
+    background-image: radial-gradient(hsl(0 0% 100% / 0.045) 1px, transparent 1px);
     background-size: 30px 30px;
   }
   .bg-fade-b {
@@ -81,6 +85,11 @@
     box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.08), 0 30px 80px -20px hsl(0 0% 0% / 0.6);
   }
 
+  /* Hairline ring for interactive cards */
+  .ring-hair {
+    box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.06);
+  }
+
   /* Subtle film grain on a fixed, pointer-events-none layer only */
   .grain::after {
     content: "";
@@ -88,7 +97,7 @@
     inset: 0;
     z-index: 60;
     pointer-events: none;
-    opacity: 0.03;
+    opacity: 0.025;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 }
@@ -110,10 +119,10 @@
   height: 10px;
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(0 0% 18%);
+  background: hsl(240 4% 20%);
   border-radius: 9999px;
   border: 3px solid hsl(var(--background));
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(0 0% 26%);
+  background: hsl(240 4% 28%);
 }

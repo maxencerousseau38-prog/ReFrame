@@ -38,17 +38,17 @@ export function Examples() {
 
 function Card({ e }: { e: Ex }) {
   return (
-    <div className="group overflow-hidden rounded-[1.5rem] border border-accent/15 bg-[#16140f] shadow-[0_30px_90px_-40px_rgba(0,0,0,0.85)] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5">
-      {/* elevated visual: grayscale landscape under a warm gold wash */}
+    <div className="group overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#0f0f11] shadow-[0_30px_90px_-40px_rgba(0,0,0,0.85)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:border-accent/40">
+      {/* elevated visual: grayscale landscape under a faint lime lift */}
       <div className="relative h-56 overflow-hidden">
         <div
-          className="absolute inset-0 bg-cover bg-center grayscale transition-transform duration-700 ease-out group-hover:scale-105"
+          className="absolute inset-0 bg-cover bg-center grayscale contrast-110 transition-transform duration-700 ease-out group-hover:scale-105"
           style={{ backgroundImage: `url(${e.img})` }}
           role="img"
           aria-label={`${e.brand} reframed`}
         />
-        <div className="pointer-events-none absolute inset-0 bg-accent/20 mix-blend-overlay" />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#16140f] via-[#16140f]/40 to-transparent" />
+        <div className="pointer-events-none absolute inset-0 bg-accent/15 mix-blend-soft-light" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0f0f11] via-[#0f0f11]/40 to-transparent" />
 
         {/* before thumbnail, telling the transformation story */}
         <div className="absolute left-4 top-4 w-16 -rotate-3 overflow-hidden rounded-md bg-[#f3f1ec] p-1.5 shadow ring-1 ring-black/10">
