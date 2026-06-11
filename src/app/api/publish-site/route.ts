@@ -1,31 +1,50 @@
 import { NextResponse } from "next/server";
 import type { SiteSchema } from "@/lib/generation/types";
+import { publishSite } from "@/lib/server/sites-store";
+import { rateLimit, clientKey } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
+/** Resolve the public origin this request came in on. */
+function originOf(req: Request): string {
+  const host = req.headers.get("host") ?? "localhost:3000";
+  const proto =
+    req.headers.get("x-forwarded-proto") ??
+    (host.startsWith("localhost") || host.startsWith("127.") ? "http" : "https");
+  return `${proto}://${host}`;
+}
+
 /**
- * POST /api/publish-site — publish a generated site.
+ * POST /api/publish-site — persist a generated site and return a live URL.
  *
- * In production this would write the schema to storage and deploy to the edge.
- * Here we simulate a successful deployment and return a live URL slug.
+ * The schema is written to the server-side store and becomes reachable at
+ * `<origin>/s/<slug>`, which renders it for real (no simulation).
  */
 export async function POST(req: Request) {
+  const limit = rateLimit(`publish:${clientKey(req)}`, 10, 60_000);
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Too many requests, please slow down." },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfter) } }
+    );
+  }
+
   try {
-    const { schema } = (await req.json()) as { schema: SiteSchema };
-    if (!schema) {
-      return NextResponse.json({ error: "`schema` is required." }, { status: 400 });
+    const { schema } = (await req.json()) as { schema?: SiteSchema };
+    if (!schema || !schema.brand?.name || !Array.isArray(schema.blocks)) {
+      return NextResponse.json(
+        { error: "A valid `schema` with a brand name and blocks is required." },
+        { status: 400 }
+      );
     }
 
-    const slug = schema.brand.name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .slice(0, 40) || "site";
+    const site = await publishSite(schema);
 
     return NextResponse.json({
       ok: true,
-      url: `https://${slug}.reframe.site`,
-      deployedAt: new Date().toISOString(),
+      slug: site.slug,
+      url: `${originOf(req)}/s/${site.slug}`,
+      deployedAt: site.createdAt,
       blocks: schema.blocks.length,
     });
   } catch (err) {
