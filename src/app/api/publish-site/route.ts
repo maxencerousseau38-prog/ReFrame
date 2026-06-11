@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { SiteSchema } from "@/lib/generation/types";
 import { publishSite } from "@/lib/server/sites-store";
+import { getCurrentUser } from "@/lib/server/auth";
 import { rateLimit, clientKey } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -38,7 +39,8 @@ export async function POST(req: Request) {
       );
     }
 
-    const site = await publishSite(schema);
+    const user = await getCurrentUser();
+    const site = await publishSite(schema, user?.id);
 
     return NextResponse.json({
       ok: true,

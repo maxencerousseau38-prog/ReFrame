@@ -58,6 +58,11 @@ export const kvBackend: StoreBackend = {
     await kv(["ZADD", INDEX_KEY, Date.parse(record.createdAt), record.slug]);
   },
 
+  async remove(slug) {
+    await kv(["DEL", keyFor(slug)]);
+    await kv(["ZREM", INDEX_KEY, slug]);
+  },
+
   async list() {
     const slugs = await kv<string[]>(["ZRANGE", INDEX_KEY, "0", "-1", "REV"]);
     if (!slugs || slugs.length === 0) return [];

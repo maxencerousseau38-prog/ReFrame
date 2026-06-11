@@ -5,6 +5,8 @@ export interface PublishedSite {
   schema: SiteSchema;
   createdAt: string;
   updatedAt: string;
+  /** Owner user id, when the site was published by a signed-in user. */
+  ownerId?: string;
 }
 
 /**
@@ -22,6 +24,8 @@ export interface StoreBackend {
   read(slug: string): Promise<PublishedSite | null>;
   /** Persist (create or overwrite) a record. */
   write(record: PublishedSite): Promise<void>;
+  /** Delete a record. No-op if it doesn't exist. */
+  remove(slug: string): Promise<void>;
   /** All sites, newest first. Best-effort. */
   list(): Promise<PublishedSite[]>;
 }

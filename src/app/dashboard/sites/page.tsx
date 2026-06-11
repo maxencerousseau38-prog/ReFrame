@@ -1,0 +1,27 @@
+import { redirect } from "next/navigation";
+import { DashboardShell } from "@/components/dashboard/shell";
+import { SitesView } from "@/components/dashboard/sites-view";
+import { getCurrentUser } from "@/lib/server/auth";
+import { listSitesByOwner } from "@/lib/server/sites-store";
+
+export const dynamic = "force-dynamic";
+
+export default async function MySitesPage() {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login?next=/dashboard/sites");
+
+  const sites = await listSitesByOwner(user.id);
+  return (
+    <DashboardShell>
+      <SitesView
+        sites={sites.map((s) => ({
+          slug: s.slug,
+          name: s.schema.brand.name,
+          tagline: s.schema.brand.tagline,
+          createdAt: s.createdAt,
+          blocks: s.schema.blocks.length,
+        }))}
+      />
+    </DashboardShell>
+  );
+}

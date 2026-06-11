@@ -51,7 +51,10 @@ export async function getSite(slug: string): Promise<PublishedSite | null> {
  * the stored record. Collisions get a short random suffix so one brand never
  * clobbers another's published site.
  */
-export async function publishSite(schema: SiteSchema): Promise<PublishedSite> {
+export async function publishSite(
+  schema: SiteSchema,
+  ownerId?: string
+): Promise<PublishedSite> {
   const base = slugify(schema.brand?.name ?? "site");
   let slug = base;
   for (let i = 0; i < 5 && (await backend.read(slug)); i++) {
@@ -60,6 +63,7 @@ export async function publishSite(schema: SiteSchema): Promise<PublishedSite> {
 
   const now = new Date().toISOString();
   const record: PublishedSite = { slug, schema, createdAt: now, updatedAt: now };
+  if (ownerId) record.ownerId = ownerId;
   await backend.write(record);
   return record;
 }
@@ -67,4 +71,17 @@ export async function publishSite(schema: SiteSchema): Promise<PublishedSite> {
 /** List published sites, newest first. */
 export async function listSites(): Promise<PublishedSite[]> {
   return backend.list();
+}
+
+/** List a single owner's published sites, newest first. */
+export async function listSitesByOwner(ownerId: string): Promise<PublishedSite[]> {
+  const all = await backend.list();
+  return all.filter((s) => s.ownerId === ownerId);
+}
+
+/** Delete a site. Returns false if the slug is invalid. */
+export async function deleteSite(slug: string): Promise<boolean> {
+  if (!isValidSlug(slug)) return false;
+  await backend.remove(slug);
+  return true;
 }

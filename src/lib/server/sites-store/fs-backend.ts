@@ -35,6 +35,10 @@ export const fsBackend: StoreBackend = {
     await fs.writeFile(fileFor(record.slug), JSON.stringify(record), "utf8");
   },
 
+  async remove(slug) {
+    await fs.rm(fileFor(slug), { force: true });
+  },
+
   async list() {
     let names: string[];
     try {
