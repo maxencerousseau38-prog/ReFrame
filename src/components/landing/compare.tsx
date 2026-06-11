@@ -105,8 +105,8 @@ function AfterSite() {
   // and impact does not depend on an external image loading.
   return (
     <div className="relative h-full w-full overflow-hidden bg-white text-zinc-900">
-      <div className="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-bl from-cyan-100 via-white to-white" />
-      <div className="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-cyan-200/50 blur-3xl" />
+      <div className="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-bl from-amber-100 via-white to-white" />
+      <div className="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-amber-200/50 blur-3xl" />
       <div className="relative flex h-full flex-col justify-center px-8 sm:px-16">
         <span className="flex items-center gap-2 text-xs font-medium tracking-tight text-zinc-500">
           <span className="h-5 w-5 rounded-md bg-zinc-900" /> Hartley &amp; Sons

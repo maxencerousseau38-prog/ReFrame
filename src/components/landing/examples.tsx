@@ -23,8 +23,8 @@ const examples: Ex[] = [
     brand: "Field Studio",
     sector: "Agency",
     title: "Work that earns attention.",
-    grad: "from-cyan-100 via-white to-white",
-    tint: "bg-cyan-100 text-cyan-700",
+    grad: "from-stone-200 via-white to-white",
+    tint: "bg-stone-200 text-stone-700",
   },
   {
     brand: "Crest Homes",

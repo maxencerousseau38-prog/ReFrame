@@ -4,29 +4,29 @@
 
 /*
   ReFrame design tokens.
-  Vibe: Ethereal Glass. OLED near-black base, glass surfaces, white hairlines.
-  Accent lock: Framer cyan (#35E2EB). One accent across the whole surface.
+  Vibe: Editorial Luxury. Warm charcoal base, antique-gold accent, soft glass.
+  Accent lock: antique gold (~#C9A24A). One accent across the whole surface.
   Shape lock: squircle bezels (rounded-[2rem]) for big containers, pill for
   interactive, rounded-xl for inputs.
 */
 
 @layer base {
   :root {
-    --background: 0 0% 3%;            /* OLED near-black */
-    --foreground: 0 0% 98%;
-    --card: 0 0% 6%;
-    --card-foreground: 0 0% 98%;
-    --primary: 0 0% 100%;
-    --primary-foreground: 0 0% 4%;
-    --secondary: 0 0% 11%;
-    --secondary-foreground: 0 0% 96%;
-    --muted: 0 0% 11%;
-    --muted-foreground: 0 0% 60%;
-    --accent: 183 78% 56%;           /* cyan #35E2EB */
-    --accent-foreground: 0 0% 4%;
-    --border: 0 0% 16%;
-    --input: 0 0% 16%;
-    --ring: 183 78% 56%;
+    --background: 34 14% 8%;          /* warm charcoal */
+    --foreground: 38 28% 96%;
+    --card: 32 12% 11%;
+    --card-foreground: 38 28% 96%;
+    --primary: 38 28% 97%;
+    --primary-foreground: 34 20% 9%;
+    --secondary: 32 9% 15%;
+    --secondary-foreground: 38 24% 94%;
+    --muted: 32 9% 15%;
+    --muted-foreground: 36 10% 62%;
+    --accent: 42 52% 56%;            /* antique gold */
+    --accent-foreground: 34 30% 10%;
+    --border: 34 11% 18%;
+    --input: 34 11% 18%;
+    --ring: 42 52% 56%;
     --radius: 1rem;
   }
 
@@ -56,11 +56,11 @@
     text-wrap: balance;
   }
 
-  /* Ambient cyan mesh, used sparingly for depth (not a flat color) */
+  /* Ambient warm-gold mesh, used sparingly for depth (not a flat color) */
   .ambient {
     background:
-      radial-gradient(40% 45% at 25% 20%, hsl(var(--accent) / 0.18) 0%, transparent 70%),
-      radial-gradient(35% 40% at 80% 30%, hsl(200 80% 55% / 0.12) 0%, transparent 70%);
+      radial-gradient(40% 45% at 25% 20%, hsl(var(--accent) / 0.16) 0%, transparent 70%),
+      radial-gradient(35% 40% at 80% 30%, hsl(28 55% 45% / 0.12) 0%, transparent 70%);
   }
   .ambient-soft {
     background: radial-gradient(50% 55% at 50% 40%, hsl(var(--accent) / 0.14) 0%, transparent 70%);

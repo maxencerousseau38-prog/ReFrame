@@ -44,9 +44,11 @@ export function Hero() {
           </span>
 
           <h1 className="mt-8 font-semibold tracking-[-0.04em] text-white [font-size:clamp(2.9rem,8vw,6.5rem)] [line-height:0.94]">
-            Your old website,
+            Your website,
             <br />
-            <span className="text-accent">transformed</span> by AI.
+            rebuilt by
+            <br />
+            <span className="text-accent">intelligence.</span>
           </h1>
 
           <p className="mt-7 max-w-md text-lg leading-relaxed text-zinc-400">
@@ -130,7 +132,7 @@ function HeroTransform() {
           <span className="ml-2 rounded bg-white/5 px-2 py-0.5 font-mono text-[10px] text-zinc-500">hartleyandsons.co.uk</span>
         </div>
         <div className="relative overflow-hidden bg-white px-6 py-7 text-zinc-900">
-          <div className="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-bl from-cyan-100 via-white to-white" />
+          <div className="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-bl from-amber-100 via-white to-white" />
           <div className="relative">
             <span className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-500">
               <span className="h-4 w-4 rounded bg-zinc-900" /> Hartley &amp; Sons
