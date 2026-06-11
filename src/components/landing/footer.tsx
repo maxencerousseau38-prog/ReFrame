@@ -1,6 +1,12 @@
 import Link from "next/link";
 
-const links = ["Pricing", "Docs", "Privacy", "Contact"];
+const links = [
+  { label: "Pricing", href: "/#pricing" },
+  { label: "Examples", href: "/#examples" },
+  { label: "Terms", href: "/terms" },
+  { label: "Privacy", href: "/privacy" },
+  { label: "Contact", href: "mailto:hello@reframe.design" },
+];
 
 export function Footer() {
   return (
@@ -20,8 +26,8 @@ export function Footer() {
 
           <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
             {links.map((l) => (
-              <Link key={l} href="#" className="text-sm text-zinc-400 transition-colors hover:text-white">
-                {l}
+              <Link key={l.label} href={l.href} className="text-sm text-zinc-400 transition-colors hover:text-white">
+                {l.label}
               </Link>
             ))}
           </div>
@@ -34,3 +40,4 @@ export function Footer() {
     </footer>
   );
 }
+
