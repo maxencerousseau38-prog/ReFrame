@@ -57,6 +57,7 @@ import type {
   Industry,
 } from "./types";
 import { INDUSTRY_PROFILES, detectIndustry } from "./industries";
+import { pickVariant } from "./catalog";
 
 /* -------------------------------------------------------------------------- */
 /*  Small deterministic helpers                                               */
@@ -457,7 +458,7 @@ export function generateSite(analysis: SiteAnalysis): SiteSchema {
     {
       id: uid("hero"),
       type: "hero",
-      variant: profile.preferred.hero,
+      variant: pickVariant("hero", analysis.industry, analysis.brandName),
       props: {
         eyebrow: profile.label,
         title: c.headline,
@@ -470,7 +471,7 @@ export function generateSite(analysis: SiteAnalysis): SiteSchema {
     {
       id: uid("features"),
       type: "features",
-      variant: profile.preferred.features,
+      variant: pickVariant("features", analysis.industry, analysis.brandName),
       props: {
         title: "Why choose us",
         subtitle: "What makes the difference for our clients.",

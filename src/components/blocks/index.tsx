@@ -348,13 +348,118 @@ function Footer1({ props }: { props: any }) {
 }
 
 /* -------------------------------------------------------------------------- */
+/*  Premium animated variants                                                 */
+/* -------------------------------------------------------------------------- */
+
+/** Tech/SaaS hero with a slowly drifting accent aura. */
+function HeroSpotlight({ props }: { props: any }) {
+  return (
+    <section className="relative overflow-hidden px-6 py-28 text-center sm:py-36">
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-[-4rem] h-[420px] w-[680px] -translate-x-1/2 rounded-full blur-3xl"
+        style={{ background: "radial-gradient(closest-side, var(--brand-accent), transparent)", opacity: 0.22 }}
+        animate={{ scale: [1, 1.12, 1], opacity: [0.16, 0.28, 0.16] }}
+        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.04]"
+        style={{ backgroundImage: "radial-gradient(currentColor 1px, transparent 1px)", backgroundSize: "26px 26px", color: "var(--brand)" }}
+      />
+      <div className="relative mx-auto max-w-3xl">
+        {props.eyebrow && (
+          <span
+            className="inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium"
+            style={{ borderColor: "var(--brand-accent)", color: "var(--brand-accent)" }}
+          >
+            {props.eyebrow}
+          </span>
+        )}
+        <motion.h1
+          initial="hidden"
+          animate="visible"
+          variants={fade}
+          transition={{ duration: 0.6 }}
+          className="mt-6 text-4xl font-semibold tracking-tight sm:text-6xl"
+          style={{ color: "var(--brand)" }}
+        >
+          {props.title}
+        </motion.h1>
+        <p className="mx-auto mt-5 max-w-xl text-lg text-neutral-500">{props.subtitle}</p>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <button
+            className="px-6 py-3 text-sm font-medium text-white shadow-lg transition-transform active:scale-[0.98]"
+            style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}
+          >
+            {props.primaryCta}
+          </button>
+          <button
+            className="border px-6 py-3 text-sm font-medium transition-colors"
+            style={{ borderColor: "var(--brand-accent)", color: "var(--brand)", borderRadius: "var(--brand-radius)" }}
+          >
+            {props.secondaryCta}
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** Asymmetric bento; first item is featured, cards lift on hover. */
+function FeaturesBento({ props }: { props: any }) {
+  const items = (props.items || []) as any[];
+  return (
+    <section className="px-6 py-20 sm:py-24">
+      <div className="mx-auto max-w-6xl">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl" style={{ color: "var(--brand)" }}>
+            {props.title}
+          </h2>
+          {props.subtitle && <p className="mt-3 text-neutral-500">{props.subtitle}</p>}
+        </div>
+        <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-3 md:[grid-auto-flow:dense]">
+          {items.map((item, i) => (
+            <motion.div
+              key={i}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fade}
+              transition={{ duration: 0.5, delay: i * 0.06 }}
+              className={cn(
+                "group border bg-white p-6 transition-transform duration-300 hover:-translate-y-1",
+                i === 0 && "md:col-span-2 md:row-span-2"
+              )}
+              style={{ borderRadius: "var(--brand-radius)", borderColor: "#ececec" }}
+            >
+              <div
+                className="mb-4 flex h-10 w-10 items-center justify-center text-white"
+                style={{ background: "var(--brand-accent)", borderRadius: "calc(var(--brand-radius) * 0.7)" }}
+              >
+                <BlockIcon name={item.icon} className="h-5 w-5" />
+              </div>
+              <h3 className={cn("font-semibold", i === 0 ? "text-xl" : "text-base")} style={{ color: "var(--brand)" }}>
+                {item.title}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-neutral-500">{item.description}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
 /*  Registry + renderer                                                       */
 /* -------------------------------------------------------------------------- */
 
 const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   HeroPremium1,
   HeroPremium2,
+  HeroSpotlight,
   FeaturesGrid1,
+  FeaturesBento,
   TestimonialsSlider1,
   FAQAccordion1,
   CTASection1,
