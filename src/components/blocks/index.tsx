@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   Sparkle,
   ShieldCheck,
@@ -26,12 +26,34 @@ const radiusMap: Record<Theme["radius"], string> = {
   xl: "1.25rem",
 };
 
+// Self-contained font stacks (no webfont fetch) so static exports stay portable.
+const fontStacks: Record<Theme["font"], string> = {
+  inter: "var(--font-geist-sans), Inter, system-ui, -apple-system, sans-serif",
+  geist: "var(--font-geist-sans), system-ui, -apple-system, sans-serif",
+  serif: "'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif",
+};
+
+// When a theme doesn't specify surfaces, derive them from the brand mood so the
+// canvas adapts (warm brands get a warm off-white, tech brands stay crisp).
+const moodSurface: Record<Theme["mood"], { surface: string; surface2: string; ink: string }> = {
+  warm: { surface: "#faf6f0", surface2: "#f0e7da", ink: "#2a2320" },
+  elegant: { surface: "#f7f6f3", surface2: "#ece9e3", ink: "#211e1b" },
+  minimal: { surface: "#ffffff", surface2: "#f5f5f5", ink: "#0a0a0a" },
+  bold: { surface: "#ffffff", surface2: "#f4f4f5", ink: "#111111" },
+};
+
 function themeStyle(theme: Theme): React.CSSProperties {
+  const s = moodSurface[theme.mood] ?? moodSurface.minimal;
   return {
     // exposed to children as CSS custom properties
     ["--brand" as string]: theme.primary,
     ["--brand-accent" as string]: theme.accent,
     ["--brand-radius" as string]: radiusMap[theme.radius],
+    ["--brand-surface" as string]: theme.surface ?? s.surface,
+    ["--brand-surface-2" as string]: theme.surface2 ?? s.surface2,
+    ["--brand-ink" as string]: theme.ink ?? s.ink,
+    ["--brand-font" as string]: fontStacks[theme.font],
+    ["--brand-mood" as string]: theme.mood,
   };
 }
 
@@ -156,6 +178,120 @@ function HeroPremium2({ props }: { props: any }) {
           {!props.image && (
             <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_20%_20%,#fff_1px,transparent_1px)] [background-size:24px_24px]" />
           )}
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Editorial luxury hero. Serif display, a tall framed client portrait, a faint
+ * monumental wordmark and a hairline caption rule. Everything is token-driven:
+ * the warm canvas comes from `--brand-surface`, the display face from
+ * `--brand-font`, the rule + eyebrow from `--brand-accent`. Suits hospitality,
+ * real estate, retail and any brand that wants to read as a magazine, not an app.
+ */
+function HeroEditorial({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  const rise = reduce
+    ? { hidden: { opacity: 1, y: 0 }, visible: { opacity: 1, y: 0 } }
+    : { hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0 } };
+
+  return (
+    <section
+      className="relative overflow-hidden px-6 py-20 sm:py-28"
+      style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}
+    >
+      {/* faint monumental wordmark, anchored bottom, clipped by the section */}
+      {props.brand && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -bottom-[0.18em] left-0 select-none whitespace-nowrap font-medium leading-none [font-size:clamp(7rem,26vw,20rem)]"
+          style={{ fontFamily: "var(--brand-font)", color: "var(--brand)", opacity: 0.04 }}
+        >
+          {props.brand}
+        </span>
+      )}
+
+      <div className="relative mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
+        <div>
+          {props.eyebrow && (
+            <motion.span
+              initial="hidden"
+              animate="visible"
+              variants={rise}
+              transition={{ duration: 0.6 }}
+              className="inline-flex items-center gap-3 text-[0.7rem] font-medium uppercase tracking-[0.28em]"
+              style={{ color: "var(--brand-accent)" }}
+            >
+              <span className="h-px w-9" style={{ background: "var(--brand-accent)" }} />
+              {props.eyebrow}
+            </motion.span>
+          )}
+          <motion.h1
+            initial="hidden"
+            animate="visible"
+            variants={rise}
+            transition={{ duration: 0.7, delay: 0.05 }}
+            className="mt-6 text-[clamp(2.5rem,6vw,4.75rem)] font-medium leading-[1.02] tracking-[-0.02em]"
+            style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}
+          >
+            {props.title}
+          </motion.h1>
+          <motion.p
+            initial="hidden"
+            animate="visible"
+            variants={rise}
+            transition={{ duration: 0.7, delay: 0.12 }}
+            className="mt-6 max-w-md text-lg leading-relaxed"
+            style={{ color: "var(--brand-ink)", opacity: 0.72 }}
+          >
+            {props.subtitle}
+          </motion.p>
+          <div className="mt-9 flex flex-wrap items-center gap-5">
+            <button
+              className="px-7 py-3.5 text-sm font-medium tracking-wide text-white shadow-sm transition-transform active:scale-[0.98]"
+              style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}
+            >
+              {props.primaryCta}
+            </button>
+            <button
+              className="text-sm font-medium underline-offset-4 transition-opacity hover:opacity-70"
+              style={{ color: "var(--brand)" }}
+            >
+              {props.secondaryCta} &rarr;
+            </button>
+          </div>
+        </div>
+
+        {/* client portrait, editorial frame + hairline caption */}
+        <motion.div
+          initial={reduce ? false : { opacity: 0, scale: 1.03 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+          className="relative"
+        >
+          <div
+            className="relative aspect-[4/5] overflow-hidden bg-cover bg-center"
+            style={{
+              borderRadius: "var(--brand-radius)",
+              backgroundImage: props.image
+                ? `url(${props.image})`
+                : `linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))`,
+            }}
+          >
+            {!props.image && (
+              <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_25%_20%,#fff_1px,transparent_1px)] [background-size:22px_22px]" />
+            )}
+          </div>
+          <div
+            className="mt-4 flex items-center gap-4 text-[0.7rem] uppercase tracking-[0.24em]"
+            style={{ color: "var(--brand-ink)", opacity: 0.55 }}
+          >
+            <span>{props.caption || props.eyebrow || "Featured"}</span>
+            <span className="h-px flex-1" style={{ background: "currentColor", opacity: 0.4 }} />
+            <span>01</span>
+          </div>
         </motion.div>
       </div>
     </section>
@@ -457,6 +593,7 @@ function FeaturesBento({ props }: { props: any }) {
 const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   HeroPremium1,
   HeroPremium2,
+  HeroEditorial,
   HeroSpotlight,
   FeaturesGrid1,
   FeaturesBento,
@@ -476,7 +613,13 @@ function BlockRenderer({ block }: { block: Block }) {
 /** Renders a full generated site from its schema, applying the theme. */
 export function SiteRenderer({ schema }: { schema: SiteSchema }) {
   return (
-    <div className="bg-white" style={themeStyle(schema.theme)}>
+    <div
+      style={{
+        ...themeStyle(schema.theme),
+        background: "var(--brand-surface)",
+        color: "var(--brand-ink)",
+      }}
+    >
       {schema.blocks.map((block) => (
         <BlockRenderer key={block.id} block={block} />
       ))}

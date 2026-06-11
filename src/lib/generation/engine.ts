@@ -466,6 +466,8 @@ export function generateSite(analysis: SiteAnalysis): SiteSchema {
         primaryCta: "Get started",
         secondaryCta: "Learn more",
         image: c.heroImageUrl,
+        brand: analysis.brandName,
+        caption: c.services[0],
       },
     },
     {

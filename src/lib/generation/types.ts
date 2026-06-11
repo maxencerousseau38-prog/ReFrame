@@ -39,6 +39,14 @@ export interface Theme {
   radius: "sm" | "md" | "lg" | "xl";
   font: "inter" | "geist" | "serif";
   mood: "minimal" | "bold" | "warm" | "elegant";
+  /**
+   * Optional surface palette. When omitted, blocks derive sensible values from
+   * `mood` so the section background adapts to the brand instead of defaulting
+   * to flat white. Lets a warm/elegant brand read as a warm off-white canvas.
+   */
+  surface?: string; // hex — section canvas
+  surface2?: string; // hex — cards / secondary panels
+  ink?: string; // hex — body text on the surface
 }
 
 export interface SiteSchema {

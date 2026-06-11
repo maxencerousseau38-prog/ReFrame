@@ -27,6 +27,7 @@ export const BLOCK_CATALOG: BlockMeta[] = [
   { variant: "HeroPremium1", category: "hero", sectors: "all", motion: 1, license: "ReFrame original", when: "Centered, message-first hero. Safe default." },
   { variant: "HeroPremium2", category: "hero", sectors: ["restaurant", "realestate", "health", "agency"], motion: 1, license: "ReFrame original", when: "Split hero with a strong asset; warm/visual sectors." },
   { variant: "HeroSpotlight", category: "hero", sectors: ["saas", "agency", "ecommerce", "generic"], motion: 2, license: "ReFrame original (inspired by Aceternity/Magic UI, MIT)", when: "Tech/SaaS hero with an animated accent aura." },
+  { variant: "HeroEditorial", category: "hero", sectors: ["restaurant", "realestate", "health", "agency", "ecommerce"], motion: 2, license: "ReFrame original", when: "Editorial luxury hero: serif display, framed client portrait, monumental wordmark. Warm/elegant brands." },
 
   // Features
   { variant: "FeaturesGrid1", category: "features", sectors: "all", motion: 1, license: "ReFrame original", when: "Four-up feature grid. Safe default." },
