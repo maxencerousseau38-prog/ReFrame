@@ -137,12 +137,14 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
 
   const bodyText = clean(html);
   // A thin body with many scripts is almost certainly a client-rendered SPA
-  // shell: we still read its meta tags but treat content as unreliable.
+  // shell. We no longer bail to a domain-only guess: we still parse its meta,
+  // Open Graph and JSON-LD (usually present even on SPAs) and mark the result
+  // "partial" so the UI can be honest about it.
   const scriptCount = (html.match(/<script\b/gi) || []).length;
   const isThin = bodyText.length < 220;
 
-  if (!html || (isThin && scriptCount > 3 && bodyText.length < 80)) {
-    return fallbackAnalysis(url, !!html);
+  if (!html) {
+    return fallbackAnalysis(url, false);
   }
 
   let root: HTMLElement;
@@ -153,26 +155,32 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
   }
 
   const meta = (sel: string) => root.querySelector(sel)?.getAttribute("content")?.trim() || "";
+  const ld = jsonLd(root);
   const ogSiteName = meta('meta[property="og:site_name"]');
   const titleRaw = clean(root.querySelector("title")?.text || "");
   // Titles are usually "Page | Brand" or "Brand - tagline"; keep the brand part.
   const titleBrand = titleRaw.split(/[|–\-·]/).map((s) => s.trim()).filter(Boolean).pop() || "";
   // A brand name is short. Long candidates are taglines, so fall back to the
   // domain rather than using a whole sentence as the brand.
-  const isShort = (s: string) => !!s && s.split(/\s+/).length <= 3;
+  const isShort = (s: string | undefined): s is string => !!s && s.split(/\s+/).length <= 3;
   const brandName =
-    [ogSiteName, meta('meta[name="application-name"]'), titleBrand].find(isShort) || brandFromUrl(url);
+    [ogSiteName, meta('meta[name="application-name"]'), ld.name, titleBrand].find(isShort) ||
+    brandFromUrl(url);
 
   const h1 = clean(root.querySelector("h1")?.text || "");
   const ogTitle = meta('meta[property="og:title"]');
-  const headlineRaw = h1 || ogTitle || titleRaw;
+  const headlineRaw = h1 || ogTitle || ld.name || titleRaw;
 
   const metaDesc =
     meta('meta[name="description"]') ||
     meta('meta[property="og:description"]') ||
+    ld.description ||
     clean(root.querySelector("main p, article p, p")?.text || "");
 
-  const profile = INDUSTRY_PROFILES[detectIndustry((bodyText + " " + titleRaw).toLowerCase())];
+  // Industry detection draws on body text, the title, and JSON-LD @type/name
+  // (e.g. "Restaurant", "LocalBusiness"), which survives even on thin SPAs.
+  const ldHint = `${ld.type ?? ""} ${ld.name ?? ""} ${ld.description ?? ""}`;
+  const profile = INDUSTRY_PROFILES[detectIndustry((bodyText + " " + titleRaw + " " + ldHint).toLowerCase())];
   const headline = headlineRaw || profile.defaults.headline;
   const description = metaDesc || profile.defaults.description;
 
@@ -197,8 +205,10 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
       .filter((t) => t.length >= 3 && t.length <= 22 && !/^(home|menu|login|sign in)$/i.test(t))
   ).slice(0, 6);
 
-  // Industry: refine using nav labels too
-  const industry: Industry = detectIndustry((bodyText + " " + navItems.join(" ")).toLowerCase());
+  // Industry: refine using nav labels and the JSON-LD hint too
+  const industry: Industry = detectIndustry(
+    (bodyText + " " + navItems.join(" ") + " " + ldHint).toLowerCase()
+  );
   const finalProfile = INDUSTRY_PROFILES[industry];
 
   // Real audit signals
@@ -248,12 +258,22 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
     hasFooter: !!root.querySelector("footer"),
   });
 
+  // Confidence: a thin/JS-rendered shell with little real content was rebuilt
+  // mostly from metadata, so be honest about it in the UI.
+  const confidence: "full" | "partial" = isThin || headings.length < 2 ? "partial" : "full";
+  const notice =
+    confidence === "partial"
+      ? "We couldn't fully read this site - it looks JavaScript-rendered or it blocks crawlers. We rebuilt it from its metadata and sensible defaults, so double-check the copy and edit anything that's off."
+      : undefined;
+
   return {
     url,
     brandName,
     industry,
     industryLabel: finalProfile.label,
     fetched: true,
+    confidence,
+    notice,
     brand: { logoUrl, accentColor },
     detectedSections: detectSections(root),
     structure,
@@ -269,6 +289,36 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
     scores,
     issues,
   };
+}
+
+/**
+ * Pull name/description/@type out of any JSON-LD blocks. SPAs that render no
+ * server-side body often still emit structured data, so this is a reliable
+ * source of brand + industry signals when the DOM text is thin.
+ */
+function jsonLd(root: HTMLElement): { name?: string; description?: string; type?: string } {
+  const out: { name?: string; description?: string; type?: string } = {};
+  for (const s of root.querySelectorAll('script[type="application/ld+json"]')) {
+    let data: unknown;
+    try {
+      data = JSON.parse(s.text);
+    } catch {
+      continue;
+    }
+    const root_ = data as Record<string, unknown>;
+    const graph = Array.isArray(root_?.["@graph"]) ? (root_["@graph"] as unknown[]) : null;
+    const nodes = Array.isArray(data) ? data : graph ?? [data];
+    for (const node of nodes) {
+      if (!node || typeof node !== "object") continue;
+      const n = node as Record<string, unknown>;
+      const t = Array.isArray(n["@type"]) ? n["@type"][0] : n["@type"];
+      if (!out.type && typeof t === "string") out.type = t;
+      if (!out.name && typeof n.name === "string") out.name = clean(n.name);
+      if (!out.description && typeof n.description === "string") out.description = clean(n.description);
+      if (out.name && out.description && out.type) return out;
+    }
+  }
+  return out;
 }
 
 /* ---- extraction helpers ---- */
@@ -416,6 +466,10 @@ function fallbackAnalysis(url: string, fetched: boolean): SiteAnalysis {
     industry,
     industryLabel: profile.label,
     fetched,
+    confidence: "fallback",
+    notice: fetched
+      ? "We reached this site but couldn't read its content. We've started from a sensible template for your industry - edit the copy to match your business."
+      : "We couldn't reach this site (it may be down, private, or blocking requests). We've started from a sensible template for your industry - edit the copy to match your business.",
     detectedSections: ["Header", "Intro", "Services", "Contact", "Footer"],
     navItems: [],
     extractedContent: {

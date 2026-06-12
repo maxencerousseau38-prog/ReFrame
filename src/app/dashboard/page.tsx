@@ -203,9 +203,21 @@ function AnalysisResult({
           </span>
         )}
         <Badge variant="outline">
-          {analysis.fetched ? "Live crawl" : "Estimated (could not fetch)"}
+          {analysis.confidence === "partial"
+            ? "Partial read"
+            : analysis.confidence === "fallback"
+              ? "Estimated"
+              : "Live crawl"}
         </Badge>
       </div>
+
+      {/* Honest notice when the read was incomplete (SPA, blocked, offline). */}
+      {analysis.notice && (
+        <div className="flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+          <Warning weight="bold" className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>{analysis.notice}</span>
+        </div>
+      )}
 
       {/* Extracted images */}
       {analysis.extractedContent.images.length > 0 && (

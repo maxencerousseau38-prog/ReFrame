@@ -109,6 +109,15 @@ export interface SiteAnalysis {
   industryLabel: string;
   /** True when we fetched and parsed real HTML; false when we used a fallback. */
   fetched: boolean;
+  /**
+   * How much of the analysis is real vs. inferred:
+   *  - "full": read the page's real content,
+   *  - "partial": page was thin/JS-rendered, rebuilt from metadata + defaults,
+   *  - "fallback": couldn't fetch at all, used a domain-derived profile.
+   */
+  confidence?: "full" | "partial" | "fallback";
+  /** Human-readable note when the read was incomplete, for honest UI. */
+  notice?: string;
   /** Real brand assets pulled from the source page, when available. */
   brand?: {
     logoUrl?: string;
