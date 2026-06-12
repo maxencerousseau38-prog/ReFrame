@@ -1,5 +1,20 @@
 import { describe, it, expect } from "vitest";
-import { analyzeUrl } from "./engine";
+import { analyzeUrl, looksLikeChallenge } from "./engine";
+
+describe("looksLikeChallenge", () => {
+  it("flags common bot-protection / interstitial pages", () => {
+    expect(looksLikeChallenge("<title>Just a moment...</title>")).toBe(true);
+    expect(looksLikeChallenge("<title>One moment, please...</title>")).toBe(true);
+    expect(looksLikeChallenge("<h1>Attention Required! | Cloudflare</h1>")).toBe(true);
+    expect(looksLikeChallenge("<p>Please enable JS and cookies to continue</p>")).toBe(true);
+    expect(looksLikeChallenge("<noscript>Please enable JavaScript to run this app</noscript>")).toBe(true);
+  });
+
+  it("passes normal pages through", () => {
+    expect(looksLikeChallenge("<title>Gjelina - Restaurant</title><h1>Welcome</h1>")).toBe(false);
+    expect(looksLikeChallenge("<h1>Acme Plumbing</h1><p>24/7 service</p>")).toBe(false);
+  });
+});
 
 /**
  * analyzeUrl fetches the network; here we only exercise the offline fallback

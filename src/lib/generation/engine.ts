@@ -147,6 +147,18 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
     return fallbackAnalysis(url, false);
   }
 
+  // Bot-protection / interstitial pages (Cloudflare "Just a moment...",
+  // "One moment, please...", JS-required shells) return HTML, but it's a
+  // challenge, not the site. Capturing it would yield a brand like "One moment,
+  // please..." (seen on real sites), so treat it as unreadable and be honest.
+  if (looksLikeChallenge(html)) {
+    return fallbackAnalysis(
+      url,
+      true,
+      "This site sits behind a bot-protection challenge (e.g. Cloudflare) or requires JavaScript, so we couldn't read its content. We've started from a sensible template for your industry - edit the copy to match your business."
+    );
+  }
+
   let root: HTMLElement;
   try {
     root = parse(html, { blockTextElements: { script: false, style: true } });
@@ -289,6 +301,20 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
     scores,
     issues,
   };
+}
+
+/**
+ * Detect bot-protection / interstitial / "enable JavaScript" challenge pages.
+ * These return 200 with HTML, but it's a gate, not the real site - capturing it
+ * pollutes the brand and content, so callers fall back instead.
+ */
+export function looksLikeChallenge(html: string): boolean {
+  const head = html.slice(0, 4000).toLowerCase();
+  return (
+    /just a moment\.\.\.|attention required|checking your browser|cf-browser-verification|cf_chl_|_cf_chl_opt|one moment, please|verifying you are human|please enable (js|javascript) and cookies|ddos protection by/.test(
+      head
+    ) || /enable javascript (to|and) (run|view|use)/.test(head)
+  );
 }
 
 /**
@@ -449,7 +475,7 @@ function rangeFrom(url: string, lo: number, hi: number): number {
 }
 
 /** Deterministic profile when we cannot read real HTML (offline / SPA shell). */
-function fallbackAnalysis(url: string, fetched: boolean): SiteAnalysis {
+function fallbackAnalysis(url: string, fetched: boolean, noticeOverride?: string): SiteAnalysis {
   const brandName = brandFromUrl(url);
   const industry = detectIndustry(brandName.toLowerCase());
   const profile = INDUSTRY_PROFILES[industry];
@@ -467,9 +493,11 @@ function fallbackAnalysis(url: string, fetched: boolean): SiteAnalysis {
     industryLabel: profile.label,
     fetched,
     confidence: "fallback",
-    notice: fetched
-      ? "We reached this site but couldn't read its content. We've started from a sensible template for your industry - edit the copy to match your business."
-      : "We couldn't reach this site (it may be down, private, or blocking requests). We've started from a sensible template for your industry - edit the copy to match your business.",
+    notice:
+      noticeOverride ??
+      (fetched
+        ? "We reached this site but couldn't read its content. We've started from a sensible template for your industry - edit the copy to match your business."
+        : "We couldn't reach this site (it may be down, private, or blocking requests). We've started from a sensible template for your industry - edit the copy to match your business."),
     detectedSections: ["Header", "Intro", "Services", "Contact", "Footer"],
     navItems: [],
     extractedContent: {
