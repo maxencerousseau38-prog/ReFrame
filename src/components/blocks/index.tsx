@@ -16,6 +16,7 @@ import {
 } from "@phosphor-icons/react";
 import type { Block, SiteSchema, Theme } from "@/lib/generation/types";
 import { cn } from "@/lib/utils";
+import { useParallax } from "./use-parallax";
 
 /* -------------------------------------------------------------------------- */
 /*  Theme plumbing                                                            */
@@ -192,6 +193,8 @@ function HeroPremium1({ props }: { props: any }) {
 }
 
 function HeroPremium2({ props }: { props: any }) {
+  const imgRef = React.useRef<HTMLDivElement>(null);
+  useParallax(imgRef);
   return (
     <section className="relative overflow-hidden px-6 py-24 sm:py-28">
       <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
@@ -231,12 +234,14 @@ function HeroPremium2({ props }: { props: any }) {
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7 }}
-          className="relative aspect-[4/3] overflow-hidden bg-cover bg-center"
-          style={{
-            borderRadius: "var(--brand-radius)",
-            backgroundImage: imageBg(props.image, "linear-gradient(135deg, var(--brand-accent), var(--brand))"),
-          }}
+          className="relative aspect-[4/3] overflow-hidden"
+          style={{ borderRadius: "var(--brand-radius)" }}
         >
+          <div
+            ref={imgRef}
+            className="absolute -inset-[15%] bg-cover bg-center"
+            style={{ backgroundImage: imageBg(props.image, "linear-gradient(135deg, var(--brand-accent), var(--brand))") }}
+          />
           {!props.image && (
             <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_20%_20%,#fff_1px,transparent_1px)] [background-size:24px_24px]" />
           )}
@@ -255,6 +260,8 @@ function HeroPremium2({ props }: { props: any }) {
  */
 function HeroEditorial({ props }: { props: any }) {
   const reduce = useReducedMotion();
+  const imgRef = React.useRef<HTMLDivElement>(null);
+  useParallax(imgRef);
   const rise = reduce
     ? { hidden: { opacity: 1, y: 0 }, visible: { opacity: 1, y: 0 } }
     : { hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0 } };
@@ -334,12 +341,14 @@ function HeroEditorial({ props }: { props: any }) {
           className="relative"
         >
           <div
-            className="relative aspect-[4/5] overflow-hidden bg-cover bg-center"
-            style={{
-              borderRadius: "var(--brand-radius)",
-              backgroundImage: imageBg(props.image, "linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))"),
-            }}
+            className="relative aspect-[4/5] overflow-hidden"
+            style={{ borderRadius: "var(--brand-radius)" }}
           >
+            <div
+              ref={imgRef}
+              className="absolute -inset-[15%] bg-cover bg-center"
+              style={{ backgroundImage: imageBg(props.image, "linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))") }}
+            />
             {!props.image && (
               <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_25%_20%,#fff_1px,transparent_1px)] [background-size:22px_22px]" />
             )}
@@ -1035,6 +1044,8 @@ function PortfolioGrid({ props }: { props: any }) {
  */
 function AboutSplit({ props }: { props: any }) {
   const reduce = useReducedMotion();
+  const imgRef = React.useRef<HTMLDivElement>(null);
+  useParallax(imgRef);
   const stats = (props.stats || []) as { value: string; label: string }[];
   const rise = reduce
     ? { hidden: { opacity: 1, y: 0 }, visible: { opacity: 1, y: 0 } }
@@ -1048,12 +1059,14 @@ function AboutSplit({ props }: { props: any }) {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-          className="relative aspect-[4/5] overflow-hidden bg-cover bg-center"
-          style={{
-            borderRadius: "var(--brand-radius)",
-            backgroundImage: imageBg(props.image, "linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))"),
-          }}
+          className="relative aspect-[4/5] overflow-hidden"
+          style={{ borderRadius: "var(--brand-radius)" }}
         >
+          <div
+            ref={imgRef}
+            className="absolute -inset-[15%] bg-cover bg-center"
+            style={{ backgroundImage: imageBg(props.image, "linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))") }}
+          />
           {!props.image && (
             <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_25%_20%,#fff_1px,transparent_1px)] [background-size:22px_22px]" />
           )}
