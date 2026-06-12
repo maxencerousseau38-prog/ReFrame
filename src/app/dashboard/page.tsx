@@ -9,7 +9,7 @@ import { DashboardShell } from "@/components/dashboard/shell";
 import { AnalyzeLoader } from "@/components/dashboard/analyze-loader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { saveAnalysis, saveSchema } from "@/lib/store";
+import { saveAnalysis, saveSchema, createProject } from "@/lib/store";
 import type { SiteAnalysis, SiteSchema, GenerationMode } from "@/lib/generation/types";
 
 type Phase = "idle" | "analyzing" | "result" | "generating";
@@ -86,8 +86,12 @@ function DashboardInner() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Generation failed");
       await new Promise((r) => setTimeout(r, 1400));
-      saveSchema(data.schema as SiteSchema);
-      router.push("/result");
+      const schema = data.schema as SiteSchema;
+      saveSchema(schema);
+      // Persist as a project for signed-in users; anonymous users fall back to
+      // sessionStorage. Either way the result page can render.
+      const projectId = await createProject(schema, analysis);
+      router.push(projectId ? `/result?p=${projectId}` : "/result");
     } catch (e) {
       setError(String(e instanceof Error ? e.message : e));
       setPhase("result");

@@ -9,7 +9,14 @@ import { DashboardShell } from "@/components/dashboard/shell";
 import { SiteRenderer } from "@/components/blocks";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { loadAnalysis, loadSchema } from "@/lib/store";
+import {
+  loadAnalysis,
+  loadSchema,
+  saveAnalysis,
+  saveSchema,
+  fetchProject,
+  projectIdFromUrl,
+} from "@/lib/store";
 import type { SiteAnalysis, SiteSchema } from "@/lib/generation/types";
 
 export default function ResultPage() {
@@ -19,15 +26,36 @@ export default function ResultPage() {
   const [view, setView] = React.useState<"after" | "before">("after");
   const [publishing, setPublishing] = React.useState(false);
   const [published, setPublished] = React.useState<string | null>(null);
+  const [projectId, setProjectId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    const s = loadSchema();
-    if (!s) {
-      router.replace("/dashboard");
+    const fromSession = () => {
+      const s = loadSchema();
+      if (!s) {
+        router.replace("/dashboard");
+        return;
+      }
+      setSchema(s);
+      setAnalysis(loadAnalysis());
+    };
+
+    const pid = projectIdFromUrl();
+    if (pid) {
+      setProjectId(pid);
+      fetchProject(pid).then((r) => {
+        if (r) {
+          setSchema(r.schema);
+          setAnalysis(r.analysis);
+          // mirror into sessionStorage so the editor + reloads stay fast
+          saveSchema(r.schema);
+          if (r.analysis) saveAnalysis(r.analysis);
+        } else {
+          fromSession();
+        }
+      });
       return;
     }
-    setSchema(s);
-    setAnalysis(loadAnalysis());
+    fromSession();
   }, [router]);
 
   async function downloadHtml() {
@@ -112,7 +140,7 @@ export default function ResultPage() {
           <Button variant="outline" size="sm" onClick={downloadHtml}>
             <DownloadSimple weight="bold" className="h-4 w-4" /> Download
           </Button>
-          <Link href="/editor">
+          <Link href={projectId ? `/editor?p=${projectId}` : "/editor"}>
             <Button variant="outline" size="sm"><MagicWand weight="bold" className="h-4 w-4" /> Edit with AI</Button>
           </Link>
           {published ? (

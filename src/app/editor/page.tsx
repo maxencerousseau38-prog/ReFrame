@@ -8,7 +8,13 @@ import { PaperPlaneTilt, CircleNotch, ArrowLeft, MagicWand, RocketLaunch, Check 
 import { DashboardShell } from "@/components/dashboard/shell";
 import { SiteRenderer } from "@/components/blocks";
 import { Button } from "@/components/ui/button";
-import { loadSchema, saveSchema } from "@/lib/store";
+import {
+  loadSchema,
+  saveSchema,
+  fetchProject,
+  updateProject,
+  projectIdFromUrl,
+} from "@/lib/store";
 import type { SiteSchema } from "@/lib/generation/types";
 
 interface Message {
@@ -38,9 +44,25 @@ export default function EditorPage() {
   const [input, setInput] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [published, setPublished] = React.useState<string | null>(null);
+  const [projectId, setProjectId] = React.useState<string | null>(null);
   const scrollRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
+    const pid = projectIdFromUrl();
+    if (pid) {
+      setProjectId(pid);
+      fetchProject(pid).then((r) => {
+        if (r) {
+          setSchema(r.schema);
+          saveSchema(r.schema);
+          return;
+        }
+        const s = loadSchema();
+        if (!s) router.replace("/dashboard");
+        else setSchema(s);
+      });
+      return;
+    }
     const s = loadSchema();
     if (!s) {
       router.replace("/dashboard");
@@ -69,6 +91,8 @@ export default function EditorPage() {
       if (data.schema) {
         setSchema(data.schema);
         saveSchema(data.schema);
+        // Persist the edit back to the saved project, when there is one.
+        if (projectId) void updateProject(projectId, data.schema);
       }
       setMessages((m) => [...m, { role: "assistant", content: data.message || "Done." }]);
     } catch {
