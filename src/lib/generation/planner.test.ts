@@ -20,6 +20,19 @@ describe("planPreserve", () => {
     expect(planPreserve(struct(["hero", "footer"])).slots.map((s) => s.type)).toEqual(CANONICAL);
   });
 
+  it("falls back to classic when there's no real content section to preserve", () => {
+    // hero + contact + footer is a near-empty stub (the casselin/manutan case):
+    // build the full canonical page instead.
+    expect(planPreserve(struct(["hero", "contact", "footer"])).slots.map((s) => s.type)).toEqual(
+      CANONICAL
+    );
+  });
+
+  it("preserves as soon as there is one genuine content section", () => {
+    const p = planPreserve(struct(["hero", "about", "footer"]));
+    expect(p.slots.map((s) => s.type)).toEqual(["hero", "about", "footer"]);
+  });
+
   it("keeps the client's order with hero first and footer last", () => {
     const p = planPreserve(struct(["hero", "about", "services", "portfolio", "footer"]));
     expect(p.slots.map((s) => s.type)).toEqual(["hero", "about", "services", "portfolio", "footer"]);

@@ -41,9 +41,21 @@ export function planClassic(): Plan {
 }
 
 /** Preserve: keep the client's architecture and order, upgrade the components. */
+/**
+ * Preserve: keep the client's architecture and order, upgrade the components.
+ * But many real homepages (heading-poor B2B catalogs, JS-rendered shells) yield
+ * little or no detectable structure. "Preserving" that produces a near-empty
+ * hero+contact+footer stub - worse than a real page. So when there isn't at
+ * least one genuine *content* section between the hero and footer, fall back to
+ * the proven canonical layout, which rebuilds a full page from the extracted
+ * content instead.
+ */
 export function planPreserve(structure?: SiteStructure): Plan {
   if (!structure || structure.sections.length < 3) return planClassic();
   const slots = anchor(structure.sections.map((s) => slot(s.type, s.label)));
+  const NON_CONTENT: BlockType[] = ["hero", "footer", "contact", "cta"];
+  const hasContent = slots.some((s) => !NON_CONTENT.includes(s.category));
+  if (!hasContent) return planClassic();
   return { slots, recommendations: [] };
 }
 
