@@ -43,7 +43,7 @@ export const PLANS: Record<Plan, PlanInfo> = {
   pro: {
     id: "pro",
     label: "Pro",
-    price: 19,
+    price: 29,
     entitlements: {
       maxPublishedSites: 25,
       removeBranding: true,
@@ -54,7 +54,7 @@ export const PLANS: Record<Plan, PlanInfo> = {
   studio: {
     id: "studio",
     label: "Studio",
-    price: 79,
+    price: 99,
     entitlements: {
       maxPublishedSites: 500,
       removeBranding: true,

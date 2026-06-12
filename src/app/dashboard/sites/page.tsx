@@ -7,7 +7,11 @@ import { planOf } from "@/lib/server/plans";
 
 export const dynamic = "force-dynamic";
 
-export default async function MySitesPage() {
+export default async function MySitesPage({
+  searchParams,
+}: {
+  searchParams: { upgraded?: string };
+}) {
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/dashboard/sites");
 
@@ -17,7 +21,8 @@ export default async function MySitesPage() {
   return (
     <DashboardShell>
       <SitesView
-        plan={{ label: plan.label, limit: plan.entitlements.maxPublishedSites }}
+        upgraded={searchParams.upgraded === "1"}
+        plan={{ id: plan.id, label: plan.label, limit: plan.entitlements.maxPublishedSites }}
         sites={sites.map((s) => ({
           slug: s.slug,
           name: s.schema.brand.name,

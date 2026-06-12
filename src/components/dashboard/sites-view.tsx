@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowUpRight, Trash, Plus, Globe } from "@phosphor-icons/react";
+import { ArrowUpRight, Trash, Plus, Globe, CircleNotch } from "@phosphor-icons/react";
 
 type SiteCard = {
   slug: string;
@@ -12,7 +12,7 @@ type SiteCard = {
   blocks: number;
 };
 
-type PlanInfo = { label: string; limit: number };
+type PlanInfo = { id: "free" | "pro" | "studio"; label: string; limit: number };
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -22,10 +22,31 @@ function formatDate(iso: string): string {
   });
 }
 
-export function SitesView({ sites, plan }: { sites: SiteCard[]; plan: PlanInfo }) {
+export function SitesView({
+  sites,
+  plan,
+  upgraded,
+}: {
+  sites: SiteCard[];
+  plan: PlanInfo;
+  upgraded?: boolean;
+}) {
   const [items, setItems] = React.useState(sites);
   const [pending, setPending] = React.useState<string | null>(null);
+  const [portalBusy, setPortalBusy] = React.useState(false);
   const atLimit = items.length >= plan.limit;
+
+  async function manageBilling() {
+    setPortalBusy(true);
+    try {
+      const res = await fetch("/api/billing/portal", { method: "POST" });
+      const data = await res.json();
+      if (res.ok && data.url) window.location.href = data.url;
+      else alert(data.error || "Billing portal is unavailable.");
+    } finally {
+      setPortalBusy(false);
+    }
+  }
 
   async function remove(slug: string) {
     if (!confirm("Delete this site? This cannot be undone.")) return;
@@ -41,6 +62,12 @@ export function SitesView({ sites, plan }: { sites: SiteCard[]; plan: PlanInfo }
   return (
     <div className="px-6 py-10 sm:px-10">
       <div className="mx-auto max-w-4xl">
+        {upgraded && (
+          <div className="mb-6 rounded-xl border border-accent/30 bg-accent/[0.06] px-4 py-3 text-[13px] text-zinc-200">
+            You are on the <span className="font-medium text-accent">{plan.label}</span> plan. Thanks for the upgrade.
+          </div>
+        )}
+
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-white">Your sites</h1>
@@ -51,12 +78,23 @@ export function SitesView({ sites, plan }: { sites: SiteCard[]; plan: PlanInfo }
               {items.length} of {plan.limit} published
             </p>
           </div>
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-[13px] font-medium text-accent-foreground transition-[transform,filter] duration-200 ease-out hover:brightness-105 active:scale-[0.98]"
-          >
-            <Plus weight="bold" className="h-4 w-4" /> New site
-          </Link>
+          <div className="flex items-center gap-2">
+            {plan.id !== "free" && (
+              <button
+                onClick={manageBilling}
+                disabled={portalBusy}
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-white/5 disabled:opacity-60"
+              >
+                {portalBusy ? <CircleNotch weight="bold" className="h-4 w-4 animate-spin" /> : "Manage billing"}
+              </button>
+            )}
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-[13px] font-medium text-accent-foreground transition-[transform,filter] duration-200 ease-out hover:brightness-105 active:scale-[0.98]"
+            >
+              <Plus weight="bold" className="h-4 w-4" /> New site
+            </Link>
+          </div>
         </div>
 
         {atLimit && items.length > 0 && (
