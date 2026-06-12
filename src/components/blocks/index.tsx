@@ -84,6 +84,14 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 // Hairline derived from the brand ink, for borders and grid gaps on any canvas.
 const HAIRLINE = "color-mix(in srgb, var(--brand-ink) 8%, transparent)";
 
+// Keep the gradient as a fallback layer beneath the image: CSS stacks
+// background layers top-to-bottom, and a broken/blocked image paints nothing,
+// so the gradient below shows through instead of a blank box. Extracted client
+// images are often hotlink-protected or stale, so every image block needs this.
+function imageBg(image: string | undefined, gradient: string): string {
+  return image ? `url(${image}), ${gradient}` : gradient;
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Hero blocks                                                               */
 /* -------------------------------------------------------------------------- */
@@ -226,9 +234,7 @@ function HeroPremium2({ props }: { props: any }) {
           className="relative aspect-[4/3] overflow-hidden bg-cover bg-center"
           style={{
             borderRadius: "var(--brand-radius)",
-            backgroundImage: props.image
-              ? `url(${props.image})`
-              : `linear-gradient(135deg, var(--brand-accent), var(--brand))`,
+            backgroundImage: imageBg(props.image, "linear-gradient(135deg, var(--brand-accent), var(--brand))"),
           }}
         >
           {!props.image && (
@@ -331,9 +337,7 @@ function HeroEditorial({ props }: { props: any }) {
             className="relative aspect-[4/5] overflow-hidden bg-cover bg-center"
             style={{
               borderRadius: "var(--brand-radius)",
-              backgroundImage: props.image
-                ? `url(${props.image})`
-                : `linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))`,
+              backgroundImage: imageBg(props.image, "linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))"),
             }}
           >
             {!props.image && (
@@ -1002,9 +1006,7 @@ function PortfolioGrid({ props }: { props: any }) {
               <div
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-105"
                 style={{
-                  backgroundImage: p.image
-                    ? `url(${p.image})`
-                    : `linear-gradient(145deg, var(--brand-surface-2), color-mix(in srgb, var(--brand-accent) 55%, var(--brand)))`,
+                  backgroundImage: imageBg(p.image, "linear-gradient(145deg, var(--brand-surface-2), color-mix(in srgb, var(--brand-accent) 55%, var(--brand)))"),
                 }}
               />
               {!p.image && (
@@ -1049,9 +1051,7 @@ function AboutSplit({ props }: { props: any }) {
           className="relative aspect-[4/5] overflow-hidden bg-cover bg-center"
           style={{
             borderRadius: "var(--brand-radius)",
-            backgroundImage: props.image
-              ? `url(${props.image})`
-              : `linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))`,
+            backgroundImage: imageBg(props.image, "linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))"),
           }}
         >
           {!props.image && (
