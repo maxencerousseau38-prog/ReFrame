@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
-import type { SiteSchema } from "@/lib/generation/types";
 import { schemaToHtml, slugForFilename } from "@/lib/export-html";
 import { rateLimit, clientKey } from "@/lib/rate-limit";
+import { parseSiteSchema } from "@/lib/generation/validate";
+import { getCurrentUser } from "@/lib/server/auth";
+import { entitlementsOf } from "@/lib/server/plans";
 
 export const runtime = "nodejs";
 
@@ -12,11 +14,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }
   try {
-    const { schema } = (await req.json()) as { schema: SiteSchema };
-    if (!schema?.blocks) {
-      return NextResponse.json({ error: "`schema` is required." }, { status: 400 });
+    const body = (await req.json().catch(() => null)) as { schema?: unknown } | null;
+    const schema = parseSiteSchema(body?.schema);
+    if (!schema) {
+      return NextResponse.json({ error: "A valid `schema` is required." }, { status: 400 });
     }
-    const html = schemaToHtml(schema);
+
+    // Plan-gated branding: free plans (and anonymous) ship the badge; paid
+    // plans (removeBranding) get a clean export.
+    const user = await getCurrentUser();
+    const branded = !entitlementsOf(user?.plan).removeBranding;
+
+    const html = schemaToHtml(schema, { branded });
     const file = `${slugForFilename(schema.brand.name)}.html`;
     return new NextResponse(html, {
       headers: {

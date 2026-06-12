@@ -21,9 +21,14 @@ function esc(s: unknown): string {
     .replace(/"/g, "&quot;");
 }
 
-export function schemaToHtml(schema: SiteSchema): string {
+export function schemaToHtml(schema: SiteSchema, opts: { branded?: boolean } = {}): string {
   const t = schema.theme;
   const body = schema.blocks.map((b) => renderBlock(b)).join("\n");
+  // Plan-gated "Made with ReFrame" badge (free plans + anonymous are branded;
+  // paid plans pass branded:false). Inline styles so the export stays portable.
+  const badge = opts.branded
+    ? `<a href="https://reframe.design" style="position:fixed;bottom:16px;right:16px;z-index:50;display:inline-flex;align-items:center;gap:6px;background:#0f0f11;color:#fff;padding:8px 14px;border-radius:9999px;font-size:12px;font-weight:600;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.18)"><span style="width:6px;height:6px;border-radius:9999px;background:#9FDE3F"></span>Made with ReFrame</a>`
+    : "";
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -56,7 +61,7 @@ export function schemaToHtml(schema: SiteSchema): string {
 </head>
 <body>
 ${body}
-<!-- Built with ReFrame -->
+${badge}
 </body>
 </html>`;
 }

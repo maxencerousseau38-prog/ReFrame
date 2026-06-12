@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import type { SiteSchema } from "@/lib/generation/types";
 import { publishSite, listSitesByOwner } from "@/lib/server/sites-store";
 import { getCurrentUser } from "@/lib/server/auth";
 import { entitlementsOf } from "@/lib/server/plans";
 import { rateLimit, clientKey } from "@/lib/rate-limit";
+import { parseSiteSchema } from "@/lib/generation/validate";
 
 export const runtime = "nodejs";
 
@@ -32,8 +32,11 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { schema } = (await req.json()) as { schema?: SiteSchema };
-    if (!schema || !schema.brand?.name || !Array.isArray(schema.blocks)) {
+    const body = (await req.json().catch(() => null)) as { schema?: unknown } | null;
+    // Validate before persisting: a published site is served to the public, so
+    // a malformed or tampered schema must never reach the renderer.
+    const schema = parseSiteSchema(body?.schema);
+    if (!schema) {
       return NextResponse.json(
         { error: "A valid `schema` with a brand name and blocks is required." },
         { status: 400 }
