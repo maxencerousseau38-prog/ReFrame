@@ -3,6 +3,7 @@ import { DashboardShell } from "@/components/dashboard/shell";
 import { SitesView } from "@/components/dashboard/sites-view";
 import { getCurrentUser } from "@/lib/server/auth";
 import { listSitesByOwner } from "@/lib/server/sites-store";
+import { planOf } from "@/lib/server/plans";
 
 export const dynamic = "force-dynamic";
 
@@ -11,9 +12,12 @@ export default async function MySitesPage() {
   if (!user) redirect("/login?next=/dashboard/sites");
 
   const sites = await listSitesByOwner(user.id);
+  const plan = planOf(user.plan);
+
   return (
     <DashboardShell>
       <SitesView
+        plan={{ label: plan.label, limit: plan.entitlements.maxPublishedSites }}
         sites={sites.map((s) => ({
           slug: s.slug,
           name: s.schema.brand.name,

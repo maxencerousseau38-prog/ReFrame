@@ -12,6 +12,8 @@ type SiteCard = {
   blocks: number;
 };
 
+type PlanInfo = { label: string; limit: number };
+
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
     month: "short",
@@ -20,9 +22,10 @@ function formatDate(iso: string): string {
   });
 }
 
-export function SitesView({ sites }: { sites: SiteCard[] }) {
+export function SitesView({ sites, plan }: { sites: SiteCard[]; plan: PlanInfo }) {
   const [items, setItems] = React.useState(sites);
   const [pending, setPending] = React.useState<string | null>(null);
+  const atLimit = items.length >= plan.limit;
 
   async function remove(slug: string) {
     if (!confirm("Delete this site? This cannot be undone.")) return;
@@ -41,8 +44,11 @@ export function SitesView({ sites }: { sites: SiteCard[] }) {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-white">Your sites</h1>
-            <p className="mt-1 text-sm text-zinc-400">
-              Every site you have published. Open it live or remove it.
+            <p className="mt-1 flex items-center gap-2 text-sm text-zinc-400">
+              <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[12px] font-medium text-accent">
+                {plan.label}
+              </span>
+              {items.length} of {plan.limit} published
             </p>
           </div>
           <Link
@@ -52,6 +58,20 @@ export function SitesView({ sites }: { sites: SiteCard[] }) {
             <Plus weight="bold" className="h-4 w-4" /> New site
           </Link>
         </div>
+
+        {atLimit && items.length > 0 && (
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-accent/30 bg-accent/[0.06] px-4 py-3">
+            <p className="text-[13px] text-zinc-300">
+              You have reached your {plan.label} plan limit of {plan.limit}.
+            </p>
+            <Link
+              href="/#pricing"
+              className="rounded-full bg-accent px-3.5 py-1.5 text-[12px] font-medium text-accent-foreground transition-[transform,filter] hover:brightness-105 active:scale-[0.98]"
+            >
+              Upgrade plan
+            </Link>
+          </div>
+        )}
 
         {items.length === 0 ? (
           <div className="mt-10 flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.02] px-6 py-20 text-center">

@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import type { SiteSchema } from "@/lib/generation/types";
-import { publishSite } from "@/lib/server/sites-store";
+import { publishSite, listSitesByOwner } from "@/lib/server/sites-store";
 import { getCurrentUser } from "@/lib/server/auth";
+import { entitlementsOf } from "@/lib/server/plans";
 import { rateLimit, clientKey } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -40,6 +41,22 @@ export async function POST(req: Request) {
     }
 
     const user = await getCurrentUser();
+
+    // Enforce the plan's published-site limit for signed-in users.
+    if (user) {
+      const limit = entitlementsOf(user.plan).maxPublishedSites;
+      const owned = await listSitesByOwner(user.id);
+      if (owned.length >= limit) {
+        return NextResponse.json(
+          {
+            error: `Your plan allows ${limit} published site${limit === 1 ? "" : "s"}. Upgrade to publish more.`,
+            code: "plan_limit",
+          },
+          { status: 402 }
+        );
+      }
+    }
+
     const site = await publishSite(schema, user?.id);
 
     return NextResponse.json({

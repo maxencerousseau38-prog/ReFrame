@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import crypto from "crypto";
+import type { Plan } from "./plans";
 
 /**
  * Server-side user store for ReFrame accounts.
@@ -22,13 +23,17 @@ export interface User {
   /** `salt:derivedKey`, both hex. */
   passwordHash: string;
   createdAt: string;
+  /** Subscription tier. Absent means free. Set by billing. */
+  plan?: Plan;
+  /** Stripe customer id, when billing is wired. */
+  stripeCustomerId?: string;
 }
 
 /** Public shape safe to expose to the client (never includes the hash). */
-export type PublicUser = Pick<User, "id" | "email" | "createdAt">;
+export type PublicUser = Pick<User, "id" | "email" | "createdAt"> & { plan: Plan };
 
 export function publicUser(u: User): PublicUser {
-  return { id: u.id, email: u.email, createdAt: u.createdAt };
+  return { id: u.id, email: u.email, createdAt: u.createdAt, plan: u.plan ?? "free" };
 }
 
 const KV_URL = process.env.KV_REST_API_URL;
@@ -132,6 +137,20 @@ export async function createUser(email: string, password: string): Promise<User>
     passwordHash: hashPassword(password),
     createdAt: new Date().toISOString(),
   };
+  await writeUser(user);
+  return user;
+}
+
+/** Update a user's subscription tier (and optionally their Stripe customer id). */
+export async function setUserPlan(
+  id: string,
+  plan: Plan,
+  stripeCustomerId?: string
+): Promise<User | null> {
+  const user = await readUser(id);
+  if (!user) return null;
+  user.plan = plan;
+  if (stripeCustomerId) user.stripeCustomerId = stripeCustomerId;
   await writeUser(user);
   return user;
 }
