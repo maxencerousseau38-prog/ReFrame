@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { aiEdit } from "@/lib/llm";
 import { rateLimit, clientKey } from "@/lib/rate-limit";
-import type { SiteSchema } from "@/lib/generation/types";
+import { parseSiteSchema } from "@/lib/generation/validate";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -17,16 +17,22 @@ export async function POST(req: Request) {
   }
   try {
     const { schema, instruction } = (await req.json()) as {
-      schema: SiteSchema;
+      schema: unknown;
       instruction: string;
     };
-    if (!schema || !instruction || instruction.length > 1000) {
+    if (!schema || !instruction || typeof instruction !== "string" || instruction.length > 1000) {
       return NextResponse.json(
         { error: "`schema` and a short `instruction` are required." },
         { status: 400 }
       );
     }
-    const result = await aiEdit(schema, instruction);
+    // The schema comes from the client; validate it before editing so a tampered
+    // or stale payload can't crash the editor or be persisted.
+    const valid = parseSiteSchema(schema);
+    if (!valid) {
+      return NextResponse.json({ error: "Invalid schema." }, { status: 400 });
+    }
+    const result = await aiEdit(valid, instruction);
     return NextResponse.json(result);
   } catch (err) {
     return NextResponse.json(

@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { SiteAnalysis, SiteSchema } from "./generation/types";
 import { applyAiEdit, type AiEditResult } from "./generation/engine";
+import { parseSiteSchema } from "./generation/validate";
 
 /**
  * Claude integration for ReFrame. Both functions degrade gracefully: when no
@@ -113,12 +114,16 @@ Respond with ONLY a JSON object: {"message": string (one short sentence describi
       max_tokens: 8192,
       messages: [{ role: "user", content: prompt }],
     });
-    const json = extractJSON<{ message?: string; schema?: SiteSchema }>(textOf(res));
-    if (json.schema && Array.isArray(json.schema.blocks) && json.message) {
+    const json = extractJSON<{ message?: string; schema?: unknown }>(textOf(res));
+    // Validate + repair the model's schema before trusting it. A malformed or
+    // unrenderable result yields null, and we fall back to the deterministic
+    // router below instead of shipping a broken page.
+    const parsed = json.message ? parseSiteSchema(json.schema, schema.brand.name) : null;
+    if (parsed && json.message) {
       // preserve the original id/source so the rest of the app stays consistent
-      json.schema.id = schema.id;
-      json.schema.sourceUrl = schema.sourceUrl;
-      return { schema: json.schema, message: json.message, changed: true };
+      parsed.id = schema.id;
+      parsed.sourceUrl = schema.sourceUrl;
+      return { schema: parsed, message: json.message, changed: true };
     }
   } catch {
     // fall through
