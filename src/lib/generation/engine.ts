@@ -26,7 +26,7 @@ function isPrivateIp(ip: string): boolean {
  * SSRF guard: only http/https, never private/loopback/metadata addresses.
  * Resolves the hostname so an attacker can't point a public name at 127.0.0.1.
  */
-async function assertSafeTarget(rawUrl: string): Promise<void> {
+export async function assertSafeTarget(rawUrl: string): Promise<void> {
   let u: URL;
   try {
     u = new URL(rawUrl);

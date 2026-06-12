@@ -17,6 +17,7 @@ import {
 import type { Block, SiteSchema, Theme } from "@/lib/generation/types";
 import { cn } from "@/lib/utils";
 import { useParallax } from "./use-parallax";
+import { toProxiedUrl } from "@/lib/img";
 
 /* -------------------------------------------------------------------------- */
 /*  Theme plumbing                                                            */
@@ -90,7 +91,10 @@ const HAIRLINE = "color-mix(in srgb, var(--brand-ink) 8%, transparent)";
 // so the gradient below shows through instead of a blank box. Extracted client
 // images are often hotlink-protected or stale, so every image block needs this.
 function imageBg(image: string | undefined, gradient: string): string {
-  return image ? `url(${image}), ${gradient}` : gradient;
+  // Route external images through the proxy (control caching/referrer, validate,
+  // bypass naive hotlink protection); data URIs and relative paths pass through.
+  const url = toProxiedUrl(image);
+  return url ? `url(${url}), ${gradient}` : gradient;
 }
 
 /* -------------------------------------------------------------------------- */
