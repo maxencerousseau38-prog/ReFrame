@@ -32,3 +32,6 @@ next-env.d.ts
 
 # Local Claude Code integration (settings + skill symlinks, machine-specific)
 .claude/
+
+# Evaluation harness output
+eval/
