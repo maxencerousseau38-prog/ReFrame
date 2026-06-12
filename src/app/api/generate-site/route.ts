@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       analysis = { ...analysis, extractedContent: { ...analysis.extractedContent, ...improved } };
     }
 
-    const mode: GenerationMode = MODES.includes(body.mode) ? body.mode : "smart";
+    const mode: GenerationMode = MODES.includes(body.mode) ? body.mode : "preserve";
     const schema = generateSite(analysis, { mode });
     return NextResponse.json({ schema, analysis, ai: isLLMEnabled(), mode });
   } catch (err) {

@@ -565,16 +565,17 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block {
  * Assemble a coherent SiteSchema from the analysis.
  *
  * The mode decides the structure:
- *   classic  - the proven canonical layout (the original behavior)
- *   preserve - keep the client's detected architecture and order
- *   smart    - preserve, then optimize for conversion (default)
+ *   preserve - keep the client's detected architecture and order (default).
+ *              "Keep your structure. Upgrade your design." - the core promise.
+ *   smart    - preserve, then optimize for conversion.
+ *   classic  - the proven canonical layout (full rebuild from extracted content).
  * Component selection stays industry-driven and deterministic - never random.
  */
 export function generateSite(
   analysis: SiteAnalysis,
   opts: { mode?: GenerationMode } = {}
 ): SiteSchema {
-  const mode: GenerationMode = opts.mode ?? "smart";
+  const mode: GenerationMode = opts.mode ?? "preserve";
   const plan =
     mode === "classic"
       ? planClassic()

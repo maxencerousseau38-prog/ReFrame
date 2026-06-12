@@ -14,10 +14,23 @@ import type { SiteAnalysis, SiteSchema, GenerationMode } from "@/lib/generation/
 
 type Phase = "idle" | "analyzing" | "result" | "generating";
 
-const MODES: { id: GenerationMode; label: string; desc: string }[] = [
-  { id: "smart", label: "Smart", desc: "Keep the structure, then optimize it for conversion." },
-  { id: "preserve", label: "Preserve", desc: "Keep the exact architecture, upgrade the design." },
-  { id: "classic", label: "Classic", desc: "Rebuild the best possible site from scratch." },
+const MODES: { id: GenerationMode; label: string; desc: string; recommended?: boolean }[] = [
+  {
+    id: "preserve",
+    label: "Preserve",
+    desc: "Keep your structure and section order. Upgrade the design, typography, spacing, responsive and animations.",
+    recommended: true,
+  },
+  {
+    id: "smart",
+    label: "Smart",
+    desc: "Keep the structure, then reorganize for conversion: add an FAQ, CTA or testimonials where it helps.",
+  },
+  {
+    id: "classic",
+    label: "Classic",
+    desc: "Full rebuild from your content. Maximum freedom to generate the best possible site.",
+  },
 ];
 
 function DashboardInner() {
@@ -26,7 +39,7 @@ function DashboardInner() {
   const [url, setUrl] = React.useState("");
   const [phase, setPhase] = React.useState<Phase>("idle");
   const [analysis, setAnalysis] = React.useState<SiteAnalysis | null>(null);
-  const [mode, setMode] = React.useState<GenerationMode>("smart");
+  const [mode, setMode] = React.useState<GenerationMode>("preserve");
   const [error, setError] = React.useState<string | null>(null);
 
   // Auto-run if the landing page handed us a ?url=
@@ -283,11 +296,18 @@ function AnalysisResult({
                     : "border-white/10 bg-white/[0.02] hover:border-white/20")
                 }
               >
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-white">{m.label}</span>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="flex items-center gap-2 text-sm font-semibold text-white">
+                    {m.label}
+                    {m.recommended && (
+                      <span className="rounded-full bg-accent/15 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-accent">
+                        Recommended
+                      </span>
+                    )}
+                  </span>
                   <span
                     className={
-                      "h-3.5 w-3.5 rounded-full border " +
+                      "h-3.5 w-3.5 shrink-0 rounded-full border " +
                       (active ? "border-accent bg-accent" : "border-white/25")
                     }
                   />
