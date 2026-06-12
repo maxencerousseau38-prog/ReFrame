@@ -499,7 +499,7 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block {
       return {
         id: uid("hero"),
         type: "hero",
-        variant: pickVariant("hero", analysis.industry, brand),
+        variant: pickVariant("hero", analysis.industry, brand, profile.theme.mood),
         props: {
           eyebrow: profile.label,
           title: c.headline,
@@ -515,7 +515,7 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block {
       return {
         id: uid("features"),
         type: slot.type,
-        variant: pickVariant("features", analysis.industry, brand),
+        variant: pickVariant("features", analysis.industry, brand, profile.theme.mood),
         props: {
           title: sectionTitle(slot.type, brand),
           subtitle: "What makes the difference for our clients.",
@@ -530,7 +530,7 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block {
       return {
         id: uid("services"),
         type: slot.type,
-        variant: pickVariant("services", analysis.industry, brand),
+        variant: pickVariant("services", analysis.industry, brand, profile.theme.mood),
         props: {
           eyebrow: "Services",
           title: sectionTitle(slot.type, brand),
@@ -541,7 +541,7 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block {
       return {
         id: uid("portfolio"),
         type: slot.type,
-        variant: pickVariant("portfolio", analysis.industry, brand),
+        variant: pickVariant("portfolio", analysis.industry, brand, profile.theme.mood),
         props: {
           eyebrow: slot.type === "products" ? "Collection" : slot.type === "gallery" ? "Gallery" : "Selected work",
           title: sectionTitle(slot.type, brand),
@@ -552,14 +552,14 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block {
       return {
         id: uid("stats"),
         type: slot.type,
-        variant: pickVariant("stats", analysis.industry, brand),
+        variant: pickVariant("stats", analysis.industry, brand, profile.theme.mood),
         props: { title: sectionTitle(slot.type, brand), items: statsFor(analysis) },
       };
     case "about":
       return {
         id: uid("about"),
         type: slot.type,
-        variant: pickVariant("about", analysis.industry, brand),
+        variant: pickVariant("about", analysis.industry, brand, profile.theme.mood),
         props: {
           eyebrow: "About",
           title: sectionTitle(slot.type, brand),
