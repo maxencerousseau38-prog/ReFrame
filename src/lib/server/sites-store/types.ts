@@ -7,6 +7,10 @@ export interface PublishedSite {
   updatedAt: string;
   /** Owner user id, when the site was published by a signed-in user. */
   ownerId?: string;
+  /** Connected custom domain (host only, no protocol), lowercased. */
+  domain?: string;
+  /** Whether the custom domain's DNS has been verified to point at us. */
+  domainVerified?: boolean;
 }
 
 /**

@@ -40,6 +40,11 @@ export async function POST(req: Request) {
       );
     }
 
+    const publicUrlFor = (slug: string) => {
+      const root = process.env.NEXT_PUBLIC_ROOT_DOMAIN;
+      return root ? `https://${slug}.${root}` : `${originOf(req)}/s/${slug}`;
+    };
+
     const user = await getCurrentUser();
 
     // Enforce the plan's published-site limit for signed-in users.
@@ -62,7 +67,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       ok: true,
       slug: site.slug,
-      url: `${originOf(req)}/s/${site.slug}`,
+      url: publicUrlFor(site.slug),
       deployedAt: site.createdAt,
       blocks: schema.blocks.length,
     });

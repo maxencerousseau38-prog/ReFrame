@@ -22,6 +22,8 @@ export default async function MySitesPage({
     <DashboardShell>
       <SitesView
         upgraded={searchParams.upgraded === "1"}
+        rootDomain={process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? null}
+        canCustomDomain={plan.entitlements.customDomain}
         plan={{ id: plan.id, label: plan.label, limit: plan.entitlements.maxPublishedSites }}
         sites={sites.map((s) => ({
           slug: s.slug,
@@ -29,6 +31,8 @@ export default async function MySitesPage({
           tagline: s.schema.brand.tagline,
           createdAt: s.createdAt,
           blocks: s.schema.blocks.length,
+          domain: s.domain ?? null,
+          domainVerified: Boolean(s.domainVerified),
         }))}
       />
     </DashboardShell>

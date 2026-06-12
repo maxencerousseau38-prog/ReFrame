@@ -85,3 +85,23 @@ export async function deleteSite(slug: string): Promise<boolean> {
   await backend.remove(slug);
   return true;
 }
+
+/** Merge a partial update into a site and persist it. */
+export async function updateSite(
+  slug: string,
+  patch: Partial<Omit<PublishedSite, "slug">>
+): Promise<PublishedSite | null> {
+  if (!isValidSlug(slug)) return null;
+  const existing = await backend.read(slug);
+  if (!existing) return null;
+  const next: PublishedSite = { ...existing, ...patch, slug: existing.slug, updatedAt: new Date().toISOString() };
+  await backend.write(next);
+  return next;
+}
+
+/** Find a site by a verified connected custom domain (host only). */
+export async function findSiteByDomain(host: string): Promise<PublishedSite | null> {
+  const target = host.toLowerCase();
+  const all = await backend.list();
+  return all.find((s) => s.domainVerified && s.domain === target) ?? null;
+}
