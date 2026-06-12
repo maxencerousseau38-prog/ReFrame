@@ -27,13 +27,24 @@ export interface User {
   plan?: Plan;
   /** Stripe customer id, when billing is wired. */
   stripeCustomerId?: string;
+  /** Whether the email address has been confirmed. */
+  emailVerified?: boolean;
 }
 
 /** Public shape safe to expose to the client (never includes the hash). */
-export type PublicUser = Pick<User, "id" | "email" | "createdAt"> & { plan: Plan };
+export type PublicUser = Pick<User, "id" | "email" | "createdAt"> & {
+  plan: Plan;
+  emailVerified: boolean;
+};
 
 export function publicUser(u: User): PublicUser {
-  return { id: u.id, email: u.email, createdAt: u.createdAt, plan: u.plan ?? "free" };
+  return {
+    id: u.id,
+    email: u.email,
+    createdAt: u.createdAt,
+    plan: u.plan ?? "free",
+    emailVerified: Boolean(u.emailVerified),
+  };
 }
 
 const KV_URL = process.env.KV_REST_API_URL;
@@ -139,6 +150,25 @@ export async function createUser(email: string, password: string): Promise<User>
   };
   await writeUser(user);
   return user;
+}
+
+/** Mark a user's email as verified. */
+export async function setEmailVerified(id: string): Promise<User | null> {
+  const user = await readUser(id);
+  if (!user) return null;
+  user.emailVerified = true;
+  await writeUser(user);
+  return user;
+}
+
+/** Replace a user's password (used by reset). */
+export async function updateUserPassword(id: string, password: string): Promise<boolean> {
+  if (!password || password.length < 8) throw new Error("weak_password");
+  const user = await readUser(id);
+  if (!user) return false;
+  user.passwordHash = hashPassword(password);
+  await writeUser(user);
+  return true;
 }
 
 /** Update a user's subscription tier (and optionally their Stripe customer id). */

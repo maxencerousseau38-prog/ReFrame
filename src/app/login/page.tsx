@@ -26,6 +26,22 @@ function LoginForm() {
   const [password, setPassword] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [notice, setNotice] = React.useState<string | null>(null);
+
+  async function forgot() {
+    setError(null);
+    setNotice(null);
+    if (!email) {
+      setError("Enter your email above first.");
+      return;
+    }
+    await fetch("/api/auth/forgot", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    setNotice("If that email has an account, a reset link is on its way.");
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -108,6 +124,20 @@ function LoginForm() {
               <p className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-[13px] text-red-300">
                 {error}
               </p>
+            )}
+            {notice && (
+              <p className="rounded-lg border border-accent/30 bg-accent/[0.06] px-3 py-2 text-[13px] text-zinc-200">
+                {notice}
+              </p>
+            )}
+            {mode === "login" && (
+              <button
+                type="button"
+                onClick={forgot}
+                className="text-[13px] text-zinc-400 transition-colors hover:text-white"
+              >
+                Forgot password?
+              </button>
             )}
 
             <button

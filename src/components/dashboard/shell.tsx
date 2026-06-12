@@ -25,15 +25,19 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [email, setEmail] = React.useState<string | null>(null);
+  const [verified, setVerified] = React.useState(true);
   const [loaded, setLoaded] = React.useState(false);
   const [signingOut, setSigningOut] = React.useState(false);
+  const [resent, setResent] = React.useState<"idle" | "sending" | "sent">("idle");
 
   React.useEffect(() => {
     let active = true;
     fetch("/api/auth/me")
       .then((r) => r.json())
       .then((d) => {
-        if (active) setEmail(d.user?.email ?? null);
+        if (!active) return;
+        setEmail(d.user?.email ?? null);
+        setVerified(d.user ? Boolean(d.user.emailVerified) : true);
       })
       .catch(() => {})
       .finally(() => {
@@ -43,6 +47,16 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       active = false;
     };
   }, []);
+
+  async function resendVerification() {
+    setResent("sending");
+    try {
+      await fetch("/api/auth/resend-verification", { method: "POST" });
+      setResent("sent");
+    } catch {
+      setResent("idle");
+    }
+  }
 
   async function logout() {
     setSigningOut(true);
@@ -116,7 +130,23 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      <main className="flex-1">{children}</main>
+      <main className="flex-1">
+        {loaded && email && !verified && (
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-500/20 bg-amber-500/[0.06] px-6 py-2.5 text-[13px]">
+            <span className="text-amber-200/90">
+              Confirm your email to secure your account.
+            </span>
+            <button
+              onClick={resendVerification}
+              disabled={resent !== "idle"}
+              className="font-medium text-amber-200 underline-offset-2 hover:underline disabled:no-underline disabled:opacity-70"
+            >
+              {resent === "sent" ? "Verification sent" : resent === "sending" ? "Sending." : "Resend email"}
+            </button>
+          </div>
+        )}
+        {children}
+      </main>
     </div>
   );
 }
