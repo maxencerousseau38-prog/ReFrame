@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { MagicWand, RocketLaunch, Check, ArrowSquareOut, CircleNotch, ArrowLeft, DownloadSimple } from "@phosphor-icons/react";
+import { MagicWand, RocketLaunch, Check, ArrowSquareOut, CircleNotch, ArrowLeft, DownloadSimple, Sparkle } from "@phosphor-icons/react";
 import { DashboardShell } from "@/components/dashboard/shell";
 import { SiteRenderer } from "@/components/blocks";
 import { Button } from "@/components/ui/button";
@@ -135,6 +135,33 @@ export default function ResultPage() {
             {published.replace("https://", "")}
           </a>
           <ArrowSquareOut weight="bold" className="h-3.5 w-3.5" />
+        </div>
+      )}
+
+      {/* Smart optimizations: surface what Smart mode changed and why. */}
+      {schema.recommendations && schema.recommendations.length > 0 && (
+        <div className="border-b border-border bg-secondary/30 px-6 py-4">
+          <div className="mx-auto max-w-5xl">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <Sparkle weight="fill" className="h-4 w-4 text-accent" />
+              Smart made {schema.recommendations.length} optimization
+              {schema.recommendations.length > 1 ? "s" : ""} for conversion
+            </div>
+            <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+              {schema.recommendations.map((r, i) => (
+                <li
+                  key={i}
+                  className="flex gap-2.5 rounded-lg border border-border bg-background/50 px-3.5 py-2.5"
+                >
+                  <Check weight="bold" className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                  <div>
+                    <div className="text-sm font-medium">{r.action}</div>
+                    <div className="text-xs text-muted-foreground">{r.reason}</div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       )}
 
