@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { storeBackendName } from "@/lib/server/sites-store";
 import { isStripeConfigured } from "@/lib/server/stripe";
 import { isEmailConfigured } from "@/lib/server/email";
+import { isRenderConfigured } from "@/lib/server/render";
 
 export const runtime = "nodejs";
 
@@ -16,6 +17,7 @@ export async function GET() {
     durable: storeBackendName() !== "filesystem",
     stripe: isStripeConfigured(),
     email: isEmailConfigured(),
+    render: isRenderConfigured(),
     authSecret: Boolean(process.env.AUTH_SECRET),
     rootDomain: process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? null,
     llm: Boolean(process.env.ANTHROPIC_API_KEY),

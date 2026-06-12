@@ -62,6 +62,7 @@ import { INDUSTRY_PROFILES, detectIndustry } from "./industries";
 import { pickVariant } from "./catalog";
 import { detectStructure } from "./structure";
 import { planClassic, planPreserve, planSmart, type Slot } from "./planner";
+import { isRenderConfigured, renderHtml } from "@/lib/server/render";
 
 /* -------------------------------------------------------------------------- */
 /*  Small deterministic helpers                                               */
@@ -112,11 +113,8 @@ function clean(text: string): string {
  * page is a thin JS shell, fall back to a deterministic profile derived from the
  * domain so the flow always works.
  */
-export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
-  const url = normalizeUrl(rawUrl);
-  await assertSafeTarget(url);
-
-  let html = "";
+/** Plain HTML fetch with a short timeout. Returns "" on any failure. */
+async function fetchStatic(url: string): Promise<string> {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 7000);
@@ -124,15 +122,31 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
       signal: controller.signal,
       redirect: "follow",
       headers: {
-        "User-Agent":
-          "Mozilla/5.0 (compatible; ReFrameBot/1.0; +https://reframe.design)",
+        "User-Agent": "Mozilla/5.0 (compatible; ReFrameBot/1.0; +https://reframe.design)",
         Accept: "text/html,application/xhtml+xml",
       },
     });
     clearTimeout(timeout);
-    if (res.ok) html = await res.text();
+    return res.ok ? await res.text() : "";
   } catch {
-    // handled by the fallback below
+    return "";
+  }
+}
+
+export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
+  const url = normalizeUrl(rawUrl);
+  await assertSafeTarget(url);
+
+  let html = await fetchStatic(url);
+
+  // Most of the modern web is JS-rendered or bot-protected, so a static fetch
+  // often returns an empty/thin shell or a challenge page. When a render service
+  // is configured, execute the page and use the (usually far richer) post-JS
+  // HTML instead. Without it, we proceed with whatever the static fetch gave.
+  const weak = (h: string) => !h || clean(h).length < 220 || looksLikeChallenge(h);
+  if (weak(html) && isRenderConfigured()) {
+    const rendered = await renderHtml(url);
+    if (rendered && clean(rendered).length > clean(html).length) html = rendered;
   }
 
   const bodyText = clean(html);
