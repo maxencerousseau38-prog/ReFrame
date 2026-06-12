@@ -1144,6 +1144,114 @@ function AboutSplit({ props }: { props: any }) {
   );
 }
 
+/**
+ * Editorial testimonials (light). A large serif pull-quote beside a hairline-
+ * ruled column of supporting quotes — reads like a press page, not an app card
+ * row. The calm, warm/elegant counterpart to the dark TestimonialsSlider1.
+ */
+function TestimonialsEditorial({ props }: { props: any }) {
+  const items = (props.items || []) as any[];
+  if (!items.length) return null;
+  const [lead, ...rest] = items;
+  return (
+    <section className="px-6 py-24 sm:py-28" style={{ color: "var(--brand-ink)" }}>
+      <div className="mx-auto max-w-6xl">
+        {props.title && (
+          <p className="text-[0.7rem] font-medium uppercase tracking-[0.28em]" style={{ color: "var(--brand-accent)" }}>
+            {props.title}
+          </p>
+        )}
+        <div className="mt-10 grid gap-12 lg:grid-cols-[1.2fr_0.8fr] lg:gap-16">
+          <motion.figure
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.6, ease: EASE }}
+          >
+            <blockquote
+              className="text-[clamp(1.5rem,3vw,2.25rem)] font-medium leading-[1.25] tracking-[-0.01em]"
+              style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}
+            >
+              &ldquo;{lead.quote}&rdquo;
+            </blockquote>
+            <figcaption className="mt-6 text-sm" style={{ opacity: 0.6 }}>
+              <span className="font-medium" style={{ color: "var(--brand)", opacity: 1 }}>{lead.name || lead.author}</span>
+              {lead.role && <span> &middot; {lead.role}</span>}
+            </figcaption>
+          </motion.figure>
+
+          {rest.length > 0 && (
+            <div className="border-t" style={{ borderColor: HAIRLINE }}>
+              {rest.map((t, i) => (
+                <motion.figure
+                  key={i}
+                  initial={{ opacity: 0, y: 14 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-80px" }}
+                  transition={{ duration: 0.5, ease: EASE, delay: 0.05 + i * 0.05 }}
+                  className="border-b py-6"
+                  style={{ borderColor: HAIRLINE }}
+                >
+                  <blockquote className="text-[15px] leading-relaxed" style={{ opacity: 0.8 }}>
+                    &ldquo;{t.quote}&rdquo;
+                  </blockquote>
+                  <figcaption className="mt-3 text-xs" style={{ opacity: 0.55 }}>
+                    <span className="font-medium" style={{ color: "var(--brand)", opacity: 1 }}>{t.name || t.author}</span>
+                    {t.role && <span> &middot; {t.role}</span>}
+                  </figcaption>
+                </motion.figure>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Editorial closing CTA (light). A serif statement on the brand canvas framed by
+ * hairline rules, with the accent pill button — the calm, warm/elegant
+ * counterpart to the dark, glowing CTASection1.
+ */
+function CTAEditorial({ props }: { props: any }) {
+  return (
+    <section className="px-6 py-8">
+      <motion.div
+        initial={{ opacity: 0, y: 18 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 0.6, ease: EASE }}
+        className="mx-auto max-w-4xl border-y px-6 py-20 text-center sm:py-24"
+        style={{ borderColor: HAIRLINE, color: "var(--brand-ink)" }}
+      >
+        <h2
+          className="mx-auto max-w-2xl text-[clamp(2rem,5vw,3.5rem)] font-medium leading-[1.05] tracking-[-0.02em]"
+          style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}
+        >
+          {props.title}
+        </h2>
+        {props.subtitle && (
+          <p className="mx-auto mt-5 max-w-md text-lg leading-relaxed" style={{ opacity: 0.65 }}>
+            {props.subtitle}
+          </p>
+        )}
+        <button
+          className="group mt-9 inline-flex items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]"
+          style={{
+            background: "var(--brand-accent)",
+            borderRadius: "var(--brand-radius)",
+            boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)",
+          }}
+        >
+          {props.cta}
+          <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+        </button>
+      </motion.div>
+    </section>
+  );
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Registry + renderer                                                       */
 /* -------------------------------------------------------------------------- */
@@ -1160,8 +1268,10 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   StatsCounter,
   AboutSplit,
   TestimonialsSlider1,
+  TestimonialsEditorial,
   FAQAccordion1,
   CTASection1,
+  CTAEditorial,
   ContactFormPremium1,
   Footer1,
 };

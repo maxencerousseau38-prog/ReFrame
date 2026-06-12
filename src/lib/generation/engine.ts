@@ -573,7 +573,7 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block {
       return {
         id: uid("test"),
         type: "testimonials",
-        variant: "TestimonialsSlider1",
+        variant: pickVariant("testimonials", analysis.industry, brand, profile.theme.mood),
         props: { title: "Loved by our customers", items: DEFAULT_TESTIMONIALS },
       };
     case "faq":
@@ -587,7 +587,7 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block {
       return {
         id: uid("cta"),
         type: "cta",
-        variant: "CTASection1",
+        variant: pickVariant("cta", analysis.industry, brand, profile.theme.mood),
         props: { title: "Ready to get started?", subtitle: "Reach out today and let's make it happen.", cta: "Get in touch" },
       };
     case "contact":

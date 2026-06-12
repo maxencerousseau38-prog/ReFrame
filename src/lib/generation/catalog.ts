@@ -49,10 +49,15 @@ export const BLOCK_CATALOG: BlockMeta[] = [
   // About
   { variant: "AboutSplit", category: "about", sectors: "all", moods: ["elegant", "warm"], motion: 1, license: "ReFrame original", when: "Portrait + serif narrative with inline credibility chips." },
 
-  // One strong variant each (extend later)
-  { variant: "TestimonialsSlider1", category: "testimonials", sectors: "all", motion: 1, license: "ReFrame original", when: "Cross-fading single-quote slider on a dark band." },
+  // Testimonials — dark slider for bold/tech, light editorial for warm/elegant
+  { variant: "TestimonialsSlider1", category: "testimonials", sectors: "all", moods: ["bold", "minimal"], motion: 1, license: "ReFrame original", when: "Cross-fading single-quote slider on a dark band." },
+  { variant: "TestimonialsEditorial", category: "testimonials", sectors: "all", moods: ["elegant", "warm"], motion: 1, license: "ReFrame original", when: "Light press-page layout: serif pull-quote + hairline column." },
+
   { variant: "FAQAccordion1", category: "faq", sectors: "all", motion: 1, license: "ReFrame original", when: "Editorial accordion FAQ." },
-  { variant: "CTASection1", category: "cta", sectors: "all", motion: 1, license: "ReFrame original", when: "High-contrast closing CTA." },
+
+  // CTA — dark glowing panel for bold/tech, light editorial framing for warm/elegant
+  { variant: "CTASection1", category: "cta", sectors: "all", moods: ["bold", "minimal"], motion: 1, license: "ReFrame original", when: "High-contrast dark closing CTA with accent glow." },
+  { variant: "CTAEditorial", category: "cta", sectors: "all", moods: ["elegant", "warm"], motion: 1, license: "ReFrame original", when: "Light serif CTA framed by hairline rules." },
   { variant: "ContactFormPremium1", category: "contact", sectors: "all", motion: 0, license: "ReFrame original", when: "Two-column contact form." },
   { variant: "Footer1", category: "footer", sectors: "all", motion: 0, license: "ReFrame original", when: "Editorial footer." },
 ];
