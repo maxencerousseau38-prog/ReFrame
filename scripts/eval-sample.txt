@@ -1,0 +1,18 @@
+# Representative cross-sector sample. Swap in your own real prospects.
+# Run:  BASE=http://localhost:3000 node scripts/eval.mjs scripts/eval-sample.txt
+# (set BROWSERLESS_URL before starting the app to test headless rendering)
+
+# Restaurants / hospitality
+https://www.gjelina.com
+https://www.septime-charonne.fr
+# Agencies / studios
+https://locomotive.ca
+https://www.heatherwick.com
+# SaaS
+https://stripe.com
+https://linear.app
+# E-commerce
+https://www.allbirds.com
+https://www.aesop.com
+# Artisans / local PME (replace with real local businesses)
+https://www.bigmamagroup.com
