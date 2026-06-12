@@ -26,13 +26,22 @@ export async function sendEmail(opts: {
     );
     return { delivered: false };
   }
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: FROM, to: opts.to, subject: opts.subject, html: opts.html }),
-  });
-  if (!res.ok) throw new Error(`Email send failed: ${res.status} ${await res.text()}`);
-  return { delivered: true };
+  // Bound the call so a slow/unreachable provider can't stall the request that
+  // triggered it (signup, password reset). Callers treat sending as best-effort.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10_000);
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from: FROM, to: opts.to, subject: opts.subject, html: opts.html }),
+      signal: controller.signal,
+    });
+    if (!res.ok) throw new Error(`Email send failed: ${res.status} ${await res.text()}`);
+    return { delivered: true };
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 /* --- templates ------------------------------------------------------------- */
