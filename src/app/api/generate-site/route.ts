@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { analyzeUrl, generateSite, BlockedUrlError } from "@/lib/generation/engine";
 import { isLLMEnabled, rewriteContent } from "@/lib/llm";
 import { rateLimit, clientKey } from "@/lib/rate-limit";
-import type { SiteAnalysis } from "@/lib/generation/types";
+import type { SiteAnalysis, GenerationMode } from "@/lib/generation/types";
+
+const MODES: GenerationMode[] = ["classic", "preserve", "smart"];
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -33,8 +35,9 @@ export async function POST(req: Request) {
       analysis = { ...analysis, extractedContent: { ...analysis.extractedContent, ...improved } };
     }
 
-    const schema = generateSite(analysis);
-    return NextResponse.json({ schema, analysis, ai: isLLMEnabled() });
+    const mode: GenerationMode = MODES.includes(body.mode) ? body.mode : "smart";
+    const schema = generateSite(analysis, { mode });
+    return NextResponse.json({ schema, analysis, ai: isLLMEnabled(), mode });
   } catch (err) {
     if (err instanceof BlockedUrlError) {
       return NextResponse.json({ error: err.message }, { status: 400 });

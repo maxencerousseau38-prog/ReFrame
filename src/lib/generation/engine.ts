@@ -55,9 +55,13 @@ import type {
   SiteAnalysis,
   SiteSchema,
   Industry,
+  BlockType,
+  GenerationMode,
 } from "./types";
 import { INDUSTRY_PROFILES, detectIndustry } from "./industries";
 import { pickVariant } from "./catalog";
+import { detectStructure } from "./structure";
+import { planClassic, planPreserve, planSmart, type Slot } from "./planner";
 
 /* -------------------------------------------------------------------------- */
 /*  Small deterministic helpers                                               */
@@ -232,6 +236,18 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
     isThin,
   });
 
+  // Normalized structural model for Preserve / Smart modes.
+  const headings = root
+    .querySelectorAll("h1, h2, h3")
+    .map((el) => clean(el.text))
+    .filter((t) => t.length >= 2 && t.length <= 80);
+  const structure = detectStructure({
+    headings,
+    nav: navItems,
+    hasForm: !!root.querySelector("form"),
+    hasFooter: !!root.querySelector("footer"),
+  });
+
   return {
     url,
     brandName,
@@ -240,6 +256,7 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
     fetched: true,
     brand: { logoUrl, accentColor },
     detectedSections: detectSections(root),
+    structure,
     navItems,
     extractedContent: {
       headline,
@@ -446,95 +463,130 @@ function buildIssues(s: {
 /*  2. Generate                                                               */
 /* -------------------------------------------------------------------------- */
 
-/**
- * Assemble a coherent SiteSchema from the analysis. Block selection is driven
- * by the detected industry's preferred variants — never random.
- */
-export function generateSite(analysis: SiteAnalysis): SiteSchema {
+const FEATURE_ICONS = ["Sparkle", "ShieldCheck", "Lightning", "Heart", "Star", "Check"];
+
+const DEFAULT_TESTIMONIALS = [
+  { quote: "Genuinely the best experience we've had. Highly recommend.", name: "Jordan M.", role: "Customer" },
+  { quote: "Professional, fast and the result exceeded expectations.", name: "Priya S.", role: "Customer" },
+  { quote: "We'll never go anywhere else. Five stars across the board.", name: "Liam R.", role: "Customer" },
+];
+
+/** Heading for a content (features-category) section, by its semantic type. */
+function sectionTitle(type: BlockType, brand: string): string {
+  switch (type) {
+    case "services": return "What we do";
+    case "about": return `About ${brand}`;
+    case "portfolio": return "Selected work";
+    case "products": return "What we offer";
+    case "gallery": return "Gallery";
+    case "pricing": return "Simple, honest pricing";
+    case "stats": return "By the numbers";
+    case "logos": return "Trusted by teams like yours";
+    default: return "Why choose us";
+  }
+}
+
+/** Build one block for a planned slot. Reproduces the proven props per category;
+ *  semantic types (about/services/portfolio…) keep their type but render through
+ *  the closest available component until dedicated premium components land. */
+function buildBlock(slot: Slot, analysis: SiteAnalysis): Block {
   const profile = INDUSTRY_PROFILES[analysis.industry];
   const c = analysis.extractedContent;
+  const brand = analysis.brandName;
 
-  const blocks: Block[] = [
-    {
-      id: uid("hero"),
-      type: "hero",
-      variant: pickVariant("hero", analysis.industry, analysis.brandName),
-      props: {
-        eyebrow: profile.label,
-        title: c.headline,
-        subtitle: c.description,
-        primaryCta: "Get started",
-        secondaryCta: "Learn more",
-        image: c.heroImageUrl,
-        brand: analysis.brandName,
-        caption: c.services[0],
-      },
-    },
-    {
-      id: uid("features"),
-      type: "features",
-      variant: pickVariant("features", analysis.industry, analysis.brandName),
-      props: {
-        title: "Why choose us",
-        subtitle: "What makes the difference for our clients.",
-        items: c.services.map((s, i) => ({
-          title: s,
-          description: featureBlurb(s, analysis.industry),
-          icon: ["Sparkle", "ShieldCheck", "Lightning", "Heart", "Star", "Check"][i % 6],
-        })),
-      },
-    },
-    {
-      id: uid("test"),
-      type: "testimonials",
-      variant: "TestimonialsSlider1",
-      props: {
-        title: "Loved by our customers",
-        items: [
-          { quote: "Genuinely the best experience we've had. Highly recommend.", name: "Jordan M.", role: "Customer" },
-          { quote: "Professional, fast and the result exceeded expectations.", name: "Priya S.", role: "Customer" },
-          { quote: "We'll never go anywhere else. Five stars across the board.", name: "Liam R.", role: "Customer" },
-        ],
-      },
-    },
-    {
-      id: uid("faq"),
-      type: "faq",
-      variant: "FAQAccordion1",
-      props: {
-        title: "Frequently asked questions",
-        items: defaultFaq(analysis.industry, analysis.brandName),
-      },
-    },
-    {
-      id: uid("cta"),
-      type: "cta",
-      variant: "CTASection1",
-      props: {
-        title: "Ready to get started?",
-        subtitle: "Reach out today and let's make it happen.",
-        cta: "Get in touch",
-      },
-    },
-    {
-      id: uid("contact"),
-      type: "contact",
-      variant: "ContactFormPremium1",
-      props: {
-        title: "Contact us",
-        subtitle: "We typically reply within one business day.",
-      },
-    },
-    {
-      id: uid("footer"),
-      type: "footer",
-      variant: "Footer1",
-      props: { brand: analysis.brandName },
-    },
-  ];
+  switch (slot.category) {
+    case "hero":
+      return {
+        id: uid("hero"),
+        type: "hero",
+        variant: pickVariant("hero", analysis.industry, brand),
+        props: {
+          eyebrow: profile.label,
+          title: c.headline,
+          subtitle: c.description,
+          primaryCta: "Get started",
+          secondaryCta: "Learn more",
+          image: c.heroImageUrl,
+          brand,
+          caption: c.services[0],
+        },
+      };
+    case "features":
+      return {
+        id: uid("features"),
+        type: slot.type,
+        variant: pickVariant("features", analysis.industry, brand),
+        props: {
+          title: sectionTitle(slot.type, brand),
+          subtitle: "What makes the difference for our clients.",
+          items: c.services.map((s, i) => ({
+            title: s,
+            description: featureBlurb(s, analysis.industry),
+            icon: FEATURE_ICONS[i % FEATURE_ICONS.length],
+          })),
+        },
+      };
+    case "testimonials":
+      return {
+        id: uid("test"),
+        type: "testimonials",
+        variant: "TestimonialsSlider1",
+        props: { title: "Loved by our customers", items: DEFAULT_TESTIMONIALS },
+      };
+    case "faq":
+      return {
+        id: uid("faq"),
+        type: "faq",
+        variant: "FAQAccordion1",
+        props: { title: "Frequently asked questions", items: defaultFaq(analysis.industry, brand) },
+      };
+    case "cta":
+      return {
+        id: uid("cta"),
+        type: "cta",
+        variant: "CTASection1",
+        props: { title: "Ready to get started?", subtitle: "Reach out today and let's make it happen.", cta: "Get in touch" },
+      };
+    case "contact":
+      return {
+        id: uid("contact"),
+        type: "contact",
+        variant: "ContactFormPremium1",
+        props: { title: "Contact us", subtitle: "We typically reply within one business day." },
+      };
+    case "footer":
+      return { id: uid("footer"), type: "footer", variant: "Footer1", props: { brand } };
+    default:
+      return buildBlock({ ...slot, category: "features" }, analysis);
+  }
+}
+
+/**
+ * Assemble a coherent SiteSchema from the analysis.
+ *
+ * The mode decides the structure:
+ *   classic  - the proven canonical layout (the original behavior)
+ *   preserve - keep the client's detected architecture and order
+ *   smart    - preserve, then optimize for conversion (default)
+ * Component selection stays industry-driven and deterministic - never random.
+ */
+export function generateSite(
+  analysis: SiteAnalysis,
+  opts: { mode?: GenerationMode } = {}
+): SiteSchema {
+  const mode: GenerationMode = opts.mode ?? "smart";
+  const plan =
+    mode === "classic"
+      ? planClassic()
+      : mode === "preserve"
+        ? planPreserve(analysis.structure)
+        : planSmart(analysis.structure);
+
+  const blocks: Block[] = plan.slots.map((s) => buildBlock(s, analysis));
 
   // Use the source site's real accent color when we found one, so the rebuild
   // keeps the brand recognisable instead of imposing a generic palette.
+  const profile = INDUSTRY_PROFILES[analysis.industry];
   const accent = analysis.brand?.accentColor;
   const theme = accent ? { ...profile.theme, accent } : profile.theme;
 
@@ -542,9 +594,11 @@ export function generateSite(analysis: SiteAnalysis): SiteSchema {
     id: uid("site"),
     sourceUrl: analysis.url,
     industry: analysis.industry,
-    brand: { name: analysis.brandName, tagline: c.headline },
+    brand: { name: analysis.brandName, tagline: analysis.extractedContent.headline },
     theme,
     blocks,
+    mode,
+    recommendations: plan.recommendations.length ? plan.recommendations : undefined,
   };
 }
 
@@ -638,7 +692,7 @@ export function applyAiEdit(schema: SiteSchema, instruction: string): AiEditResu
           },
           scores: { design: 0, performance: 0, seo: 0, mobile: 0, accessibility: 0 },
           issues: [],
-        }).blocks.find((b) => b.type === target);
+        }, { mode: "classic" }).blocks.find((b) => b.type === target);
         if (stub) {
           const footerIdx = next.blocks.findIndex((b) => b.type === "footer");
           next.blocks.splice(footerIdx < 0 ? next.blocks.length : footerIdx, 0, stub);

@@ -10,9 +10,15 @@ import { AnalyzeLoader } from "@/components/dashboard/analyze-loader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { saveAnalysis, saveSchema } from "@/lib/store";
-import type { SiteAnalysis, SiteSchema } from "@/lib/generation/types";
+import type { SiteAnalysis, SiteSchema, GenerationMode } from "@/lib/generation/types";
 
 type Phase = "idle" | "analyzing" | "result" | "generating";
+
+const MODES: { id: GenerationMode; label: string; desc: string }[] = [
+  { id: "smart", label: "Smart", desc: "Keep the structure, then optimize it for conversion." },
+  { id: "preserve", label: "Preserve", desc: "Keep the exact architecture, upgrade the design." },
+  { id: "classic", label: "Classic", desc: "Rebuild the best possible site from scratch." },
+];
 
 function DashboardInner() {
   const router = useRouter();
@@ -20,6 +26,7 @@ function DashboardInner() {
   const [url, setUrl] = React.useState("");
   const [phase, setPhase] = React.useState<Phase>("idle");
   const [analysis, setAnalysis] = React.useState<SiteAnalysis | null>(null);
+  const [mode, setMode] = React.useState<GenerationMode>("smart");
   const [error, setError] = React.useState<string | null>(null);
 
   // Auto-run if the landing page handed us a ?url=
@@ -61,7 +68,7 @@ function DashboardInner() {
       const res = await fetch("/api/generate-site", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ analysis }),
+        body: JSON.stringify({ analysis, mode }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Generation failed");
@@ -129,7 +136,12 @@ function DashboardInner() {
         )}
 
         {phase === "result" && analysis && (
-          <AnalysisResult analysis={analysis} onGenerate={runGenerate} />
+          <AnalysisResult
+            analysis={analysis}
+            mode={mode}
+            onMode={setMode}
+            onGenerate={runGenerate}
+          />
         )}
       </div>
     </DashboardShell>
@@ -138,9 +150,13 @@ function DashboardInner() {
 
 function AnalysisResult({
   analysis,
+  mode,
+  onMode,
   onGenerate,
 }: {
   analysis: SiteAnalysis;
+  mode: GenerationMode;
+  onMode: (m: GenerationMode) => void;
   onGenerate: () => void;
 }) {
   const scores = Object.entries(analysis.scores) as [string, number][];
@@ -245,6 +261,41 @@ function AnalysisResult({
               </li>
             ))}
           </ul>
+        </div>
+      </div>
+
+      {/* Generation mode */}
+      <div>
+        <h3 className="text-sm font-semibold">How should ReFrame rebuild it?</h3>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          {MODES.map((m) => {
+            const active = mode === m.id;
+            return (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => onMode(m.id)}
+                aria-pressed={active}
+                className={
+                  "rounded-2xl border p-4 text-left transition-colors " +
+                  (active
+                    ? "border-accent/50 bg-accent/[0.06] ring-1 ring-inset ring-accent/30"
+                    : "border-white/10 bg-white/[0.02] hover:border-white/20")
+                }
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-white">{m.label}</span>
+                  <span
+                    className={
+                      "h-3.5 w-3.5 rounded-full border " +
+                      (active ? "border-accent bg-accent" : "border-white/25")
+                    }
+                  />
+                </div>
+                <p className="mt-1.5 text-[12px] leading-relaxed text-muted-foreground">{m.desc}</p>
+              </button>
+            );
+          })}
         </div>
       </div>
 

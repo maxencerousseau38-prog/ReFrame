@@ -23,7 +23,43 @@ export type BlockType =
   | "faq"
   | "cta"
   | "contact"
-  | "footer";
+  | "footer"
+  // Extended taxonomy (additive). The structure engine can detect these; the
+  // composer maps any type without a dedicated component yet to the closest
+  // renderable variant until the premium catalog wave lands.
+  | "about"
+  | "services"
+  | "portfolio"
+  | "products"
+  | "pricing"
+  | "gallery"
+  | "logos"
+  | "stats";
+
+/** How the generator decides the output structure. */
+export type GenerationMode = "classic" | "preserve" | "smart";
+
+/** One section detected on the source site, normalized to our taxonomy. */
+export interface DetectedSection {
+  type: BlockType;
+  order: number;
+  /** 0..1 confidence in the classification. */
+  confidence: number;
+  /** Raw heading/label that produced this detection, for tracing. */
+  label?: string;
+}
+
+/** Normalized structural model of the source site. */
+export interface SiteStructure {
+  sections: DetectedSection[];
+  nav: string[];
+}
+
+/** A Smart-mode optimization applied (or suggested) to the structure. */
+export interface Recommendation {
+  action: string;
+  reason: string;
+}
 
 /** A block is `type` + a chosen `variant` + content `props`. */
 export interface Block<T = Record<string, unknown>> {
@@ -59,6 +95,10 @@ export interface SiteSchema {
   };
   theme: Theme;
   blocks: Block[];
+  /** Which mode produced this schema. Defaults to the engine default. */
+  mode?: GenerationMode;
+  /** Smart-mode optimizations applied, for display in the UI. */
+  recommendations?: Recommendation[];
 }
 
 /** Result of analyzing an existing website. */
@@ -75,6 +115,8 @@ export interface SiteAnalysis {
     accentColor?: string; // hex
   };
   detectedSections: string[];
+  /** Normalized structural model, when the page could be analyzed. */
+  structure?: SiteStructure;
   navItems: string[];
   extractedContent: {
     headline: string;
