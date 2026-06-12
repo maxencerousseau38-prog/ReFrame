@@ -491,24 +491,63 @@ function TestimonialsSlider1({ props }: { props: any }) {
 /*  FAQ                                                                       */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Editorial accordion: hairline-ruled rows (no boxed border), answers that
+ * animate open with height + fade, and a toggle chip that fills with the brand
+ * accent and rotates to an X when active. Respects reduced motion.
+ */
 function FAQAccordion1({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  const items = (props.items || []) as any[];
   const [open, setOpen] = React.useState(0);
+  const collapsed = reduce ? { height: "auto", opacity: 1 } : { height: 0, opacity: 0 };
+
   return (
-    <section className="px-6 py-20 sm:py-24">
+    <section className="px-6 py-24" style={{ color: "var(--brand-ink)" }}>
       <div className="mx-auto max-w-3xl">
-        <h2 className="text-center text-3xl font-semibold tracking-tight sm:text-4xl" style={{ color: "var(--brand)" }}>
+        <h2 className="text-center text-3xl font-semibold tracking-tight [text-wrap:balance] md:text-4xl" style={{ color: "var(--brand)" }}>
           {props.title}
         </h2>
-        <div className="mt-10 divide-y border" style={{ borderRadius: "var(--brand-radius)", borderColor: "#ececec" }}>
-          {props.items?.map((item: any, i: number) => (
-            <div key={i} className="px-6">
-              <button onClick={() => setOpen(open === i ? -1 : i)} className="flex w-full items-center justify-between py-5 text-left">
-                <span className="text-[15px] font-medium" style={{ color: "var(--brand)" }}>{item.question}</span>
-                <Plus weight="bold" className={cn("h-5 w-5 text-neutral-400 transition-transform", open === i && "rotate-45")} />
-              </button>
-              {open === i && <p className="pb-5 text-sm leading-relaxed text-neutral-500">{item.answer}</p>}
-            </div>
-          ))}
+        <div className="mt-12 border-t" style={{ borderColor: HAIRLINE }}>
+          {items.map((item, i) => {
+            const isOpen = open === i;
+            return (
+              <div key={i} className="border-b" style={{ borderColor: HAIRLINE }}>
+                <button
+                  onClick={() => setOpen(isOpen ? -1 : i)}
+                  aria-expanded={isOpen}
+                  className="flex w-full items-center justify-between gap-6 py-6 text-left"
+                >
+                  <span className="text-base font-medium md:text-lg" style={{ color: "var(--brand)" }}>{item.question}</span>
+                  <span
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors"
+                    style={{ background: isOpen ? "var(--brand-accent)" : "color-mix(in srgb, var(--brand-ink) 6%, transparent)" }}
+                  >
+                    <Plus
+                      weight="bold"
+                      className={cn("h-4 w-4 transition-transform duration-300", isOpen && "rotate-45 text-white")}
+                      style={isOpen ? undefined : { color: "var(--brand-ink)" }}
+                    />
+                  </span>
+                </button>
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={collapsed}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={collapsed}
+                      transition={{ duration: 0.35, ease: EASE }}
+                      className="overflow-hidden"
+                    >
+                      <p className="pb-6 pr-12 text-[15px] leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.65 }}>
+                        {item.answer}
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -568,24 +607,52 @@ function CTASection1({ props }: { props: any }) {
 /*  Contact                                                                   */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Two-column contact: an editorial intro beside a framed form card. Inputs are
+ * transparent with hairline borders that warm to the brand accent on focus; the
+ * submit button matches the hero CTA (accent fill, glow, arrow).
+ */
 function ContactFormPremium1({ props }: { props: any }) {
+  const field =
+    "border bg-transparent px-4 text-sm outline-none transition-colors placeholder:text-[color:color-mix(in_srgb,var(--brand-ink)_45%,transparent)] focus:border-[color:var(--brand-accent)]";
   return (
-    <section className="px-6 py-20 sm:py-24">
-      <div className="mx-auto grid max-w-5xl gap-12 lg:grid-cols-2">
+    <section className="px-6 py-24" style={{ color: "var(--brand-ink)" }}>
+      <div className="mx-auto grid max-w-5xl items-start gap-12 lg:grid-cols-2">
         <div>
-          <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl" style={{ color: "var(--brand)" }}>
+          <h2 className="text-3xl font-semibold tracking-tight [text-wrap:balance] md:text-4xl" style={{ color: "var(--brand)" }}>
             {props.title}
           </h2>
-          <p className="mt-3 text-neutral-500">{props.subtitle}</p>
+          {props.subtitle && (
+            <p className="mt-4 max-w-sm text-lg leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.65 }}>
+              {props.subtitle}
+            </p>
+          )}
         </div>
-        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+        <form
+          onSubmit={(e) => e.preventDefault()}
+          className="space-y-4 border bg-white p-7 sm:p-8"
+          style={{
+            borderRadius: "calc(var(--brand-radius) * 1.4)",
+            borderColor: HAIRLINE,
+            boxShadow: "0 20px 50px -30px rgba(0,0,0,0.18)",
+          }}
+        >
           <div className="grid gap-4 sm:grid-cols-2">
-            <input placeholder="Name" className="h-11 border px-4 text-sm outline-none" style={{ borderRadius: "var(--brand-radius)", borderColor: "#ececec" }} />
-            <input placeholder="Email" className="h-11 border px-4 text-sm outline-none" style={{ borderRadius: "var(--brand-radius)", borderColor: "#ececec" }} />
+            <input placeholder="Name" className={cn("h-12", field)} style={{ borderRadius: "var(--brand-radius)", borderColor: HAIRLINE }} />
+            <input placeholder="Email" type="email" className={cn("h-12", field)} style={{ borderRadius: "var(--brand-radius)", borderColor: HAIRLINE }} />
           </div>
-          <textarea placeholder="How can we help?" rows={4} className="w-full border px-4 py-3 text-sm outline-none" style={{ borderRadius: "var(--brand-radius)", borderColor: "#ececec" }} />
-          <button className="px-6 py-3 text-sm font-medium text-white" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}>
+          <textarea placeholder="How can we help?" rows={4} className={cn("w-full py-3", field)} style={{ borderRadius: "var(--brand-radius)", borderColor: HAIRLINE }} />
+          <button
+            type="submit"
+            className="group inline-flex w-full items-center justify-center gap-1.5 px-6 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98] sm:w-auto"
+            style={{
+              background: "var(--brand-accent)",
+              borderRadius: "var(--brand-radius)",
+              boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)",
+            }}
+          >
             Send message
+            <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </button>
         </form>
       </div>
@@ -597,12 +664,39 @@ function ContactFormPremium1({ props }: { props: any }) {
 /*  Footer                                                                    */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Footer: a large brand wordmark in the display face with a back-to-top control,
+ * then a hairline rule above the copyright line. Quiet, editorial, brand-toned.
+ */
 function Footer1({ props }: { props: any }) {
   return (
-    <footer className="border-t px-6 py-12" style={{ borderColor: "#ececec" }}>
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 sm:flex-row">
-        <span className="font-semibold" style={{ color: "var(--brand)" }}>{props.brand}</span>
-        <span className="text-sm text-neutral-400">© {new Date().getFullYear()} {props.brand}. All rights reserved.</span>
+    <footer className="border-t px-6 py-16" style={{ borderColor: HAIRLINE, color: "var(--brand-ink)" }}>
+      <div className="mx-auto max-w-6xl">
+        <div className="flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <div
+              className="text-2xl font-medium tracking-tight"
+              style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}
+            >
+              {props.brand}
+            </div>
+            <p className="mt-2 text-sm" style={{ opacity: 0.55 }}>Crafted with care.</p>
+          </div>
+          <a
+            href="#"
+            className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition-colors hover:bg-[var(--brand-surface)]"
+            style={{ borderColor: HAIRLINE, color: "var(--brand)" }}
+          >
+            Back to top <span aria-hidden>&uarr;</span>
+          </a>
+        </div>
+        <div
+          className="mt-10 flex flex-col gap-2 border-t pt-6 text-xs sm:flex-row sm:items-center sm:justify-between"
+          style={{ borderColor: HAIRLINE, opacity: 0.55 }}
+        >
+          <span>&copy; {new Date().getFullYear()} {props.brand}. All rights reserved.</span>
+          <span>Privacy &middot; Terms</span>
+        </div>
       </div>
     </footer>
   );
