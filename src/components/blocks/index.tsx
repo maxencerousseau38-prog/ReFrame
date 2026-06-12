@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, useInView } from "framer-motion";
 import {
   Sparkle,
   ShieldCheck,
@@ -587,6 +587,332 @@ function FeaturesBento({ props }: { props: any }) {
 }
 
 /* -------------------------------------------------------------------------- */
+/*  Premium section components (derived from luxury agency references)         */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Animated number. Parses a leading integer off a label like "150+", "98%" or
+ * "12" and counts up to it once it scrolls into view; non-numeric values such as
+ * "24/7" render verbatim. Respects prefers-reduced-motion (shows the final value
+ * immediately). This is the "Measured Credibility" cue from the references.
+ */
+function StatValue({ value }: { value: string }) {
+  const reduce = useReducedMotion();
+  const ref = React.useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+  const m = /^(\d[\d,]*)(.*)$/.exec(value.trim());
+  const target = m ? parseInt(m[1].replace(/,/g, ""), 10) : null;
+  const suffix = m ? m[2] : "";
+  const [n, setN] = React.useState(reduce || target === null ? target ?? 0 : 0);
+
+  React.useEffect(() => {
+    if (target === null || reduce || !inView) return;
+    let raf = 0;
+    const start = performance.now();
+    const dur = 1400;
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - start) / dur);
+      const eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
+      setN(Math.round(eased * target));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [inView, target, reduce]);
+
+  return <span ref={ref}>{target === null ? value : `${n.toLocaleString()}${suffix}`}</span>;
+}
+
+/**
+ * Stats credibility band. A dark, rounded panel of monumental counters with
+ * hairline dividers and thin uppercase labels — the "190+ / 12 Years / 98%"
+ * moment from the references. Dark on the warm canvas for maximum contrast.
+ */
+function StatsCounter({ props }: { props: any }) {
+  const items = (props.items || []) as { value: string; label: string }[];
+  return (
+    <section className="px-6 py-16 sm:py-20">
+      <div
+        className="mx-auto max-w-6xl overflow-hidden px-8 py-14 sm:px-12 sm:py-16"
+        style={{ background: "var(--brand)", borderRadius: "calc(var(--brand-radius) * 1.5)" }}
+      >
+        {props.title && (
+          <p className="mb-10 text-[0.7rem] font-medium uppercase tracking-[0.28em] text-white/45">
+            {props.title}
+          </p>
+        )}
+        <div className="grid gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+          {items.map((s, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.08 }}
+              className={cn(
+                "px-2 lg:px-8",
+                i > 0 && "lg:border-l lg:border-white/10"
+              )}
+            >
+              <div
+                className="text-[clamp(2.5rem,5vw,3.75rem)] font-medium leading-none tracking-tight text-white"
+                style={{ fontFamily: "var(--brand-font)" }}
+              >
+                <StatValue value={s.value} />
+              </div>
+              <div className="mt-3 text-xs uppercase tracking-[0.18em] text-white/50">{s.label}</div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Editorial services list. Numbered rows with a serif display title, a short
+ * blurb and a hairline rule; each row nudges right and warms to the accent on
+ * hover. The "Our tailored services" layout from the references — reads like a
+ * magazine index, not a card grid.
+ */
+function ServicesList({ props }: { props: any }) {
+  const items = (props.items || []) as { title: string; description?: string }[];
+  return (
+    <section className="px-6 py-20 sm:py-28" style={{ color: "var(--brand-ink)" }}>
+      <div className="mx-auto max-w-6xl">
+        <div className="grid gap-3 md:grid-cols-[0.9fr_1.1fr] md:items-end">
+          {props.eyebrow && (
+            <span
+              className="inline-flex items-center gap-3 text-[0.7rem] font-medium uppercase tracking-[0.28em]"
+              style={{ color: "var(--brand-accent)" }}
+            >
+              <span className="h-px w-9" style={{ background: "var(--brand-accent)" }} />
+              {props.eyebrow}
+            </span>
+          )}
+          <h2
+            className="text-[clamp(2rem,4.5vw,3.25rem)] font-medium leading-[1.05] tracking-[-0.02em]"
+            style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}
+          >
+            {props.title}
+          </h2>
+        </div>
+
+        <div className="mt-12 border-t" style={{ borderColor: "color-mix(in srgb, var(--brand-ink) 14%, transparent)" }}>
+          {items.map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.05 }}
+              className="group grid grid-cols-[auto_1fr] items-baseline gap-x-6 border-b py-7 transition-[padding] duration-300 hover:pl-3 sm:grid-cols-[3rem_1fr_1.1fr] sm:gap-x-10"
+              style={{ borderColor: "color-mix(in srgb, var(--brand-ink) 14%, transparent)" }}
+            >
+              <span
+                className="text-sm font-medium tabular-nums transition-colors"
+                style={{ color: "var(--brand-accent)" }}
+              >
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3
+                className="col-start-2 text-2xl font-medium tracking-tight transition-transform duration-300 group-hover:translate-x-1 sm:text-3xl"
+                style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}
+              >
+                {item.title}
+              </h3>
+              {item.description && (
+                <p className="col-span-2 mt-3 max-w-md text-sm leading-relaxed sm:col-span-1 sm:col-start-3 sm:mt-0" style={{ opacity: 0.65 }}>
+                  {item.description}
+                </p>
+              )}
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * "Selected work" portfolio. An asymmetric image grid — one monumental lead
+ * tile plus a dense run of supporting tiles — with a slow zoom and a caption
+ * that lifts on hover. Tiles without a real image fall back to a tonal gradient
+ * so the composition stays intact. The "Curated Artistic Visuals" reference.
+ */
+function PortfolioGrid({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  const items = (props.items || []) as { image?: string; title: string; tag?: string }[];
+  return (
+    <section className="px-6 py-20 sm:py-28">
+      <div className="mx-auto max-w-6xl">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            {props.eyebrow && (
+              <span
+                className="inline-flex items-center gap-3 text-[0.7rem] font-medium uppercase tracking-[0.28em]"
+                style={{ color: "var(--brand-accent)" }}
+              >
+                <span className="h-px w-9" style={{ background: "var(--brand-accent)" }} />
+                {props.eyebrow}
+              </span>
+            )}
+            <h2
+              className="mt-5 text-[clamp(2rem,4.5vw,3.25rem)] font-medium leading-[1.05] tracking-[-0.02em]"
+              style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}
+            >
+              {props.title}
+            </h2>
+          </div>
+        </div>
+
+        <div className="mt-12 grid auto-rows-[180px] grid-cols-2 gap-4 [grid-auto-flow:dense] sm:auto-rows-[220px] lg:grid-cols-3">
+          {items.map((p, i) => (
+            <motion.figure
+              key={i}
+              initial={{ opacity: 0, scale: reduce ? 1 : 0.98 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
+              className={cn(
+                "group relative overflow-hidden",
+                i === 0 && "col-span-2 row-span-2"
+              )}
+              style={{ borderRadius: "var(--brand-radius)" }}
+            >
+              <div
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-105"
+                style={{
+                  backgroundImage: p.image
+                    ? `url(${p.image})`
+                    : `linear-gradient(145deg, var(--brand-surface-2), color-mix(in srgb, var(--brand-accent) 55%, var(--brand)))`,
+                }}
+              />
+              {!p.image && (
+                <div className="absolute inset-0 opacity-[0.12] [background-image:radial-gradient(circle_at_30%_25%,#fff_1px,transparent_1px)] [background-size:22px_22px]" />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/0 to-black/0" />
+              <figcaption className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-5 text-white">
+                <div className="translate-y-1 opacity-90 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                  <div className={cn("font-medium", i === 0 ? "text-xl" : "text-base")}>{p.title}</div>
+                  {p.tag && <div className="mt-0.5 text-[0.7rem] uppercase tracking-[0.18em] text-white/70">{p.tag}</div>}
+                </div>
+                <span className="text-[0.7rem] tabular-nums text-white/60">{String(i + 1).padStart(2, "0")}</span>
+              </figcaption>
+            </motion.figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * About split. A tall framed portrait beside a serif narrative with a row of
+ * inline credibility chips and a quiet text CTA — the "About ARCHFORM" moment.
+ * Token-driven so it inherits the brand canvas, face and accent.
+ */
+function AboutSplit({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  const stats = (props.stats || []) as { value: string; label: string }[];
+  const rise = reduce
+    ? { hidden: { opacity: 1, y: 0 }, visible: { opacity: 1, y: 0 } }
+    : { hidden: { opacity: 0, y: 22 }, visible: { opacity: 1, y: 0 } };
+
+  return (
+    <section className="px-6 py-20 sm:py-28" style={{ color: "var(--brand-ink)" }}>
+      <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[0.95fr_1.05fr]">
+        <motion.div
+          initial={reduce ? false : { opacity: 0, scale: 1.03 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+          className="relative aspect-[4/5] overflow-hidden bg-cover bg-center"
+          style={{
+            borderRadius: "var(--brand-radius)",
+            backgroundImage: props.image
+              ? `url(${props.image})`
+              : `linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))`,
+          }}
+        >
+          {!props.image && (
+            <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_25%_20%,#fff_1px,transparent_1px)] [background-size:22px_22px]" />
+          )}
+        </motion.div>
+
+        <div>
+          {props.eyebrow && (
+            <motion.span
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={rise}
+              transition={{ duration: 0.6 }}
+              className="inline-flex items-center gap-3 text-[0.7rem] font-medium uppercase tracking-[0.28em]"
+              style={{ color: "var(--brand-accent)" }}
+            >
+              <span className="h-px w-9" style={{ background: "var(--brand-accent)" }} />
+              {props.eyebrow}
+            </motion.span>
+          )}
+          <motion.h2
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={rise}
+            transition={{ duration: 0.7, delay: 0.05 }}
+            className="mt-6 text-[clamp(2rem,4.2vw,3.25rem)] font-medium leading-[1.06] tracking-[-0.02em]"
+            style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}
+          >
+            {props.title}
+          </motion.h2>
+          {props.body && (
+            <motion.p
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={rise}
+              transition={{ duration: 0.7, delay: 0.12 }}
+              className="mt-6 max-w-md text-lg leading-relaxed"
+              style={{ opacity: 0.72 }}
+            >
+              {props.body}
+            </motion.p>
+          )}
+
+          {stats.length > 0 && (
+            <div className="mt-10 flex flex-wrap gap-x-10 gap-y-6">
+              {stats.map((s, i) => (
+                <div key={i}>
+                  <div
+                    className="text-3xl font-medium tracking-tight"
+                    style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}
+                  >
+                    <StatValue value={s.value} />
+                  </div>
+                  <div className="mt-1 text-[0.7rem] uppercase tracking-[0.18em]" style={{ opacity: 0.5 }}>
+                    {s.label}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {props.cta && (
+            <button
+              className="mt-10 text-sm font-medium underline-offset-4 transition-opacity hover:opacity-70"
+              style={{ color: "var(--brand)" }}
+            >
+              {props.cta} &rarr;
+            </button>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
 /*  Registry + renderer                                                       */
 /* -------------------------------------------------------------------------- */
 
@@ -597,6 +923,10 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   HeroSpotlight,
   FeaturesGrid1,
   FeaturesBento,
+  ServicesList,
+  PortfolioGrid,
+  StatsCounter,
+  AboutSplit,
   TestimonialsSlider1,
   FAQAccordion1,
   CTASection1,

@@ -526,6 +526,49 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block {
           })),
         },
       };
+    case "services":
+      return {
+        id: uid("services"),
+        type: slot.type,
+        variant: pickVariant("services", analysis.industry, brand),
+        props: {
+          eyebrow: "Services",
+          title: sectionTitle(slot.type, brand),
+          items: c.services.map((s) => ({ title: s, description: featureBlurb(s, analysis.industry) })),
+        },
+      };
+    case "portfolio":
+      return {
+        id: uid("portfolio"),
+        type: slot.type,
+        variant: pickVariant("portfolio", analysis.industry, brand),
+        props: {
+          eyebrow: slot.type === "products" ? "Collection" : slot.type === "gallery" ? "Gallery" : "Selected work",
+          title: sectionTitle(slot.type, brand),
+          items: portfolioItems(analysis),
+        },
+      };
+    case "stats":
+      return {
+        id: uid("stats"),
+        type: slot.type,
+        variant: pickVariant("stats", analysis.industry, brand),
+        props: { title: sectionTitle(slot.type, brand), items: statsFor(analysis) },
+      };
+    case "about":
+      return {
+        id: uid("about"),
+        type: slot.type,
+        variant: pickVariant("about", analysis.industry, brand),
+        props: {
+          eyebrow: "About",
+          title: sectionTitle(slot.type, brand),
+          body: c.description,
+          image: analysis.extractedContent.images[1] || c.heroImageUrl,
+          stats: statsFor(analysis).slice(0, 3),
+          cta: "Get in touch",
+        },
+      };
     case "testimonials":
       return {
         id: uid("test"),
@@ -614,6 +657,39 @@ function featureBlurb(service: string, industry: Industry): string {
     map[service] ||
     `${service}, delivered to a standard our ${INDUSTRY_PROFILES[industry].label.toLowerCase()} clients trust.`
   );
+}
+
+/**
+ * Deterministic, industry-plausible credibility figures. We don't scrape real
+ * numbers, so these are seeded by the URL for stable, non-random variation
+ * (same site -> same stats). "24/7" stays textual; StatValue animates the rest.
+ */
+function statsFor(a: SiteAnalysis): { value: string; label: string }[] {
+  const u = a.url;
+  const projects = rangeFrom(u + "proj", 8, 60) * 10; // 80..600, rounded
+  const years = rangeFrom(u + "yrs", 6, 24);
+  const satisfaction = rangeFrom(u + "sat", 92, 99);
+  return [
+    { value: `${projects}+`, label: "Projects delivered" },
+    { value: `${years}`, label: "Years of experience" },
+    { value: `${satisfaction}%`, label: "Client satisfaction" },
+    { value: "24/7", label: "Here when you need us" },
+  ];
+}
+
+/**
+ * Build tiles for the portfolio grid. Uses the source site's real images where
+ * available, names them from the detected services (falling back to "Project NN"),
+ * and tops up to six tiles so the asymmetric composition always reads as full.
+ */
+function portfolioItems(a: SiteAnalysis): { image?: string; title: string; tag: string }[] {
+  const imgs = a.extractedContent.images;
+  const names = a.extractedContent.services;
+  return Array.from({ length: 6 }).map((_, i) => ({
+    image: imgs[i],
+    title: names[i] || `Project ${String(i + 1).padStart(2, "0")}`,
+    tag: a.industryLabel,
+  }));
 }
 
 function defaultFaq(industry: Industry, brand: string) {

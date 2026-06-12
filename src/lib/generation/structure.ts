@@ -80,23 +80,23 @@ export function detectStructure(signals: StructureSignals): SiteStructure {
 }
 
 /** Sections we have a dedicated, renderable component category for today. */
-const RENDERABLE: BlockType[] = ["hero", "features", "testimonials", "faq", "cta", "contact", "footer"];
+const RENDERABLE: BlockType[] = [
+  "hero", "features", "services", "portfolio", "stats", "about",
+  "testimonials", "faq", "cta", "contact", "footer",
+];
 
 /**
  * Map any (possibly extended-taxonomy) section type to the closest category
  * that has a registered component, so Preserve/Smart never emit a blank block.
- * As premium components for about/portfolio/pricing/etc. land, this table
- * shrinks - callers do not change.
+ * As premium components for the remaining types land, this table shrinks -
+ * callers do not change.
  */
 export function renderableCategory(type: BlockType): BlockType {
   if (RENDERABLE.includes(type)) return type;
   switch (type) {
-    case "services":
-    case "about":
-    case "portfolio":
     case "products":
     case "gallery":
-    case "stats":
+      return "portfolio"; // visual grids
     case "logos":
     case "pricing":
       return "features";

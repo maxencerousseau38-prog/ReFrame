@@ -33,6 +33,18 @@ export const BLOCK_CATALOG: BlockMeta[] = [
   { variant: "FeaturesGrid1", category: "features", sectors: "all", motion: 1, license: "ReFrame original", when: "Four-up feature grid. Safe default." },
   { variant: "FeaturesBento", category: "features", sectors: ["saas", "agency", "ecommerce", "generic"], motion: 2, license: "ReFrame original", when: "Asymmetric bento with hover depth; modern brands." },
 
+  // Services
+  { variant: "ServicesList", category: "services", sectors: "all", motion: 1, license: "ReFrame original", when: "Editorial numbered services index; serif titles, hairline rules." },
+
+  // Portfolio / visual work (also serves products & gallery)
+  { variant: "PortfolioGrid", category: "portfolio", sectors: "all", motion: 2, license: "ReFrame original", when: "Asymmetric 'Selected work' image grid with a monumental lead tile." },
+
+  // Stats / credibility
+  { variant: "StatsCounter", category: "stats", sectors: "all", motion: 2, license: "ReFrame original", when: "Dark band of animated counters; measured credibility." },
+
+  // About
+  { variant: "AboutSplit", category: "about", sectors: "all", motion: 1, license: "ReFrame original", when: "Portrait + serif narrative with inline credibility chips." },
+
   // One strong variant each (extend later)
   { variant: "TestimonialsSlider1", category: "testimonials", sectors: "all", motion: 1, license: "ReFrame original", when: "Three-up testimonial cards." },
   { variant: "FAQAccordion1", category: "faq", sectors: "all", motion: 1, license: "ReFrame original", when: "Accordion FAQ." },
