@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { motion, useReducedMotion, useInView } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion, useInView } from "framer-motion";
 import {
   Sparkle,
   ShieldCheck,
@@ -10,6 +10,8 @@ import {
   Star,
   Check,
   Plus,
+  ArrowRight,
+  ArrowLeft,
   type Icon as PhosphorIcon,
 } from "@phosphor-icons/react";
 import type { Block, SiteSchema, Theme } from "@/lib/generation/types";
@@ -77,51 +79,105 @@ const fade = {
   visible: { opacity: 1, y: 0 },
 };
 
+// Shared premium entrance easing (Emil Kowalski-style ease-out).
+const EASE = [0.16, 1, 0.3, 1] as const;
+// Hairline derived from the brand ink, for borders and grid gaps on any canvas.
+const HAIRLINE = "color-mix(in srgb, var(--brand-ink) 8%, transparent)";
+
 /* -------------------------------------------------------------------------- */
 /*  Hero blocks                                                               */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Centered, message-first hero (safe default). A controlled overhead light and a
+ * masked line-grid sit behind the headline; both are tinted from the brand, so a
+ * blue brand glows blue and a warm brand glows warm. Ported from a SaaS-grade
+ * reference onto the token system to stay brand-adaptive.
+ */
 function HeroPremium1({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  const rise = (delay: number) => ({
+    initial: reduce ? false : { opacity: 0, y: 14 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.6, ease: EASE, delay },
+  });
   return (
-    <section className="relative overflow-hidden px-6 py-24 sm:py-32">
+    <section
+      className="relative overflow-hidden px-6 pb-28 pt-32"
+      style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}
+    >
+      {/* controlled overhead light, tinted from the brand accent */}
       <div
-        className="pointer-events-none absolute left-1/2 top-0 h-[480px] w-[760px] -translate-x-1/2 rounded-full opacity-25 blur-3xl"
-        style={{ background: `radial-gradient(closest-side, var(--brand-accent), transparent)` }}
+        className="pointer-events-none absolute inset-x-0 -top-40 z-0 h-[500px]"
+        style={{
+          background:
+            "radial-gradient(50% 50% at 50% 0%, color-mix(in srgb, var(--brand-accent) 18%, transparent), transparent 70%)",
+        }}
       />
-      <div className="relative mx-auto max-w-3xl text-center">
+      {/* masked line grid */}
+      <div
+        className="pointer-events-none absolute inset-0 z-0 [mask-image:radial-gradient(60%_50%_at_50%_0%,#000,transparent)]"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, color-mix(in srgb, var(--brand-ink) 5%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in srgb, var(--brand-ink) 5%, transparent) 1px, transparent 1px)",
+          backgroundSize: "64px 64px",
+        }}
+      />
+
+      <div className="relative z-10 mx-auto max-w-3xl text-center">
         {props.eyebrow && (
-          <span
-            className="inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium"
-            style={{ borderColor: "var(--brand-accent)", color: "var(--brand-accent)" }}
+          <motion.span
+            {...rise(0)}
+            className="inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium backdrop-blur"
+            style={{
+              borderColor: "color-mix(in srgb, var(--brand-ink) 10%, transparent)",
+              background: "color-mix(in srgb, var(--brand-surface) 70%, transparent)",
+              color: "color-mix(in srgb, var(--brand-ink) 65%, transparent)",
+            }}
           >
             {props.eyebrow}
-          </span>
+          </motion.span>
         )}
+
         <motion.h1
-          initial="hidden"
-          animate="visible"
-          variants={fade}
-          transition={{ duration: 0.6 }}
-          className="mt-6 text-4xl font-semibold tracking-tight sm:text-6xl"
+          {...rise(0.05)}
+          className="mt-6 text-5xl font-semibold tracking-tight [text-wrap:balance] md:text-6xl"
           style={{ color: "var(--brand)" }}
         >
           {props.title}
         </motion.h1>
-        <p className="mx-auto mt-5 max-w-xl text-lg text-neutral-500">{props.subtitle}</p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <button
-            className="px-6 py-3 text-sm font-medium text-white shadow-lg"
-            style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}
+
+        {props.subtitle && (
+          <motion.p
+            {...rise(0.12)}
+            className="mx-auto mt-5 max-w-xl text-lg [text-wrap:balance]"
+            style={{ color: "var(--brand-ink)", opacity: 0.65 }}
           >
-            {props.primaryCta}
-          </button>
+            {props.subtitle}
+          </motion.p>
+        )}
+
+        <motion.div {...rise(0.2)} className="mt-9 flex flex-wrap items-center justify-center gap-4">
           <button
-            className="border px-6 py-3 text-sm font-medium"
-            style={{ borderColor: "var(--brand-accent)", color: "var(--brand)", borderRadius: "var(--brand-radius)" }}
+            className="group inline-flex items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]"
+            style={{
+              background: "var(--brand-accent)",
+              borderRadius: "var(--brand-radius)",
+              boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)",
+            }}
           >
-            {props.secondaryCta}
+            {props.primaryCta || props.cta || "Get started"}
+            <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </button>
-        </div>
+          {props.secondaryCta && (
+            <button
+              className="text-sm font-medium underline-offset-4 transition-opacity hover:opacity-70"
+              style={{ color: "var(--brand)" }}
+            >
+              {props.secondaryCta}
+            </button>
+          )}
+        </motion.div>
       </div>
     </section>
   );
@@ -302,38 +358,58 @@ function HeroEditorial({ props }: { props: any }) {
 /*  Features                                                                  */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Feature grid as a single bordered card sliced by hairline gaps — cells share
+ * one rounded frame and warm to the brand surface on hover. Icon chips use a
+ * faint brand-accent wash. Heading is left-aligned (editorial), not centered.
+ */
 function FeaturesGrid1({ props }: { props: any }) {
+  const items = (props.items || []) as any[];
   return (
-    <section className="px-6 py-20 sm:py-24">
-      <div className="mx-auto max-w-6xl">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl" style={{ color: "var(--brand)" }}>
+    <section className="px-6 py-24" style={{ color: "var(--brand-ink)" }}>
+      <div className="mx-auto max-w-5xl">
+        <div className="max-w-2xl">
+          <h2 className="text-3xl font-semibold tracking-tight [text-wrap:balance] md:text-4xl" style={{ color: "var(--brand)" }}>
             {props.title}
           </h2>
-          {props.subtitle && <p className="mt-3 text-neutral-500">{props.subtitle}</p>}
+          {props.subtitle && (
+            <p className="mt-3 text-lg" style={{ color: "var(--brand-ink)", opacity: 0.65 }}>
+              {props.subtitle}
+            </p>
+          )}
         </div>
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {props.items?.map((item: any, i: number) => (
+
+        <div
+          className="mt-12 grid gap-px overflow-hidden border sm:grid-cols-2 lg:grid-cols-3"
+          style={{ borderRadius: "calc(var(--brand-radius) * 1.4)", borderColor: HAIRLINE, background: HAIRLINE }}
+        >
+          {items.map((item, i) => (
             <motion.div
               key={i}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fade}
-              transition={{ duration: 0.5, delay: i * 0.06 }}
-              className="border bg-white p-6"
-              style={{ borderRadius: "var(--brand-radius)", borderColor: "#ececec" }}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.5, ease: EASE, delay: i * 0.05 }}
+              className="group bg-white p-7 transition-colors hover:bg-[var(--brand-surface)]"
             >
               <div
-                className="mb-4 flex h-10 w-10 items-center justify-center text-white"
-                style={{ background: "var(--brand-accent)", borderRadius: "calc(var(--brand-radius) * 0.7)" }}
+                className="flex h-10 w-10 items-center justify-center transition-transform group-hover:scale-105"
+                style={{
+                  background: "color-mix(in srgb, var(--brand-accent) 12%, transparent)",
+                  color: "var(--brand-accent)",
+                  borderRadius: "calc(var(--brand-radius) * 0.7)",
+                }}
               >
                 <BlockIcon name={item.icon} className="h-5 w-5" />
               </div>
-              <h3 className="text-base font-semibold" style={{ color: "var(--brand)" }}>
+              <h3 className="mt-5 font-medium" style={{ color: "var(--brand)" }}>
                 {item.title}
               </h3>
-              <p className="mt-2 text-sm leading-relaxed text-neutral-500">{item.description}</p>
+              {item.description && (
+                <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>
+                  {item.description}
+                </p>
+              )}
             </motion.div>
           ))}
         </div>
@@ -346,36 +422,66 @@ function FeaturesGrid1({ props }: { props: any }) {
 /*  Testimonials                                                              */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * One testimonial at a time on a dark brand band, cross-fading between quotes.
+ * Reads bigger and more confident than a card row. Falls back gracefully to a
+ * single quote (controls hidden). Dark surface = var(--brand); accent untouched.
+ */
 function TestimonialsSlider1({ props }: { props: any }) {
+  const items = (props.items || []) as any[];
+  const [i, setI] = React.useState(0);
+  if (!items.length) return null;
+  const go = (d: number) => setI((p) => (p + d + items.length) % items.length);
+  const t = items[i];
+
   return (
-    <section className="px-6 py-20 sm:py-24">
-      <div className="mx-auto max-w-6xl">
-        <h2 className="text-center text-3xl font-semibold tracking-tight sm:text-4xl" style={{ color: "var(--brand)" }}>
-          {props.title}
-        </h2>
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
-          {props.items?.map((t: any, i: number) => (
-            <figure
+    <section className="px-6 py-28 text-white" style={{ background: "var(--brand)" }}>
+      <div className="mx-auto max-w-3xl text-center">
+        {props.title && (
+          <p className="text-sm font-medium uppercase tracking-widest text-white/40">{props.title}</p>
+        )}
+
+        <div className="relative mt-10 min-h-[180px]">
+          <AnimatePresence mode="wait">
+            <motion.blockquote
               key={i}
-              className="flex flex-col justify-between border bg-white p-6"
-              style={{ borderRadius: "var(--brand-radius)", borderColor: "#ececec" }}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.45, ease: EASE }}
             >
-              <blockquote className="text-[15px] leading-relaxed text-neutral-700">“{t.quote}”</blockquote>
-              <figcaption className="mt-5 flex items-center gap-3">
-                <span
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-xs font-semibold text-white"
-                  style={{ background: "var(--brand-accent)" }}
-                >
-                  {t.name?.split(" ").map((n: string) => n[0]).join("")}
-                </span>
-                <div>
-                  <div className="text-sm font-medium" style={{ color: "var(--brand)" }}>{t.name}</div>
-                  <div className="text-xs text-neutral-400">{t.role}</div>
-                </div>
-              </figcaption>
-            </figure>
-          ))}
+              <p className="text-2xl font-medium leading-snug [text-wrap:balance] md:text-3xl">
+                &ldquo;{t.quote}&rdquo;
+              </p>
+              <footer className="mt-7 text-sm text-white/60">
+                <span className="font-medium text-white">{t.name || t.author}</span>
+                {t.role && <span> &middot; {t.role}</span>}
+              </footer>
+            </motion.blockquote>
+          </AnimatePresence>
         </div>
+
+        {items.length > 1 && (
+          <div className="mt-10 flex items-center justify-center gap-3">
+            <button
+              onClick={() => go(-1)}
+              aria-label="Previous"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/70 transition hover:border-white/40 hover:text-white"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </button>
+            <span className="text-xs tabular-nums text-white/40">
+              {i + 1} / {items.length}
+            </span>
+            <button
+              onClick={() => go(1)}
+              aria-label="Next"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/70 transition hover:border-white/40 hover:text-white"
+            >
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
@@ -413,28 +519,47 @@ function FAQAccordion1({ props }: { props: any }) {
 /*  CTA                                                                       */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Closing CTA: a dark brand panel with a soft accent glow rising from the top
+ * and a light button for maximum contrast. Reveals on scroll into view.
+ */
 function CTASection1({ props }: { props: any }) {
   return (
-    <section className="px-6 py-20">
-      <div
-        className="relative mx-auto max-w-5xl overflow-hidden px-8 py-16 text-center"
-        style={{ background: "var(--brand)", borderRadius: "calc(var(--brand-radius) * 1.5)" }}
+    <section className="px-6 py-24">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 0.6, ease: EASE }}
+        className="relative mx-auto max-w-4xl overflow-hidden border px-8 py-16 text-center text-white md:px-16 md:py-20"
+        style={{
+          background: "var(--brand)",
+          borderRadius: "28px",
+          borderColor: HAIRLINE,
+          boxShadow: "0 30px 80px -40px rgba(0,0,0,0.5)",
+        }}
       >
         <div
-          className="pointer-events-none absolute inset-0 opacity-30"
-          style={{ background: `radial-gradient(600px 200px at 50% 0%, var(--brand-accent), transparent)` }}
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(50% 120% at 50% 0%, color-mix(in srgb, var(--brand-accent) 38%, transparent), transparent 60%)",
+          }}
         />
         <div className="relative">
-          <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">{props.title}</h2>
-          <p className="mx-auto mt-3 max-w-md text-white/70">{props.subtitle}</p>
+          <h2 className="text-3xl font-semibold tracking-tight [text-wrap:balance] md:text-4xl">{props.title}</h2>
+          {props.subtitle && (
+            <p className="mx-auto mt-4 max-w-lg text-white/60 [text-wrap:balance]">{props.subtitle}</p>
+          )}
           <button
-            className="mt-8 px-7 py-3 text-sm font-medium text-white shadow-lg"
-            style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}
+            className="group mt-8 inline-flex items-center gap-1.5 bg-white px-7 py-3.5 text-sm font-medium transition-colors hover:bg-white/90"
+            style={{ color: "var(--brand)", borderRadius: "var(--brand-radius)" }}
           >
             {props.cta}
+            <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </button>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
