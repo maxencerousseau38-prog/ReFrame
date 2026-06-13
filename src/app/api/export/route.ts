@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { schemaToHtml, slugForFilename } from "@/lib/export-html";
+import JSZip from "jszip";
+import { schemaToFiles, slugForFilename } from "@/lib/export-html";
 import { rateLimit, clientKey } from "@/lib/rate-limit";
 import { parseSiteSchema } from "@/lib/generation/validate";
 import { getCurrentUser } from "@/lib/server/auth";
@@ -7,7 +8,8 @@ import { entitlementsOf, effectivePlan } from "@/lib/server/plans";
 
 export const runtime = "nodejs";
 
-/** POST /api/export — download the generated site as a standalone HTML file. */
+/** POST /api/export — download the generated site. Single page -> .html;
+ *  multi-page -> a .zip of linked HTML files (index.html + <path>.html). */
 export async function POST(req: Request) {
   const limit = rateLimit(`export:${clientKey(req)}`, 30, 60_000);
   if (!limit.ok) {
@@ -25,12 +27,26 @@ export async function POST(req: Request) {
     const user = await getCurrentUser();
     const branded = !entitlementsOf(effectivePlan(user)).removeBranding;
 
-    const html = schemaToHtml(schema, { branded });
-    const file = `${slugForFilename(schema.brand.name)}.html`;
-    return new NextResponse(html, {
+    const files = schemaToFiles(schema, { branded });
+    const slug = slugForFilename(schema.brand.name);
+
+    if (files.length === 1) {
+      return new NextResponse(files[0].html, {
+        headers: {
+          "Content-Type": "text/html; charset=utf-8",
+          "Content-Disposition": `attachment; filename="${slug}.html"`,
+        },
+      });
+    }
+
+    // Multi-page: zip the linked HTML files.
+    const zip = new JSZip();
+    for (const f of files) zip.file(f.name, f.html);
+    const buf = await zip.generateAsync({ type: "arraybuffer" });
+    return new NextResponse(buf, {
       headers: {
-        "Content-Type": "text/html; charset=utf-8",
-        "Content-Disposition": `attachment; filename="${file}"`,
+        "Content-Type": "application/zip",
+        "Content-Disposition": `attachment; filename="${slug}.zip"`,
       },
     });
   } catch (err) {
