@@ -1,30 +1,31 @@
 /**
- * Evaluation harness — measures whether ReFrame can actually rebuild a site from
- * what it extracts. Drives the real pipeline (dashboard -> analyze -> generate ->
- * result) per URL and exports a rich CSV plus a visual contact sheet.
+ * Extraction evaluation harness — does ReFrame recover enough real material from
+ * a URL to auto-rebuild a premium site? Drives the real pipeline
+ * (dashboard -> analyze -> generate -> result) per URL and exports a per-dimension
+ * CSV + a visual contact sheet + a printed verdict.
  *
- * Per site it records:
- *   - sector (detected industry) and analysis confidence (full/partial/fallback)
- *   - extracted logo (url), brand color, and how many images actually load
- *   - quantity of content recovered (headline+description chars, services,
- *     detected sections)
- *   - a 0-100 EXTRACTION SCORE (transparent weighting below) and a screenshot
+ * Each reconstruction input is scored SEPARATELY (0-100), measuring only material
+ * we actually extracted (a fallback fabricates default copy/sections, so its text
+ * and structure score 0 - we never credit invented content):
+ *   logo        100 if a logo URL was extracted
+ *   color       100 if a brand accent color was extracted
+ *   images      100 * min(imagesLoaded,5)/5   (loaded = passes the proxy)
+ *   text        0 if fallback, else min(100, contentChars/200*100)
+ *   structure   min(100, realSections/6*100)  (real detected structure only)
  *
- * EXTRACTION SCORE (0-100), auditable:
- *   confidence   full 40 / partial 20 / fallback 0
- *   logo         +15 if a logo URL was extracted
- *   brand color  +10 if an accent color was extracted
- *   images       +15 * min(imagesLoaded,5)/5   (loaded = passes the proxy)
- *   content      +10 text (headline+desc, full at >=200 chars)
- *                +5  services (>=3)
- *                +5  structure (>=4 detected sections; +3 at >=2)
+ * GLOBAL score = weighted blend (auditable):
+ *   text .30 · images .25 · structure .20 · color .15 · logo .10
  *
- * To measure headless rendering, run a Browserless box and set BROWSERLESS_URL
- * before starting the app (see .env.example), then compare scores.
+ * Decision thresholds (printed automatically):
+ *   avg >= 70 AND >=70% of sites > 60  -> VALIDATED
+ *   avg 50-70                          -> MIXED (hybrid workflow)
+ *   avg < 50 (or too many fallbacks)   -> REJECTED (rethink workflow)
+ *
+ * Headless A/B: set BROWSERLESS_URL before starting the app (see .env.example)
+ * and re-run to compare against the static baseline.
  *
  * Usage (app must be running):
  *   BASE=http://localhost:3000 node scripts/eval.mjs [urls-file]
- * Defaults: BASE=http://localhost:3000, urls-file=scripts/eval-urls.txt
  */
 import { chromium } from "playwright";
 import { readFileSync, writeFileSync, mkdirSync } from "fs";
@@ -37,10 +38,7 @@ const SHOTS = path.join(OUT, "screenshots");
 
 const urls = readFileSync(URLS_FILE, "utf8")
   .split("\n").map((l) => l.trim()).filter((l) => l && !l.startsWith("#"));
-if (!urls.length) {
-  console.error(`No URLs in ${URLS_FILE}`);
-  process.exit(1);
-}
+if (!urls.length) { console.error(`No URLs in ${URLS_FILE}`); process.exit(1); }
 mkdirSync(SHOTS, { recursive: true });
 
 const hostOf = (u) => {
@@ -48,16 +46,16 @@ const hostOf = (u) => {
   catch { return u.replace(/[^a-z0-9]+/gi, "-"); }
 };
 
-function extractionScore(r) {
-  let s = 0;
-  s += r.confidence === "full" ? 40 : r.confidence === "partial" ? 20 : 0;
-  if (r.logo) s += 15;
-  if (r.accent) s += 10;
-  s += Math.round((Math.min(r.imagesOk, 5) / 5) * 15);
-  s += r.contentChars >= 200 ? 10 : Math.round((r.contentChars / 200) * 10);
-  s += r.services >= 3 ? 5 : 0;
-  s += r.sections >= 4 ? 5 : r.sections >= 2 ? 3 : 0;
-  return Math.min(100, s);
+/** Per-dimension sub-scores (0-100) + weighted global. Credits real material only. */
+function dimScores(r) {
+  const fallback = r.confidence === "fallback" || r.confidence === "error";
+  const logo = r.logo ? 100 : 0;
+  const color = r.accent ? 100 : 0;
+  const images = Math.round((Math.min(r.imagesOk, 5) / 5) * 100);
+  const text = fallback ? 0 : Math.min(100, Math.round((r.contentChars / 200) * 100));
+  const structure = Math.min(100, Math.round((r.realSections / 6) * 100));
+  const global = Math.round(text * 0.3 + images * 0.25 + structure * 0.2 + color * 0.15 + logo * 0.1);
+  return { logo, color, images, text, structure, global };
 }
 
 const browser = await chromium.launch({ args: ["--no-sandbox", "--disable-gpu"] });
@@ -71,11 +69,11 @@ for (let i = 0; i < urls.length; i++) {
   const row = {
     n: i + 1, url, host, confidence: "error", sector: "", brand: "",
     logo: "", accent: "", imagesOk: 0, imagesTotal: 0, contentChars: 0,
-    services: 0, sections: 0, blocks: 0, score: 0, notice: false, shot: "",
+    services: 0, realSections: 0, blocks: 0, notice: false, shot: "",
+    s: { logo: 0, color: 0, images: 0, text: 0, structure: 0, global: 0 },
   };
   process.stdout.write(`[${i + 1}/${urls.length}] ${host} ... `);
 
-  // Fresh context per URL so sessionStorage never leaks between sites.
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1.1 });
   const page = await ctx.newPage();
   try {
@@ -99,18 +97,16 @@ for (let i = 0; i < urls.length; i++) {
     row.notice = !!a.notice;
     row.contentChars = `${ec.headline || ""} ${ec.description || ""}`.trim().length;
     row.services = (ec.services || []).length;
-    row.sections = a.structure?.sections?.length || (a.detectedSections || []).length || 0;
+    row.realSections = a.structure?.sections?.length || 0; // real structure only
     const images = (ec.images || []).slice(0, 6);
     row.imagesTotal = images.length;
 
-    // Generate (Preserve default), capture the rebuilt structure
     await page.getByRole("button", { name: /transform my site/i }).first().click();
     await page.waitForURL(/\/result/, { timeout: 30000 });
     await page.waitForFunction(() => !!sessionStorage.getItem("sr:schema"), { timeout: 30000 });
     const schema = await page.evaluate(() => JSON.parse(sessionStorage.getItem("sr:schema")));
     row.blocks = schema.blocks.length;
 
-    // How many extracted images actually load through the proxy
     row.imagesOk = await page.evaluate(async (imgs) => {
       let ok = 0;
       for (const u of imgs) {
@@ -122,7 +118,6 @@ for (let i = 0; i < urls.length; i++) {
       return ok;
     }, images);
 
-    // Screenshot the full rebuilt page
     await page.waitForTimeout(1400);
     await page.evaluate(() => {
       const sc = document.querySelector(".max-h-\\[70vh\\]");
@@ -135,13 +130,14 @@ for (let i = 0; i < urls.length; i++) {
     await page.waitForTimeout(700);
     await page.screenshot({ path: path.join(OUT, shotRel), fullPage: true });
     row.shot = shotRel;
-
-    row.score = extractionScore(row);
-    console.log(`score ${row.score} | ${row.confidence} | ${row.sector} | logo ${row.logo ? "Y" : "-"} color ${row.accent || "-"} | img ${row.imagesOk}/${row.imagesTotal} | ${row.contentChars} chars`);
   } catch (e) {
-    console.log(`ERROR ${String(e).slice(0, 60)}`);
+    console.log(`ERROR ${String(e).slice(0, 50)}`);
   } finally {
     await ctx.close();
+  }
+  row.s = dimScores(row);
+  if (row.shot || row.confidence !== "error") {
+    console.log(`global ${row.s.global} | ${row.confidence} ${row.sector} | logo ${row.s.logo} color ${row.s.color} img ${row.s.images} text ${row.s.text} struct ${row.s.structure}`);
   }
   rows.push(row);
 }
@@ -149,50 +145,69 @@ await browser.close();
 
 // --- results.csv ----------------------------------------------------------
 const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
-const head = "n,url,sector,confidence,score,logo,brand_color,images_loaded,images_total,content_chars,services,sections,blocks,notice";
+const head = "n,url,sector,confidence,global,logo_score,color_score,images_score,text_score,structure_score,logo_url,brand_color,images_loaded,images_total,content_chars,real_sections,blocks,notice";
 const csv = [head].concat(
   rows.map((r) => [
-    r.n, q(r.url), r.sector, r.confidence, r.score, q(r.logo), r.accent,
-    r.imagesOk, r.imagesTotal, r.contentChars, r.services, r.sections, r.blocks, r.notice,
+    r.n, q(r.url), r.sector, r.confidence, r.s.global,
+    r.s.logo, r.s.color, r.s.images, r.s.text, r.s.structure,
+    q(r.logo), r.accent, r.imagesOk, r.imagesTotal, r.contentChars, r.realSections, r.blocks, r.notice,
   ].join(","))
 ).join("\n");
 writeFileSync(path.join(OUT, "results.csv"), csv);
 
+// --- summary + verdict -----------------------------------------------------
+const n = rows.length;
+const avg = (k) => Math.round(rows.reduce((a, r) => a + r.s[k], 0) / n);
+const avgGlobal = avg("global");
+const pctOver60 = Math.round((rows.filter((r) => r.s.global > 60).length / n) * 100);
+const fallbacks = rows.filter((r) => r.confidence === "fallback" || r.confidence === "error").length;
+const fbRate = fallbacks / n;
+const verdict =
+  fbRate > 0.4 || avgGlobal < 50
+    ? "REJECTED — rethink the workflow (too little extracted / too many fallbacks, even headless)"
+    : avgGlobal >= 70 && pctOver60 >= 70
+      ? "VALIDATED — URL -> auto-rebuild holds"
+      : "MIXED — viable with a hybrid (user-completed) workflow";
+
+const dims = ["logo", "color", "images", "text", "structure"];
+
 // --- index.html (contact sheet) -------------------------------------------
-const scoreColor = (s) => (s >= 70 ? "#16a34a" : s >= 40 ? "#d97706" : "#dc2626");
+const sc = (s) => (s >= 70 ? "#16a34a" : s >= 40 ? "#d97706" : "#dc2626");
+const bar = (label, v) => `<span class="dim"><span class="dl">${label}</span><span class="db"><span class="df" style="width:${v}%;background:${sc(v)}"></span></span><span class="dv">${v}</span></span>`;
 const cards = rows.map((r) => `<div class="card">
   <div class="meta">
-    <span class="score" style="background:${scoreColor(r.score)}">${r.score}</span>
-    <b>${r.host}</b>
-    <span class="tag">${r.confidence}</span>
-    <span class="tag">${r.sector || "?"}</span>
-    <span class="tag">logo ${r.logo ? "✓" : "✗"}</span>
-    ${r.accent ? `<span class="tag"><span class="sw" style="background:${r.accent}"></span>${r.accent}</span>` : `<span class="tag">no color</span>`}
-    <span class="tag">img ${r.imagesOk}/${r.imagesTotal}</span>
-    <span class="tag">${r.contentChars} chars</span>
+    <span class="score" style="background:${sc(r.s.global)}">${r.s.global}</span>
+    <b>${r.host}</b><span class="tag">${r.confidence}</span><span class="tag">${r.sector || "?"}</span>
+    ${r.accent ? `<span class="tag"><span class="sw" style="background:${r.accent}"></span>${r.accent}</span>` : ""}
   </div>
+  <div class="dims">${dims.map((d) => bar(d, r.s[d])).join("")}</div>
   ${r.shot ? `<a href="${r.shot}" target="_blank"><img loading="lazy" src="${r.shot}"/></a>` : `<div class="fail">no render</div>`}
 </div>`).join("\n");
-const ok = rows.filter((r) => r.shot).length;
-const avg = ok ? Math.round(rows.filter((r) => r.shot).reduce((a, r) => a + r.score, 0) / ok) : 0;
-const dist = rows.reduce((a, r) => ((a[r.confidence] = (a[r.confidence] || 0) + 1), a), {});
-const summary = `avg score ${avg}/100 · ${Object.entries(dist).map(([k, v]) => `${k}: ${v}`).join(" · ")}`;
 writeFileSync(path.join(OUT, "index.html"), `<!doctype html><meta charset="utf-8"><title>ReFrame extraction eval</title>
 <style>
   body{font-family:ui-sans-serif,system-ui,sans-serif;margin:0;background:#0b0b0f;color:#e7e7ea;padding:24px}
-  h1{font-size:18px;margin:0 0 4px} .sum{color:#a1a1aa;margin-bottom:20px}
-  .grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
+  h1{font-size:18px;margin:0 0 6px}
+  .verdict{font-weight:700;margin:0 0 6px} .sum{color:#a1a1aa;margin-bottom:18px;font-size:14px}
+  .grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(360px,1fr))}
   .card{border:1px solid #26262b;border-radius:12px;overflow:hidden;background:#141418}
   .meta{display:flex;align-items:center;gap:7px;padding:10px 12px;font-size:12px;flex-wrap:wrap}
-  .score{font-weight:700;color:#fff;border-radius:7px;padding:2px 8px;font-size:13px}
+  .score{font-weight:700;color:#fff;border-radius:7px;padding:2px 9px;font-size:14px}
   .tag{color:#a1a1aa;border:1px solid #2c2c33;border-radius:9px;padding:1px 7px;display:inline-flex;align-items:center;gap:5px}
   .sw{width:9px;height:9px;border-radius:3px;display:inline-block}
+  .dims{display:flex;gap:10px;padding:0 12px 10px;flex-wrap:wrap}
+  .dim{display:flex;align-items:center;gap:5px;font-size:11px;color:#a1a1aa}
+  .db{width:46px;height:6px;border-radius:6px;background:#2c2c33;overflow:hidden} .df{display:block;height:100%}
   img{width:100%;display:block;border-top:1px solid #26262b}
   .fail{padding:40px;text-align:center;color:#dc2626;border-top:1px solid #26262b}
 </style>
-<h1>ReFrame extraction eval — ${rows.length} sites</h1>
-<div class="sum">${summary}</div>
+<h1>ReFrame extraction eval — ${n} sites</h1>
+<div class="verdict" style="color:${sc(avgGlobal)}">${verdict}</div>
+<div class="sum">avg global ${avgGlobal}/100 · ${pctOver60}% > 60 · fallbacks ${fallbacks}/${n} &nbsp;|&nbsp; avg by dimension — ${dims.map((d) => `${d} ${avg(d)}`).join(" · ")}</div>
 <div class="grid">${cards}</div>`);
 
-console.log(`\n${summary}`);
+console.log("\n========================================================");
+console.log(`AVG GLOBAL ${avgGlobal}/100  ·  ${pctOver60}% > 60  ·  fallbacks ${fallbacks}/${n}`);
+console.log(`avg by dimension — ${dims.map((d) => `${d} ${avg(d)}`).join("  ")}`);
+console.log(`VERDICT: ${verdict}`);
+console.log("========================================================");
 console.log(`Open ${path.join(OUT, "index.html")}  ·  ${path.join(OUT, "results.csv")}`);
