@@ -48,24 +48,37 @@ export async function POST(req: Request) {
       return root ? `https://${slug}.${root}` : `${originOf(req)}/s/${slug}`;
     };
 
+    // Publishing puts a site live on our hosting - it requires an account and a
+    // paid plan. Generating, previewing, editing and downloading stay free.
     const user = await getCurrentUser();
-
-    // Enforce the plan's published-site limit for signed-in users.
-    if (user) {
-      const limit = entitlementsOf(user.plan).maxPublishedSites;
-      const owned = await listSitesByOwner(user.id);
-      if (owned.length >= limit) {
-        return NextResponse.json(
-          {
-            error: `Your plan allows ${limit} published site${limit === 1 ? "" : "s"}. Upgrade to publish more.`,
-            code: "plan_limit",
-          },
-          { status: 402 }
-        );
-      }
+    if (!user) {
+      return NextResponse.json(
+        { error: "Sign in to publish your site.", code: "auth" },
+        { status: 401 }
+      );
+    }
+    const limit = entitlementsOf(user.plan).maxPublishedSites;
+    if (limit < 1) {
+      return NextResponse.json(
+        {
+          error: "Publishing requires a plan. Upgrade to put your site live on your own domain.",
+          code: "plan_required",
+        },
+        { status: 402 }
+      );
+    }
+    const owned = await listSitesByOwner(user.id);
+    if (owned.length >= limit) {
+      return NextResponse.json(
+        {
+          error: `Your plan includes ${limit} live site${limit === 1 ? "" : "s"}. Upgrade to publish more.`,
+          code: "plan_limit",
+        },
+        { status: 402 }
+      );
     }
 
-    const site = await publishSite(schema, user?.id);
+    const site = await publishSite(schema, user.id);
 
     return NextResponse.json({
       ok: true,

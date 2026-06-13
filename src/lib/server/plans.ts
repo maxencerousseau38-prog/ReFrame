@@ -34,7 +34,8 @@ export const PLANS: Record<Plan, PlanInfo> = {
     label: "Free",
     price: 0,
     entitlements: {
-      maxPublishedSites: 1,
+      // Free can generate, preview, edit and download - but not publish live.
+      maxPublishedSites: 0,
       removeBranding: false,
       customDomain: false,
       seats: 1,
@@ -45,7 +46,8 @@ export const PLANS: Record<Plan, PlanInfo> = {
     label: "Pro",
     price: 29,
     entitlements: {
-      maxPublishedSites: 25,
+      // One business, one live site: hosted, on a custom domain, unbranded.
+      maxPublishedSites: 1,
       removeBranding: true,
       customDomain: true,
       seats: 1,
@@ -53,13 +55,14 @@ export const PLANS: Record<Plan, PlanInfo> = {
   },
   studio: {
     id: "studio",
-    label: "Studio",
+    label: "Agency",
     price: 99,
     entitlements: {
-      maxPublishedSites: 500,
+      // Agencies/freelancers running live sites for several clients.
+      maxPublishedSites: 10,
       removeBranding: true,
       customDomain: true,
-      seats: 10,
+      seats: 5,
     },
   },
 };

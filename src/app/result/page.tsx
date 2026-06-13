@@ -27,7 +27,8 @@ export default function ResultPage() {
   const [publishing, setPublishing] = React.useState(false);
   const [published, setPublished] = React.useState<string | null>(null);
   const [projectId, setProjectId] = React.useState<string | null>(null);
-  const [limitHit, setLimitHit] = React.useState(false);
+  const [needPlan, setNeedPlan] = React.useState(false);
+  const [needAuth, setNeedAuth] = React.useState(false);
   const [pubError, setPubError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -82,7 +83,8 @@ export default function ResultPage() {
   async function publish() {
     if (!schema) return;
     setPublishing(true);
-    setLimitHit(false);
+    setNeedPlan(false);
+    setNeedAuth(false);
     setPubError(null);
     try {
       const res = await fetch("/api/publish-site", {
@@ -92,9 +94,10 @@ export default function ResultPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        // Surface the plan limit with an upgrade path instead of failing silently.
-        if (data.code === "plan_limit") setLimitHit(true);
-        else if (res.status === 401) setPubError("Sign in to publish your site.");
+        // Publishing is paid: route free/over-limit users to upgrade, and
+        // signed-out users to sign in, instead of failing silently.
+        if (data.code === "plan_required" || data.code === "plan_limit") setNeedPlan(true);
+        else if (res.status === 401 || data.code === "auth") setNeedAuth(true);
         else setPubError(data.error || "Could not publish. Please try again.");
         return;
       }
@@ -131,13 +134,13 @@ export default function ResultPage() {
           </div>
         </div>
 
-        <div className="inline-flex rounded-full border border-border bg-secondary p-1">
+        <div className="inline-flex shrink-0 rounded-full border border-border bg-secondary p-0.5">
           {(["before", "after"] as const).map((v) => (
             <button
               key={v}
               onClick={() => setView(v)}
               className={cn(
-                "relative rounded-full px-5 py-1.5 text-sm font-medium capitalize transition-colors",
+                "relative rounded-full px-3 py-0.5 text-[13px] font-medium capitalize transition-colors",
                 view === v ? "text-foreground" : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -179,14 +182,26 @@ export default function ResultPage() {
         </div>
       )}
 
-      {limitHit && (
+      {needPlan && (
         <div className="flex flex-wrap items-center justify-center gap-3 border-b border-accent/30 bg-accent/10 px-6 py-2.5 text-sm text-accent">
-          You&apos;ve reached your plan&apos;s published-site limit.
+          Publishing your site live requires a plan.
           <Link
             href="/#pricing"
             className="rounded-full bg-accent px-3.5 py-1 text-xs font-medium text-accent-foreground transition hover:brightness-105"
           >
-            Upgrade plan
+            See plans
+          </Link>
+        </div>
+      )}
+
+      {needAuth && (
+        <div className="flex flex-wrap items-center justify-center gap-3 border-b border-accent/30 bg-accent/10 px-6 py-2.5 text-sm text-accent">
+          Sign in to publish your site.
+          <Link
+            href="/login"
+            className="rounded-full bg-accent px-3.5 py-1 text-xs font-medium text-accent-foreground transition hover:brightness-105"
+          >
+            Sign in
           </Link>
         </div>
       )}

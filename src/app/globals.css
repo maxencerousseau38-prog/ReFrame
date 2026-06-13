@@ -15,20 +15,20 @@
 
 @layer base {
   :root {
-    --background: 240 6% 7%;          /* deep neutral zinc */
+    --background: 240 10% 3.5%;       /* near-black OLED canvas */
     --foreground: 0 0% 98%;
-    --card: 240 5% 10%;
+    --card: 240 7% 7.5%;              /* softly elevated panels */
     --card-foreground: 0 0% 98%;
     --primary: 0 0% 98%;
-    --primary-foreground: 240 6% 7%;
-    --secondary: 240 4% 14%;
+    --primary-foreground: 240 10% 3.5%;
+    --secondary: 240 5% 11%;
     --secondary-foreground: 0 0% 96%;
-    --muted: 240 4% 14%;
+    --muted: 240 5% 12%;
     --muted-foreground: 240 5% 64%;
     --accent: 80 76% 55%;            /* electric lime */
     --accent-foreground: 100 30% 7%;
-    --border: 240 4% 15%;
-    --input: 240 4% 15%;
+    --border: 240 5% 14%;
+    --input: 240 5% 14%;
     --ring: 80 76% 55%;
     --radius: 1.25rem;
   }
