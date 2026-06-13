@@ -103,6 +103,23 @@ describe("generateSite", () => {
     }
   });
 
+  it("builds an owner-managed collection page (Menu) from real items", () => {
+    const a = analysis({
+      industry: "restaurant",
+      industryLabel: "Restaurant",
+      extractedContent: {
+        headline: "H",
+        description: "D",
+        services: ["A", "B"],
+        images: [],
+        collection: { items: [{ name: "Plat du jour", price: "12€" }] },
+      },
+    });
+    const menu = (generateSite(a).pages ?? []).find((p) => p.path === "menu");
+    expect(menu?.label).toBe("Menu");
+    expect(menu?.blocks[0].variant).toBe("CollectionGrid");
+  });
+
   it("uses the source accent color when one was detected", () => {
     const s = generateSite(analysis({ brand: { accentColor: "#ff0066" } }));
     expect(s.theme.accent).toBe("#ff0066");

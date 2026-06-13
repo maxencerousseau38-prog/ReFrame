@@ -158,6 +158,11 @@ export interface SiteAnalysis {
      * action buttons. Rendered only when present.
      */
     contact?: { phone?: string; email?: string; address?: string; bookingUrl?: string };
+    /**
+     * An owner-managed collection (menu / price list / service catalogue),
+     * rendered as a dedicated page. Real content only - never fabricated.
+     */
+    collection?: { items: { name: string; price?: string; description?: string }[] };
   };
   scores: {
     design: number;

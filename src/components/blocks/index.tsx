@@ -1361,6 +1361,63 @@ function CTAEditorial({ props }: { props: any }) {
   );
 }
 
+/**
+ * Owner-managed collection rendered as a menu / price list: hairline-ruled rows
+ * with a name, an optional price aligned right, and an optional description.
+ * Used on the dedicated Menu / Catalogue page (real items only).
+ */
+function CollectionGrid({ props }: { props: any }) {
+  const items = (props.items || []) as { name: string; price?: string; description?: string }[];
+  return (
+    <section className="px-6 py-20 sm:py-28" style={{ color: "var(--brand-ink)" }}>
+      <div className="mx-auto max-w-3xl">
+        {props.eyebrow && (
+          <span className="inline-flex items-center gap-3 text-[0.7rem] font-medium uppercase tracking-[0.28em]" style={{ color: "var(--brand-accent)" }}>
+            <span className="h-px w-9" style={{ background: "var(--brand-accent)" }} />
+            {props.eyebrow}
+          </span>
+        )}
+        <h2
+          className="mt-5 text-[clamp(2rem,4.5vw,3.25rem)] font-medium leading-[1.05] tracking-[-0.02em]"
+          style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}
+        >
+          {props.title}
+        </h2>
+
+        <div className="mt-10 border-t" style={{ borderColor: HAIRLINE }}>
+          {items.map((it, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.45, ease: EASE, delay: Math.min(i, 8) * 0.04 }}
+              className="border-b py-5"
+              style={{ borderColor: HAIRLINE }}
+            >
+              <div className="flex items-baseline justify-between gap-4">
+                <h3 className="text-lg font-medium" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>
+                  {it.name}
+                </h3>
+                {it.price && (
+                  <span className="shrink-0 text-base font-medium tabular-nums" style={{ color: "var(--brand-accent)" }}>
+                    {it.price}
+                  </span>
+                )}
+              </div>
+              {it.description && (
+                <p className="mt-1 max-w-xl text-sm leading-relaxed" style={{ opacity: 0.65 }}>
+                  {it.description}
+                </p>
+              )}
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Registry + renderer                                                       */
 /* -------------------------------------------------------------------------- */
@@ -1381,6 +1438,7 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   FAQAccordion1,
   CTASection1,
   CTAEditorial,
+  CollectionGrid,
   ContactFormPremium1,
   Footer1,
 };

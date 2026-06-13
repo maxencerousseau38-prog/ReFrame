@@ -24,6 +24,8 @@ interface Extras {
   contact?: { phone?: string; address?: string; bookingUrl?: string };
   /** Uploaded images; [0] is used as the hero/cover. */
   images: string[];
+  /** Owner-managed menu / price-list items -> a dedicated page. */
+  collection: { name: string; price?: string; description?: string }[];
 }
 
 const MODES: { id: GenerationMode; label: string; desc: string; recommended?: boolean }[] = [
@@ -107,6 +109,7 @@ function DashboardInner() {
               heroImageUrl: extras.images[0],
             }
           : {}),
+        ...(extras.collection.length ? { collection: { items: extras.collection } } : {}),
       },
     };
     try {
@@ -225,6 +228,7 @@ function AnalysisResult({
   const [photos, setPhotos] = React.useState<string[]>([]);
   const [uploading, setUploading] = React.useState(false);
   const [uploadErr, setUploadErr] = React.useState("");
+  const [clist, setClist] = React.useState([{ name: "", price: "", description: "" }]);
 
   async function uploadFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
@@ -265,6 +269,13 @@ function AnalysisResult({
         .map((s) => ({ value: s.value.trim(), label: s.label.trim() })),
       contact: Object.keys(contact).length ? contact : undefined,
       images: photos,
+      collection: clist
+        .filter((c) => c.name.trim())
+        .map((c) => ({
+          name: c.name.trim(),
+          price: c.price.trim() || undefined,
+          description: c.description.trim() || undefined,
+        })),
     };
   }
   return (
@@ -526,6 +537,40 @@ function AnalysisResult({
             </label>
           </div>
           {uploadErr && <p className="mt-2 text-xs text-amber-400">{uploadErr}</p>}
+        </div>
+
+        {/* Menu / price list — becomes a dedicated page */}
+        <div className="mt-6">
+          <label className="text-xs font-medium text-muted-foreground">
+            Menu / price list <span className="font-normal">(its own page)</span>
+          </label>
+          <div className="mt-2 space-y-2">
+            {clist.map((c, i) => (
+              <div key={i} className="grid gap-2 sm:grid-cols-[1fr_5rem_1.4fr]">
+                <input
+                  value={c.name}
+                  onChange={(e) => setClist((l) => l.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))}
+                  placeholder="Item name"
+                  className="h-9 rounded-lg border border-border bg-background px-2.5 text-sm outline-none focus:border-foreground/20"
+                />
+                <input
+                  value={c.price}
+                  onChange={(e) => setClist((l) => l.map((x, j) => (j === i ? { ...x, price: e.target.value } : x)))}
+                  placeholder="€12"
+                  className="h-9 rounded-lg border border-border bg-background px-2.5 text-sm outline-none focus:border-foreground/20"
+                />
+                <input
+                  value={c.description}
+                  onChange={(e) => setClist((l) => l.map((x, j) => (j === i ? { ...x, description: e.target.value } : x)))}
+                  placeholder="Short description"
+                  className="h-9 rounded-lg border border-border bg-background px-2.5 text-sm outline-none focus:border-foreground/20"
+                />
+              </div>
+            ))}
+            <button type="button" onClick={() => setClist((l) => [...l, { name: "", price: "", description: "" }])} className="text-xs text-muted-foreground hover:text-foreground">
+              + Add an item
+            </button>
+          </div>
         </div>
 
         {/* Testimonials */}

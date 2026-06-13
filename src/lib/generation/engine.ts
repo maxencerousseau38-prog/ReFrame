@@ -772,11 +772,28 @@ export function generateSite(
     // A page needs at least one real content block besides the footer.
     return pageBlocks.some((b) => b.type !== "footer") ? { label, path, blocks: pageBlocks } : null;
   };
-  const pages = [
+  const pages: SitePage[] = [
     buildPage("Services", "services", ["services", "portfolio", "cta", "footer"]),
     buildPage("About", "about", ["about", "stats", "testimonials", "footer"]),
     buildPage("Contact", "contact", ["contact", "footer"]),
   ].filter((p): p is SitePage => p !== null);
+
+  // CMS-lite: an owner-managed collection (menu / price list) becomes a real
+  // page. Industry-labelled, inserted before Contact.
+  const collection = analysis.extractedContent.collection;
+  if (collection?.items?.length) {
+    const meta = collectionMeta(analysis.industry);
+    const footer = buildBlock({ type: "footer", category: "footer" }, analysis);
+    const block: Block = {
+      id: uid("collection"),
+      type: "gallery",
+      variant: "CollectionGrid",
+      props: { eyebrow: meta.label, title: meta.label, items: collection.items },
+    };
+    const blocks2 = footer ? [block, footer] : [block];
+    const at = Math.max(0, pages.findIndex((p) => p.path === "contact"));
+    pages.splice(at, 0, { path: meta.path, label: meta.label, blocks: blocks2 });
+  }
 
   return {
     id: uid("site"),
@@ -789,6 +806,13 @@ export function generateSite(
     mode,
     recommendations: plan.recommendations.length ? plan.recommendations : undefined,
   };
+}
+
+/** Label + path for the owner-managed collection page, by industry. */
+function collectionMeta(industry: Industry): { label: string; path: string } {
+  if (industry === "restaurant") return { label: "Menu", path: "menu" };
+  if (industry === "ecommerce") return { label: "Catalogue", path: "catalogue" };
+  return { label: "Pricing", path: "pricing" };
 }
 
 function featureBlurb(service: string, industry: Industry): string {

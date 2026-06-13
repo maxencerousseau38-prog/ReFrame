@@ -42,6 +42,9 @@ export const BLOCK_CATALOG: BlockMeta[] = [
 
   // Portfolio / visual work (also serves products & gallery)
   { variant: "PortfolioGrid", category: "portfolio", sectors: "all", moods: ["elegant", "warm", "bold"], motion: 2, license: "ReFrame original", when: "Asymmetric 'Selected work' image grid with a monumental lead tile." },
+  // Menu / price-list collection. sectors:[] => only used explicitly (the engine
+  // builds the Menu page), never auto-selected by the scorer.
+  { variant: "CollectionGrid", category: "portfolio", sectors: [], motion: 1, license: "ReFrame original", when: "Owner-managed menu / price list: name, price, description rows." },
 
   // Stats / credibility
   { variant: "StatsCounter", category: "stats", sectors: "all", moods: ["bold", "minimal"], motion: 2, license: "ReFrame original", when: "Dark band of animated counters; measured credibility." },
