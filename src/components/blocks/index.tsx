@@ -19,7 +19,7 @@ import {
   CircleNotch,
   type Icon as PhosphorIcon,
 } from "@phosphor-icons/react";
-import type { Block, SiteSchema, Theme } from "@/lib/generation/types";
+import type { Block, BlockType, SiteSchema, Theme } from "@/lib/generation/types";
 import { cn } from "@/lib/utils";
 import { useParallax } from "./use-parallax";
 import { toProxiedUrl } from "@/lib/img";
@@ -1358,17 +1358,85 @@ function BlockRenderer({ block }: { block: Block }) {
 }
 
 /** Renders a full generated site from its schema, applying the theme. */
+/** Section types that earn a top-nav link, and their label. */
+const NAV_LABELS: Partial<Record<BlockType, string>> = {
+  features: "Why us",
+  services: "Services",
+  portfolio: "Work",
+  products: "Shop",
+  gallery: "Gallery",
+  about: "About",
+  testimonials: "Reviews",
+  pricing: "Pricing",
+  faq: "FAQ",
+  contact: "Contact",
+};
+
+const anchorId = (type: BlockType): string => (type === "hero" ? "top" : type);
+
+/** Sticky brand navigation derived from the page's sections. */
+function SiteNav({
+  brand,
+  items,
+  ctaTarget,
+}: {
+  brand: string;
+  items: { id: string; label: string }[];
+  ctaTarget: string;
+}) {
+  return (
+    <header
+      className="sticky top-0 z-40 backdrop-blur-md"
+      style={{ background: "color-mix(in srgb, var(--brand-surface) 82%, transparent)", borderBottom: `1px solid ${HAIRLINE}` }}
+    >
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3.5">
+        <a href="#top" className="text-lg font-medium tracking-tight" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>
+          {brand}
+        </a>
+        <nav className="hidden items-center gap-7 md:flex">
+          {items.map((it) => (
+            <a key={it.id} href={`#${it.id}`} className="text-sm transition-opacity hover:opacity-70" style={{ color: "var(--brand-ink)", opacity: 0.72 }}>
+              {it.label}
+            </a>
+          ))}
+        </nav>
+        <a
+          href={`#${ctaTarget}`}
+          className="shrink-0 px-4 py-2 text-sm font-medium text-white transition-transform active:scale-[0.98]"
+          style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}
+        >
+          Contact
+        </a>
+      </div>
+    </header>
+  );
+}
+
 export function SiteRenderer({ schema }: { schema: SiteSchema }) {
+  const seen = new Set<string>();
+  const navItems = schema.blocks.flatMap((b) => {
+    const label = NAV_LABELS[b.type];
+    const id = anchorId(b.type);
+    if (!label || seen.has(id)) return [];
+    seen.add(id);
+    return [{ id, label }];
+  });
+  const ctaTarget = schema.blocks.some((b) => b.type === "contact") ? "contact" : "top";
+
   return (
     <div
       style={{
         ...themeStyle(schema.theme),
         background: "var(--brand-surface)",
         color: "var(--brand-ink)",
+        scrollBehavior: "smooth",
       }}
     >
+      <SiteNav brand={schema.brand.name} items={navItems} ctaTarget={ctaTarget} />
       {schema.blocks.map((block) => (
-        <BlockRenderer key={block.id} block={block} />
+        <div key={block.id} id={anchorId(block.type)} style={{ scrollMarginTop: "76px" }}>
+          <BlockRenderer block={block} />
+        </div>
       ))}
     </div>
   );

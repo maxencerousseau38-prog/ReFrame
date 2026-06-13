@@ -37,6 +37,12 @@ describe("schemaToHtml SEO head", () => {
     expect(evil).toContain("&lt;b&gt;");
   });
 
+  it("includes a sticky brand nav with section links", () => {
+    expect(html).toContain("position:sticky");
+    expect(html).toContain('href="#contact"'); // links to the contact section
+    expect(html).toContain('id="top"'); // hero anchor
+  });
+
   it("omits the branding badge when branded:false, includes it when true", () => {
     expect(html).not.toContain("Made with ReFrame");
     expect(schemaToHtml(schema, { branded: true })).toContain("Made with ReFrame");

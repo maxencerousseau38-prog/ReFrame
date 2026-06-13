@@ -21,9 +21,39 @@ function esc(s: unknown): string {
     .replace(/"/g, "&quot;");
 }
 
+const NAV_LABELS: Record<string, string> = {
+  features: "Why us", services: "Services", portfolio: "Work", products: "Shop",
+  gallery: "Gallery", about: "About", testimonials: "Reviews", pricing: "Pricing",
+  faq: "FAQ", contact: "Contact",
+};
+const anchorId = (type: string) => (type === "hero" ? "top" : type);
+
 export function schemaToHtml(schema: SiteSchema, opts: { branded?: boolean } = {}): string {
   const t = schema.theme;
-  const body = schema.blocks.map((b) => renderBlock(b)).join("\n");
+  // Each section is anchored so the sticky nav can jump to it.
+  const body = schema.blocks
+    .map((b) => `<div id="${anchorId(b.type)}" style="scroll-margin-top:76px">${renderBlock(b)}</div>`)
+    .join("\n");
+
+  // Sticky brand nav derived from the sections present.
+  const seen = new Set<string>();
+  const navLinks = schema.blocks
+    .filter((b) => {
+      const id = anchorId(b.type);
+      if (!NAV_LABELS[b.type] || seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    })
+    .map((b) => `<a href="#${anchorId(b.type)}" style="color:var(--brand);opacity:.72;text-decoration:none;font-size:14px">${esc(NAV_LABELS[b.type])}</a>`)
+    .join("");
+  const ctaTarget = schema.blocks.some((b) => b.type === "contact") ? "contact" : "top";
+  const nav = `<header style="position:sticky;top:0;z-index:40;backdrop-filter:blur(8px);background:rgba(255,255,255,.82);border-bottom:1px solid #ececec">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:14px;padding-bottom:14px">
+    <a href="#top" style="font-weight:600;font-size:18px;color:var(--brand);text-decoration:none">${esc(schema.brand.name)}</a>
+    <nav style="display:flex;gap:24px;flex-wrap:wrap">${navLinks}</nav>
+    <a href="#${ctaTarget}" class="btn btn-primary">Contact</a>
+  </div>
+</header>`;
   // Plan-gated "Made with ReFrame" badge (free plans + anonymous are branded;
   // paid plans pass branded:false). Inline styles so the export stays portable.
   const badge = opts.branded
@@ -58,6 +88,7 @@ export function schemaToHtml(schema: SiteSchema, opts: { branded?: boolean } = {
     --radius:${radius[t.radius]};
   }
   *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
   body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--brand);background:#fff;line-height:1.5}
   .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
   a{color:inherit}
@@ -75,6 +106,7 @@ export function schemaToHtml(schema: SiteSchema, opts: { branded?: boolean } = {
 </style>
 </head>
 <body>
+${nav}
 ${body}
 ${badge}
 </body>
