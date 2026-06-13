@@ -22,6 +22,8 @@ interface Extras {
   testimonials: { quote: string; name: string; role?: string }[];
   stats: { value: string; label: string }[];
   contact?: { phone?: string; address?: string; bookingUrl?: string };
+  /** Uploaded images; [0] is used as the hero/cover. */
+  images: string[];
 }
 
 const MODES: { id: GenerationMode; label: string; desc: string; recommended?: boolean }[] = [
@@ -97,6 +99,14 @@ function DashboardInner() {
         ...(extras.testimonials.length ? { testimonials: extras.testimonials } : {}),
         ...(extras.stats.length ? { stats: extras.stats } : {}),
         ...(extras.contact ? { contact: extras.contact } : {}),
+        // Uploaded photos take precedence: [0] becomes the hero, the rest feed
+        // the about/gallery sections.
+        ...(extras.images.length
+          ? {
+              images: [...extras.images, ...(analysis.extractedContent.images || [])],
+              heroImageUrl: extras.images[0],
+            }
+          : {}),
       },
     };
     try {
@@ -212,6 +222,32 @@ function AnalysisResult({
   const [phone, setPhone] = React.useState("");
   const [address, setAddress] = React.useState("");
   const [bookingUrl, setBookingUrl] = React.useState("");
+  const [photos, setPhotos] = React.useState<string[]>([]);
+  const [uploading, setUploading] = React.useState(false);
+  const [uploadErr, setUploadErr] = React.useState("");
+
+  async function uploadFiles(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    setUploading(true);
+    setUploadErr("");
+    try {
+      for (const file of Array.from(files).slice(0, 6)) {
+        const fd = new FormData();
+        fd.append("file", file);
+        const res = await fetch("/api/upload", { method: "POST", body: fd });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.url) {
+          setPhotos((p) => [...p, data.url]);
+        } else {
+          setUploadErr(data.error || "Upload failed.");
+        }
+      }
+    } catch {
+      setUploadErr("Upload failed.");
+    } finally {
+      setUploading(false);
+    }
+  }
 
   function collectExtras(): Extras {
     const contact = {
@@ -228,6 +264,7 @@ function AnalysisResult({
         .filter((s) => s.value.trim() && s.label.trim())
         .map((s) => ({ value: s.value.trim(), label: s.label.trim() })),
       contact: Object.keys(contact).length ? contact : undefined,
+      images: photos,
     };
   }
   return (
@@ -461,6 +498,34 @@ function AnalysisResult({
               className="h-9 rounded-lg border border-border bg-background px-2.5 text-sm outline-none focus:border-foreground/20"
             />
           </div>
+        </div>
+
+        {/* Photos — uploaded, hosted, and used as the hero + gallery */}
+        <div className="mt-6">
+          <label className="text-xs font-medium text-muted-foreground">
+            Photos <span className="font-normal">(first one becomes the cover)</span>
+          </label>
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            {photos.map((url) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <span key={url} className="relative">
+                <img src={url} alt="" className="h-16 w-20 rounded-lg border border-border object-cover" />
+                <button
+                  type="button"
+                  onClick={() => setPhotos((p) => p.filter((u) => u !== url))}
+                  className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-background text-xs text-muted-foreground ring-1 ring-border hover:text-foreground"
+                  aria-label="Remove"
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+            <label className="flex h-16 w-20 cursor-pointer items-center justify-center rounded-lg border border-dashed border-white/20 text-xs text-muted-foreground hover:border-white/40">
+              {uploading ? "…" : "+ Add"}
+              <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => uploadFiles(e.target.files)} />
+            </label>
+          </div>
+          {uploadErr && <p className="mt-2 text-xs text-amber-400">{uploadErr}</p>}
         </div>
 
         {/* Testimonials */}

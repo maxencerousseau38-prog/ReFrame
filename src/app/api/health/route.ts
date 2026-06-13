@@ -3,6 +3,7 @@ import { storeBackendName } from "@/lib/server/sites-store";
 import { isStripeConfigured } from "@/lib/server/stripe";
 import { isEmailConfigured } from "@/lib/server/email";
 import { isRenderConfigured } from "@/lib/server/render";
+import { isBlobConfigured } from "@/lib/server/blob";
 
 export const runtime = "nodejs";
 
@@ -18,6 +19,7 @@ export async function GET() {
     stripe: isStripeConfigured(),
     email: isEmailConfigured(),
     render: isRenderConfigured(),
+    blob: isBlobConfigured(),
     authSecret: Boolean(process.env.AUTH_SECRET),
     rootDomain: process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? null,
     llm: Boolean(process.env.ANTHROPIC_API_KEY),
