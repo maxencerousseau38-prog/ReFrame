@@ -80,3 +80,24 @@ export function planOf(plan: Plan | undefined): PlanInfo {
 export function entitlementsOf(plan: Plan | undefined): Entitlements {
   return planOf(plan).entitlements;
 }
+
+/**
+ * Comped accounts: emails listed in ADMIN_EMAILS (comma-separated) are treated
+ * as the top plan, without Stripe. For founders/team and for testing the full
+ * publish + contact flow before billing is wired. Env-gated, not a public path.
+ */
+export function isComped(email: string | undefined): boolean {
+  if (!email) return false;
+  const list = (process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  return list.includes(email.toLowerCase());
+}
+
+/** The plan to enforce for a user, honouring the comped allowlist. */
+export function effectivePlan(user: { email?: string; plan?: Plan } | null | undefined): Plan {
+  if (!user) return DEFAULT_PLAN;
+  if (isComped(user.email)) return "studio";
+  return user.plan ?? DEFAULT_PLAN;
+}

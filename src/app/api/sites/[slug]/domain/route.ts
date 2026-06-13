@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { resolveCname, resolve4 } from "dns/promises";
 import { getSite, updateSite, listSites } from "@/lib/server/sites-store";
 import { getCurrentUser } from "@/lib/server/auth";
-import { entitlementsOf } from "@/lib/server/plans";
+import { entitlementsOf, effectivePlan } from "@/lib/server/plans";
 
 export const runtime = "nodejs";
 
@@ -57,7 +57,7 @@ export async function POST(req: Request, { params }: { params: { slug: string } 
   const auth = await authorize(params.slug);
   if ("error" in auth) return auth.error;
 
-  if (!entitlementsOf(auth.user.plan).customDomain) {
+  if (!entitlementsOf(effectivePlan(auth.user)).customDomain) {
     return NextResponse.json(
       { error: "Custom domains are a paid feature.", code: "upgrade" },
       { status: 402 }

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { publishSite, listSitesByOwner } from "@/lib/server/sites-store";
 import { getCurrentUser } from "@/lib/server/auth";
-import { entitlementsOf } from "@/lib/server/plans";
+import { entitlementsOf, effectivePlan } from "@/lib/server/plans";
 import { rateLimit, clientKey } from "@/lib/rate-limit";
 import { parseSiteSchema } from "@/lib/generation/validate";
 
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
         { status: 401 }
       );
     }
-    const limit = entitlementsOf(user.plan).maxPublishedSites;
+    const limit = entitlementsOf(effectivePlan(user)).maxPublishedSites;
     if (limit < 1) {
       return NextResponse.json(
         {

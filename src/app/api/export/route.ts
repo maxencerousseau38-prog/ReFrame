@@ -3,7 +3,7 @@ import { schemaToHtml, slugForFilename } from "@/lib/export-html";
 import { rateLimit, clientKey } from "@/lib/rate-limit";
 import { parseSiteSchema } from "@/lib/generation/validate";
 import { getCurrentUser } from "@/lib/server/auth";
-import { entitlementsOf } from "@/lib/server/plans";
+import { entitlementsOf, effectivePlan } from "@/lib/server/plans";
 
 export const runtime = "nodejs";
 
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     // Plan-gated branding: free plans (and anonymous) ship the badge; paid
     // plans (removeBranding) get a clean export.
     const user = await getCurrentUser();
-    const branded = !entitlementsOf(user?.plan).removeBranding;
+    const branded = !entitlementsOf(effectivePlan(user)).removeBranding;
 
     const html = schemaToHtml(schema, { branded });
     const file = `${slugForFilename(schema.brand.name)}.html`;

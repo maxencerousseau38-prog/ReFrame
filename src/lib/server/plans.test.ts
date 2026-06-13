@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { PLANS, entitlementsOf, planOf, isPlan } from "./plans";
+import { PLANS, entitlementsOf, planOf, isPlan, isComped, effectivePlan } from "./plans";
 
 describe("plan entitlements", () => {
   it("free cannot publish (publishing is a paid feature) and is branded", () => {
@@ -28,6 +28,18 @@ describe("plan entitlements", () => {
     // a value that isn't a known plan
     expect(planOf("enterprise" as never).id).toBe("free");
     expect(entitlementsOf(undefined)).toEqual(PLANS.free.entitlements);
+  });
+
+  it("comps accounts listed in ADMIN_EMAILS to the top plan", () => {
+    const prev = process.env.ADMIN_EMAILS;
+    process.env.ADMIN_EMAILS = "founder@x.com, team@x.com";
+    expect(isComped("founder@x.com")).toBe(true);
+    expect(isComped("FOUNDER@X.COM")).toBe(true); // case-insensitive
+    expect(isComped("someone@else.com")).toBe(false);
+    expect(isComped(undefined)).toBe(false);
+    expect(effectivePlan({ email: "founder@x.com", plan: "free" })).toBe("studio");
+    expect(effectivePlan({ email: "someone@else.com", plan: "free" })).toBe("free");
+    process.env.ADMIN_EMAILS = prev;
   });
 
   it("isPlan guards the tier strings", () => {

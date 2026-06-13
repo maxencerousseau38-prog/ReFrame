@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { SiteRenderer } from "@/components/blocks";
 import { getUserById } from "@/lib/server/users-store";
-import { entitlementsOf } from "@/lib/server/plans";
+import { entitlementsOf, effectivePlan } from "@/lib/server/plans";
 import type { PublishedSite as PublishedSiteRecord } from "@/lib/server/sites-store";
 
 /** Should this published site carry the "Made with ReFrame" badge? */
 async function showBranding(ownerId?: string): Promise<boolean> {
   if (!ownerId) return true; // anonymous publishes are branded
   const owner = await getUserById(ownerId);
-  return !entitlementsOf(owner?.plan).removeBranding;
+  return !entitlementsOf(effectivePlan(owner)).removeBranding;
 }
 
 /**
