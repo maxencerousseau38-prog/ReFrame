@@ -141,6 +141,12 @@ export interface SiteAnalysis {
      */
     testimonials?: { quote: string; name: string; role?: string }[];
     stats?: { value: string; label: string }[];
+    /**
+     * Real business contact details (user-provided via the hybrid flow). Power
+     * the working contact form recipient and the Call / Directions / Book
+     * action buttons. Rendered only when present.
+     */
+    contact?: { phone?: string; email?: string; address?: string; bookingUrl?: string };
   };
   scores: {
     design: number;

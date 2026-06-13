@@ -690,7 +690,11 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block | null {
         id: uid("contact"),
         type: "contact",
         variant: "ContactFormPremium1",
-        props: { title: "Contact us", subtitle: "We typically reply within one business day." },
+        props: {
+          title: "Contact us",
+          subtitle: "We typically reply within one business day.",
+          contact: c.contact,
+        },
       };
     case "footer":
       return { id: uid("footer"), type: "footer", variant: "Footer1", props: { brand } };

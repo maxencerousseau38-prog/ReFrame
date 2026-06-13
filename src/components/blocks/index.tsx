@@ -12,6 +12,11 @@ import {
   Plus,
   ArrowRight,
   ArrowLeft,
+  Phone,
+  MapPin,
+  CalendarCheck,
+  CheckCircle,
+  CircleNotch,
   type Icon as PhosphorIcon,
 } from "@phosphor-icons/react";
 import type { Block, SiteSchema, Theme } from "@/lib/generation/types";
@@ -632,6 +637,41 @@ function CTASection1({ props }: { props: any }) {
 function ContactFormPremium1({ props }: { props: any }) {
   const field =
     "border bg-transparent px-4 text-sm outline-none transition-colors placeholder:text-[color:color-mix(in_srgb,var(--brand-ink)_45%,transparent)] focus:border-[color:var(--brand-accent)]";
+  const contact = (props.contact || {}) as { phone?: string; address?: string; bookingUrl?: string };
+  const [form, setForm] = React.useState({ name: "", email: "", message: "" });
+  const [status, setStatus] = React.useState<"idle" | "sending" | "sent" | "error">("idle");
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (status === "sending") return;
+    setStatus("sending");
+    try {
+      // Only the published site (/s/<slug> or a site subdomain) can deliver; in
+      // the in-app preview there is no slug, so the API best-effort accepts it.
+      const m = typeof window !== "undefined" ? window.location.pathname.match(/^\/s\/([^/]+)/) : null;
+      const slug = m ? m[1] : "";
+      const host = typeof window !== "undefined" ? window.location.host : "";
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug, host, ...form }),
+      });
+      setStatus(res.ok ? "sent" : "error");
+    } catch {
+      setStatus("error");
+    }
+  }
+
+  const actions: { label: string; href: string; Icon: PhosphorIcon }[] = [];
+  if (contact.phone) actions.push({ label: "Call us", href: `tel:${contact.phone.replace(/\s+/g, "")}`, Icon: Phone });
+  if (contact.bookingUrl) actions.push({ label: "Book now", href: contact.bookingUrl, Icon: CalendarCheck });
+  if (contact.address)
+    actions.push({
+      label: "Get directions",
+      href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contact.address)}`,
+      Icon: MapPin,
+    });
+
   return (
     <section className="px-6 py-24" style={{ color: "var(--brand-ink)" }}>
       <div className="mx-auto grid max-w-5xl items-start gap-12 lg:grid-cols-2">
@@ -644,34 +684,65 @@ function ContactFormPremium1({ props }: { props: any }) {
               {props.subtitle}
             </p>
           )}
+          {actions.length > 0 && (
+            <div className="mt-6 flex flex-wrap gap-3">
+              {actions.map((a) => (
+                <a
+                  key={a.label}
+                  href={a.href}
+                  target={a.href.startsWith("http") ? "_blank" : undefined}
+                  rel={a.href.startsWith("http") ? "noreferrer" : undefined}
+                  className="inline-flex items-center gap-2 border px-4 py-2.5 text-sm font-medium transition-colors hover:bg-[var(--brand-surface)]"
+                  style={{ borderColor: HAIRLINE, borderRadius: "var(--brand-radius)", color: "var(--brand)" }}
+                >
+                  <a.Icon weight="bold" className="h-4 w-4" style={{ color: "var(--brand-accent)" }} />
+                  {a.label}
+                </a>
+              ))}
+            </div>
+          )}
+          {contact.address && (
+            <p className="mt-4 flex items-start gap-2 text-sm" style={{ opacity: 0.6 }}>
+              <MapPin weight="bold" className="mt-0.5 h-4 w-4 shrink-0" />
+              {contact.address}
+            </p>
+          )}
         </div>
-        <form
-          onSubmit={(e) => e.preventDefault()}
-          className="space-y-4 border bg-white p-7 sm:p-8"
-          style={{
-            borderRadius: "calc(var(--brand-radius) * 1.4)",
-            borderColor: HAIRLINE,
-            boxShadow: "0 20px 50px -30px rgba(0,0,0,0.18)",
-          }}
-        >
-          <div className="grid gap-4 sm:grid-cols-2">
-            <input placeholder="Name" className={cn("h-12", field)} style={{ borderRadius: "var(--brand-radius)", borderColor: HAIRLINE }} />
-            <input placeholder="Email" type="email" className={cn("h-12", field)} style={{ borderRadius: "var(--brand-radius)", borderColor: HAIRLINE }} />
-          </div>
-          <textarea placeholder="How can we help?" rows={4} className={cn("w-full py-3", field)} style={{ borderRadius: "var(--brand-radius)", borderColor: HAIRLINE }} />
-          <button
-            type="submit"
-            className="group inline-flex w-full items-center justify-center gap-1.5 px-6 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98] sm:w-auto"
-            style={{
-              background: "var(--brand-accent)",
-              borderRadius: "var(--brand-radius)",
-              boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)",
-            }}
+
+        {status === "sent" ? (
+          <div
+            className="flex flex-col items-center justify-center gap-3 border bg-white px-7 py-16 text-center sm:p-10"
+            style={{ borderRadius: "calc(var(--brand-radius) * 1.4)", borderColor: HAIRLINE }}
           >
-            Send message
-            <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </button>
-        </form>
+            <CheckCircle weight="fill" className="h-10 w-10" style={{ color: "var(--brand-accent)" }} />
+            <p className="text-base font-medium" style={{ color: "var(--brand)" }}>Thanks, your message was sent.</p>
+            <p className="text-sm" style={{ opacity: 0.6 }}>We&apos;ll get back to you shortly.</p>
+          </div>
+        ) : (
+          <form
+            onSubmit={submit}
+            className="space-y-4 border bg-white p-7 sm:p-8"
+            style={{ borderRadius: "calc(var(--brand-radius) * 1.4)", borderColor: HAIRLINE, boxShadow: "0 20px 50px -30px rgba(0,0,0,0.18)" }}
+          >
+            <div className="grid gap-4 sm:grid-cols-2">
+              <input required placeholder="Name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className={cn("h-12", field)} style={{ borderRadius: "var(--brand-radius)", borderColor: HAIRLINE }} />
+              <input required placeholder="Email" type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} className={cn("h-12", field)} style={{ borderRadius: "var(--brand-radius)", borderColor: HAIRLINE }} />
+            </div>
+            <textarea required placeholder="How can we help?" rows={4} value={form.message} onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))} className={cn("w-full py-3", field)} style={{ borderRadius: "var(--brand-radius)", borderColor: HAIRLINE }} />
+            {status === "error" && (
+              <p className="text-sm text-red-600">Something went wrong. Please try again.</p>
+            )}
+            <button
+              type="submit"
+              disabled={status === "sending"}
+              className="group inline-flex w-full items-center justify-center gap-1.5 px-6 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98] disabled:opacity-70 sm:w-auto"
+              style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" }}
+            >
+              {status === "sending" ? <CircleNotch weight="bold" className="h-4 w-4 animate-spin" /> : "Send message"}
+              {status !== "sending" && <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />}
+            </button>
+          </form>
+        )}
       </div>
     </section>
   );

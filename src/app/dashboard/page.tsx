@@ -20,6 +20,7 @@ interface Extras {
   accentColor?: string;
   testimonials: { quote: string; name: string; role?: string }[];
   stats: { value: string; label: string }[];
+  contact?: { phone?: string; address?: string; bookingUrl?: string };
 }
 
 const MODES: { id: GenerationMode; label: string; desc: string; recommended?: boolean }[] = [
@@ -94,6 +95,7 @@ function DashboardInner() {
         ...analysis.extractedContent,
         ...(extras.testimonials.length ? { testimonials: extras.testimonials } : {}),
         ...(extras.stats.length ? { stats: extras.stats } : {}),
+        ...(extras.contact ? { contact: extras.contact } : {}),
       },
     };
     try {
@@ -205,8 +207,16 @@ function AnalysisResult({
   const [accent, setAccent] = React.useState(analysis.brand?.accentColor || "#6366f1");
   const [tlist, setTlist] = React.useState([{ quote: "", name: "", role: "" }]);
   const [slist, setSlist] = React.useState([{ value: "", label: "" }]);
+  const [phone, setPhone] = React.useState("");
+  const [address, setAddress] = React.useState("");
+  const [bookingUrl, setBookingUrl] = React.useState("");
 
   function collectExtras(): Extras {
+    const contact = {
+      ...(phone.trim() ? { phone: phone.trim() } : {}),
+      ...(address.trim() ? { address: address.trim() } : {}),
+      ...(bookingUrl.trim() ? { bookingUrl: bookingUrl.trim() } : {}),
+    };
     return {
       accentColor: accent || undefined,
       testimonials: tlist
@@ -215,6 +225,7 @@ function AnalysisResult({
       stats: slist
         .filter((s) => s.value.trim() && s.label.trim())
         .map((s) => ({ value: s.value.trim(), label: s.label.trim() })),
+      contact: Object.keys(contact).length ? contact : undefined,
     };
   }
   return (
@@ -422,6 +433,31 @@ function AnalysisResult({
                 + Add a number
               </button>
             </div>
+          </div>
+        </div>
+
+        {/* Contact & actions — power the working form recipient + action buttons */}
+        <div className="mt-6">
+          <label className="text-xs font-medium text-muted-foreground">Contact &amp; actions</label>
+          <div className="mt-2 grid gap-2 sm:grid-cols-3">
+            <input
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Phone (Call button)"
+              className="h-9 rounded-lg border border-border bg-background px-2.5 text-sm outline-none focus:border-foreground/20"
+            />
+            <input
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Address (Directions)"
+              className="h-9 rounded-lg border border-border bg-background px-2.5 text-sm outline-none focus:border-foreground/20"
+            />
+            <input
+              value={bookingUrl}
+              onChange={(e) => setBookingUrl(e.target.value)}
+              placeholder="Booking link (Book button)"
+              className="h-9 rounded-lg border border-border bg-background px-2.5 text-sm outline-none focus:border-foreground/20"
+            />
           </div>
         </div>
 
