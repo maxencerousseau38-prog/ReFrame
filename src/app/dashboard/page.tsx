@@ -15,6 +15,13 @@ import type { SiteAnalysis, SiteSchema, GenerationMode } from "@/lib/generation/
 
 type Phase = "idle" | "analyzing" | "result" | "generating";
 
+/** Hybrid-flow content the user adds for what the crawl couldn't extract. */
+interface Extras {
+  accentColor?: string;
+  testimonials: { quote: string; name: string; role?: string }[];
+  stats: { value: string; label: string }[];
+}
+
 const MODES: { id: GenerationMode; label: string; desc: string; recommended?: boolean }[] = [
   {
     id: "preserve",
@@ -75,14 +82,25 @@ function DashboardInner() {
     }
   }
 
-  async function runGenerate() {
+  async function runGenerate(extras: Extras) {
     if (!analysis) return;
     setPhase("generating");
+    // Merge hybrid-completed content (real data the crawl couldn't get) into the
+    // analysis, so the engine renders it instead of omitting those sections.
+    const merged: SiteAnalysis = {
+      ...analysis,
+      brand: { ...analysis.brand, accentColor: extras.accentColor || analysis.brand?.accentColor },
+      extractedContent: {
+        ...analysis.extractedContent,
+        ...(extras.testimonials.length ? { testimonials: extras.testimonials } : {}),
+        ...(extras.stats.length ? { stats: extras.stats } : {}),
+      },
+    };
     try {
       const res = await fetch("/api/generate-site", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ analysis, mode }),
+        body: JSON.stringify({ analysis: merged, mode }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Generation failed");
@@ -91,7 +109,7 @@ function DashboardInner() {
       saveSchema(schema);
       // Persist as a project for signed-in users; anonymous users fall back to
       // sessionStorage. Either way the result page can render.
-      const projectId = await createProject(schema, analysis);
+      const projectId = await createProject(schema, merged);
       router.push(projectId ? `/result?p=${projectId}` : "/result");
     } catch (e) {
       setError(String(e instanceof Error ? e.message : e));
@@ -178,9 +196,27 @@ function AnalysisResult({
   analysis: SiteAnalysis;
   mode: GenerationMode;
   onMode: (m: GenerationMode) => void;
-  onGenerate: () => void;
+  onGenerate: (extras: Extras) => void;
 }) {
   const scores = Object.entries(analysis.scores) as [string, number][];
+
+  // Hybrid completion: real content the crawl couldn't get. We never fabricate
+  // these, so this is how a user adds genuine testimonials/stats/brand color.
+  const [accent, setAccent] = React.useState(analysis.brand?.accentColor || "#6366f1");
+  const [tlist, setTlist] = React.useState([{ quote: "", name: "", role: "" }]);
+  const [slist, setSlist] = React.useState([{ value: "", label: "" }]);
+
+  function collectExtras(): Extras {
+    return {
+      accentColor: accent || undefined,
+      testimonials: tlist
+        .filter((t) => t.quote.trim() && t.name.trim())
+        .map((t) => ({ quote: t.quote.trim(), name: t.name.trim(), role: t.role.trim() || undefined })),
+      stats: slist
+        .filter((s) => s.value.trim() && s.label.trim())
+        .map((s) => ({ value: s.value.trim(), label: s.label.trim() })),
+    };
+  }
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -339,8 +375,93 @@ function AnalysisResult({
         </div>
       </div>
 
+      {/* Hybrid completion: add the real content we couldn't extract. */}
+      <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+        <h3 className="text-sm font-semibold">Add your content <span className="font-normal text-muted-foreground">(optional)</span></h3>
+        <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
+          ReFrame only builds sections from real content, never invented. Add anything we couldn&apos;t pull from your site and it&apos;ll be included.
+        </p>
+
+        <div className="mt-5 grid gap-6 sm:grid-cols-2">
+          {/* Brand color */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">Brand color</label>
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                type="color"
+                value={accent}
+                onChange={(e) => setAccent(e.target.value)}
+                className="h-9 w-12 cursor-pointer rounded-md border border-border bg-transparent"
+                aria-label="Brand color"
+              />
+              <span className="font-mono text-xs text-muted-foreground">{accent}</span>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">Key numbers</label>
+            <div className="mt-2 space-y-2">
+              {slist.map((s, i) => (
+                <div key={i} className="flex gap-2">
+                  <input
+                    value={s.value}
+                    onChange={(e) => setSlist((l) => l.map((x, j) => (j === i ? { ...x, value: e.target.value } : x)))}
+                    placeholder="500+"
+                    className="h-9 w-20 rounded-lg border border-border bg-background px-2.5 text-sm outline-none focus:border-foreground/20"
+                  />
+                  <input
+                    value={s.label}
+                    onChange={(e) => setSlist((l) => l.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))}
+                    placeholder="Projects delivered"
+                    className="h-9 flex-1 rounded-lg border border-border bg-background px-2.5 text-sm outline-none focus:border-foreground/20"
+                  />
+                </div>
+              ))}
+              <button type="button" onClick={() => setSlist((l) => [...l, { value: "", label: "" }])} className="text-xs text-muted-foreground hover:text-foreground">
+                + Add a number
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Testimonials */}
+        <div className="mt-6">
+          <label className="text-xs font-medium text-muted-foreground">Testimonials</label>
+          <div className="mt-2 space-y-3">
+            {tlist.map((t, i) => (
+              <div key={i} className="grid gap-2 sm:grid-cols-[1fr_auto]">
+                <input
+                  value={t.quote}
+                  onChange={(e) => setTlist((l) => l.map((x, j) => (j === i ? { ...x, quote: e.target.value } : x)))}
+                  placeholder="“They did a fantastic job.”"
+                  className="h-9 rounded-lg border border-border bg-background px-2.5 text-sm outline-none focus:border-foreground/20"
+                />
+                <div className="flex gap-2">
+                  <input
+                    value={t.name}
+                    onChange={(e) => setTlist((l) => l.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))}
+                    placeholder="Name"
+                    className="h-9 w-28 rounded-lg border border-border bg-background px-2.5 text-sm outline-none focus:border-foreground/20"
+                  />
+                  <input
+                    value={t.role}
+                    onChange={(e) => setTlist((l) => l.map((x, j) => (j === i ? { ...x, role: e.target.value } : x)))}
+                    placeholder="Role"
+                    className="h-9 w-24 rounded-lg border border-border bg-background px-2.5 text-sm outline-none focus:border-foreground/20"
+                  />
+                </div>
+              </div>
+            ))}
+            <button type="button" onClick={() => setTlist((l) => [...l, { quote: "", name: "", role: "" }])} className="text-xs text-muted-foreground hover:text-foreground">
+              + Add a testimonial
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div className="flex justify-end">
-        <Button size="lg" variant="light" onClick={onGenerate}>
+        <Button size="lg" variant="light" onClick={() => onGenerate(collectExtras())}>
           Transform my site <Sparkle weight="fill" className="h-4 w-4" />
         </Button>
       </div>

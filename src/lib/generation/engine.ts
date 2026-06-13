@@ -60,7 +60,7 @@ import type {
 } from "./types";
 import { INDUSTRY_PROFILES, detectIndustry } from "./industries";
 import { pickVariant } from "./catalog";
-import { detectStructure } from "./structure";
+import { detectStructure, renderableCategory } from "./structure";
 import { planClassic, planPreserve, planSmart, type Slot } from "./planner";
 import { isRenderConfigured, renderHtml } from "@/lib/server/render";
 
@@ -721,9 +721,22 @@ export function generateSite(
         ? planPreserve(analysis.structure)
         : planSmart(analysis.structure);
 
+  // Guarantee a slot for real content the user/extractor supplied (testimonials,
+  // stats) even when the detected structure or canonical plan lacked one - so
+  // hybrid-completed data always appears. Inserted just before the footer.
+  const slots: Slot[] = [...plan.slots];
+  const ensureSlot = (type: BlockType) => {
+    const category = renderableCategory(type);
+    if (slots.some((s) => s.category === category)) return;
+    const fi = slots.findIndex((s) => s.type === "footer");
+    slots.splice(fi >= 0 ? fi : slots.length, 0, { type, category });
+  };
+  if (analysis.extractedContent.testimonials?.length) ensureSlot("testimonials");
+  if (analysis.extractedContent.stats?.length) ensureSlot("stats");
+
   // Some slots (testimonials, stats) are intentionally dropped when we have no
   // real data for them, rather than fabricated - so filter the nulls out.
-  const blocks: Block[] = plan.slots
+  const blocks: Block[] = slots
     .map((s) => buildBlock(s, analysis))
     .filter((b): b is Block => b !== null);
 
