@@ -194,7 +194,12 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
     [ogSiteName, meta('meta[name="application-name"]'), ld.name, titleBrand].find(isShort) ||
     brandFromUrl(url);
 
-  const h1 = clean(root.querySelector("h1")?.text || "");
+  const h1raw = clean(root.querySelector("h1")?.text || "");
+  // Many sites have a generic nav-word as their first h1 ("Home", "Welcome").
+  // Using it as the rebuilt headline reads terribly, so skip those.
+  const isGenericHeading = (s: string) =>
+    /^(home|welcome|menu|accueil|bienvenue|hello|untitled|index)$/i.test(s.trim());
+  const h1 = h1raw && !isGenericHeading(h1raw) ? h1raw : "";
   const ogTitle = meta('meta[property="og:title"]');
   const headlineRaw = h1 || ogTitle || ld.name || titleRaw;
 
@@ -229,7 +234,13 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
     root
       .querySelectorAll("nav a, header a")
       .map((a) => clean(a.text))
-      .filter((t) => t.length >= 3 && t.length <= 22 && !/^(home|menu|login|sign in)$/i.test(t))
+      .filter(
+        (t) =>
+          t.length >= 3 &&
+          t.length <= 22 &&
+          !/^(home|menu|login|log in|sign in|sign up|search|cart)$/i.test(t) &&
+          !/skip to|skip navigation|main content|toggle|cookie/i.test(t)
+      )
   ).slice(0, 6);
 
   // Industry: refine using nav labels and the JSON-LD hint too

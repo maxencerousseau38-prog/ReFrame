@@ -1050,6 +1050,10 @@ function ServicesList({ props }: { props: any }) {
 function PortfolioGrid({ props }: { props: any }) {
   const reduce = useReducedMotion();
   const items = (props.items || []) as { image?: string; title: string; tag?: string }[];
+  // Only use the rich image gallery when there are enough real images to fill
+  // it; otherwise a clean card grid (avoids half-empty / invisible tiles).
+  const withImg = items.filter((p) => p.image);
+  const useGallery = withImg.length >= 3;
   return (
     <section className="px-6 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl">
@@ -1073,8 +1077,37 @@ function PortfolioGrid({ props }: { props: any }) {
           </div>
         </div>
 
+        {!useGallery ? (
+          // Not enough real imagery: a clean editorial card grid instead of big
+          // empty image tiles (which read as voids, especially on desktop).
+          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {items.map((p, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
+                className="border p-6 transition-colors hover:bg-[var(--brand-surface)]"
+                style={{ borderColor: HAIRLINE, borderRadius: "var(--brand-radius)" }}
+              >
+                <div className="text-sm font-medium tabular-nums" style={{ color: "var(--brand-accent)" }}>
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+                <h3 className="mt-3 text-lg font-medium" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>
+                  {p.title}
+                </h3>
+                {p.tag && (
+                  <div className="mt-1.5 text-[0.7rem] uppercase tracking-[0.18em]" style={{ color: "var(--brand-ink)", opacity: 0.55 }}>
+                    {p.tag}
+                  </div>
+                )}
+              </motion.div>
+            ))}
+          </div>
+        ) : (
         <div className="mt-12 grid auto-rows-[180px] grid-cols-2 gap-4 [grid-auto-flow:dense] sm:auto-rows-[220px] lg:grid-cols-3">
-          {items.map((p, i) => (
+          {withImg.map((p, i) => (
             <motion.figure
               key={i}
               initial={{ opacity: 0, scale: reduce ? 1 : 0.98 }}
@@ -1090,7 +1123,7 @@ function PortfolioGrid({ props }: { props: any }) {
               <div
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-105"
                 style={{
-                  backgroundImage: imageBg(p.image, "linear-gradient(145deg, var(--brand-surface-2), color-mix(in srgb, var(--brand-accent) 55%, var(--brand)))"),
+                  backgroundImage: imageBg(p.image, "linear-gradient(145deg, var(--brand), color-mix(in srgb, var(--brand-accent) 45%, var(--brand)))"),
                 }}
               />
               {!p.image && (
@@ -1107,6 +1140,7 @@ function PortfolioGrid({ props }: { props: any }) {
             </motion.figure>
           ))}
         </div>
+        )}
       </div>
     </section>
   );
@@ -1126,26 +1160,26 @@ function AboutSplit({ props }: { props: any }) {
     ? { hidden: { opacity: 1, y: 0 }, visible: { opacity: 1, y: 0 } }
     : { hidden: { opacity: 0, y: 22 }, visible: { opacity: 1, y: 0 } };
 
+  const hasImage = !!props.image;
   return (
     <section className="px-6 py-20 sm:py-28" style={{ color: "var(--brand-ink)" }}>
-      <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[0.95fr_1.05fr]">
-        <motion.div
-          initial={reduce ? false : { opacity: 0, scale: 1.03 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-          className="relative aspect-[4/5] overflow-hidden"
-          style={{ borderRadius: "var(--brand-radius)" }}
-        >
-          <div
-            ref={imgRef}
-            className="absolute -inset-[15%] bg-cover bg-center"
-            style={{ backgroundImage: imageBg(props.image, "linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))") }}
-          />
-          {!props.image && (
-            <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_25%_20%,#fff_1px,transparent_1px)] [background-size:22px_22px]" />
-          )}
-        </motion.div>
+      <div className={hasImage ? "mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[0.95fr_1.05fr]" : "mx-auto max-w-2xl text-center"}>
+        {hasImage && (
+          <motion.div
+            initial={reduce ? false : { opacity: 0, scale: 1.03 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            className="relative aspect-[4/5] overflow-hidden"
+            style={{ borderRadius: "var(--brand-radius)" }}
+          >
+            <div
+              ref={imgRef}
+              className="absolute -inset-[15%] bg-cover bg-center"
+              style={{ backgroundImage: imageBg(props.image, "linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))") }}
+            />
+          </motion.div>
+        )}
 
         <div>
           {props.eyebrow && (
@@ -1180,7 +1214,7 @@ function AboutSplit({ props }: { props: any }) {
               viewport={{ once: true }}
               variants={rise}
               transition={{ duration: 0.7, delay: 0.12 }}
-              className="mt-6 max-w-md text-lg leading-relaxed"
+              className={cn("mt-6 max-w-md text-lg leading-relaxed", !hasImage && "mx-auto")}
               style={{ opacity: 0.72 }}
             >
               {props.body}
@@ -1188,7 +1222,7 @@ function AboutSplit({ props }: { props: any }) {
           )}
 
           {stats.length > 0 && (
-            <div className="mt-10 flex flex-wrap gap-x-10 gap-y-6">
+            <div className={cn("mt-10 flex flex-wrap gap-x-10 gap-y-6", !hasImage && "justify-center")}>
               {stats.map((s, i) => (
                 <div key={i}>
                   <div
