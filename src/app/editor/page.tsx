@@ -104,13 +104,25 @@ export default function EditorPage() {
 
   async function publish() {
     if (!schema) return;
-    const res = await fetch("/api/publish-site", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ schema }),
-    });
-    const data = await res.json();
-    setPublished(data.url);
+    try {
+      const res = await fetch("/api/publish-site", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ schema }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        const msg =
+          data.code === "plan_limit"
+            ? "You've reached your plan's published-site limit. Upgrade your plan to publish more."
+            : data.error || "Could not publish. Please try again.";
+        setMessages((m) => [...m, { role: "assistant", content: msg }]);
+        return;
+      }
+      setPublished(data.url);
+    } catch {
+      setMessages((m) => [...m, { role: "assistant", content: "Could not publish. Please try again." }]);
+    }
   }
 
   if (!schema) {

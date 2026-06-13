@@ -27,6 +27,8 @@ export default function ResultPage() {
   const [publishing, setPublishing] = React.useState(false);
   const [published, setPublished] = React.useState<string | null>(null);
   const [projectId, setProjectId] = React.useState<string | null>(null);
+  const [limitHit, setLimitHit] = React.useState(false);
+  const [pubError, setPubError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     const fromSession = () => {
@@ -80,6 +82,8 @@ export default function ResultPage() {
   async function publish() {
     if (!schema) return;
     setPublishing(true);
+    setLimitHit(false);
+    setPubError(null);
     try {
       const res = await fetch("/api/publish-site", {
         method: "POST",
@@ -87,8 +91,17 @@ export default function ResultPage() {
         body: JSON.stringify({ schema }),
       });
       const data = await res.json();
-      await new Promise((r) => setTimeout(r, 1000));
+      if (!res.ok) {
+        // Surface the plan limit with an upgrade path instead of failing silently.
+        if (data.code === "plan_limit") setLimitHit(true);
+        else if (res.status === 401) setPubError("Sign in to publish your site.");
+        else setPubError(data.error || "Could not publish. Please try again.");
+        return;
+      }
+      await new Promise((r) => setTimeout(r, 800));
       setPublished(data.url);
+    } catch {
+      setPubError("Could not publish. Please try again.");
     } finally {
       setPublishing(false);
     }
@@ -163,6 +176,24 @@ export default function ResultPage() {
             {published.replace("https://", "")}
           </a>
           <ArrowSquareOut weight="bold" className="h-3.5 w-3.5" />
+        </div>
+      )}
+
+      {limitHit && (
+        <div className="flex flex-wrap items-center justify-center gap-3 border-b border-accent/30 bg-accent/10 px-6 py-2.5 text-sm text-accent">
+          You&apos;ve reached your plan&apos;s published-site limit.
+          <Link
+            href="/#pricing"
+            className="rounded-full bg-accent px-3.5 py-1 text-xs font-medium text-accent-foreground transition hover:brightness-105"
+          >
+            Upgrade plan
+          </Link>
+        </div>
+      )}
+
+      {pubError && (
+        <div className="flex items-center justify-center gap-2 border-b border-red-500/30 bg-red-500/10 px-6 py-2.5 text-sm text-red-300">
+          {pubError}
         </div>
       )}
 
