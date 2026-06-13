@@ -46,7 +46,7 @@ describe("generateSite", () => {
 
   it("routes extended section types to their dedicated variants", () => {
     const a = analysis({
-      structure: structure(["hero", "about", "services", "portfolio", "stats", "footer"]),
+      structure: structure(["hero", "about", "services", "portfolio", "footer"]),
     });
     const byType = Object.fromEntries(
       generateSite(a, { mode: "preserve" }).blocks.map((b) => [b.type, b.variant])
@@ -54,15 +54,35 @@ describe("generateSite", () => {
     expect(byType.about).toBe("AboutSplit");
     expect(byType.services).toBe("ServicesList");
     expect(byType.portfolio).toBe("PortfolioGrid");
-    expect(byType.stats).toBe("StatsCounter");
   });
 
-  it("classic ignores the structure and uses the canonical layout", () => {
+  it("never fabricates testimonials or stats: omits them without real data", () => {
+    const a = analysis({ structure: structure(["hero", "testimonials", "stats", "footer"]) });
+    const types = generateSite(a, { mode: "preserve" }).blocks.map((b) => b.type);
+    expect(types).not.toContain("testimonials");
+    expect(types).not.toContain("stats");
+  });
+
+  it("renders testimonials and stats when real data is provided", () => {
+    const a = analysis({
+      structure: structure(["hero", "testimonials", "stats", "footer"]),
+      extractedContent: {
+        headline: "H", description: "D", services: ["A", "B", "C"], images: [],
+        testimonials: [{ quote: "Great work", name: "Real Client", role: "Owner" }],
+        stats: [{ value: "12", label: "Years" }],
+      },
+    });
+    const types = generateSite(a, { mode: "preserve" }).blocks.map((b) => b.type);
+    expect(types).toContain("testimonials");
+    expect(types).toContain("stats");
+  });
+
+  it("classic uses the canonical layout (no fabricated testimonials)", () => {
     const s = generateSite(analysis({ structure: structure(["hero", "about", "footer"]) }), {
       mode: "classic",
     });
     expect(s.blocks.map((b) => b.type)).toEqual([
-      "hero", "features", "testimonials", "faq", "cta", "contact", "footer",
+      "hero", "features", "faq", "cta", "contact", "footer",
     ]);
     expect(s.recommendations).toBeUndefined();
   });

@@ -134,6 +134,13 @@ export interface SiteAnalysis {
     heroImageUrl?: string;
     images: string[];
     contactHint?: string;
+    /**
+     * Real social proof / metrics, only when genuinely extracted (or provided
+     * by the user via the hybrid flow). We never fabricate these: a testimonials
+     * or stats section is rendered only when real data is present.
+     */
+    testimonials?: { quote: string; name: string; role?: string }[];
+    stats?: { value: string; label: string }[];
   };
   scores: {
     design: number;

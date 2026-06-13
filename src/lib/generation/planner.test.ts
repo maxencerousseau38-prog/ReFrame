@@ -51,9 +51,10 @@ describe("planSmart", () => {
     const p = planSmart(struct(["hero", "about", "footer"]));
     const cats = p.slots.map((s) => s.category);
     expect(cats).toContain("features");
-    expect(cats).toContain("testimonials");
     expect(cats).toContain("cta");
     expect(cats).toContain("contact");
+    // Smart never injects a testimonials section (we don't fabricate praise).
+    expect(cats).not.toContain("testimonials");
     expect(p.recommendations.length).toBeGreaterThan(0);
     expect(p.slots[0].type).toBe("hero");
     expect(p.slots[p.slots.length - 1].type).toBe("footer");

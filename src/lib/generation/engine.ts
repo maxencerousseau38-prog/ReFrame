@@ -561,12 +561,6 @@ function buildIssues(s: {
 
 const FEATURE_ICONS = ["Sparkle", "ShieldCheck", "Lightning", "Heart", "Star", "Check"];
 
-const DEFAULT_TESTIMONIALS = [
-  { quote: "Genuinely the best experience we've had. Highly recommend.", name: "Jordan M.", role: "Customer" },
-  { quote: "Professional, fast and the result exceeded expectations.", name: "Priya S.", role: "Customer" },
-  { quote: "We'll never go anywhere else. Five stars across the board.", name: "Liam R.", role: "Customer" },
-];
-
 /** Heading for a content (features-category) section, by its semantic type. */
 function sectionTitle(type: BlockType, brand: string): string {
   switch (type) {
@@ -585,7 +579,7 @@ function sectionTitle(type: BlockType, brand: string): string {
 /** Build one block for a planned slot. Reproduces the proven props per category;
  *  semantic types (about/services/portfolio…) keep their type but render through
  *  the closest available component until dedicated premium components land. */
-function buildBlock(slot: Slot, analysis: SiteAnalysis): Block {
+function buildBlock(slot: Slot, analysis: SiteAnalysis): Block | null {
   const profile = INDUSTRY_PROFILES[analysis.industry];
   const c = analysis.extractedContent;
   const brand = analysis.brandName;
@@ -645,11 +639,13 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block {
         },
       };
     case "stats":
+      // Never fabricate metrics. Only render when real stats were extracted.
+      if (!c.stats?.length) return null;
       return {
         id: uid("stats"),
         type: slot.type,
         variant: pickVariant("stats", analysis.industry, brand, profile.theme.mood),
-        props: { title: sectionTitle(slot.type, brand), items: statsFor(analysis) },
+        props: { title: sectionTitle(slot.type, brand), items: c.stats },
       };
     case "about":
       return {
@@ -661,16 +657,19 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block {
           title: sectionTitle(slot.type, brand),
           body: c.description,
           image: analysis.extractedContent.images[1] || c.heroImageUrl,
-          stats: statsFor(analysis).slice(0, 3),
+          // Real stats only; AboutSplit hides the chip row when absent.
+          stats: c.stats?.slice(0, 3),
           cta: "Get in touch",
         },
       };
     case "testimonials":
+      // Never fabricate praise. Only render when real testimonials were extracted.
+      if (!c.testimonials?.length) return null;
       return {
         id: uid("test"),
         type: "testimonials",
         variant: pickVariant("testimonials", analysis.industry, brand, profile.theme.mood),
-        props: { title: "Loved by our customers", items: DEFAULT_TESTIMONIALS },
+        props: { title: "What our clients say", items: c.testimonials },
       };
     case "faq":
       return {
@@ -722,7 +721,11 @@ export function generateSite(
         ? planPreserve(analysis.structure)
         : planSmart(analysis.structure);
 
-  const blocks: Block[] = plan.slots.map((s) => buildBlock(s, analysis));
+  // Some slots (testimonials, stats) are intentionally dropped when we have no
+  // real data for them, rather than fabricated - so filter the nulls out.
+  const blocks: Block[] = plan.slots
+    .map((s) => buildBlock(s, analysis))
+    .filter((b): b is Block => b !== null);
 
   // Use the source site's real accent color when we found one, so the rebuild
   // keeps the brand recognisable instead of imposing a generic palette.
@@ -753,24 +756,6 @@ function featureBlurb(service: string, industry: Industry): string {
     map[service] ||
     `${service}, delivered to a standard our ${INDUSTRY_PROFILES[industry].label.toLowerCase()} clients trust.`
   );
-}
-
-/**
- * Deterministic, industry-plausible credibility figures. We don't scrape real
- * numbers, so these are seeded by the URL for stable, non-random variation
- * (same site -> same stats). "24/7" stays textual; StatValue animates the rest.
- */
-function statsFor(a: SiteAnalysis): { value: string; label: string }[] {
-  const u = a.url;
-  const projects = rangeFrom(u + "proj", 8, 60) * 10; // 80..600, rounded
-  const years = rangeFrom(u + "yrs", 6, 24);
-  const satisfaction = rangeFrom(u + "sat", 92, 99);
-  return [
-    { value: `${projects}+`, label: "Projects delivered" },
-    { value: `${years}`, label: "Years of experience" },
-    { value: `${satisfaction}%`, label: "Client satisfaction" },
-    { value: "24/7", label: "Here when you need us" },
-  ];
 }
 
 /**
@@ -845,8 +830,18 @@ export function applyAiEdit(schema: SiteSchema, instruction: string): AiEditResu
     return { schema: next, message: "There's already an FAQ section on the page.", changed: false };
   }
 
-  // 3. Add testimonials / contact / cta
-  for (const target of ["testimonials", "contact", "cta"] as const) {
+  // 3a. Testimonials can't be auto-added: we won't invent customer quotes.
+  if (/add/.test(text) && text.includes("testimonial")) {
+    return {
+      schema: next,
+      message:
+        "I won't invent customer testimonials. Add a real quote, name and role and I'll place a testimonials section for you.",
+      changed: false,
+    };
+  }
+
+  // 3. Add contact / cta (these are structural, not fabricated content)
+  for (const target of ["contact", "cta"] as const) {
     if (/add/.test(text) && text.includes(target === "cta" ? "call to action" : target)) {
       if (!next.blocks.some((b) => b.type === target)) {
         const stub = generateSite({

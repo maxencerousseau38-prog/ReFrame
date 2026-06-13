@@ -78,20 +78,15 @@ export function planSmart(structure?: SiteStructure): Plan {
     recs.push({ action: "Added a value section", reason: "No clear value proposition was found after the hero." });
   }
 
-  // 2. Social proof. If missing, add it after the value section.
-  if (!has("testimonials")) {
-    const at = Math.min(indexOfCat("features") + 1, middle.length);
-    middle.splice(Math.max(at, 1), 0, slot("testimonials"));
-    recs.push({ action: "Added testimonials", reason: "Social proof lifts conversion and none was present." });
-  } else {
-    // Move testimonials below the value section if it appears too early.
-    const ti = indexOfCat("testimonials");
-    const fi = indexOfCat("features");
-    if (ti >= 0 && fi >= 0 && ti < fi) {
-      const [t] = middle.splice(ti, 1);
-      middle.splice(indexOfCat("features") + 1, 0, t);
-      recs.push({ action: "Moved testimonials below the value sections", reason: "Proof lands harder after the offer is made." });
-    }
+  // 2. Social proof: never fabricate it. We only reorder a *real* testimonials
+  //    section so it lands after the value section; if none was extracted we
+  //    leave it to the hybrid flow rather than invent praise.
+  const ti = indexOfCat("testimonials");
+  const fi = indexOfCat("features");
+  if (ti >= 0 && fi >= 0 && ti < fi) {
+    const [t] = middle.splice(ti, 1);
+    middle.splice(indexOfCat("features") + 1, 0, t);
+    recs.push({ action: "Moved testimonials below the value sections", reason: "Proof lands harder after the offer is made." });
   }
 
   // 3. FAQ to handle objections, before contact.
