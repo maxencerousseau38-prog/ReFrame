@@ -36,6 +36,21 @@ export function schemaToHtml(schema: SiteSchema, opts: { branded?: boolean } = {
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>${esc(schema.brand.name)}</title>
 <meta name="description" content="${esc(schema.brand.tagline)}" />
+<meta name="theme-color" content="${t.accent}" />
+<meta name="robots" content="index,follow" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="${esc(schema.brand.name)}" />
+<meta property="og:title" content="${esc(schema.brand.name)}" />
+<meta property="og:description" content="${esc(schema.brand.tagline)}" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="${esc(schema.brand.name)}" />
+<meta name="twitter:description" content="${esc(schema.brand.tagline)}" />
+<script type="application/ld+json">${JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: schema.brand.name,
+  description: schema.brand.tagline,
+})}</script>
 <style>
   :root{
     --brand:${t.primary};

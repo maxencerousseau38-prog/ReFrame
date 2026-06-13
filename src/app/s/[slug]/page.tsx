@@ -14,10 +14,22 @@ export async function generateMetadata({
   const site = await getSite(params.slug);
   if (!site) return { title: "Site not found" };
   const { name, tagline } = site.schema.brand;
+  const root = process.env.NEXT_PUBLIC_ROOT_DOMAIN;
+  const url = root ? `https://${params.slug}.${root}` : undefined;
   return {
     title: name,
     description: tagline,
-    openGraph: { title: name, description: tagline },
+    applicationName: name,
+    robots: { index: true, follow: true },
+    ...(url ? { metadataBase: new URL(url), alternates: { canonical: url } } : {}),
+    openGraph: {
+      type: "website",
+      siteName: name,
+      title: name,
+      description: tagline,
+      ...(url ? { url } : {}),
+    },
+    twitter: { card: "summary_large_image", title: name, description: tagline },
   };
 }
 
