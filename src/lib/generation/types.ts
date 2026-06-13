@@ -85,6 +85,14 @@ export interface Theme {
   ink?: string; // hex — body text on the surface
 }
 
+/** An additional page beyond the home page (Services, About, Contact...). */
+export interface SitePage {
+  /** URL-ish path segment, e.g. "services". Home is not represented here. */
+  path: string;
+  label: string;
+  blocks: Block[];
+}
+
 export interface SiteSchema {
   id: string;
   sourceUrl: string;
@@ -94,7 +102,10 @@ export interface SiteSchema {
     tagline: string;
   };
   theme: Theme;
+  /** The home page's blocks. */
   blocks: Block[];
+  /** Additional pages. When present, the site renders as multi-page (Home + these). */
+  pages?: SitePage[];
   /** Which mode produced this schema. Defaults to the engine default. */
   mode?: GenerationMode;
   /** Smart-mode optimizations applied, for display in the UI. */

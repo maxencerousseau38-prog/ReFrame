@@ -103,6 +103,27 @@ export function parseSiteSchema(value: unknown, fallbackSeed = "site"): SiteSche
     .filter((b: Block | null): b is Block => b !== null);
   if (blocks.length === 0) return null; // unrenderable
 
+  // Additional pages (multi-page sites). Sanitize each page's blocks the same
+  // way; drop pages with no valid block. Preserving these here is essential -
+  // publish/edit run through parseSiteSchema, so omitting them would strip
+  // multi-page sites back to a single page.
+  const pages = Array.isArray(v.pages)
+    ? v.pages
+        .map((p: any) => {
+          if (!p || typeof p !== "object") return null;
+          const pageBlocks = (Array.isArray(p.blocks) ? p.blocks : [])
+            .map((b: unknown) => sanitizeBlock(b, industry, seed))
+            .filter((b: Block | null): b is Block => b !== null);
+          if (!pageBlocks.length) return null;
+          return {
+            path: typeof p.path === "string" ? p.path.replace(/[^a-z0-9-]/gi, "").slice(0, 40) : "",
+            label: typeof p.label === "string" && p.label.trim() ? p.label.slice(0, 40) : "Page",
+            blocks: pageBlocks,
+          };
+        })
+        .filter((p: unknown): p is { path: string; label: string; blocks: Block[] } => p !== null)
+    : undefined;
+
   const mode =
     v.mode === "classic" || v.mode === "preserve" || v.mode === "smart" ? v.mode : undefined;
 
@@ -122,6 +143,7 @@ export function parseSiteSchema(value: unknown, fallbackSeed = "site"): SiteSche
     },
     theme,
     blocks,
+    pages: pages && pages.length ? pages : undefined,
     mode,
     recommendations: recommendations && recommendations.length ? recommendations : undefined,
   };

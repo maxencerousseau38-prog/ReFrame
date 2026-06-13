@@ -67,6 +67,26 @@ describe("parseSiteSchema", () => {
     expect(s.blocks[0].type).toBe("hero");
   });
 
+  it("preserves and sanitizes additional pages", () => {
+    const s = parseSiteSchema({
+      ...valid,
+      pages: [
+        {
+          path: "about",
+          label: "About",
+          blocks: [
+            { type: "about", variant: "AboutSplit", props: {} },
+            { type: "xxx", variant: "X", props: {} }, // invalid -> dropped
+          ],
+        },
+        { path: "empty", label: "Empty", blocks: [{ type: "notatype" }] }, // no valid block -> page dropped
+      ],
+    })!;
+    expect(s.pages).toHaveLength(1);
+    expect(s.pages![0].label).toBe("About");
+    expect(s.pages![0].blocks).toHaveLength(1);
+  });
+
   it("coerces missing props to an object and fills a default brand", () => {
     const s = parseSiteSchema({ blocks: [{ type: "hero", variant: "HeroPremium1" }] })!;
     expect(s.blocks[0].props).toEqual({});

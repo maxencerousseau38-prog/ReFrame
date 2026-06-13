@@ -94,6 +94,15 @@ describe("generateSite", () => {
     expect(s.recommendations?.length ?? 0).toBeGreaterThan(0);
   });
 
+  it("produces standard sub-pages (Services / About / Contact)", () => {
+    const s = generateSite(analysis());
+    const labels = (s.pages ?? []).map((p) => p.label);
+    expect(labels).toEqual(expect.arrayContaining(["Services", "About", "Contact"]));
+    for (const p of s.pages ?? []) {
+      expect(p.blocks.some((b) => b.type !== "footer")).toBe(true);
+    }
+  });
+
   it("uses the source accent color when one was detected", () => {
     const s = generateSite(analysis({ brand: { accentColor: "#ff0066" } }));
     expect(s.theme.accent).toBe("#ff0066");

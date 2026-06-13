@@ -1374,54 +1374,77 @@ const NAV_LABELS: Partial<Record<BlockType, string>> = {
 
 const anchorId = (type: BlockType): string => (type === "hero" ? "top" : type);
 
-/** Sticky brand navigation derived from the page's sections. */
-function SiteNav({
-  brand,
-  items,
-  ctaTarget,
-}: {
-  brand: string;
-  items: { id: string; label: string }[];
-  ctaTarget: string;
-}) {
+type NavItem = { label: string; href?: string; onClick?: () => void; active?: boolean };
+
+/** Sticky brand navigation. Items can be anchors (single-page) or buttons that
+ *  switch page client-side (multi-page). */
+function SiteNav({ brand, items, cta }: { brand: NavItem; items: NavItem[]; cta: NavItem }) {
+  const link = (it: NavItem, key: React.Key) => {
+    const cls = "text-sm transition-opacity hover:opacity-70";
+    const style = { color: "var(--brand-ink)", opacity: it.active ? 1 : 0.72 } as React.CSSProperties;
+    return it.href ? (
+      <a key={key} href={it.href} className={cls} style={style}>{it.label}</a>
+    ) : (
+      <button key={key} type="button" onClick={it.onClick} className={cls} style={style}>{it.label}</button>
+    );
+  };
+  const wordmark = { className: "text-lg font-medium tracking-tight", style: { fontFamily: "var(--brand-font)", color: "var(--brand)" } as React.CSSProperties };
+  const ctaCls = "shrink-0 px-4 py-2 text-sm font-medium text-white transition-transform active:scale-[0.98]";
+  const ctaStyle = { background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" } as React.CSSProperties;
+
   return (
     <header
       className="sticky top-0 z-40 backdrop-blur-md"
       style={{ background: "color-mix(in srgb, var(--brand-surface) 82%, transparent)", borderBottom: `1px solid ${HAIRLINE}` }}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3.5">
-        <a href="#top" className="text-lg font-medium tracking-tight" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>
-          {brand}
-        </a>
-        <nav className="hidden items-center gap-7 md:flex">
-          {items.map((it) => (
-            <a key={it.id} href={`#${it.id}`} className="text-sm transition-opacity hover:opacity-70" style={{ color: "var(--brand-ink)", opacity: 0.72 }}>
-              {it.label}
-            </a>
-          ))}
-        </nav>
-        <a
-          href={`#${ctaTarget}`}
-          className="shrink-0 px-4 py-2 text-sm font-medium text-white transition-transform active:scale-[0.98]"
-          style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}
-        >
-          Contact
-        </a>
+        {brand.href ? (
+          <a href={brand.href} {...wordmark}>{brand.label}</a>
+        ) : (
+          <button type="button" onClick={brand.onClick} {...wordmark}>{brand.label}</button>
+        )}
+        <nav className="hidden items-center gap-7 md:flex">{items.map(link)}</nav>
+        {cta.href ? (
+          <a href={cta.href} className={ctaCls} style={ctaStyle}>{cta.label}</a>
+        ) : (
+          <button type="button" onClick={cta.onClick} className={ctaCls} style={ctaStyle}>{cta.label}</button>
+        )}
       </div>
     </header>
   );
 }
 
 export function SiteRenderer({ schema }: { schema: SiteSchema }) {
-  const seen = new Set<string>();
-  const navItems = schema.blocks.flatMap((b) => {
-    const label = NAV_LABELS[b.type];
-    const id = anchorId(b.type);
-    if (!label || seen.has(id)) return [];
-    seen.add(id);
-    return [{ id, label }];
-  });
-  const ctaTarget = schema.blocks.some((b) => b.type === "contact") ? "contact" : "top";
+  const allPages = [{ path: "", label: "Home", blocks: schema.blocks }, ...(schema.pages ?? [])];
+  const multi = allPages.length > 1;
+  const [path, setPath] = React.useState("");
+  const current = allPages.find((p) => p.path === path) ?? allPages[0];
+
+  const go = (p: string) => {
+    setPath(p);
+    if (typeof window !== "undefined") window.scrollTo({ top: 0 });
+  };
+
+  let brand: NavItem;
+  let items: NavItem[];
+  let cta: NavItem;
+  if (multi) {
+    brand = { label: schema.brand.name, onClick: () => go("") };
+    items = allPages.map((p) => ({ label: p.label, onClick: () => go(p.path), active: p.path === path }));
+    const contactPath = allPages.some((p) => p.path === "contact") ? "contact" : path;
+    cta = { label: "Contact", onClick: () => go(contactPath) };
+  } else {
+    const seen = new Set<string>();
+    brand = { label: schema.brand.name, href: "#top" };
+    items = schema.blocks.flatMap((b) => {
+      const label = NAV_LABELS[b.type];
+      const id = anchorId(b.type);
+      if (!label || seen.has(id)) return [];
+      seen.add(id);
+      return [{ label, href: `#${id}` }];
+    });
+    cta = { label: "Contact", href: `#${schema.blocks.some((b) => b.type === "contact") ? "contact" : "top"}` };
+  }
 
   return (
     <div
@@ -1432,8 +1455,8 @@ export function SiteRenderer({ schema }: { schema: SiteSchema }) {
         scrollBehavior: "smooth",
       }}
     >
-      <SiteNav brand={schema.brand.name} items={navItems} ctaTarget={ctaTarget} />
-      {schema.blocks.map((block) => (
+      <SiteNav brand={brand} items={items} cta={cta} />
+      {current.blocks.map((block) => (
         <div key={block.id} id={anchorId(block.type)} style={{ scrollMarginTop: "76px" }}>
           <BlockRenderer block={block} />
         </div>

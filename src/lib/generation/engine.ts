@@ -54,6 +54,7 @@ import type {
   Block,
   SiteAnalysis,
   SiteSchema,
+  SitePage,
   Industry,
   BlockType,
   GenerationMode,
@@ -750,6 +751,22 @@ export function generateSite(
   const accent = analysis.brand?.accentColor;
   const theme = accent ? { ...profile.theme, accent } : profile.theme;
 
+  // Multi-page: beyond the home overview, build the standard small-business
+  // pages (Services, About, Contact). Each is a focused page of real blocks
+  // (fabricated sections still drop out). Empty pages are omitted.
+  const buildPage = (label: string, path: string, types: BlockType[]): SitePage | null => {
+    const pageBlocks = types
+      .map((t) => buildBlock({ type: t, category: renderableCategory(t) }, analysis))
+      .filter((b): b is Block => b !== null);
+    // A page needs at least one real content block besides the footer.
+    return pageBlocks.some((b) => b.type !== "footer") ? { label, path, blocks: pageBlocks } : null;
+  };
+  const pages = [
+    buildPage("Services", "services", ["services", "portfolio", "cta", "footer"]),
+    buildPage("About", "about", ["about", "stats", "testimonials", "footer"]),
+    buildPage("Contact", "contact", ["contact", "footer"]),
+  ].filter((p): p is SitePage => p !== null);
+
   return {
     id: uid("site"),
     sourceUrl: analysis.url,
@@ -757,6 +774,7 @@ export function generateSite(
     brand: { name: analysis.brandName, tagline: analysis.extractedContent.headline },
     theme,
     blocks,
+    pages: pages.length ? pages : undefined,
     mode,
     recommendations: plan.recommendations.length ? plan.recommendations : undefined,
   };
