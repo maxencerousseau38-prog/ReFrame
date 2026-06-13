@@ -2,6 +2,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import crypto from "crypto";
 import type { Plan } from "./plans";
+import { isComped } from "./plans";
 
 /**
  * Server-side user store for ReFrame accounts.
@@ -35,6 +36,8 @@ export interface User {
 export type PublicUser = Pick<User, "id" | "email" | "createdAt"> & {
   plan: Plan;
   emailVerified: boolean;
+  /** True when the account is on the ADMIN_EMAILS allowlist (comped). */
+  comped: boolean;
 };
 
 export function publicUser(u: User): PublicUser {
@@ -44,6 +47,7 @@ export function publicUser(u: User): PublicUser {
     createdAt: u.createdAt,
     plan: u.plan ?? "free",
     emailVerified: Boolean(u.emailVerified),
+    comped: isComped(u.email),
   };
 }
 
