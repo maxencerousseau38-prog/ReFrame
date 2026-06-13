@@ -24,10 +24,10 @@ interface Message {
 
 const SUGGESTIONS = [
   "Change the hero title",
-  "Add a FAQ section",
-  "Add testimonials",
-  "Create a pricing section",
-  "Improve SEO",
+  "Rewrite the About page intro",
+  "Add a section to the Services page",
+  "Change the brand color to navy",
+  "Shorten the homepage copy",
   "Make it more premium",
 ];
 
@@ -38,7 +38,7 @@ export default function EditorPage() {
     {
       role: "assistant",
       content:
-        "Hi, I'm your AI editor. Tell me what to change. Try “Add an FAQ section” or “Make it more premium” and I'll update the live preview instantly.",
+        "Hi, I'm your AI editor. Tell me what to change on any page - try “Rewrite the About page intro” or “Make it more premium”. Use the site's own nav in the preview to view each page; I update it instantly.",
     },
   ]);
   const [input, setInput] = React.useState("");

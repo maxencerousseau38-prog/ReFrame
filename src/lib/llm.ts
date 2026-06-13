@@ -92,14 +92,25 @@ Respond with ONLY a JSON object of this exact shape:
 export async function aiEdit(schema: SiteSchema, instruction: string): Promise<AiEditResult> {
   if (!isLLMEnabled()) return applyAiEdit(schema, instruction);
 
-  const prompt = `You edit website definitions expressed as JSON "SiteSchema" objects.
+  const prompt = `You edit multi-page website definitions expressed as JSON "SiteSchema" objects.
+
+Schema shape:
+- "blocks": the HOME page's sections (array of {id, type, variant, props}).
+- "pages": OPTIONAL array of extra pages, each {path, label, blocks}. Common
+  paths: "services", "about", "contact". Edit these to change those pages.
+- "theme": { primary, accent (hex), radius, font, mood }.
 
 Rules:
-- Apply the user's instruction by returning the FULL updated schema.
-- Keep the same overall shape: an object with "blocks" (array of {id, type, variant, props}) and "theme".
-- Allowed block types: hero, features, testimonials, faq, cta, contact, footer.
-- You may edit prop text, add or remove blocks, reorder blocks, or change theme.accent (hex).
-- Do not invent fake statistics. Do not use em dashes in any copy.
+- Apply the instruction by returning the FULL updated schema (home blocks, every
+  page in "pages", and theme), preserving the overall shape and all ids.
+- You may edit any page: change prop text, replace image URLs (props.image,
+  props.images, props.heroImageUrl), add/remove/reorder blocks or pages, or
+  change theme.accent.
+- If the user names a page ("the about page", "services"), edit that page's
+  blocks; otherwise edit the home blocks.
+- Allowed block types: hero, features, services, portfolio, stats, about,
+  testimonials, faq, cta, contact, footer.
+- Do not invent fake testimonials or statistics. Do not use em dashes.
 
 Current schema:
 ${JSON.stringify(schema)}
