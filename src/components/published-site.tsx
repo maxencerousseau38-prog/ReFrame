@@ -16,11 +16,19 @@ async function showBranding(ownerId?: string): Promise<boolean> {
  * canonical `/s/<slug>` route and the host resolver (`<slug>.reframe.site` and
  * connected custom domains), so branding and markup stay identical everywhere.
  */
-export async function PublishedSite({ site }: { site: PublishedSiteRecord }) {
+export async function PublishedSite({
+  site,
+  basePath,
+  page,
+}: {
+  site: PublishedSiteRecord;
+  basePath?: string;
+  page?: string;
+}) {
   const branded = await showBranding(site.ownerId);
   return (
     <>
-      <SiteRenderer schema={site.schema} />
+      <SiteRenderer schema={site.schema} basePath={basePath} page={page} />
       {branded && (
         <Link
           href="https://reframe.design"

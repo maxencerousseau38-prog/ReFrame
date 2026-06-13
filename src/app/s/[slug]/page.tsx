@@ -41,5 +41,5 @@ export default async function PublishedSitePage({
 }) {
   const site = await getSite(params.slug);
   if (!site) notFound();
-  return <PublishedSite site={site} />;
+  return <PublishedSite site={site} basePath={`/s/${params.slug}`} page="" />;
 }

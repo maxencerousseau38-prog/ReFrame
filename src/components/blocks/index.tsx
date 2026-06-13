@@ -1414,24 +1414,42 @@ function SiteNav({ brand, items, cta }: { brand: NavItem; items: NavItem[]; cta:
   );
 }
 
-export function SiteRenderer({ schema }: { schema: SiteSchema }) {
+export function SiteRenderer({
+  schema,
+  basePath,
+  page,
+}: {
+  schema: SiteSchema;
+  basePath?: string;
+  page?: string;
+}) {
   const allPages = [{ path: "", label: "Home", blocks: schema.blocks }, ...(schema.pages ?? [])];
   const multi = allPages.length > 1;
-  const [path, setPath] = React.useState("");
-  const current = allPages.find((p) => p.path === path) ?? allPages[0];
+  const routed = typeof basePath === "string";
 
+  const [clientPath, setClientPath] = React.useState("");
+  const currentPath = routed ? page ?? "" : clientPath;
+  const current = allPages.find((p) => p.path === currentPath) ?? allPages[0];
+  const contactPath = allPages.some((p) => p.path === "contact") ? "contact" : currentPath;
+
+  const href = (p: string) => `${basePath ?? ""}${p ? `/${p}` : ""}`;
   const go = (p: string) => {
-    setPath(p);
+    setClientPath(p);
     if (typeof window !== "undefined") window.scrollTo({ top: 0 });
   };
 
   let brand: NavItem;
   let items: NavItem[];
   let cta: NavItem;
-  if (multi) {
+  if (multi && routed) {
+    // Published: real per-page URLs (deeplinkable + per-page SEO).
+    brand = { label: schema.brand.name, href: href("") };
+    items = allPages.map((p) => ({ label: p.label, href: href(p.path), active: p.path === currentPath }));
+    cta = { label: "Contact", href: href(contactPath) };
+  } else if (multi) {
+    // In-app preview: switch pages client-side (no routes).
     brand = { label: schema.brand.name, onClick: () => go("") };
-    items = allPages.map((p) => ({ label: p.label, onClick: () => go(p.path), active: p.path === path }));
-    const contactPath = allPages.some((p) => p.path === "contact") ? "contact" : path;
+    items = allPages.map((p) => ({ label: p.label, onClick: () => go(p.path), active: p.path === currentPath }));
     cta = { label: "Contact", onClick: () => go(contactPath) };
   } else {
     const seen = new Set<string>();
