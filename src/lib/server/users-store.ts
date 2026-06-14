@@ -121,8 +121,16 @@ async function writeUser(user: User): Promise<void> {
     await kv(["SET", `user:${user.id}`, JSON.stringify(user)]);
     return;
   }
-  await fs.mkdir(DATA_DIR, { recursive: true });
-  await fs.writeFile(fileFor(user.id), JSON.stringify(user), "utf8");
+  try {
+    await fs.mkdir(DATA_DIR, { recursive: true });
+    await fs.writeFile(fileFor(user.id), JSON.stringify(user), "utf8");
+  } catch (err) {
+    // Serverless hosts (Vercel) have a read-only filesystem, so the on-disk
+    // fallback can't persist anything: accounts need a KV database. Surface a
+    // specific, actionable code instead of a generic write error.
+    if (process.env.VERCEL) throw new Error("storage_unconfigured");
+    throw err;
+  }
 }
 
 /* --- public API ------------------------------------------------------------ */

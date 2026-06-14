@@ -14,6 +14,11 @@ export const metadata: Metadata = {
     type: "website",
     images: ["/brand/reframe-logo.png"],
   },
+  // Ask browsers not to auto-translate the UI. Extension/Chrome translation
+  // rewrites text nodes before React hydrates, which triggers a fatal
+  // hydration mismatch (React #425). `translate="no"` on <html> below is the
+  // primary signal; this meta covers Google's translate specifically.
+  other: { google: "notranslate" },
 };
 
 export default function RootLayout({
@@ -22,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+    <html lang="en" translate="no" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <body className="grain min-h-screen bg-background font-sans">{children}</body>
     </html>
   );

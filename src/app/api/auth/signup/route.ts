@@ -19,6 +19,8 @@ const MESSAGES: Record<string, string> = {
   invalid_email: "Enter a valid email address.",
   weak_password: "Use at least 8 characters.",
   exists: "An account with that email already exists.",
+  storage_unconfigured:
+    "Account storage isn't set up yet. Connect a KV database (Vercel Storage → Upstash) and redeploy.",
 };
 
 /** POST /api/auth/signup — create an account and start a session. */
@@ -54,7 +56,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ user: publicUser(user) });
   } catch (err) {
     const code = err instanceof Error ? err.message : "error";
-    const message = MESSAGES[code] ?? "Could not create the account.";
-    return NextResponse.json({ error: message }, { status: code === "exists" ? 409 : 400 });
+    // KV configured-but-broken (bad URL/token) surfaces as "KV … failed: <n>".
+    const storage = code === "storage_unconfigured" || code.startsWith("KV");
+    if (!MESSAGES[code] && !storage) console.error("[signup] failed:", err);
+    const message = storage
+      ? MESSAGES.storage_unconfigured
+      : MESSAGES[code] ?? "Could not create the account.";
+    const status = code === "exists" ? 409 : storage ? 503 : 400;
+    return NextResponse.json({ error: message }, { status });
   }
 }
