@@ -1,0 +1,23 @@
+{
+  "name": "reframe-video",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ReFrame promo/demo video, built with Remotion (programmatic React video).",
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render ReframeDemo out/reframe-demo.mp4",
+    "still": "remotion still ReframeDemo out/frame.png --frame=420",
+    "upgrade": "remotion upgrade"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.1",
+    "typescript": "^5.6.3"
+  }
+}
