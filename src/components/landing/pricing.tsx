@@ -42,7 +42,7 @@ const tiers: Tier[] = [
       "SEO + social link previews",
       "Hosting, SSL & updates included",
     ],
-    cta: "Publish my site",
+    cta: "Choose Pro",
     featured: true,
   },
   {
