@@ -17,10 +17,14 @@ type SiteCard = {
 type PlanInfo = { id: "free" | "pro" | "studio"; label: string; limit: number };
 
 function formatDate(iso: string): string {
+  // Fixed locale AND timezone so the server (UTC) and the client (local tz)
+  // render the exact same string. Otherwise the day can flip across the date
+  // boundary and React throws a hydration mismatch (#425).
   return new Date(iso).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
+    timeZone: "UTC",
   });
 }
 
