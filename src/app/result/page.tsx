@@ -123,7 +123,7 @@ export default function ResultPage() {
   return (
     <DashboardShell>
       {/* Toolbar */}
-      <div className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-3 border-b border-border bg-background/80 px-6 py-3 backdrop-blur-xl">
+      <div className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-black/55 px-6 py-3 backdrop-blur-2xl backdrop-saturate-150">
         <div className="flex items-center gap-3">
           <Link href="/dashboard">
             <Button variant="ghost" size="sm"><ArrowLeft weight="bold" className="h-4 w-4" /></Button>

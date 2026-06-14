@@ -71,7 +71,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-white/8 bg-white/[0.02] p-4 lg:flex">
+      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-white/10 bg-white/[0.03] p-4 backdrop-blur-xl lg:flex">
         <Link href="/" className="px-2 py-3">
           <Logo />
         </Link>

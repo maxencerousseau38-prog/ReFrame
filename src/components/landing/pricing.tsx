@@ -118,8 +118,10 @@ export function Pricing() {
             <BlurReveal key={tier.name} delay={i * 0.08}>
               <div
                 className={cn(
-                  "h-full rounded-[1.75rem] p-1.5 ring-1 ring-inset",
-                  tier.featured ? "bg-accent/10 ring-accent/30" : "bg-white/[0.04] ring-white/10"
+                  "group h-full rounded-[1.75rem] p-1.5 ring-1 ring-inset transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-1.5",
+                  tier.featured
+                    ? "bg-accent/10 ring-accent/30 hover:shadow-[0_36px_90px_-32px_rgba(159,222,63,0.45)]"
+                    : "bg-white/[0.04] ring-white/10 hover:ring-white/20 hover:shadow-[0_36px_80px_-36px_rgba(0,0,0,0.95)]"
                 )}
               >
                 <div className="bezel-core flex h-full flex-col rounded-[1.4rem] bg-card p-7">

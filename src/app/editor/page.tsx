@@ -218,7 +218,7 @@ export default function EditorPage() {
 
         {/* Live preview */}
         <div className="flex flex-1 flex-col bg-secondary/30">
-          <div className="flex items-center justify-between border-b border-border bg-background/80 px-5 py-3 backdrop-blur-xl">
+          <div className="flex items-center justify-between border-b border-white/10 bg-black/55 px-5 py-3 backdrop-blur-2xl backdrop-saturate-150">
             <span className="text-xs font-medium text-muted-foreground">Live preview</span>
             {published ? (
               <a href={published} target="_blank" rel="noreferrer">
