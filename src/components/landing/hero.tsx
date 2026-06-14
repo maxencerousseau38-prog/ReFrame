@@ -123,10 +123,12 @@ function HeroTransform() {
 
       {/* AFTER — modern, dark, lime-accented, prominent */}
       <div className="relative z-10 mt-20 w-[94%] overflow-hidden rounded-2xl border border-accent/30 bg-[#0f0f11] shadow-[0_50px_120px_-30px_rgba(0,0,0,0.9)]">
-        <div className="flex items-center gap-1.5 border-b border-white/8 px-3 py-2.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-zinc-700" />
-          <span className="h-2.5 w-2.5 rounded-full bg-zinc-700" />
-          <span className="h-2.5 w-2.5 rounded-full bg-zinc-700" />
+        <div className="flex items-center gap-2 border-b border-white/8 px-3 py-2.5">
+          <span className="relative flex h-2 w-2 items-center justify-center">
+            <span className="absolute h-2 w-2 rounded-full bg-accent/50 motion-safe:animate-ping" />
+            <span className="relative h-1.5 w-1.5 rounded-full bg-accent" />
+          </span>
+          <span className="truncate rounded-md bg-white/5 px-2 py-0.5 font-mono text-[9px] text-zinc-500">elevated.studio</span>
           <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-medium text-accent-foreground">
             <Sparkle weight="fill" className="h-2.5 w-2.5" /> Reframed by AI
           </span>
