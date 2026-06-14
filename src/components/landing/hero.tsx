@@ -2,9 +2,17 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+  useMotionValue,
+  animate,
+} from "framer-motion";
 import { ArrowRight, Globe, Sparkle, Lightning, ShieldCheck, Star } from "@phosphor-icons/react";
 import { IslandButton } from "@/components/ui/island-button";
+import { BrowserFrame } from "@/components/ui/browser-frame";
 
 /**
  * Hero. Monumental, high-contrast, minimal. The promise is unmistakable in
@@ -92,90 +100,111 @@ export function Hero() {
   );
 }
 
-/** Two stacked frames: the old site and the Reframed-by-AI result. */
+/**
+ * The hero centerpiece: one browser, the SAME business, with a luminous seam
+ * that auto-sweeps to reveal the dated site morphing into the Reframed one.
+ * Comparing like-for-like in place is the whole pitch in a single glance.
+ */
 function HeroTransform() {
+  const reduce = useReducedMotion();
+  const seam = useMotionValue(reduce ? 100 : 50);
+
+  React.useEffect(() => {
+    if (reduce) {
+      seam.set(100);
+      return;
+    }
+    const controls = animate(seam, [20, 80, 20], {
+      duration: 9,
+      ease: [0.65, 0, 0.35, 1],
+      repeat: Infinity,
+    });
+    return () => controls.stop();
+  }, [reduce, seam]);
+
+  const afterClip = useTransform(seam, (v) => `inset(0px ${100 - v}% 0px 0px)`);
+  const beforeDim = useTransform(seam, (v) => Math.max(0, (v - 30) / 140)); // dim "before" as after takes over
+  const seamLeft = useTransform(seam, (v) => `${v}%`);
+
   return (
-    <div className="relative mx-auto max-w-md pt-4 lg:max-w-none">
-      <div className="pointer-events-none absolute -inset-10 -z-10 ambient-soft blur-[80px] opacity-70" />
+    <div className="relative mx-auto w-full max-w-md lg:max-w-none">
+      <div className="pointer-events-none absolute -inset-12 -z-10 ambient-soft blur-[90px] opacity-70" />
 
-      {/* BEFORE — Traditional Experience, light, set back */}
-      <div className="absolute right-0 top-0 z-0 w-[62%] rotate-2 overflow-hidden rounded-xl bg-[#f3f1ec] shadow-xl ring-1 ring-black/10">
-        <div className="flex items-center gap-1.5 border-b border-black/5 px-3 py-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-zinc-400" />
-          <span className="h-1.5 w-1.5 rounded-full bg-zinc-400" />
-          <span className="h-1.5 w-1.5 rounded-full bg-zinc-400" />
-        </div>
-        <div className="p-4 text-[#2b2a27]">
-          <p className="text-[8px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Before</p>
-          <h4 className="mt-1.5 font-serif text-[15px] font-semibold leading-tight">Traditional<br />Experience</h4>
-          <div className="mt-2 space-y-1">
-            <div className="h-1 w-full rounded bg-zinc-300" />
-            <div className="h-1 w-2/3 rounded bg-zinc-300" />
-          </div>
-          <div
-            className="mt-3 h-16 w-full rounded bg-cover bg-center grayscale"
-            style={{ backgroundImage: "url(/brand/mountain.jpg)" }}
-            role="img"
-            aria-label="Mountain landscape"
-          />
-        </div>
-      </div>
-
-      {/* AFTER — modern, dark, lime-accented, prominent */}
-      <div className="relative z-10 mt-20 w-[94%] overflow-hidden rounded-2xl border border-accent/30 bg-[#0f0f11] shadow-[0_50px_120px_-30px_rgba(0,0,0,0.9)]">
-        <div className="flex items-center gap-2 border-b border-white/8 px-3 py-2.5">
-          <span className="relative flex h-2 w-2 items-center justify-center">
-            <span className="absolute h-2 w-2 rounded-full bg-accent/50 motion-safe:animate-ping" />
-            <span className="relative h-1.5 w-1.5 rounded-full bg-accent" />
-          </span>
-          <span className="truncate rounded-md bg-white/5 px-2 py-0.5 font-mono text-[9px] text-zinc-500">elevated.studio</span>
-          <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-medium text-accent-foreground">
-            <Sparkle weight="fill" className="h-2.5 w-2.5" /> Reframed by AI
-          </span>
-        </div>
-
-        <div className="grid grid-cols-[1.05fr_0.95fr] gap-4 p-5">
-          <div>
-            <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-accent">After</p>
-            <h3 className="mt-2 text-[22px] font-semibold leading-[1.02] tracking-tight text-white">
-              Elevated
-              <br /> Experience
-            </h3>
-            <p className="mt-2 text-[11px] leading-relaxed text-zinc-400">
-              The same business, reframed into a site that converts.
-            </p>
-            <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-accent px-3.5 py-1.5 text-[11px] font-medium text-accent-foreground">
-              Explore more <ArrowRight weight="bold" className="h-3 w-3" />
-            </span>
-          </div>
-          {/* clean editorial visual, grayscale with a faint lime lift */}
-          <div className="relative overflow-hidden rounded-xl ring-1 ring-white/10">
-            <div
-              className="h-full min-h-[120px] w-full bg-cover bg-center grayscale contrast-110"
-              style={{ backgroundImage: "url(/brand/mountain.jpg)" }}
-              role="img"
-              aria-label="Editorial landscape"
-            />
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0f0f11] via-transparent to-transparent" />
-            <div className="pointer-events-none absolute inset-0 mix-blend-soft-light bg-accent/20" />
-          </div>
-        </div>
-
-        {/* feature row */}
-        <div className="grid grid-cols-4 gap-px border-t border-white/8 bg-white/5">
-          {[
-            { icon: Sparkle, label: "Modern" },
-            { icon: Lightning, label: "Faster" },
-            { icon: ShieldCheck, label: "Trusted" },
-            { icon: Star, label: "Premium" },
-          ].map((f) => (
-            <div key={f.label} className="flex flex-col items-center gap-1 bg-[#0f0f11] py-3">
-              <f.icon weight="bold" className="h-3.5 w-3.5 text-accent" />
-              <span className="text-[9px] text-zinc-400">{f.label}</span>
+      <BrowserFrame url="brightside.com → reframe.site/brightside" className="border-accent/20">
+        <div className="relative h-[400px] overflow-hidden sm:h-[460px]">
+          {/* BEFORE — dated, light, serif (the base layer) */}
+          <div className="absolute inset-0 bg-[#efece4] text-[#2b2a27]">
+            <div className="flex items-center justify-between border-b border-black/10 px-6 py-4">
+              <span className="font-serif text-[15px] font-bold tracking-tight">Brightside Plumbing</span>
+              <span className="hidden gap-4 font-serif text-[11px] underline underline-offset-2 sm:flex">
+                <span>Home</span><span>Services</span><span>Contact</span>
+              </span>
             </div>
-          ))}
+            <div className="px-6 pt-7">
+              <h4 className="font-serif text-[26px] font-bold leading-tight text-[#3a3935]">
+                Welcome to Our<br />Plumbing Website
+              </h4>
+              <div className="mt-4 space-y-2">
+                <div className="h-2 w-3/4 rounded bg-[#cfccc2]" />
+                <div className="h-2 w-2/3 rounded bg-[#cfccc2]" />
+                <div className="h-2 w-1/2 rounded bg-[#cfccc2]" />
+              </div>
+              <span className="mt-5 inline-block rounded border border-[#3a3935]/40 px-4 py-1.5 font-serif text-[12px]">
+                Contact Us
+              </span>
+              <div className="mt-5 h-24 w-full rounded bg-[#d8d4c8]" />
+            </div>
+            <span className="absolute bottom-3 left-6 font-mono text-[10px] uppercase tracking-[0.2em] text-[#9a968a]">Before</span>
+          </div>
+          <motion.div className="absolute inset-0 bg-black" style={{ opacity: beforeDim }} />
+
+          {/* AFTER — modern, dark, lime (revealed by the seam) */}
+          <motion.div className="absolute inset-0 bg-[#0e0e10]" style={{ clipPath: afterClip }}>
+            <div className="flex items-center justify-between border-b border-white/8 px-6 py-4">
+              <span className="flex items-center gap-2 text-[14px] font-semibold text-white">
+                <span className="h-5 w-5 rounded-md bg-accent" /> Brightside
+              </span>
+              <span className="hidden gap-4 text-[11px] text-zinc-400 sm:flex">
+                <span>Work</span><span>Pricing</span><span>Contact</span>
+              </span>
+            </div>
+            <div className="px-6 pt-7">
+              <h3 className="max-w-[15ch] text-[28px] font-semibold leading-[1.04] tracking-tight text-white">
+                Plumbing done right, the first time.
+              </h3>
+              <p className="mt-3 max-w-[32ch] text-[12px] leading-relaxed text-zinc-400">
+                Upfront pricing, work guaranteed in writing, 24/7 for the ones
+                that cannot wait.
+              </p>
+              <span className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-[12px] font-medium text-accent-foreground">
+                Get a free quote <ArrowRight weight="bold" className="h-3.5 w-3.5" />
+              </span>
+              <div className="mt-5 grid grid-cols-3 gap-2">
+                {[
+                  { icon: Lightning, label: "Same day" },
+                  { icon: ShieldCheck, label: "Guaranteed" },
+                  { icon: Star, label: "4.9 ★ rated" },
+                ].map((f) => (
+                  <div key={f.label} className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-2">
+                    <f.icon weight="bold" className="h-3.5 w-3.5 shrink-0 text-accent" />
+                    <span className="truncate text-[10px] text-zinc-300">{f.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <span className="absolute bottom-3 right-6 inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
+              <Sparkle weight="fill" className="h-2.5 w-2.5" /> After
+            </span>
+          </motion.div>
+
+          {/* luminous seam + handle */}
+          <motion.div className="pointer-events-none absolute inset-y-0 z-20 w-px bg-accent shadow-[0_0_24px_4px_rgba(159,222,63,0.45)]" style={{ left: seamLeft }}>
+            <span className="absolute left-1/2 top-1/2 flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-accent/50 bg-[#0e0e10]/80 backdrop-blur">
+              <ArrowRight weight="bold" className="h-3.5 w-3.5 text-accent" />
+            </span>
+          </motion.div>
         </div>
-      </div>
+      </BrowserFrame>
     </div>
   );
 }
