@@ -1,6 +1,7 @@
 import { Composition } from "remotion";
 import { ReframeDemo } from "./ReframeDemo";
 import { ReframeShowcase } from "./ReframeShowcase";
+import { ArchShowcase, TOTAL as ARCH_TOTAL } from "./ArchShowcase";
 
 /**
  * Remotion compositions for ReFrame.
@@ -14,6 +15,22 @@ import { ReframeShowcase } from "./ReframeShowcase";
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      <Composition
+        id="ArchShowcase"
+        component={ArchShowcase}
+        durationInFrames={ARCH_TOTAL + 2}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+      <Composition
+        id="ArchShowcaseVertical"
+        component={ArchShowcase}
+        durationInFrames={ARCH_TOTAL + 2}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
       <Composition
         id="ReframeShowcase"
         component={ReframeShowcase}
