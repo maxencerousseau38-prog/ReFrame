@@ -127,11 +127,11 @@ function HeroTransform() {
   const seamLeft = useTransform(seam, (v) => `${v}%`);
 
   return (
-    <div className="relative mx-auto w-full max-w-md lg:max-w-none">
+    <div className="relative mx-auto w-full max-w-md lg:mx-0 lg:ml-auto lg:max-w-[580px]">
       <div className="pointer-events-none absolute -inset-12 -z-10 ambient-soft blur-[90px] opacity-70" />
 
       <BrowserFrame url="brightside.com → reframe.site/brightside" className="border-accent/20">
-        <div className="relative h-[400px] overflow-hidden sm:h-[460px]">
+        <div className="relative h-[340px] overflow-hidden sm:h-[400px]">
           {/* BEFORE — dated, light, serif (the base layer) */}
           <div className="absolute inset-0 bg-[#efece4] text-[#2b2a27]">
             <div className="flex items-center justify-between border-b border-black/10 px-6 py-4">

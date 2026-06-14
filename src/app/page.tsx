@@ -1,6 +1,5 @@
 import { Navbar } from "@/components/landing/navbar";
 import { Hero } from "@/components/landing/hero";
-import { Compare } from "@/components/landing/compare";
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { TransformScroll } from "@/components/landing/transform-scroll";
 import { Examples } from "@/components/landing/examples";
@@ -14,7 +13,6 @@ export default function HomePage() {
     <main className="relative w-full max-w-full overflow-x-clip">
       <Navbar />
       <Hero />
-      <Compare />
       <HowItWorks />
       <TransformScroll />
       <Examples />
