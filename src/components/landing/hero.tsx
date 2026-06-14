@@ -58,7 +58,7 @@ export function Hero() {
 
           <form
             onSubmit={go}
-            className="mt-9 flex max-w-md flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-2 backdrop-blur sm:flex-row sm:items-center sm:rounded-full sm:p-1.5"
+            className="glass mt-9 flex max-w-md flex-col gap-3 rounded-2xl p-2 sm:flex-row sm:items-center sm:rounded-full sm:p-1.5"
           >
             <label htmlFor="hero-url" className="sr-only">Your website URL</label>
             <div className="relative flex-1">

@@ -7,7 +7,7 @@ import { List, X } from "@phosphor-icons/react";
 import { Logo } from "@/components/brand/logo";
 
 const links = [
-  { label: "Before / after", href: "#compare" },
+  { label: "Before / after", href: "#transformation" },
   { label: "How it works", href: "#how" },
   { label: "Examples", href: "#examples" },
   { label: "Pricing", href: "#pricing" },
@@ -25,7 +25,7 @@ export function Navbar() {
       className="fixed inset-x-0 top-4 z-50 flex justify-center px-4"
     >
       <div className="w-full max-w-3xl">
-        <nav className="flex h-14 items-center justify-between rounded-full border border-white/10 bg-black/40 pl-4 pr-2 backdrop-blur-xl">
+        <nav className="glass-dark flex h-14 items-center justify-between rounded-full pl-4 pr-2">
           <Link href="/">
             <Logo />
           </Link>
@@ -66,7 +66,7 @@ export function Navbar() {
               animate={{ opacity: 1, y: 0 }}
               exit={reduce ? { opacity: 0 } : { opacity: 0, y: -8 }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-2 overflow-hidden rounded-3xl border border-white/10 bg-black/70 p-2 backdrop-blur-xl md:hidden"
+              className="glass-dark mt-2 overflow-hidden rounded-3xl p-2 md:hidden"
             >
               {links.map((l) => (
                 <Link
