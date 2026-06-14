@@ -217,6 +217,50 @@ const ColdOpen: React.FC = () => {
   );
 };
 
+/* deterministic pseudo-random for particle systems (stable per index) */
+const rnd = (n: number) => {
+  const x = Math.sin(n * 127.1 + 311.7) * 43758.5453;
+  return x - Math.floor(x);
+};
+
+/** Radial particle burst — fires at `start`, flies outward, fades. */
+const Burst: React.FC<{ start: number; count?: number; spread?: number }> = ({ start, count = 46, spread = 1 }) => {
+  const { u } = useStage();
+  const frame = useCurrentFrame();
+  const age = frame - start;
+  if (age < 0 || age > 46) return null;
+  return (
+    <>
+      {Array.from({ length: count }).map((_, i) => {
+        const ang = rnd(i) * Math.PI * 2;
+        const spd = (3 + rnd(i + 9) * 11) * spread;
+        const ease = 1 - Math.pow(1 - Math.min(1, age / 38), 3);
+        const dist = ease * spd * u;
+        const life = interpolate(age, [0, 8, 40], [0, 1, 0], { extrapolateRight: "clamp" });
+        const size = (0.4 + rnd(i + 3) * 1.1) * u;
+        return (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "44%",
+              width: size,
+              height: size,
+              borderRadius: 999,
+              background: rnd(i + 5) > 0.4 ? ACCENT : WHITE,
+              opacity: life,
+              transform: `translate(${Math.cos(ang) * dist}px, ${Math.sin(ang) * dist - age * 0.4}px)`,
+              boxShadow: `0 0 ${u}px ${ACCENT}`,
+              zIndex: 70,
+            }}
+          />
+        );
+      })}
+    </>
+  );
+};
+
 /** B) Generation centerpiece. */
 const Generate: React.FC = () => {
   const { u } = useStage();
@@ -224,18 +268,27 @@ const Generate: React.FC = () => {
   const beam = interpolate(frame, [30, 132], [0, 100], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.inOut(Easing.cubic) });
   const gen = beam / 100;
   const boxesIn = interpolate(frame, [4, 30], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const tilt = interpolate(frame, [0, 40], [9, 0], { extrapolateRight: "clamp" });
+  const tilt = interpolate(frame, [0, 40, 150], [10, 1.5, 0], { extrapolateRight: "clamp" });
   const done = interpolate(frame, [128, 150], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const sweeping = beam > 0.5 && beam < 99.5;
   const badge = spring({ frame: frame - 140, fps: 30, config: { damping: 12, stiffness: 160 } });
+  const float = Math.sin(frame / 14) * u * 0.4;
+  const ringGlow = Math.max(done, sweeping ? 0.5 + 0.3 * Math.sin(frame / 4) : 0.3);
+
+  const status =
+    gen < 0.34 ? "Analyse de la structure" : gen < 0.7 ? "Application du thème & du contenu" : "Optimisation des images";
 
   return (
     <AbsoluteFill style={{ background: BG, alignItems: "center", justifyContent: "center" }}>
       <Ambient />
-      <div style={{ position: "absolute", top: u * 7, fontFamily: MONO, fontSize: u * 2, letterSpacing: 3, color: ACCENT, opacity: 1 - done }}>
-        ⟶ Génération du site…
+      {/* dynamic render status */}
+      <div style={{ position: "absolute", top: u * 6.5, fontFamily: MONO, fontSize: u * 2, letterSpacing: 2, color: ACCENT, opacity: 1 - done, display: "flex", alignItems: "center", gap: u }}>
+        <span style={{ width: u * 1.1, height: u * 1.1, borderRadius: 999, background: ACCENT, boxShadow: `0 0 ${u}px ${ACCENT}`, opacity: 0.5 + 0.5 * Math.sin(frame / 3) }} />
+        {status}{frame % 20 < 10 ? "…" : "."}
       </div>
-      <div style={{ opacity: boxesIn }}>
-        <BrowserFrame tilt={tilt} ring={Math.max(done, interpolate(frame, [30, 60], [0, 0.4], { extrapolateRight: "clamp" }) * (1 - done) + 0.4)}>
+
+      <div style={{ opacity: boxesIn, transform: `translateY(${float}px)` }}>
+        <BrowserFrame tilt={tilt} ring={ringGlow}>
           {/* wireframe layer (revealed BELOW the beam) */}
           <div style={{ position: "absolute", inset: 0, clipPath: `inset(${beam}% 0px 0px 0px)` }}>
             <SiteContent mode="wire" frame={frame} gen={gen} />
@@ -246,15 +299,34 @@ const Generate: React.FC = () => {
           </div>
           {/* blueprint grid that fades as the site develops */}
           <AbsoluteFill style={{ backgroundImage: `linear-gradient(${CLAY}22 1px, transparent 1px), linear-gradient(90deg, ${CLAY}22 1px, transparent 1px)`, backgroundSize: `${u * 4}px ${u * 4}px`, opacity: (1 - gen) * 0.6, pointerEvents: "none" }} />
-          {/* the scan beam */}
-          {beam > 0.5 && beam < 99.5 && (
-            <div style={{ position: "absolute", top: `${beam}%`, left: 0, right: 0, height: u * 0.5, background: ACCENT, boxShadow: `0 0 ${u * 4}px ${u}px ${ACCENT}, 0 ${u * 3}px ${u * 5}px ${ACCENT}66`, zIndex: 5 }} />
+
+          {sweeping && (
+            <>
+              {/* freshly-rendered lime wash trailing just above the beam */}
+              <div style={{ position: "absolute", left: 0, right: 0, top: `${Math.max(0, beam - 14)}%`, height: `${Math.min(beam, 14)}%`, background: `linear-gradient(to bottom, transparent, ${ACCENT}1f)`, zIndex: 4, pointerEvents: "none" }} />
+              {/* chromatic-aberration edges around the beam */}
+              <div style={{ position: "absolute", top: `calc(${beam}% - ${u * 0.25}px)`, left: 0, right: 0, height: u * 0.3, background: "#39f6ff", opacity: 0.55, zIndex: 5 }} />
+              <div style={{ position: "absolute", top: `calc(${beam}% + ${u * 0.25}px)`, left: 0, right: 0, height: u * 0.3, background: "#ff3df0", opacity: 0.5, zIndex: 5 }} />
+              {/* the scan beam */}
+              <div style={{ position: "absolute", top: `${beam}%`, left: 0, right: 0, height: u * 0.5, background: ACCENT, boxShadow: `0 0 ${u * 5}px ${u * 1.4}px ${ACCENT}, 0 ${u * 3}px ${u * 6}px ${ACCENT}66`, zIndex: 6 }} />
+              {/* sparkles riding the beam */}
+              {Array.from({ length: 9 }).map((_, i) => {
+                const tw = 0.4 + 0.6 * Math.sin(frame / 2 + i);
+                return (
+                  <div key={i} style={{ position: "absolute", top: `${beam}%`, left: `${8 + i * 10 + Math.sin(frame / 6 + i) * 2}%`, width: u * 0.8, height: u * 0.8, marginTop: -u * 0.4, borderRadius: 999, background: WHITE, opacity: tw, boxShadow: `0 0 ${u * 1.5}px ${ACCENT}`, zIndex: 7 }} />
+                );
+              })}
+            </>
           )}
         </BrowserFrame>
       </div>
 
+      {/* ignition burst + a smaller completion pop */}
+      <Burst start={28} count={54} />
+      <Burst start={132} count={30} spread={1.3} />
+
       {/* generated badge */}
-      <div style={{ position: "absolute", bottom: u * 16, display: "flex", alignItems: "center", gap: u, fontFamily: SANS, fontWeight: 700, fontSize: u * 2.6, color: ACCENT_INK, background: ACCENT, borderRadius: 999, padding: `${u}px ${u * 2.6}px`, opacity: badge, transform: `scale(${interpolate(badge, [0, 1], [0.6, 1])})` }}>
+      <div style={{ position: "absolute", bottom: u * 15, display: "flex", alignItems: "center", gap: u, fontFamily: SANS, fontWeight: 700, fontSize: u * 2.6, color: ACCENT_INK, background: ACCENT, borderRadius: 999, padding: `${u}px ${u * 2.6}px`, opacity: badge, transform: `scale(${interpolate(badge, [0, 1], [0.6, 1])})`, boxShadow: `0 0 ${u * 4}px ${ACCENT}88` }}>
         ✦ Site généré en quelques secondes
       </div>
       <Caption>Regarde-le se construire, bloc par bloc.</Caption>
