@@ -24,7 +24,7 @@ export function Bezel({
     >
       <div
         className={cn(
-          "bezel-core h-full rounded-[1.5rem] bg-card",
+          "bezel-core h-full rounded-[1.5rem] panel",
           innerClassName
         )}
       >

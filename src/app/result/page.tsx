@@ -241,7 +241,7 @@ export default function ResultPage() {
 
       {/* Preview */}
       <div className="p-6">
-        <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-xl shadow-black/5">
+        <div className="overflow-hidden rounded-2xl border border-border panel shadow-xl shadow-black/5">
           <div className="flex items-center gap-2 border-b border-border bg-secondary/50 px-4 py-2.5">
             <span className="h-3 w-3 rounded-full bg-red-400" />
             <span className="h-3 w-3 rounded-full bg-yellow-400" />

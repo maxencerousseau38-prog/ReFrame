@@ -44,7 +44,7 @@ export function HowItWorks() {
               transition={{ duration: 0.6, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
               className="relative rounded-[1.75rem] bg-white/[0.04] p-1.5 ring-1 ring-inset ring-white/10"
             >
-              <div className="bezel-core h-full rounded-[1.4rem] bg-card p-7">
+              <div className="bezel-core h-full rounded-[1.4rem] panel p-7">
                 <div className="flex items-center justify-between">
                   <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-accent">
                     <s.icon weight="bold" className="h-5 w-5" />

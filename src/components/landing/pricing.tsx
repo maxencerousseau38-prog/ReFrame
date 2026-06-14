@@ -124,7 +124,7 @@ export function Pricing() {
                     : "bg-white/[0.04] ring-white/10 hover:ring-white/20 hover:shadow-[0_36px_80px_-36px_rgba(0,0,0,0.95)]"
                 )}
               >
-                <div className="bezel-core flex h-full flex-col rounded-[1.4rem] bg-card p-7">
+                <div className="bezel-core flex h-full flex-col rounded-[1.4rem] panel p-7">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold text-white">{tier.name}</h3>
                     {tier.featured && (

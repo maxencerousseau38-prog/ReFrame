@@ -15,7 +15,7 @@ export function Accordion({
   const [open, setOpen] = React.useState<number | null>(0);
 
   return (
-    <div className={cn("divide-y divide-border rounded-2xl border border-border bg-card", className)}>
+    <div className={cn("divide-y divide-border rounded-2xl border border-border panel", className)}>
       {items.map((item, i) => {
         const isOpen = open === i;
         return (
