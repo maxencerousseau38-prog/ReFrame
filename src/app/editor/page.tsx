@@ -112,11 +112,16 @@ export default function EditorPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        const msg =
-          data.code === "plan_limit"
-            ? "You've reached your plan's published-site limit. Upgrade your plan to publish more."
-            : data.error || "Could not publish. Please try again.";
-        setMessages((m) => [...m, { role: "assistant", content: msg }]);
+        // Hard paywall: publishing is paid — send free / over-limit users
+        // straight to the plans page instead of explaining the limit in chat.
+        if (data.code === "plan_required" || data.code === "plan_limit") {
+          router.push("/#pricing");
+          return;
+        }
+        setMessages((m) => [
+          ...m,
+          { role: "assistant", content: data.error || "Could not publish. Please try again." },
+        ]);
         return;
       }
       setPublished(data.url);

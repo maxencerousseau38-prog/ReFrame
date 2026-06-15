@@ -27,7 +27,6 @@ export default function ResultPage() {
   const [publishing, setPublishing] = React.useState(false);
   const [published, setPublished] = React.useState<string | null>(null);
   const [projectId, setProjectId] = React.useState<string | null>(null);
-  const [needPlan, setNeedPlan] = React.useState(false);
   const [needAuth, setNeedAuth] = React.useState(false);
   const [pubError, setPubError] = React.useState<string | null>(null);
 
@@ -83,7 +82,6 @@ export default function ResultPage() {
   async function publish() {
     if (!schema) return;
     setPublishing(true);
-    setNeedPlan(false);
     setNeedAuth(false);
     setPubError(null);
     try {
@@ -94,11 +92,16 @@ export default function ResultPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        // Publishing is paid: route free/over-limit users to upgrade, and
-        // signed-out users to sign in, instead of failing silently.
-        if (data.code === "plan_required" || data.code === "plan_limit") setNeedPlan(true);
-        else if (res.status === 401 || data.code === "auth") setNeedAuth(true);
-        else setPubError(data.error || "Could not publish. Please try again.");
+        // Hard paywall: publishing is paid. Send free / over-limit users
+        // straight to the plans page, and signed-out users to sign in,
+        // instead of failing silently.
+        if (data.code === "plan_required" || data.code === "plan_limit") {
+          router.push("/#pricing");
+        } else if (res.status === 401 || data.code === "auth") {
+          setNeedAuth(true);
+        } else {
+          setPubError(data.error || "Could not publish. Please try again.");
+        }
         return;
       }
       await new Promise((r) => setTimeout(r, 800));
@@ -179,18 +182,6 @@ export default function ResultPage() {
             {published.replace("https://", "")}
           </a>
           <ArrowSquareOut weight="bold" className="h-3.5 w-3.5" />
-        </div>
-      )}
-
-      {needPlan && (
-        <div className="flex flex-wrap items-center justify-center gap-3 border-b border-accent/30 bg-accent/10 px-6 py-2.5 text-sm text-accent">
-          Publishing your site live requires a plan.
-          <Link
-            href="/#pricing"
-            className="rounded-full bg-accent px-3.5 py-1 text-xs font-medium text-accent-foreground transition hover:brightness-105"
-          >
-            See plans
-          </Link>
         </div>
       )}
 
