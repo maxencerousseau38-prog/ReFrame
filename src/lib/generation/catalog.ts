@@ -33,6 +33,7 @@ export const BLOCK_CATALOG: BlockMeta[] = [
   { variant: "HeroSpotlight", category: "hero", sectors: ["saas", "agency", "ecommerce", "generic"], moods: ["bold", "minimal"], motion: 2, license: "ReFrame original (inspired by Aceternity/Magic UI, MIT)", when: "Tech/SaaS hero with an animated accent aura." },
   { variant: "HeroEditorial", category: "hero", sectors: ["restaurant", "realestate", "health", "agency", "ecommerce"], moods: ["elegant", "warm"], motion: 2, license: "ReFrame original", when: "Editorial luxury hero: serif display, framed client portrait, monumental wordmark. Warm/elegant brands." },
   { variant: "HeroImageFull", category: "hero", sectors: ["restaurant", "realestate", "health", "agency", "ecommerce"], moods: ["warm", "elegant", "bold"], motion: 2, license: "ReFrame original", when: "Full-bleed image hero with an editorial scrim; image-led sectors (hospitality, property, retail)." },
+  { variant: "HeroMonumental", category: "hero", sectors: ["realestate", "agency", "restaurant", "ecommerce"], moods: ["bold"], motion: 2, license: "ReFrame original (inspired by ARCFORM/Archinest Framer templates)", when: "Full-bleed photo + colossal brand wordmark across the bottom; confident, bold, image-led brands." },
 
   // Features
   { variant: "FeaturesGrid1", category: "features", sectors: "all", moods: ["minimal", "elegant"], motion: 1, license: "ReFrame original", when: "Hairline-gap feature grid. Safe default." },

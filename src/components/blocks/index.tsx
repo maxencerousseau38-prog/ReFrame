@@ -1653,6 +1653,76 @@ function TestimonialsGrid({ props }: { props: any }) {
   );
 }
 
+/**
+ * Monumental hero (the ARCFORM / Archinest signature). A full-bleed photograph
+ * under a soft gradient, a thin uppercase meta row up top, a concise statement
+ * mid-frame, and the brand set as a colossal wordmark spanning the bottom edge,
+ * slightly clipped. Maximum presence for image-led, confident brands.
+ */
+function HeroMonumental({ props }: { props: any }) {
+  const bgRef = React.useRef<HTMLDivElement>(null);
+  useParallax(bgRef);
+  const word = (props.brand || props.title || "Studio") as string;
+  return (
+    <section className="relative flex min-h-[92vh] flex-col overflow-hidden px-6 pb-0 pt-28 text-white">
+      <div
+        ref={bgRef}
+        className="absolute -inset-[10%] bg-cover bg-center"
+        style={{ backgroundImage: imageBg(props.image, "linear-gradient(135deg, var(--brand), var(--brand-accent))") }}
+      />
+      <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.06) 34%, rgba(0,0,0,0.8))" }} />
+
+      {/* top meta row */}
+      <div className="relative mx-auto flex w-full max-w-6xl items-start justify-between gap-8">
+        {props.eyebrow && (
+          <span className="text-[0.7rem] font-medium uppercase tracking-[0.3em] text-white/80">{props.eyebrow}</span>
+        )}
+        {props.subtitle && (
+          <p className="hidden max-w-xs text-right text-sm leading-relaxed text-white/80 sm:block">{props.subtitle}</p>
+        )}
+      </div>
+
+      {/* mid statement + CTAs */}
+      <div className="relative mx-auto mt-auto w-full max-w-6xl">
+        <motion.h1
+          initial={{ opacity: 0, y: 22 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          className="max-w-2xl text-[clamp(1.9rem,3.6vw,3rem)] font-medium leading-[1.08] tracking-[-0.01em]"
+          style={{ fontFamily: "var(--brand-font)" }}
+        >
+          {props.title}
+        </motion.h1>
+        <div className="mt-7 flex flex-wrap gap-3">
+          {props.primaryCta && (
+            <button className="px-6 py-3 text-sm font-medium text-white" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}>
+              {props.primaryCta}
+            </button>
+          )}
+          {props.secondaryCta && (
+            <button className="border px-6 py-3 text-sm font-medium text-white" style={{ borderColor: "rgba(255,255,255,0.5)", borderRadius: "var(--brand-radius)" }}>
+              {props.secondaryCta}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* colossal wordmark, clipped at the bottom edge */}
+      <div className="relative mx-auto mt-10 w-full max-w-[1500px] overflow-hidden">
+        <motion.span
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, ease: EASE }}
+          className="block translate-y-[0.14em] select-none whitespace-nowrap text-center font-semibold uppercase leading-[0.78] tracking-[-0.03em] [font-size:clamp(3.5rem,18vw,15rem)]"
+          style={{ fontFamily: "var(--brand-font)" }}
+        >
+          {word}
+        </motion.span>
+      </div>
+    </section>
+  );
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Registry + renderer                                                       */
 /* -------------------------------------------------------------------------- */
@@ -1663,6 +1733,7 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   HeroEditorial,
   HeroSpotlight,
   HeroImageFull,
+  HeroMonumental,
   FeaturesGrid1,
   FeaturesBento,
   FeaturesAlternating,
