@@ -1419,6 +1419,241 @@ function CollectionGrid({ props }: { props: any }) {
 }
 
 /* -------------------------------------------------------------------------- */
+/*  Additional premium variants                                               */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Full-bleed image hero. One edge-to-edge photograph (tonal gradient fallback)
+ * under a soft scrim, with bottom-anchored editorial copy. For hospitality,
+ * real estate and retail — where the image IS the pitch.
+ */
+function HeroImageFull({ props }: { props: any }) {
+  const bgRef = React.useRef<HTMLDivElement>(null);
+  useParallax(bgRef);
+  return (
+    <section className="relative flex min-h-[86vh] items-end overflow-hidden px-6 py-20">
+      <div
+        ref={bgRef}
+        className="absolute -inset-[12%] bg-cover bg-center"
+        style={{ backgroundImage: imageBg(props.image, "linear-gradient(135deg, var(--brand), var(--brand-accent))") }}
+      />
+      <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.82), rgba(0,0,0,0.15) 60%, rgba(0,0,0,0.38))" }} />
+      <div className="relative mx-auto w-full max-w-6xl text-white">
+        {props.eyebrow && (
+          <motion.span
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="inline-flex items-center gap-3 text-[0.7rem] font-medium uppercase tracking-[0.28em]"
+            style={{ color: "var(--brand-accent)" }}
+          >
+            <span className="h-px w-9" style={{ background: "var(--brand-accent)" }} />
+            {props.eyebrow}
+          </motion.span>
+        )}
+        <motion.h1
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, delay: 0.05 }}
+          className="mt-6 max-w-3xl text-[clamp(2.6rem,6.5vw,5rem)] font-medium leading-[1.02] tracking-[-0.02em]"
+          style={{ fontFamily: "var(--brand-font)" }}
+        >
+          {props.title}
+        </motion.h1>
+        {props.subtitle && <p className="mt-5 max-w-xl text-lg text-white/80">{props.subtitle}</p>}
+        <div className="mt-8 flex flex-wrap gap-3">
+          {props.primaryCta && (
+            <button className="px-6 py-3 text-sm font-medium text-white" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}>
+              {props.primaryCta}
+            </button>
+          )}
+          {props.secondaryCta && (
+            <button className="border px-6 py-3 text-sm font-medium text-white" style={{ borderColor: "rgba(255,255,255,0.5)", borderRadius: "var(--brand-radius)" }}>
+              {props.secondaryCta}
+            </button>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Alternating feature rows. Each capability gets a full-width row whose oversized
+ * index + icon panel flips side row to row — calmer and more editorial than a
+ * grid; strong for services and SaaS narratives.
+ */
+function FeaturesAlternating({ props }: { props: any }) {
+  const items = (props.items || []) as any[];
+  return (
+    <section className="px-6 py-24" style={{ color: "var(--brand-ink)" }}>
+      <div className="mx-auto max-w-5xl">
+        <div className="max-w-2xl">
+          <h2 className="text-3xl font-semibold tracking-tight [text-wrap:balance] md:text-4xl" style={{ color: "var(--brand)" }}>
+            {props.title}
+          </h2>
+          {props.subtitle && (
+            <p className="mt-3 text-lg" style={{ color: "var(--brand-ink)", opacity: 0.65 }}>{props.subtitle}</p>
+          )}
+        </div>
+        <div className="mt-12">
+          {items.map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.5, ease: EASE, delay: i * 0.04 }}
+              className={`grid items-center gap-8 border-t py-10 sm:grid-cols-[1fr_1.4fr] ${i % 2 ? "sm:[&>*:first-child]:order-last" : ""}`}
+              style={{ borderColor: HAIRLINE }}
+            >
+              <div className="flex items-center gap-5">
+                <span
+                  className="text-5xl font-medium tabular-nums"
+                  style={{ fontFamily: "var(--brand-font)", color: "color-mix(in srgb, var(--brand-accent) 38%, transparent)" }}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <div
+                  className="flex h-12 w-12 items-center justify-center"
+                  style={{ background: "color-mix(in srgb, var(--brand-accent) 12%, transparent)", color: "var(--brand-accent)", borderRadius: "calc(var(--brand-radius) * 0.7)" }}
+                >
+                  <BlockIcon name={item.icon} className="h-6 w-6" />
+                </div>
+              </div>
+              <div>
+                <h3 className="text-xl font-medium" style={{ color: "var(--brand)" }}>{item.title}</h3>
+                {item.description && (
+                  <p className="mt-2 max-w-md text-sm leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>
+                    {item.description}
+                  </p>
+                )}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Service card grid. A modern, bold alternative to the editorial ServicesList:
+ * numbered cards with a hairline border that warms to the brand surface on hover.
+ */
+function ServicesCards({ props }: { props: any }) {
+  const items = (props.items || []) as { title: string; description?: string }[];
+  return (
+    <section className="px-6 py-24" style={{ color: "var(--brand-ink)" }}>
+      <div className="mx-auto max-w-6xl">
+        <div className="max-w-2xl">
+          {props.eyebrow && (
+            <span className="inline-flex items-center gap-3 text-[0.7rem] font-medium uppercase tracking-[0.28em]" style={{ color: "var(--brand-accent)" }}>
+              <span className="h-px w-9" style={{ background: "var(--brand-accent)" }} />
+              {props.eyebrow}
+            </span>
+          )}
+          <h2
+            className="mt-5 text-[clamp(2rem,4.5vw,3.25rem)] font-medium leading-[1.05] tracking-[-0.02em]"
+            style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}
+          >
+            {props.title}
+          </h2>
+        </div>
+        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.5, ease: EASE, delay: i * 0.05 }}
+              className="group flex flex-col border p-7 transition-colors hover:bg-[var(--brand-surface)]"
+              style={{ borderColor: HAIRLINE, borderRadius: "calc(var(--brand-radius) * 1.1)" }}
+            >
+              <span className="text-sm font-medium tabular-nums" style={{ color: "var(--brand-accent)" }}>
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3 className="mt-4 text-xl font-medium tracking-tight" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>
+                {item.title}
+              </h3>
+              {item.description && (
+                <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>
+                  {item.description}
+                </p>
+              )}
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Three-card review grid with star ratings and initials avatars. Broad,
+ * credible social proof on a warm brand surface; complements the single-quote
+ * slider and the editorial press layout.
+ */
+function TestimonialsGrid({ props }: { props: any }) {
+  const items = (props.items || []) as any[];
+  if (!items.length) return null;
+  const initials = (n: string) =>
+    (n || "")
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((w) => w[0]?.toUpperCase() || "")
+      .join("");
+  return (
+    <section className="px-6 py-24" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}>
+      <div className="mx-auto max-w-6xl">
+        {props.title && (
+          <h2
+            className="max-w-2xl text-[clamp(2rem,4.5vw,3rem)] font-medium leading-[1.05] tracking-[-0.02em]"
+            style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}
+          >
+            {props.title}
+          </h2>
+        )}
+        <div className="mt-12 grid gap-4 md:grid-cols-3">
+          {items.slice(0, 6).map((t, i) => (
+            <motion.figure
+              key={i}
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.5, ease: EASE, delay: i * 0.06 }}
+              className="flex flex-col border bg-white p-7"
+              style={{ borderColor: HAIRLINE, borderRadius: "calc(var(--brand-radius) * 1.1)" }}
+            >
+              <div className="text-sm tracking-widest" style={{ color: "var(--brand-accent)" }}>★★★★★</div>
+              <blockquote className="mt-4 flex-1 text-[15px] leading-relaxed" style={{ color: "var(--brand-ink)" }}>
+                &ldquo;{t.quote}&rdquo;
+              </blockquote>
+              <figcaption className="mt-6 flex items-center gap-3 border-t pt-5" style={{ borderColor: HAIRLINE }}>
+                <span
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold"
+                  style={{ background: "color-mix(in srgb, var(--brand-accent) 15%, transparent)", color: "var(--brand-accent)" }}
+                >
+                  {initials(t.name || t.author)}
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-medium" style={{ color: "var(--brand)" }}>{t.name || t.author}</span>
+                  {t.role && <span className="block truncate text-[13px]" style={{ opacity: 0.6 }}>{t.role}</span>}
+                </span>
+              </figcaption>
+            </motion.figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
 /*  Registry + renderer                                                       */
 /* -------------------------------------------------------------------------- */
 
@@ -1427,14 +1662,18 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   HeroPremium2,
   HeroEditorial,
   HeroSpotlight,
+  HeroImageFull,
   FeaturesGrid1,
   FeaturesBento,
+  FeaturesAlternating,
   ServicesList,
+  ServicesCards,
   PortfolioGrid,
   StatsCounter,
   AboutSplit,
   TestimonialsSlider1,
   TestimonialsEditorial,
+  TestimonialsGrid,
   FAQAccordion1,
   CTASection1,
   CTAEditorial,

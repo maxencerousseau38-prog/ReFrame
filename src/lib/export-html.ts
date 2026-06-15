@@ -200,7 +200,7 @@ function renderMenu(p: Record<string, any>): string {
 function renderBlock(b: Block): string {
   const p = b.props as Record<string, any>;
   // Premium blocks are keyed by variant (matching the app renderer).
-  if (b.variant === "ServicesList") return renderServices(p);
+  if (b.variant === "ServicesList" || b.variant === "ServicesCards") return renderServices(p);
   if (b.variant === "PortfolioGrid") return renderPortfolio(p);
   if (b.variant === "StatsCounter") return renderStats(p);
   if (b.variant === "AboutSplit") return renderAbout(p);

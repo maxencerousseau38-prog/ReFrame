@@ -52,7 +52,7 @@ describe("generateSite", () => {
       generateSite(a, { mode: "preserve" }).blocks.map((b) => [b.type, b.variant])
     );
     expect(byType.about).toBe("AboutSplit");
-    expect(byType.services).toBe("ServicesList");
+    expect(["ServicesList", "ServicesCards"]).toContain(byType.services);
     expect(byType.portfolio).toBe("PortfolioGrid");
   });
 

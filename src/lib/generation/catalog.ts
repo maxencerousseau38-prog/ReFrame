@@ -32,13 +32,16 @@ export const BLOCK_CATALOG: BlockMeta[] = [
   { variant: "HeroPremium2", category: "hero", sectors: ["restaurant", "realestate", "health", "agency"], moods: ["warm", "minimal"], motion: 1, license: "ReFrame original", when: "Split hero with a strong asset; warm/visual sectors." },
   { variant: "HeroSpotlight", category: "hero", sectors: ["saas", "agency", "ecommerce", "generic"], moods: ["bold", "minimal"], motion: 2, license: "ReFrame original (inspired by Aceternity/Magic UI, MIT)", when: "Tech/SaaS hero with an animated accent aura." },
   { variant: "HeroEditorial", category: "hero", sectors: ["restaurant", "realestate", "health", "agency", "ecommerce"], moods: ["elegant", "warm"], motion: 2, license: "ReFrame original", when: "Editorial luxury hero: serif display, framed client portrait, monumental wordmark. Warm/elegant brands." },
+  { variant: "HeroImageFull", category: "hero", sectors: ["restaurant", "realestate", "health", "agency", "ecommerce"], moods: ["warm", "elegant", "bold"], motion: 2, license: "ReFrame original", when: "Full-bleed image hero with an editorial scrim; image-led sectors (hospitality, property, retail)." },
 
   // Features
   { variant: "FeaturesGrid1", category: "features", sectors: "all", moods: ["minimal", "elegant"], motion: 1, license: "ReFrame original", when: "Hairline-gap feature grid. Safe default." },
   { variant: "FeaturesBento", category: "features", sectors: ["saas", "agency", "ecommerce", "generic"], moods: ["bold", "minimal"], motion: 2, license: "ReFrame original", when: "Asymmetric bento with hover depth; modern brands." },
+  { variant: "FeaturesAlternating", category: "features", sectors: ["saas", "health", "agency", "realestate", "generic"], moods: ["minimal", "elegant"], motion: 1, license: "ReFrame original", when: "Alternating feature rows; calm editorial narrative." },
 
   // Services
   { variant: "ServicesList", category: "services", sectors: "all", moods: ["elegant", "warm", "minimal"], motion: 1, license: "ReFrame original", when: "Editorial numbered services index; serif titles, hairline rules." },
+  { variant: "ServicesCards", category: "services", sectors: ["saas", "agency", "ecommerce", "health", "generic"], moods: ["bold", "minimal"], motion: 1, license: "ReFrame original", when: "Service card grid that warms on hover; modern/bold brands." },
 
   // Portfolio / visual work (also serves products & gallery)
   { variant: "PortfolioGrid", category: "portfolio", sectors: "all", moods: ["elegant", "warm", "bold"], motion: 2, license: "ReFrame original", when: "Asymmetric 'Selected work' image grid with a monumental lead tile." },
@@ -55,6 +58,7 @@ export const BLOCK_CATALOG: BlockMeta[] = [
   // Testimonials — dark slider for bold/tech, light editorial for warm/elegant
   { variant: "TestimonialsSlider1", category: "testimonials", sectors: "all", moods: ["bold", "minimal"], motion: 1, license: "ReFrame original", when: "Cross-fading single-quote slider on a dark band." },
   { variant: "TestimonialsEditorial", category: "testimonials", sectors: "all", moods: ["elegant", "warm"], motion: 1, license: "ReFrame original", when: "Light press-page layout: serif pull-quote + hairline column." },
+  { variant: "TestimonialsGrid", category: "testimonials", sectors: "all", moods: ["warm", "elegant", "minimal"], motion: 1, license: "ReFrame original", when: "Three-card review grid with star ratings + initials avatars; broad credibility." },
 
   { variant: "FAQAccordion1", category: "faq", sectors: "all", motion: 1, license: "ReFrame original", when: "Editorial accordion FAQ." },
 
