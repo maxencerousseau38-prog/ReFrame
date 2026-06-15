@@ -3,7 +3,10 @@ import { analyzeUrl, BlockedUrlError } from "@/lib/generation/engine";
 import { rateLimit, clientKey } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
-export const maxDuration = 15;
+// Budget room for a static fetch (≤7s) followed by a headless render (≤22s) when
+// the page is a JS shell. The render previously outlived the old 15s cap and was
+// killed mid-flight, so JS-rendered sites always fell back. 30s fits both.
+export const maxDuration = 30;
 
 /** POST /api/analyze-url — analyze an existing website. */
 export async function POST(req: Request) {

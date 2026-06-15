@@ -33,15 +33,17 @@ export async function renderHtml(targetUrl: string): Promise<string | null> {
   const base = RENDER_URL.replace(/\/$/, "");
   const endpoint = `${base}/content${RENDER_TOKEN ? `?token=${encodeURIComponent(RENDER_TOKEN)}` : ""}`;
 
+  // Stay within the analyze route's 30s budget (≈7s static fetch + this): cap the
+  // whole render at 22s, and the in-browser navigation a little under that.
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 25_000);
+  const timer = setTimeout(() => controller.abort(), 22_000);
   try {
     const res = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         url: targetUrl,
-        gotoOptions: { waitUntil: "networkidle2", timeout: 20000 },
+        gotoOptions: { waitUntil: "networkidle2", timeout: 18000 },
       }),
       signal: controller.signal,
     });

@@ -123,8 +123,13 @@ async function fetchStatic(url: string): Promise<string> {
       signal: controller.signal,
       redirect: "follow",
       headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; ReFrameBot/1.0; +https://reframe.design)",
-        Accept: "text/html,application/xhtml+xml",
+        // A real browser UA: many sites (and CDNs/WAFs) serve an empty page or a
+        // block to unknown bots, which would force us into the generic fallback.
+        // We only ever read public marketing pages, so this is safe and honest.
+        "User-Agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9,fr;q=0.8",
       },
     });
     clearTimeout(timeout);
@@ -143,11 +148,19 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
   // Most of the modern web is JS-rendered or bot-protected, so a static fetch
   // often returns an empty/thin shell or a challenge page. When a render service
   // is configured, execute the page and use the (usually far richer) post-JS
-  // HTML instead. Without it, we proceed with whatever the static fetch gave.
+  // HTML instead. We render not only when the static read is empty, but also when
+  // it looks like an unfilled SPA shell (real bytes, no real content) - that case
+  // used to slip through and produce a generic rebuild. Without a render service,
+  // we proceed with whatever the static fetch gave.
   const weak = (h: string) => !h || clean(h).length < 220 || looksLikeChallenge(h);
-  if (weak(html) && isRenderConfigured()) {
+  if (isRenderConfigured() && (weak(html) || needsRendering(html))) {
     const rendered = await renderHtml(url);
-    if (rendered && clean(rendered).length > clean(html).length) html = rendered;
+    // Keep the render only if it actually read more of the page than the static
+    // fetch (and isn't itself a challenge), so a failed render never makes things
+    // worse than the HTML we already have.
+    if (rendered && !looksLikeChallenge(rendered) && clean(rendered).length > clean(html).length) {
+      html = rendered;
+    }
   }
 
   const bodyText = clean(html);
@@ -222,11 +235,7 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
 
   // Images: og:image first, then sizeable content images
   const ogImage = abs(meta('meta[property="og:image"]'), url);
-  const imgs = root
-    .querySelectorAll("img")
-    .map((el) => abs(el.getAttribute("src") || el.getAttribute("data-src") || "", url))
-    .filter((s) => s && !/\.svg($|\?)/i.test(s) && !s.startsWith("data:"));
-  const images = dedupe([ogImage, ...imgs].filter(Boolean)).slice(0, 6);
+  const images = extractImages(root, url);
   const heroImageUrl = images[0];
 
   // Navigation labels double as a real list of what the business offers
@@ -341,6 +350,115 @@ export function looksLikeChallenge(html: string): boolean {
       head
     ) || /enable javascript (to|and) (run|view|use)/.test(head)
   );
+}
+
+/**
+ * Decide whether a static read is too poor to trust, even when it has real
+ * bytes - i.e. an unfilled single-page-app shell. These pages return plenty of
+ * markup (framework bootstrap, nav, footer) but little real content, so parsing
+ * them yields a generic rebuild. Detecting them lets us run the headless render
+ * and read the page as a browser would. Conservative on purpose: it only matters
+ * when a render service is configured, and we never want to render good reads.
+ */
+export function needsRendering(html: string): boolean {
+  if (!html) return false;
+  const lower = html.slice(0, 6000).toLowerCase();
+  const text = clean(html);
+  const scripts = (html.match(/<script\b/gi) || []).length;
+  const headings = (html.match(/<h[12]\b/gi) || []).length;
+  const imgs = (html.match(/<img\b/gi) || []).length;
+  // Common SPA mount points / framework markers.
+  const spaShell =
+    /id=["']root["']|id=["']app["']|id=["']__next["']|id=["']__nuxt["']|data-reactroot|data-server-rendered|ng-version|<div id=["']svelte/.test(
+      lower
+    );
+  // Little real content relative to how much script is shipped.
+  const contentLight = text.length < 1200 && scripts >= 3;
+  const structureLight = headings < 2 && imgs < 3;
+  return (spaShell && (contentLight || structureLight)) || (text.length < 600 && scripts >= 5);
+}
+
+/** Pick the largest candidate URL out of a srcset / data-srcset attribute. */
+function largestFromSrcset(srcset: string): string {
+  let best = "";
+  let bestWeight = -1;
+  for (const part of srcset.split(",")) {
+    const [u, descriptor] = part.trim().split(/\s+/);
+    if (!u) continue;
+    // "640w" -> 640, "2x" -> 2, bare url -> 1
+    const weight = descriptor ? parseFloat(descriptor) || 1 : 1;
+    if (weight > bestWeight) {
+      bestWeight = weight;
+      best = u;
+    }
+  }
+  return best;
+}
+
+/** Extract CSS background-image url(...) targets from a blob of style text. */
+function backgroundImageUrls(styleText: string): string[] {
+  const out: string[] = [];
+  const re = /background(?:-image)?\s*:[^;}]*url\(\s*['"]?([^'")]+)['"]?\s*\)/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(styleText))) out.push(m[1]);
+  return out;
+}
+
+// Filenames that are almost never the content imagery we want to rebuild with:
+// chrome (logos, icons), spacers/placeholders, and analytics/tracking pixels.
+const IMAGE_JUNK_RE =
+  /sprite|favicon|logo|icon|pixel|spacer|blank|placeholder|loading|avatar|1x1|transparent|tracking|beacon|datadog|doubleclick|google-analytics|gtag|facebook\.com\/tr/i;
+
+/**
+ * Collect the real content imagery of a page, robustly. Unlike a naive
+ * `img[src]` sweep, this reads social-card images, lazy-load attributes
+ * (data-src / data-lazy-src / data-original), the largest entry of any srcset,
+ * and CSS background-image heroes - then drops chrome (logos, icons, sprites,
+ * tracking pixels) and tiny declared sizes. This is what lets the rebuild use
+ * the client's actual photos instead of falling back to stock gradients.
+ */
+export function extractImages(root: HTMLElement, base: string): string[] {
+  const candidates: string[] = [];
+
+  // Social-card images first: usually the single best, hand-picked hero shot.
+  for (const sel of ['meta[property="og:image"]', 'meta[name="twitter:image"]', 'meta[property="og:image:url"]']) {
+    const c = root.querySelector(sel)?.getAttribute("content");
+    if (c) candidates.push(c);
+  }
+
+  for (const el of root.querySelectorAll("img")) {
+    // Skip images explicitly declared tiny (icons, pixels).
+    const w = parseInt(el.getAttribute("width") || "", 10);
+    const h = parseInt(el.getAttribute("height") || "", 10);
+    if ((w && w < 100) || (h && h < 100)) continue;
+    const srcset = el.getAttribute("srcset") || el.getAttribute("data-srcset");
+    const best = srcset ? largestFromSrcset(srcset) : "";
+    const src =
+      best ||
+      el.getAttribute("src") ||
+      el.getAttribute("data-src") ||
+      el.getAttribute("data-lazy-src") ||
+      el.getAttribute("data-original") ||
+      "";
+    if (src) candidates.push(src);
+  }
+
+  // Background-image heroes (inline styles + <style> blocks).
+  const styleText = root.querySelectorAll("style").map((s) => s.text).join(" ");
+  const inline = root.querySelectorAll("[style]").map((e) => e.getAttribute("style") || "").join(" ");
+  for (const u of backgroundImageUrls(`${styleText} ${inline}`)) candidates.push(u);
+
+  const cleaned = candidates
+    .map((s) => abs(s, base))
+    .filter(
+      (s) =>
+        s &&
+        /^https?:/i.test(s) &&
+        !s.startsWith("data:") &&
+        !/\.svg($|\?)/i.test(s) &&
+        !IMAGE_JUNK_RE.test(s)
+    );
+  return dedupe(cleaned).slice(0, 8);
 }
 
 /**
