@@ -18,6 +18,10 @@ type Phase = "idle" | "analyzing" | "result" | "generating";
 
 /** Hybrid-flow content the user adds for what the crawl couldn't extract. */
 interface Extras {
+  /** Editable basics — important when the crawl read the site only partially. */
+  brandName?: string;
+  headline?: string;
+  description?: string;
   accentColor?: string;
   testimonials: { quote: string; name: string; role?: string }[];
   stats: { value: string; label: string }[];
@@ -95,9 +99,13 @@ function DashboardInner() {
     // analysis, so the engine renders it instead of omitting those sections.
     const merged: SiteAnalysis = {
       ...analysis,
+      // Owner-edited basics win over the crawl (crucial on partial reads).
+      brandName: extras.brandName?.trim() || analysis.brandName,
       brand: { ...analysis.brand, accentColor: extras.accentColor || analysis.brand?.accentColor },
       extractedContent: {
         ...analysis.extractedContent,
+        ...(extras.headline?.trim() ? { headline: extras.headline.trim() } : {}),
+        ...(extras.description?.trim() ? { description: extras.description.trim() } : {}),
         ...(extras.testimonials.length ? { testimonials: extras.testimonials } : {}),
         ...(extras.stats.length ? { stats: extras.stats } : {}),
         ...(extras.contact ? { contact: extras.contact } : {}),
@@ -216,6 +224,16 @@ function AnalysisResult({
   onGenerate: (extras: Extras) => void;
 }) {
   const scores = Object.entries(analysis.scores) as [string, number][];
+  // A partial/fallback read means we rebuilt mostly from metadata + defaults, so
+  // the basics below are likely generic. Promote completion from "optional" to
+  // "please confirm" so the rebuild uses the owner's real business details.
+  const lowConfidence = analysis.confidence !== "full";
+
+  // Editable basics — confirming/fixing these is the single highest-leverage
+  // thing an owner can do, especially when the crawl read the site only partly.
+  const [name, setName] = React.useState(analysis.brandName);
+  const [headline, setHeadline] = React.useState(analysis.extractedContent.headline);
+  const [description, setDescription] = React.useState(analysis.extractedContent.description);
 
   // Hybrid completion: real content the crawl couldn't get. We never fabricate
   // these, so this is how a user adds genuine testimonials/stats/brand color.
@@ -260,6 +278,9 @@ function AnalysisResult({
       ...(bookingUrl.trim() ? { bookingUrl: bookingUrl.trim() } : {}),
     };
     return {
+      brandName: name,
+      headline,
+      description,
       accentColor: accent || undefined,
       testimonials: tlist
         .filter((t) => t.quote.trim() && t.name.trim())
@@ -357,27 +378,56 @@ function AnalysisResult({
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Extracted content */}
-        <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-6 shadow-[0_30px_80px_-50px_rgba(0,0,0,0.9)]">
-          <h3 className="text-sm font-semibold">Extracted content</h3>
-          <dl className="mt-4 space-y-3 text-sm">
+        {/* Editable basics — pre-filled from the crawl, confirmable by the owner. */}
+        <div
+          className={
+            "rounded-2xl border p-6 shadow-[0_30px_80px_-50px_rgba(0,0,0,0.9)] " +
+            (lowConfidence ? "border-amber-500/30 bg-amber-500/[0.04]" : "border-white/8 bg-white/[0.02]")
+          }
+        >
+          <h3 className="text-sm font-semibold">
+            Your basics{" "}
+            {lowConfidence ? (
+              <span className="font-normal text-amber-300/90">— please confirm, we couldn&apos;t fully read your site</span>
+            ) : (
+              <span className="font-normal text-muted-foreground">— edit anything that&apos;s off</span>
+            )}
+          </h3>
+          <div className="mt-4 space-y-3 text-sm">
             <div>
-              <dt className="text-muted-foreground">Headline</dt>
-              <dd className="font-medium">{analysis.extractedContent.headline}</dd>
+              <label className="text-xs text-muted-foreground">Business name</label>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="mt-1 h-9 w-full rounded-lg border border-border bg-background px-2.5 text-sm outline-none focus:border-foreground/20"
+              />
             </div>
             <div>
-              <dt className="text-muted-foreground">Description</dt>
-              <dd>{analysis.extractedContent.description}</dd>
+              <label className="text-xs text-muted-foreground">Headline</label>
+              <input
+                value={headline}
+                onChange={(e) => setHeadline(e.target.value)}
+                className="mt-1 h-9 w-full rounded-lg border border-border bg-background px-2.5 text-sm outline-none focus:border-foreground/20"
+              />
             </div>
             <div>
-              <dt className="text-muted-foreground">Detected services</dt>
-              <dd className="mt-1 flex flex-wrap gap-2">
+              <label className="text-xs text-muted-foreground">Description</label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={2}
+                className="mt-1 w-full resize-none rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-foreground/20"
+              />
+            </div>
+            <div>
+              <span className="text-xs text-muted-foreground">Detected services</span>
+              <div className="mt-1 flex flex-wrap gap-2">
                 {analysis.extractedContent.services.map((s) => (
                   <span key={s} className="rounded-full bg-secondary px-2.5 py-1 text-xs">{s}</span>
                 ))}
-              </dd>
+              </div>
             </div>
-          </dl>
+          </div>
         </div>
 
         {/* Issues */}
@@ -437,10 +487,15 @@ function AnalysisResult({
       </div>
 
       {/* Hybrid completion: add the real content we couldn't extract. */}
-      <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
-        <h3 className="text-sm font-semibold">Add your content <span className="font-normal text-muted-foreground">(optional)</span></h3>
+      <div className={"rounded-2xl border p-5 " + (lowConfidence ? "border-amber-500/30 bg-amber-500/[0.04]" : "border-white/10 bg-white/[0.02]")}>
+        <h3 className="text-sm font-semibold">
+          Add your content{" "}
+          <span className="font-normal text-muted-foreground">{lowConfidence ? "— recommended" : "(optional)"}</span>
+        </h3>
         <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
-          ReFrame only builds sections from real content, never invented. Add anything we couldn&apos;t pull from your site and it&apos;ll be included.
+          {lowConfidence
+            ? "We couldn't fully read your site, so add your real photos, contact details and proof here — they make the difference between a generic rebuild and your actual business."
+            : "ReFrame only builds sections from real content, never invented. Add anything we couldn't pull from your site and it'll be included."}
         </p>
 
         <div className="mt-5 grid gap-6 sm:grid-cols-2">

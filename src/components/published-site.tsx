@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SiteRenderer } from "@/components/blocks";
 import { getUserById } from "@/lib/server/users-store";
 import { entitlementsOf, effectivePlan } from "@/lib/server/plans";
+import { buildJsonLd } from "@/lib/server/seo";
 import type { PublishedSite as PublishedSiteRecord } from "@/lib/server/sites-store";
 
 /** Should this published site carry the "Made with ReFrame" badge? */
@@ -15,19 +16,31 @@ async function showBranding(ownerId?: string): Promise<boolean> {
  * Renders a published site plus the plan-gated branding badge. Shared by the
  * canonical `/s/<slug>` route and the host resolver (`<slug>.reframe.site` and
  * connected custom domains), so branding and markup stay identical everywhere.
+ *
+ * `canonicalUrl` (when known) feeds schema.org JSON-LD so the page declares the
+ * business to search engines - LocalBusiness when contact details are present.
  */
 export async function PublishedSite({
   site,
   basePath,
   page,
+  canonicalUrl,
 }: {
   site: PublishedSiteRecord;
   basePath?: string;
   page?: string;
+  canonicalUrl?: string;
 }) {
   const branded = await showBranding(site.ownerId);
+  const jsonLd = buildJsonLd(site.schema, canonicalUrl);
   return (
     <>
+      {/* Machine-readable business identity for search engines / local results. */}
+      <script
+        type="application/ld+json"
+        // JSON.stringify output is safe to inline; no user-controlled HTML.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <SiteRenderer schema={site.schema} basePath={basePath} page={page} />
       {branded && (
         <Link
