@@ -40,20 +40,21 @@ export function Hero() {
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
         >
           <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-400">
-            Website transformation engine
+            Turn visitors into customers
           </span>
 
           <h1 className="mt-8 font-semibold tracking-[-0.04em] text-white [font-size:clamp(2.9rem,8vw,6.5rem)] [line-height:0.94]">
-            Your website,
+            Your customers
             <br />
-            rebuilt by
+            decide in seconds.
             <br />
-            <span className="text-accent">intelligence.</span>
+            <span className="text-accent">Win them.</span>
           </h1>
 
           <p className="mt-7 max-w-md text-lg leading-relaxed text-zinc-400">
-            Paste your link. ReFrame analyzes your existing site and rebuilds it
-            into a faster, modern version. No builder, no blank page.
+            Paste your link. ReFrame rebuilds your existing site into one that
+            earns trust on sight — so visitors stop leaving and start buying.
+            No builder, no blank page.
           </p>
 
           <form

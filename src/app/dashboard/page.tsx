@@ -148,9 +148,9 @@ function DashboardInner() {
           <Badge variant="outline" className="mb-3">
             <Sparkle weight="fill" className="h-3 w-3" /> New project
           </Badge>
-          <h1 className="text-4xl font-semibold tracking-[-0.02em]">Transform a website</h1>
+          <h1 className="text-4xl font-semibold tracking-[-0.02em]">Win back your customers</h1>
           <p className="mt-3 text-muted-foreground">
-            Paste your URL. ReFrame analyzes your existing site and rebuilds it into a modern version.
+            Paste your URL. ReFrame rebuilds your site into one your customers trust on sight — in minutes.
           </p>
         </div>
 

@@ -4,13 +4,13 @@ import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ReFrame - reframe any website into something worth visiting",
+  title: "ReFrame — win the customers your website is losing",
   description:
-    "Paste a link. ReFrame analyzes your existing website and rebuilds it into a fast, modern site you can edit by chatting with AI. Live in minutes.",
+    "Your old site is quietly costing you customers. Paste your link and ReFrame rebuilds it into one they trust — and buy from — in minutes. Edit it just by chatting.",
   metadataBase: new URL("https://reframe.design"),
   openGraph: {
     title: "ReFrame",
-    description: "Reframe any website into a fast, modern site you edit with AI.",
+    description: "Turn the site you already have into one that wins customers. Live in minutes.",
     type: "website",
     images: ["/brand/reframe-logo.png"],
   },

@@ -19,8 +19,8 @@ export function Examples() {
             Real sites, reframed.
           </h2>
           <p className="max-w-xs text-zinc-400">
-            Every transformation keeps the business&apos;s own content and brand.
-            Same company, a site that finally sells.
+            Same business, same brand — a site customers finally take seriously,
+            and buy from.
           </p>
         </BlurReveal>
 

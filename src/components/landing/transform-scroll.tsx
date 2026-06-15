@@ -18,7 +18,7 @@ const STEPS = [
   { icon: Eye, label: "Read", body: "Crawl the live site: copy, media, structure, brand." },
   { icon: Brain, label: "Understand", body: "Infer the sector, the intent and what converts." },
   { icon: SquaresFour, label: "Compose", body: "Assemble vetted blocks into a coherent system." },
-  { icon: RocketLaunch, label: "Ship", body: "Render a fast, editable site, ready to publish." },
+  { icon: RocketLaunch, label: "Ship", body: "Render a fast, editable site your customers trust, ready to publish." },
 ];
 
 const PHASE_MS = 3000;
@@ -53,11 +53,11 @@ export function TransformScroll() {
               The engine
             </span>
             <h2 className="mt-5 max-w-md font-semibold leading-[1.02] tracking-[-0.03em] text-white [font-size:clamp(2.1rem,4.6vw,3.5rem)]">
-              It understands your site before it rebuilds it.
+              It knows exactly what&apos;s turning your customers away.
             </h2>
             <p className="mt-5 max-w-sm text-[15px] leading-relaxed text-zinc-400">
-              Four passes turn a tired page into a site that earns attention — no
-              builder, no blank canvas.
+              Four passes turn a tired page into a site visitors trust — and act
+              on. No builder, no blank canvas.
             </p>
           </motion.div>
 

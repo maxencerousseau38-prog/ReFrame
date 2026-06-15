@@ -44,11 +44,11 @@ export function Transformation() {
           <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-accent">See the transformation</p>
           <h2 className="mt-4 font-semibold tracking-[-0.03em] text-white [font-size:clamp(2.25rem,5.5vw,4rem)] [line-height:0.98]">
             The same business.
-            <br /> A site that finally converts.
+            <br /> Customers who don&apos;t hesitate.
           </h2>
           <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-zinc-400">
-            Watch the seam sweep: your dated page on one side, the Reframed
-            version on the other — same content, rebuilt to earn attention.
+            Watch the seam sweep: on one side, the page quietly turning customers
+            away; on the other, the one they trust before they&apos;ve even scrolled.
           </p>
         </motion.div>
 

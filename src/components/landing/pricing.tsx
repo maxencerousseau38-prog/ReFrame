@@ -33,7 +33,7 @@ const tiers: Tier[] = [
     plan: "pro",
     price: "$29",
     period: "per month",
-    desc: "Your business site, live and maintained. Most businesses need exactly one.",
+    desc: "Everything you need to turn visitors into paying customers — live and looked after.",
     features: [
       "AI-powered website redesign",
       "Unlimited AI edits",

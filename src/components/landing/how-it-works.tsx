@@ -13,14 +13,14 @@ const steps = [
   {
     icon: Brain,
     n: "02",
-    title: "AI analysis",
-    body: "ReFrame reads your content, images, logo, colors and sector, then audits what holds it back.",
+    title: "We spot what's costing you",
+    body: "ReFrame reads your content, images, brand and sector — and pinpoints what's quietly turning visitors away.",
   },
   {
     icon: Sparkle,
     n: "03",
-    title: "Your new website",
-    body: "A modern, faster version of your site is rebuilt in minutes. Refine it by chatting.",
+    title: "A site that wins them over",
+    body: "A faster, modern site your customers trust on sight, rebuilt in minutes. Refine it just by chatting.",
   },
 ];
 
@@ -30,7 +30,7 @@ export function HowItWorks() {
     <section id="how" className="px-6 py-32">
       <div className="mx-auto max-w-[1200px]">
         <h2 className="max-w-2xl font-semibold leading-[1.02] tracking-[-0.03em] text-white [font-size:clamp(2.25rem,5.5vw,4rem)]">
-          From your link to a new site,
+          From your link to more customers,
           <br /> in three steps.
         </h2>
 

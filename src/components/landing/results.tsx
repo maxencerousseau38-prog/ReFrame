@@ -41,11 +41,11 @@ export function Results() {
         <BlurReveal className="max-w-2xl">
           <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-accent">In their words</p>
           <h2 className="mt-4 font-semibold leading-[1.04] tracking-[-0.03em] text-white [font-size:clamp(2.25rem,5.5vw,3.75rem)]">
-            The people behind the websites.
+            Owners winning their customers back.
           </h2>
           <p className="mt-4 text-[15px] leading-relaxed text-zinc-400">
-            Owners and studios who replaced a site they had outgrown — without
-            touching a builder.
+            They replaced a site they had outgrown — and watched the bookings,
+            calls and clients follow.
           </p>
         </BlurReveal>
 
