@@ -51,7 +51,7 @@ describe("generateSite", () => {
     const byType = Object.fromEntries(
       generateSite(a, { mode: "preserve" }).blocks.map((b) => [b.type, b.variant])
     );
-    expect(byType.about).toBe("AboutSplit");
+    expect(["AboutSplit", "StatementAgencia"]).toContain(byType.about);
     expect(["ServicesList", "ServicesCards"]).toContain(byType.services);
     expect(byType.portfolio).toBe("PortfolioGrid");
   });

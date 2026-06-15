@@ -1724,6 +1724,191 @@ function HeroMonumental({ props }: { props: any }) {
 }
 
 /* -------------------------------------------------------------------------- */
+/*  Agencia family — editorial-brutalist dark templates                        */
+/*                                                                            */
+/*  A cohesive set (hero + statement + closing CTA) inspired by modern Framer  */
+/*  agency sites: a near-black canvas, a single hot accent run through gradient */
+/*  washes, colossal condensed uppercase type with a two-tone (live + muted)   */
+/*  split, and numbered "01" section pills. Brand-adaptive: the heat comes from */
+/*  --brand-accent, so any bold brand colour drives the whole family. Selected  */
+/*  for bold moods, where they tend to land together and read as one site.     */
+/* -------------------------------------------------------------------------- */
+
+const AGENCIA_BG = "#0a0a0a";
+
+/** Two consecutive pills — a white label + a circular index — as on Agencia. */
+function NumberedPill({ label, index }: { label: string; index?: number }) {
+  const n = (typeof index === "number" && index > 0 ? index : 1).toString().padStart(2, "0");
+  return (
+    <span className="inline-flex items-center gap-1.5 align-middle">
+      <span className="rounded-full bg-white px-4 py-1.5 text-[0.82rem] font-medium text-black">{label}</span>
+      <span className="flex h-8 min-w-8 items-center justify-center rounded-full bg-white px-2 text-[0.82rem] font-medium text-black">
+        {n}
+      </span>
+    </span>
+  );
+}
+
+/** Split a phrase so the trailing share renders muted — the Agencia two-tone. */
+function splitTwoTone(text: string, liveRatio = 0.55): [string, string] {
+  const words = (text || "").trim().split(/\s+/).filter(Boolean);
+  if (words.length < 3) return [text || "", ""];
+  const mid = Math.max(1, Math.ceil(words.length * liveRatio));
+  return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
+}
+
+/** Closed display class shared by the family: heavy, condensed, tight. */
+const AGENCIA_DISPLAY =
+  "font-semibold uppercase leading-[0.95] tracking-[-0.02em] [font-stretch:condensed]";
+
+/**
+ * Agencia hero — near-black canvas, a colossal condensed brand wordmark clipped
+ * at the baseline, a hot gradient "ember" lozenge as the only colour, and a
+ * two-tone tagline. The most cinematic hero in the library; for bold brands.
+ */
+function HeroAgencia({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  const word = (props.brand || props.title || "Studio") as string;
+  const [live, muted] = splitTwoTone(props.subtitle || props.title || "", 0.5);
+  return (
+    <section className="relative flex min-h-[94vh] flex-col overflow-hidden px-6 pb-0 pt-28 text-white" style={{ background: AGENCIA_BG }}>
+      {/* ember: the lone splash of brand colour, drifting at the top */}
+      <motion.div
+        aria-hidden
+        initial={reduce ? false : { opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 0.9, scale: 1 }}
+        transition={{ duration: 1.1, ease: EASE }}
+        className="pointer-events-none absolute -top-24 right-[8%] h-72 w-72 rounded-full blur-[60px]"
+        style={{ background: "radial-gradient(circle at 40% 40%, var(--brand-accent), transparent 70%)" }}
+      />
+
+      <div className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col">
+        <div className="flex items-start justify-between gap-8">
+          <NumberedPill label={props.eyebrow || "Studio"} index={props._index} />
+          {props.caption && (
+            <p className="hidden max-w-xs text-right text-sm leading-relaxed text-white/70 sm:block">{props.caption}</p>
+          )}
+        </div>
+
+        <motion.h1
+          initial={reduce ? false : { opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: EASE }}
+          className={cn("mt-12 max-w-4xl text-[clamp(2rem,5vw,4rem)]", AGENCIA_DISPLAY)}
+          style={{ fontFamily: "var(--brand-font)" }}
+        >
+          <span>{live} </span>
+          {muted && <span className="text-white/35">{muted}</span>}
+        </motion.h1>
+
+        <div className="mt-8 flex flex-wrap gap-3">
+          {props.primaryCta && (
+            <button className="px-6 py-3 text-sm font-medium text-white" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}>
+              {props.primaryCta}
+            </button>
+          )}
+          {props.secondaryCta && (
+            <button className="border px-6 py-3 text-sm font-medium text-white" style={{ borderColor: "rgba(255,255,255,0.4)", borderRadius: "var(--brand-radius)" }}>
+              {props.secondaryCta}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* colossal wordmark, clipped at the bottom edge with an accent underglow */}
+      <div className="relative mx-auto w-full max-w-[1500px] overflow-hidden">
+        <div className="absolute inset-x-0 bottom-0 h-1/2" style={{ background: "linear-gradient(to top, color-mix(in srgb, var(--brand-accent) 30%, transparent), transparent)" }} />
+        <motion.span
+          initial={reduce ? false : { opacity: 0, y: 48 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, ease: EASE }}
+          className={cn("relative block translate-y-[0.14em] select-none whitespace-nowrap text-center [font-size:clamp(3.5rem,19vw,16rem)] leading-[0.78]", AGENCIA_DISPLAY)}
+          style={{ fontFamily: "var(--brand-font)" }}
+        >
+          {word}
+        </motion.span>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Agencia statement — a centred numbered pill over a monumental two-tone mission
+ * line, then a wide rounded image plate. Maps to the About slot; the brand's
+ * description becomes the statement, so it stays specific, never boilerplate.
+ */
+function StatementAgencia({ props }: { props: any }) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-15%" });
+  const statement = (props.body || props.title || "") as string;
+  const [live, muted] = splitTwoTone(statement, 0.45);
+  return (
+    <section ref={ref} className="px-6 py-24 text-white sm:py-32" style={{ background: AGENCIA_BG }}>
+      <div className="mx-auto max-w-5xl text-center">
+        <NumberedPill label={props.eyebrow || "About"} index={props._index} />
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7, ease: EASE }}
+          className={cn("mx-auto mt-10 max-w-4xl text-[clamp(1.6rem,4vw,3rem)]", AGENCIA_DISPLAY)}
+          style={{ fontFamily: "var(--brand-font)" }}
+        >
+          <span>{live} </span>
+          {muted && <span className="text-white/35">{muted}</span>}
+        </motion.h2>
+
+        {props.image && (
+          <motion.div
+            initial={{ opacity: 0, y: 28 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.12, ease: EASE }}
+            className="mx-auto mt-14 h-64 w-full max-w-3xl overflow-hidden rounded-3xl bg-cover bg-center sm:h-80"
+            style={{ backgroundImage: imageBg(props.image, "linear-gradient(135deg, var(--brand-accent), #1a1a1a)") }}
+          />
+        )}
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Agencia closing CTA — a giant two-line "LET'S GET STARTED" over a hot gradient
+ * plate carrying a slowly rotating asterisk and the contact link. The library's
+ * boldest sign-off; pairs with the Agencia hero/statement for bold brands.
+ */
+function CTAAsterisk({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  return (
+    <section className="overflow-hidden px-6 pt-24 text-white sm:pt-32" style={{ background: AGENCIA_BG }}>
+      <div className="mx-auto max-w-6xl">
+        <NumberedPill label={props.eyebrow || "Contact"} index={props._index} />
+        {props.subtitle && <p className="mt-6 text-lg text-white/60">{props.subtitle}</p>}
+        <h2 className={cn("mt-4 text-[clamp(2.6rem,11vw,8rem)]", AGENCIA_DISPLAY)} style={{ fontFamily: "var(--brand-font)" }}>
+          {props.title || "Let's get started"}
+        </h2>
+      </div>
+
+      <div
+        className="relative mt-14 flex items-center gap-6 overflow-hidden rounded-3xl px-8 py-16 sm:px-14 sm:py-20"
+        style={{ background: "linear-gradient(110deg, var(--brand-accent), color-mix(in srgb, var(--brand-accent) 55%, #120a06))" }}
+      >
+        <motion.span
+          aria-hidden
+          animate={reduce ? {} : { rotate: 360 }}
+          transition={{ duration: 18, ease: "linear", repeat: Infinity }}
+          className="shrink-0 text-5xl font-light leading-none text-white sm:text-7xl"
+        >
+          ✳
+        </motion.span>
+        <a href="#contact" className={cn("text-[clamp(1.8rem,6vw,4rem)] text-white transition-opacity hover:opacity-80", AGENCIA_DISPLAY)} style={{ fontFamily: "var(--brand-font)" }}>
+          {props.cta || "Contact us"}
+        </a>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
 /*  Registry + renderer                                                       */
 /* -------------------------------------------------------------------------- */
 
@@ -1734,6 +1919,9 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   HeroSpotlight,
   HeroImageFull,
   HeroMonumental,
+  HeroAgencia,
+  StatementAgencia,
+  CTAAsterisk,
   FeaturesGrid1,
   FeaturesBento,
   FeaturesAlternating,
@@ -1753,10 +1941,12 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   Footer1,
 };
 
-function BlockRenderer({ block }: { block: Block }) {
+function BlockRenderer({ block, index }: { block: Block; index?: number }) {
   const Cmp = REGISTRY[block.variant];
   if (!Cmp) return null;
-  return <Cmp props={block.props} />;
+  // Expose the section's position so numbered-index templates (Agencia-style
+  // pills: "About 01") can label themselves without the engine tracking order.
+  return <Cmp props={{ _index: index, ...block.props }} />;
 }
 
 /** Renders a full generated site from its schema, applying the theme. */
@@ -1876,9 +2066,9 @@ export function SiteRenderer({
       }}
     >
       <SiteNav brand={brand} items={items} cta={cta} />
-      {current.blocks.map((block) => (
+      {current.blocks.map((block, i) => (
         <div key={block.id} id={anchorId(block.type)} style={{ scrollMarginTop: "76px" }}>
-          <BlockRenderer block={block} />
+          <BlockRenderer block={block} index={i + 1} />
         </div>
       ))}
     </div>

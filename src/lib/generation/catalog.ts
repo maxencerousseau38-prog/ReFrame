@@ -34,6 +34,7 @@ export const BLOCK_CATALOG: BlockMeta[] = [
   { variant: "HeroEditorial", category: "hero", sectors: ["restaurant", "realestate", "health", "agency", "ecommerce"], moods: ["elegant", "warm"], motion: 2, license: "ReFrame original", when: "Editorial luxury hero: serif display, framed client portrait, monumental wordmark. Warm/elegant brands." },
   { variant: "HeroImageFull", category: "hero", sectors: ["restaurant", "realestate", "health", "agency", "ecommerce"], moods: ["warm", "elegant", "bold"], motion: 2, license: "ReFrame original", when: "Full-bleed image hero with an editorial scrim; image-led sectors (hospitality, property, retail)." },
   { variant: "HeroMonumental", category: "hero", sectors: ["realestate", "agency", "restaurant", "ecommerce"], moods: ["bold"], motion: 2, license: "ReFrame original (inspired by ARCFORM/Archinest Framer templates)", when: "Full-bleed photo + colossal brand wordmark across the bottom; confident, bold, image-led brands." },
+  { variant: "HeroAgencia", category: "hero", sectors: ["agency", "saas", "ecommerce", "generic"], moods: ["bold"], motion: 3, license: "ReFrame original (inspired by Agencia/Framer agency templates)", when: "Near-black canvas, colossal condensed wordmark, ember accent, two-tone tagline; bold modern studios/agencies." },
 
   // Features
   { variant: "FeaturesGrid1", category: "features", sectors: "all", moods: ["minimal", "elegant"], motion: 1, license: "ReFrame original", when: "Hairline-gap feature grid. Safe default." },
@@ -55,6 +56,7 @@ export const BLOCK_CATALOG: BlockMeta[] = [
 
   // About
   { variant: "AboutSplit", category: "about", sectors: "all", moods: ["elegant", "warm"], motion: 1, license: "ReFrame original", when: "Portrait + serif narrative with inline credibility chips." },
+  { variant: "StatementAgencia", category: "about", sectors: ["agency", "saas", "ecommerce", "generic"], moods: ["bold"], motion: 2, license: "ReFrame original (inspired by Agencia/Framer agency templates)", when: "Centred numbered pill over a monumental two-tone mission statement + wide image plate; bold dark brands." },
 
   // Testimonials — dark slider for bold/tech, light editorial for warm/elegant
   { variant: "TestimonialsSlider1", category: "testimonials", sectors: "all", moods: ["bold", "minimal"], motion: 1, license: "ReFrame original", when: "Cross-fading single-quote slider on a dark band." },
@@ -66,6 +68,7 @@ export const BLOCK_CATALOG: BlockMeta[] = [
   // CTA — dark glowing panel for bold/tech, light editorial framing for warm/elegant
   { variant: "CTASection1", category: "cta", sectors: "all", moods: ["bold", "minimal"], motion: 1, license: "ReFrame original", when: "High-contrast dark closing CTA with accent glow." },
   { variant: "CTAEditorial", category: "cta", sectors: "all", moods: ["elegant", "warm"], motion: 1, license: "ReFrame original", when: "Light serif CTA framed by hairline rules." },
+  { variant: "CTAAsterisk", category: "cta", sectors: ["agency", "saas", "ecommerce", "generic"], moods: ["bold"], motion: 3, license: "ReFrame original (inspired by Agencia/Framer agency templates)", when: "Colossal condensed sign-off over a hot gradient plate with a rotating asterisk + contact link; bold dark brands." },
   { variant: "ContactFormPremium1", category: "contact", sectors: "all", motion: 0, license: "ReFrame original", when: "Two-column contact form." },
   { variant: "Footer1", category: "footer", sectors: "all", motion: 0, license: "ReFrame original", when: "Editorial footer." },
 ];
