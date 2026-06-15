@@ -822,10 +822,21 @@ function featureBlurb(service: string, industry: Industry): string {
     "Licensed & insured": "Fully certified and covered for complete peace of mind.",
     "Workmanship guarantee": "If it's not right, we make it right, guaranteed.",
   };
-  return (
-    map[service] ||
-    `${service}, delivered to a standard our ${INDUSTRY_PROFILES[industry].label.toLowerCase()} clients trust.`
-  );
+  if (map[service]) return map[service];
+
+  // Varied, grammatical fallbacks so no two items read the same. Chosen
+  // deterministically from the service name (stable across renders).
+  const lower = service.toLowerCase();
+  const patterns = [
+    `${service}, handled end to end with senior craft.`,
+    `${service} — considered, on-brand, and delivered on time.`,
+    `${service} done properly: no templates, no shortcuts.`,
+    `${service}, tailored to your brand and built to last.`,
+    `Clear, results-driven ${lower} that earns its keep.`,
+    `Thoughtful ${lower}, executed cleanly from brief to launch.`,
+  ];
+  const idx = service.split("").reduce((s, c) => s + c.charCodeAt(0), 0) % patterns.length;
+  return patterns[idx];
 }
 
 /**
@@ -836,10 +847,12 @@ function featureBlurb(service: string, industry: Industry): string {
 function portfolioItems(a: SiteAnalysis): { image?: string; title: string; tag: string }[] {
   const imgs = a.extractedContent.images;
   const names = a.extractedContent.services;
+  // Neutral, varied tags so tiles don't all repeat the industry label.
+  const tags = ["Featured", "Recent work", "Case study", "Selected", "Highlight", "Project"];
   return Array.from({ length: 6 }).map((_, i) => ({
     image: imgs[i],
     title: names[i] || `Project ${String(i + 1).padStart(2, "0")}`,
-    tag: a.industryLabel,
+    tag: tags[i % tags.length],
   }));
 }
 
