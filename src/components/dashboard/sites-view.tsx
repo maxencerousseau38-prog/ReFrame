@@ -14,6 +14,9 @@ type SiteCard = {
   domainVerified?: boolean;
 };
 
+/** DNS record the customer adds at their registrar (mirrors the API response). */
+type DnsRecord = { type: "A" | "CNAME" | "TXT"; name: string; value: string; reason?: string };
+
 type PlanInfo = { id: "free" | "pro" | "studio"; label: string; limit: number };
 
 function formatDate(iso: string): string {
@@ -178,6 +181,7 @@ function SiteRow({
   const [open, setOpen] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
   const [msg, setMsg] = React.useState<string | null>(null);
+  const [records, setRecords] = React.useState<DnsRecord[]>([]);
 
   async function connect() {
     setBusy(true);
@@ -195,6 +199,7 @@ function SiteRow({
       }
       setConnected(true);
       setVerified(Boolean(data.verified));
+      setRecords(Array.isArray(data.records) ? data.records : []);
       setMsg(data.message);
     } finally {
       setBusy(false);
@@ -208,6 +213,7 @@ function SiteRow({
       setConnected(false);
       setVerified(false);
       setDomain("");
+      setRecords([]);
       setMsg(null);
     } finally {
       setBusy(false);
@@ -258,6 +264,25 @@ function SiteRow({
               </button>
             </div>
             {msg && <p className="text-[11px] leading-relaxed text-zinc-400">{msg}</p>}
+            {records.length > 0 && !verified && (
+              <div className="overflow-hidden rounded-lg border border-white/10">
+                <div className="grid grid-cols-[auto_1fr_2fr] gap-x-3 bg-white/[0.03] px-3 py-1.5 text-[10px] font-medium uppercase tracking-wide text-zinc-500">
+                  <span>Type</span>
+                  <span>Name</span>
+                  <span>Value</span>
+                </div>
+                {records.map((r, i) => (
+                  <div
+                    key={`${r.type}-${r.name}-${i}`}
+                    className="grid grid-cols-[auto_1fr_2fr] gap-x-3 border-t border-white/5 px-3 py-1.5 font-mono text-[11px] text-zinc-300"
+                  >
+                    <span className="text-accent">{r.type}</span>
+                    <span className="truncate">{r.name}</span>
+                    <span className="truncate" title={r.value}>{r.value}</span>
+                  </div>
+                ))}
+              </div>
+            )}
             {connected && (
               <button onClick={disconnect} disabled={busy} className="text-[11px] text-zinc-500 hover:text-red-300">
                 Disconnect domain

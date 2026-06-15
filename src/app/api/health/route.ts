@@ -4,6 +4,7 @@ import { isStripeConfigured } from "@/lib/server/stripe";
 import { isEmailConfigured } from "@/lib/server/email";
 import { isRenderConfigured } from "@/lib/server/render";
 import { isBlobConfigured } from "@/lib/server/blob";
+import { isVercelDomainsConfigured } from "@/lib/server/vercel-domains";
 
 export const runtime = "nodejs";
 
@@ -20,6 +21,7 @@ export async function GET() {
     email: isEmailConfigured(),
     render: isRenderConfigured(),
     blob: isBlobConfigured(),
+    customDomains: isVercelDomainsConfigured(),
     authSecret: Boolean(process.env.AUTH_SECRET),
     rootDomain: process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? null,
     llm: Boolean(process.env.ANTHROPIC_API_KEY),
