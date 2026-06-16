@@ -16,6 +16,8 @@
  * doing the plain static fetch it does today.
  */
 
+import { withPage } from "./browser";
+
 const RENDER_URL = process.env.BROWSERLESS_URL;
 const RENDER_TOKEN = process.env.BROWSERLESS_TOKEN;
 
@@ -58,14 +60,35 @@ export async function renderHtml(targetUrl: string): Promise<string | null> {
 }
 
 /**
- * Capture a PNG screenshot of the page via the render service, or null if
- * rendering is unconfigured, times out, or fails. Used as the "before" preview
- * for sites that refuse to be framed (X-Frame-Options / CSP). Callers must have
- * already validated the URL (SSRF guard) before calling this.
+ * Capture a PNG screenshot of the page. Used as the "before" preview for sites
+ * that refuse to be framed (X-Frame-Options / CSP). Prefers the configured
+ * render service, then falls back to a local headless browser; returns null
+ * only when neither is available or both fail. Callers must have already
+ * validated the URL (SSRF guard) before calling this.
  */
 export async function screenshot(targetUrl: string): Promise<Buffer | null> {
-  if (!RENDER_URL) return null;
-  const base = RENDER_URL.replace(/\/$/, "");
+  if (RENDER_URL) {
+    const viaService = await screenshotViaService(targetUrl);
+    if (viaService) return viaService;
+  }
+  return withPage(
+    async (page) => {
+      const ok = await page
+        .goto(targetUrl, { waitUntil: "domcontentloaded", timeout: 15_000 })
+        .then(() => true)
+        .catch(() => false);
+      if (!ok) return null;
+      // Let late content settle, but never hang on a chatty page.
+      await page.waitForLoadState("networkidle", { timeout: 6_000 }).catch(() => {});
+      const buf = await page.screenshot({ type: "png" });
+      return buf.length > 1000 ? buf : null;
+    },
+    { timeoutMs: 20_000 }
+  );
+}
+
+async function screenshotViaService(targetUrl: string): Promise<Buffer | null> {
+  const base = RENDER_URL!.replace(/\/$/, "");
   const endpoint = `${base}/screenshot${RENDER_TOKEN ? `?token=${encodeURIComponent(RENDER_TOKEN)}` : ""}`;
 
   const controller = new AbortController();
