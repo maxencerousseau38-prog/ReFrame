@@ -44,11 +44,11 @@ export function Hero() {
           </span>
 
           <h1 className="mt-8 font-semibold tracking-[-0.04em] text-white [font-size:clamp(2.9rem,8vw,6.5rem)] [line-height:0.94]">
-            Your customers
+            The website your
             <br />
-            decide in seconds.
+            customers
             <br />
-            <span className="text-accent">Win them.</span>
+            <span className="text-accent">trust.</span>
           </h1>
 
           <p className="mt-7 max-w-md text-lg leading-relaxed text-zinc-400">
