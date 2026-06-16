@@ -9,6 +9,7 @@ import { DashboardShell } from "@/components/dashboard/shell";
 import { AnalyzeLoader } from "@/components/dashboard/analyze-loader";
 import { RecentProjects } from "@/components/dashboard/recent-projects";
 import { AdminEmailTest } from "@/components/dashboard/admin-email-test";
+import { AdminReadiness } from "@/components/dashboard/admin-readiness";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { saveAnalysis, saveSchema, createProject } from "@/lib/store";
@@ -190,6 +191,7 @@ function DashboardInner() {
 
         {/* Saved projects (signed-in users), shown on the empty dashboard. */}
         {phase === "idle" && <RecentProjects />}
+        {phase === "idle" && <AdminReadiness />}
         {phase === "idle" && <AdminEmailTest />}
 
         {/* States */}

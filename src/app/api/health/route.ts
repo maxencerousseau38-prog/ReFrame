@@ -5,6 +5,7 @@ import { isEmailConfigured } from "@/lib/server/email";
 import { isRenderConfigured } from "@/lib/server/render";
 import { isBlobConfigured } from "@/lib/server/blob";
 import { isVercelDomainsConfigured } from "@/lib/server/vercel-domains";
+import { authSecretSecure } from "@/lib/server/auth";
 
 export const runtime = "nodejs";
 
@@ -22,7 +23,7 @@ export async function GET() {
     render: isRenderConfigured(),
     blob: isBlobConfigured(),
     customDomains: isVercelDomainsConfigured(),
-    authSecret: Boolean(process.env.AUTH_SECRET),
+    authSecret: authSecretSecure(),
     rootDomain: process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? null,
     llm: Boolean(process.env.ANTHROPIC_API_KEY),
     time: new Date().toISOString(),

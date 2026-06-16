@@ -16,10 +16,26 @@ import { getUserById, type User } from "./users-store";
 
 const COOKIE = "rf_session";
 const MAX_AGE = 60 * 60 * 24 * 30; // 30 days
-const SECRET =
-  process.env.AUTH_SECRET || "reframe-dev-secret-change-me-in-production";
+const DEV_SECRET = "reframe-dev-secret-change-me-in-production";
+const SECRET = process.env.AUTH_SECRET || DEV_SECRET;
+
+/**
+ * Whether a real, non-default AUTH_SECRET is configured. Surfaced on the health
+ * endpoint so a misconfigured deploy is obvious.
+ */
+export function authSecretSecure(): boolean {
+  return SECRET !== DEV_SECRET;
+}
 
 function sign(payload: string): string {
+  // Fail closed: never sign/verify sessions with the dev default in production,
+  // otherwise cookies would be trivially forgeable. This throws on mint (login
+  // surfaces a loud 500) and is caught on verify (treated as no session).
+  if (process.env.NODE_ENV === "production" && !authSecretSecure()) {
+    throw new Error(
+      "AUTH_SECRET is unset or the dev default in production. Set a strong AUTH_SECRET before serving sessions."
+    );
+  }
   return crypto.createHmac("sha256", SECRET).update(payload).digest("hex");
 }
 
@@ -33,7 +49,12 @@ function verifyToken(token: string): string | null {
   const parts = token.split(".");
   if (parts.length !== 3) return null;
   const [userId, exp, sig] = parts;
-  const expected = sign(`${userId}.${exp}`);
+  let expected: string;
+  try {
+    expected = sign(`${userId}.${exp}`);
+  } catch {
+    return null; // misconfigured secret in prod — no valid sessions
+  }
   const a = Buffer.from(sig);
   const b = Buffer.from(expected);
   if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
