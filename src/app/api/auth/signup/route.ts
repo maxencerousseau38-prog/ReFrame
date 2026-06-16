@@ -25,7 +25,7 @@ const MESSAGES: Record<string, string> = {
 
 /** POST /api/auth/signup — create an account and start a session. */
 export async function POST(req: Request) {
-  const limit = rateLimit(`signup:${clientKey(req)}`, 10, 60_000);
+  const limit = await rateLimit(`signup:${clientKey(req)}`, 10, 60_000);
   if (!limit.ok) {
     return NextResponse.json(
       { error: "Too many attempts, please slow down." },

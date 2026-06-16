@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 
 /** POST /api/auth/login — verify credentials and start a session. */
 export async function POST(req: Request) {
-  const limit = rateLimit(`login:${clientKey(req)}`, 10, 60_000);
+  const limit = await rateLimit(`login:${clientKey(req)}`, 10, 60_000);
   if (!limit.ok) {
     return NextResponse.json(
       { error: "Too many attempts, please slow down." },

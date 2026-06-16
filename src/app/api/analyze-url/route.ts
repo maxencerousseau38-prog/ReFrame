@@ -10,7 +10,7 @@ export const maxDuration = 30;
 
 /** POST /api/analyze-url — analyze an existing website. */
 export async function POST(req: Request) {
-  const limit = rateLimit(`analyze:${clientKey(req)}`, 20, 60_000);
+  const limit = await rateLimit(`analyze:${clientKey(req)}`, 20, 60_000);
   if (!limit.ok) {
     return NextResponse.json(
       { error: "Too many requests, please slow down." },

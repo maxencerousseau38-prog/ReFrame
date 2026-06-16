@@ -7,7 +7,7 @@ export const maxDuration = 30;
 
 /** POST /api/upload (multipart, field "file") — host an uploaded image, return its URL. */
 export async function POST(req: Request) {
-  const limit = rateLimit(`upload:${clientKey(req)}`, 30, 60_000);
+  const limit = await rateLimit(`upload:${clientKey(req)}`, 30, 60_000);
   if (!limit.ok) return NextResponse.json({ error: "Too many uploads." }, { status: 429 });
 
   if (!isBlobConfigured()) {

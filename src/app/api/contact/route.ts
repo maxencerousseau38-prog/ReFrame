@@ -18,7 +18,7 @@ function esc(s: string): string {
  * email provider being configured.
  */
 export async function POST(req: Request) {
-  const limit = rateLimit(`contact:${clientKey(req)}`, 8, 60_000);
+  const limit = await rateLimit(`contact:${clientKey(req)}`, 8, 60_000);
   if (!limit.ok) return NextResponse.json({ error: "Too many requests." }, { status: 429 });
 
   const body = (await req.json().catch(() => null)) as

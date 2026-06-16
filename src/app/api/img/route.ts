@@ -22,7 +22,7 @@ const TIMEOUT_MS = 6000;
  * leaking through.) Failures return 404 so the block's gradient fallback shows.
  */
 export async function GET(req: Request) {
-  const limit = rateLimit(`img:${clientKey(req)}`, 200, 60_000);
+  const limit = await rateLimit(`img:${clientKey(req)}`, 200, 60_000);
   if (!limit.ok) return new NextResponse("Too many requests", { status: 429 });
 
   const u = new URL(req.url).searchParams.get("u");

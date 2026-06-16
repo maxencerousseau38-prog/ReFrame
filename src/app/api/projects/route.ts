@@ -20,7 +20,7 @@ export async function POST(req: Request) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Sign in required." }, { status: 401 });
 
-  const limit = rateLimit(`proj:${user.id}`, 60, 60_000);
+  const limit = await rateLimit(`proj:${user.id}`, 60, 60_000);
   if (!limit.ok) return NextResponse.json({ error: "Too many requests." }, { status: 429 });
 
   const body = (await req.json().catch(() => null)) as { schema?: unknown; analysis?: unknown } | null;

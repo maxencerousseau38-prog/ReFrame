@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 
 /** POST /api/auth/reset — set a new password from a reset token. */
 export async function POST(req: Request) {
-  const limit = rateLimit(`reset:${clientKey(req)}`, 10, 60_000);
+  const limit = await rateLimit(`reset:${clientKey(req)}`, 10, 60_000);
   if (!limit.ok) {
     return NextResponse.json({ error: "Please wait a moment." }, { status: 429 });
   }

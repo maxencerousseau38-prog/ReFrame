@@ -26,7 +26,7 @@ function blocksFraming(headers: Headers): boolean {
 
 /** GET /api/embeddable?url= — can this site be shown in our before-view iframe? */
 export async function GET(req: Request) {
-  const limit = rateLimit(`embeddable:${clientKey(req)}`, 40, 60_000);
+  const limit = await rateLimit(`embeddable:${clientKey(req)}`, 40, 60_000);
   if (!limit.ok) {
     return NextResponse.json(
       { error: "Too many requests." },

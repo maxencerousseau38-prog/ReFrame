@@ -11,7 +11,7 @@ export const runtime = "nodejs";
 /** POST /api/export — download the generated site. Single page -> .html;
  *  multi-page -> a .zip of linked HTML files (index.html + <path>.html). */
 export async function POST(req: Request) {
-  const limit = rateLimit(`export:${clientKey(req)}`, 30, 60_000);
+  const limit = await rateLimit(`export:${clientKey(req)}`, 30, 60_000);
   if (!limit.ok) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }

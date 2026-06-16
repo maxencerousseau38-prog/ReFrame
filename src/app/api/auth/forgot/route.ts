@@ -16,7 +16,7 @@ function originOf(req: Request): string {
 
 /** POST /api/auth/forgot — email a reset link. Always 200 (no enumeration). */
 export async function POST(req: Request) {
-  const limit = rateLimit(`forgot:${clientKey(req)}`, 5, 60_000);
+  const limit = await rateLimit(`forgot:${clientKey(req)}`, 5, 60_000);
   if (!limit.ok) {
     return NextResponse.json({ error: "Please wait a moment." }, { status: 429 });
   }

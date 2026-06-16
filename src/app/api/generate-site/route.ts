@@ -15,7 +15,7 @@ export const maxDuration = 30;
  * the crawled copy is rewritten into sharper on-brand text before generation.
  */
 export async function POST(req: Request) {
-  const limit = rateLimit(`generate:${clientKey(req)}`, 15, 60_000);
+  const limit = await rateLimit(`generate:${clientKey(req)}`, 15, 60_000);
   if (!limit.ok) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }

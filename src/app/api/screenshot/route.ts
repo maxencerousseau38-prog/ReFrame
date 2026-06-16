@@ -15,7 +15,7 @@ function normalize(raw: string): string {
  * when no render service is configured, so the client can fall back gracefully.
  */
 export async function GET(req: Request) {
-  const limit = rateLimit(`shot:${clientKey(req)}`, 20, 60_000);
+  const limit = await rateLimit(`shot:${clientKey(req)}`, 20, 60_000);
   if (!limit.ok) return new Response("Too many requests", { status: 429 });
 
   const raw = new URL(req.url).searchParams.get("url");

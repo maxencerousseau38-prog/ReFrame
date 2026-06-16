@@ -23,7 +23,7 @@ function originOf(req: Request): string {
  * `<origin>/s/<slug>`, which renders it for real (no simulation).
  */
 export async function POST(req: Request) {
-  const limit = rateLimit(`publish:${clientKey(req)}`, 10, 60_000);
+  const limit = await rateLimit(`publish:${clientKey(req)}`, 10, 60_000);
   if (!limit.ok) {
     return NextResponse.json(
       { error: "Too many requests, please slow down." },

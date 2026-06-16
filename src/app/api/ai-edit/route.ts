@@ -11,7 +11,7 @@ export const maxDuration = 30;
  * Uses Claude when configured, otherwise the deterministic intent router.
  */
 export async function POST(req: Request) {
-  const limit = rateLimit(`edit:${clientKey(req)}`, 30, 60_000);
+  const limit = await rateLimit(`edit:${clientKey(req)}`, 30, 60_000);
   if (!limit.ok) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }

@@ -16,7 +16,7 @@ function originOf(req: Request): string {
 
 /** POST /api/auth/resend-verification — re-send the verification email. */
 export async function POST(req: Request) {
-  const limit = rateLimit(`resend:${clientKey(req)}`, 5, 60_000);
+  const limit = await rateLimit(`resend:${clientKey(req)}`, 5, 60_000);
   if (!limit.ok) {
     return NextResponse.json({ error: "Please wait a moment." }, { status: 429 });
   }
