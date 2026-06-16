@@ -240,17 +240,86 @@ export default function ResultPage() {
             <div className="ml-3 flex-1 truncate rounded-md bg-white/5 px-3 py-1 text-xs text-muted-foreground">
               {view === "after" ? `${schema.brand.name.toLowerCase().replace(/\s+/g, "")}.reframe.site` : schema.sourceUrl}
             </div>
+            {view === "before" && (
+              <a
+                href={liveUrl(schema.sourceUrl)}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Open live <ArrowSquareOut weight="bold" className="h-3.5 w-3.5" />
+              </a>
+            )}
           </div>
           <div className="max-h-[70vh] overflow-y-auto">
             {view === "after" ? (
               <SiteRenderer schema={schema} />
             ) : (
-              <OldSitePreview analysis={analysis} url={schema.sourceUrl} />
+              <BeforeView analysis={analysis} url={schema.sourceUrl} />
             )}
           </div>
         </div>
       </div>
     </DashboardShell>
+  );
+}
+
+/** Normalize a stored source URL into an absolute, linkable address. */
+function liveUrl(url: string): string {
+  return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+}
+
+/**
+ * The "before" view: the client's actual current site, embedded live so the
+ * contrast with the rebuild is real, not a mockup. Many sites refuse to be
+ * framed (X-Frame-Options / CSP), and some are just slow — so if the frame
+ * hasn't loaded within a grace period we fall back to a representative preview
+ * built from the analysis. The toolbar always offers an "Open live" link too.
+ */
+function BeforeView({ analysis, url }: { analysis: SiteAnalysis | null; url: string }) {
+  const src = liveUrl(url);
+  const [failed, setFailed] = React.useState(false);
+  const loadedRef = React.useRef(false);
+
+  React.useEffect(() => {
+    loadedRef.current = false;
+    setFailed(false);
+    const t = setTimeout(() => {
+      if (!loadedRef.current) setFailed(true);
+    }, 6000);
+    return () => clearTimeout(t);
+  }, [src]);
+
+  if (failed) {
+    return (
+      <div>
+        <div className="flex flex-wrap items-center justify-center gap-2 border-b border-border bg-secondary/40 px-4 py-2.5 text-xs text-muted-foreground">
+          Your live site can&apos;t be embedded here (it blocks framing).
+          <a
+            href={src}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1 font-medium text-foreground underline underline-offset-2"
+          >
+            Open it in a new tab <ArrowSquareOut weight="bold" className="h-3.5 w-3.5" />
+          </a>
+        </div>
+        <OldSitePreview analysis={analysis} url={url} />
+      </div>
+    );
+  }
+
+  return (
+    <iframe
+      src={src}
+      title="Your current website"
+      className="h-[70vh] w-full bg-white"
+      referrerPolicy="no-referrer"
+      onLoad={() => {
+        loadedRef.current = true;
+        setFailed(false);
+      }}
+    />
   );
 }
 
