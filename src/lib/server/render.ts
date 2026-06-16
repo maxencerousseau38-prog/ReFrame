@@ -56,3 +56,38 @@ export async function renderHtml(targetUrl: string): Promise<string | null> {
     clearTimeout(timer);
   }
 }
+
+/**
+ * Capture a PNG screenshot of the page via the render service, or null if
+ * rendering is unconfigured, times out, or fails. Used as the "before" preview
+ * for sites that refuse to be framed (X-Frame-Options / CSP). Callers must have
+ * already validated the URL (SSRF guard) before calling this.
+ */
+export async function screenshot(targetUrl: string): Promise<Buffer | null> {
+  if (!RENDER_URL) return null;
+  const base = RENDER_URL.replace(/\/$/, "");
+  const endpoint = `${base}/screenshot${RENDER_TOKEN ? `?token=${encodeURIComponent(RENDER_TOKEN)}` : ""}`;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 22_000);
+  try {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        url: targetUrl,
+        options: { type: "png", fullPage: false },
+        viewport: { width: 1280, height: 800, deviceScaleFactor: 1 },
+        gotoOptions: { waitUntil: "networkidle2", timeout: 18000 },
+      }),
+      signal: controller.signal,
+    });
+    if (!res.ok) return null;
+    const buf = Buffer.from(await res.arrayBuffer());
+    return buf.length > 1000 ? buf : null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}

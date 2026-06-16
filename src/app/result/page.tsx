@@ -270,56 +270,106 @@ function liveUrl(url: string): string {
 }
 
 /**
- * The "before" view: the client's actual current site, embedded live so the
- * contrast with the rebuild is real, not a mockup. Many sites refuse to be
- * framed (X-Frame-Options / CSP), and some are just slow — so if the frame
- * hasn't loaded within a grace period we fall back to a representative preview
- * built from the analysis. The toolbar always offers an "Open live" link too.
+ * The "before" view: the client's actual current site. We embed it live in an
+ * iframe when the site allows framing, and fall back to a real screenshot
+ * (captured on demand) for sites that refuse it via X-Frame-Options / CSP. If
+ * even the screenshot is unavailable, we show a representative preview built
+ * from the analysis. The toolbar always offers an "Open live" link too.
  */
 function BeforeView({ analysis, url }: { analysis: SiteAnalysis | null; url: string }) {
   const src = liveUrl(url);
-  const [failed, setFailed] = React.useState(false);
+  type Mode = "checking" | "iframe" | "shot" | "mockup";
+  const [mode, setMode] = React.useState<Mode>("checking");
   const loadedRef = React.useRef(false);
 
+  // Decide iframe vs screenshot from the site's real framing headers, which is
+  // reliable (an iframe's onLoad fires even when the browser blocks the frame).
   React.useEffect(() => {
+    let alive = true;
     loadedRef.current = false;
-    setFailed(false);
-    const t = setTimeout(() => {
-      if (!loadedRef.current) setFailed(true);
-    }, 6000);
-    return () => clearTimeout(t);
+    setMode("checking");
+    fetch(`/api/embeddable?url=${encodeURIComponent(src)}`)
+      .then((r) => r.json())
+      .then((d) => alive && setMode(d.embeddable ? "iframe" : "shot"))
+      .catch(() => alive && setMode("iframe"));
+    return () => {
+      alive = false;
+    };
   }, [src]);
 
-  if (failed) {
+  // Safety net: if an allowed iframe still never loads, try the screenshot.
+  React.useEffect(() => {
+    if (mode !== "iframe") return;
+    const t = setTimeout(() => {
+      if (!loadedRef.current) setMode("shot");
+    }, 6000);
+    return () => clearTimeout(t);
+  }, [mode]);
+
+  if (mode === "checking") {
     return (
-      <div>
-        <div className="flex flex-wrap items-center justify-center gap-2 border-b border-border bg-secondary/40 px-4 py-2.5 text-xs text-muted-foreground">
-          Your live site can&apos;t be embedded here (it blocks framing).
-          <a
-            href={src}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1 font-medium text-foreground underline underline-offset-2"
-          >
-            Open it in a new tab <ArrowSquareOut weight="bold" className="h-3.5 w-3.5" />
-          </a>
-        </div>
-        <OldSitePreview analysis={analysis} url={url} />
+      <div className="flex h-[70vh] items-center justify-center bg-white/[0.02]">
+        <CircleNotch weight="bold" className="h-5 w-5 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
+  if (mode === "iframe") {
+    return (
+      <iframe
+        src={src}
+        title="Your current website"
+        className="h-[70vh] w-full bg-white"
+        referrerPolicy="no-referrer"
+        onLoad={() => {
+          loadedRef.current = true;
+        }}
+      />
+    );
+  }
+
+  if (mode === "shot") {
+    return <ShotView src={src} onFail={() => setMode("mockup")} />;
+  }
+
   return (
-    <iframe
-      src={src}
-      title="Your current website"
-      className="h-[70vh] w-full bg-white"
-      referrerPolicy="no-referrer"
-      onLoad={() => {
-        loadedRef.current = true;
-        setFailed(false);
-      }}
-    />
+    <div>
+      <div className="flex flex-wrap items-center justify-center gap-2 border-b border-border bg-secondary/40 px-4 py-2.5 text-xs text-muted-foreground">
+        Couldn&apos;t embed your live site here.
+        <a
+          href={src}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-1 font-medium text-foreground underline underline-offset-2"
+        >
+          Open it in a new tab <ArrowSquareOut weight="bold" className="h-3.5 w-3.5" />
+        </a>
+      </div>
+      <OldSitePreview analysis={analysis} url={url} />
+    </div>
+  );
+}
+
+/** Renders the on-demand screenshot, falling back via onFail if unavailable. */
+function ShotView({ src, onFail }: { src: string; onFail: () => void }) {
+  const [loaded, setLoaded] = React.useState(false);
+  return (
+    <div className="relative min-h-[70vh] bg-white/[0.02]">
+      {!loaded && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-sm text-muted-foreground">
+          <CircleNotch weight="bold" className="h-5 w-5 animate-spin" />
+          Capturing your current site…
+        </div>
+      )}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={`/api/screenshot?url=${encodeURIComponent(src)}`}
+        alt="Your current website"
+        className={cn("w-full", loaded ? "block" : "invisible")}
+        onLoad={() => setLoaded(true)}
+        onError={onFail}
+      />
+    </div>
   );
 }
 
