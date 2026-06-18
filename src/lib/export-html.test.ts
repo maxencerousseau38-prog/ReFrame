@@ -48,3 +48,31 @@ describe("schemaToHtml SEO head", () => {
     expect(schemaToHtml(schema, { branded: true })).toContain("Made with ReFrame");
   });
 });
+
+describe("exported site is fully functional (no dead buttons)", () => {
+  const wired: SiteSchema = {
+    ...schema,
+    blocks: [
+      { id: "h", type: "hero", variant: "HeroCanvas", props: { title: "Hi", subtitle: "Yo", primaryCta: "Get a quote", primaryHref: "#contact", secondaryCta: "Call us", secondaryHref: "tel:0123456789" } },
+      { id: "c", type: "contact", variant: "ContactFormPremium1", props: { title: "Contact", subtitle: "Reply within a day", contact: { phone: "01 23 45 67 89", email: "hi@acme.com", address: "1 Rue X, Paris", bookingUrl: "https://cal.com/acme" } } },
+      { id: "f", type: "footer", variant: "Footer1", props: { brand: "Acme" } },
+    ],
+  };
+  const html = schemaToHtml(wired, { branded: false });
+
+  it("has no dead # anchors", () => {
+    expect(html).not.toMatch(/href="#"/);
+  });
+
+  it("wires hero CTAs to their real destinations", () => {
+    expect(html).toContain('href="tel:0123456789"');
+  });
+
+  it("renders a functional contact section (call / book / email / directions / mailto form)", () => {
+    expect(html).toContain('href="tel:0123456789"');
+    expect(html).toContain('href="https://cal.com/acme"');
+    expect(html).toContain('href="mailto:hi@acme.com"');
+    expect(html).toContain("google.com/maps/search");
+    expect(html).toContain('action="mailto:hi@acme.com"');
+  });
+});

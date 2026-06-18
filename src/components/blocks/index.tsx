@@ -795,7 +795,7 @@ function Footer1({ props }: { props: any }) {
             <p className="mt-2 text-sm" style={{ opacity: 0.55 }}>Crafted with care.</p>
           </div>
           <a
-            href="#"
+            href="#top"
             className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition-colors hover:bg-[var(--brand-surface)]"
             style={{ borderColor: HAIRLINE, color: "var(--brand)" }}
           >

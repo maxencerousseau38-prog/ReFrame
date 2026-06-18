@@ -197,6 +197,48 @@ function renderMenu(p: Record<string, any>): string {
     </div></div></section>`;
 }
 
+/**
+ * Contact section for the exported (static, backendless) site. Every control is
+ * real: Call (tel:), Book (booking URL), Directions (maps), and a form that
+ * opens the visitor's mail client via mailto: so it works with no server. Falls
+ * back to a plain message when no contact details were provided.
+ */
+function renderContact(p: Record<string, any>): string {
+  const c = (p.contact || {}) as { phone?: string; email?: string; address?: string; bookingUrl?: string };
+  const actions: string[] = [];
+  if (c.bookingUrl) actions.push(`<a class="btn btn-primary" href="${esc(c.bookingUrl)}">Book now</a>`);
+  if (c.phone) actions.push(`<a class="btn btn-ghost" href="tel:${esc(c.phone.replace(/\s+/g, ""))}">Call ${esc(c.phone)}</a>`);
+  if (c.email) actions.push(`<a class="btn btn-ghost" href="mailto:${esc(c.email)}">Email us</a>`);
+  if (c.address)
+    actions.push(
+      `<a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.address)}" target="_blank" rel="noreferrer">Directions</a>`
+    );
+  const details = [
+    c.email ? `<a href="mailto:${esc(c.email)}" style="color:var(--brand);text-decoration:none">${esc(c.email)}</a>` : "",
+    c.phone ? `<a href="tel:${esc(c.phone.replace(/\s+/g, ""))}" style="color:var(--brand);text-decoration:none">${esc(c.phone)}</a>` : "",
+    c.address ? `<span class="muted">${esc(c.address)}</span>` : "",
+  ].filter(Boolean);
+
+  // A backendless form that composes an email to the business (works anywhere
+  // the site is hosted). Only shown when we have an address to send to.
+  const form = c.email
+    ? `<form action="mailto:${esc(c.email)}" method="post" enctype="text/plain" style="margin-top:24px">
+        <input name="Name" placeholder="Name" required />
+        <input name="Email" type="email" placeholder="Email" required />
+        <textarea name="Message" placeholder="How can we help?" rows="4"></textarea>
+        <button class="btn btn-primary" type="submit" style="margin-top:14px;border:none;cursor:pointer">Send message</button>
+      </form>`
+    : "";
+
+  return `<section id="contact"><div class="wrap" style="max-width:680px">
+    <h2 style="font-size:clamp(28px,4vw,40px)">${esc(p.title)}</h2>
+    <p class="muted" style="margin-top:10px">${esc(p.subtitle)}</p>
+    ${actions.length ? `<div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">${actions.join("")}</div>` : ""}
+    ${details.length ? `<div style="margin-top:18px;display:flex;gap:20px;flex-wrap:wrap;font-size:15px">${details.join("")}</div>` : ""}
+    ${form}
+  </div></section>`;
+}
+
 function renderBlock(b: Block): string {
   const p = b.props as Record<string, any>;
   // Premium blocks are keyed by variant (matching the app renderer).
@@ -212,8 +254,8 @@ function renderBlock(b: Block): string {
         <h1 style="font-size:clamp(34px,6vw,64px);margin-top:12px;max-width:14ch">${esc(p.title)}</h1>
         <p class="muted" style="font-size:18px;margin-top:16px;max-width:50ch">${esc(p.subtitle)}</p>
         <div style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap">
-          ${p.primaryCta ? `<a class="btn btn-primary" href="#contact">${esc(p.primaryCta)}</a>` : ""}
-          ${p.secondaryCta ? `<a class="btn btn-ghost" href="#">${esc(p.secondaryCta)}</a>` : ""}
+          ${p.primaryCta ? `<a class="btn btn-primary" href="${esc(p.primaryHref || "#contact")}">${esc(p.primaryCta)}</a>` : ""}
+          ${p.secondaryCta ? `<a class="btn btn-ghost" href="${esc(p.secondaryHref || "#contact")}">${esc(p.secondaryCta)}</a>` : ""}
         </div>
       </div></section>`;
 
@@ -268,21 +310,12 @@ function renderBlock(b: Block): string {
         <div style="background:var(--brand);color:#fff;border-radius:calc(var(--radius)*1.5);padding:64px 32px;text-align:center">
           <h2 style="font-size:clamp(28px,4vw,40px)">${esc(p.title)}</h2>
           <p style="opacity:.8;margin-top:12px">${esc(p.subtitle)}</p>
-          <a class="btn btn-primary" href="#contact" style="margin-top:24px">${esc(p.cta)}</a>
+          <a class="btn btn-primary" href="${esc(p.ctaHref || "#contact")}" style="margin-top:24px">${esc(p.cta)}</a>
         </div>
       </div></section>`;
 
     case "contact":
-      return `<section id="contact"><div class="wrap" style="max-width:680px">
-        <h2 style="font-size:clamp(28px,4vw,40px)">${esc(p.title)}</h2>
-        <p class="muted" style="margin-top:10px">${esc(p.subtitle)}</p>
-        <form style="margin-top:24px" onsubmit="event.preventDefault();alert('Thanks, we will be in touch.')">
-          <input placeholder="Name" required />
-          <input type="email" placeholder="Email" required />
-          <textarea placeholder="How can we help?" rows="4"></textarea>
-          <button class="btn btn-primary" type="submit" style="margin-top:14px;border:none;cursor:pointer">Send message</button>
-        </form>
-      </div></section>`;
+      return renderContact(p);
 
     case "footer":
       return `<footer><div class="wrap">© ${new Date().getFullYear()} ${esc(p.brand)}. Built with ReFrame.</div></footer>`;
