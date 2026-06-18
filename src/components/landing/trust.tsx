@@ -5,7 +5,7 @@ import {
   Eye,
   CreditCard,
   ArrowsClockwise,
-  ChatCircleText,
+  DownloadSimple,
   LockKey,
   type Icon as PhosphorIcon,
 } from "@phosphor-icons/react";
@@ -26,19 +26,19 @@ const promises: Promise_[] = [
     body: "We rebuild from your real text, logo, images and colours. We never invent a business or fake your details.",
   },
   {
+    icon: DownloadSimple,
+    title: "Export anytime",
+    body: "Download your whole site — HTML, CSS, images and every page — and host it anywhere. It keeps working with or without us.",
+  },
+  {
     icon: ArrowsClockwise,
-    title: "No lock-in",
-    body: "Keep your own domain, connect it with automatic SSL, and cancel anytime. Your site stays yours.",
+    title: "No vendor lock-in",
+    body: "Keep your own domain with automatic SSL, and cancel anytime. If you leave, your exported site keeps working and your domain stays yours.",
   },
   {
     icon: Eye,
     title: "Only your public pages",
     body: "We read what is already public on the web. We never ask for your passwords, CMS or hosting access.",
-  },
-  {
-    icon: ChatCircleText,
-    title: "Honest about limits",
-    body: "If a site is behind bot-protection and we can't fully read it, we tell you, instead of faking the result.",
   },
   {
     icon: LockKey,
@@ -51,14 +51,18 @@ export function Trust() {
   return (
     <section id="trust" className="px-6 py-32 sm:py-40">
       <div className="mx-auto max-w-[1100px]">
-        <BlurReveal className="max-w-2xl">
-          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-accent">No risk, no lock-in</p>
+        <BlurReveal className="max-w-3xl">
+          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-accent">No vendor lock-in</p>
           <h2 className="mt-4 font-semibold leading-[1.04] tracking-[-0.03em] text-white [font-size:clamp(2.25rem,5.5vw,3.75rem)]">
-            Built to earn your trust.
+            Your website. Your domain. Your content.
           </h2>
-          <p className="mt-4 text-[15px] leading-relaxed text-zinc-400">
-            We're new, so we won't pretend to have thousands of customers. Instead,
-            here's exactly how ReFrame protects you.
+          <p className="mt-5 text-lg leading-relaxed text-zinc-300">
+            We don&apos;t own your website. We improve it. Keep everything, upgrade everything,
+            and export the whole thing the moment you want to.
+          </p>
+          <p className="mt-3 text-[15px] leading-relaxed text-zinc-500">
+            You keep your domain, your content and your SEO. You can leave at any time — nothing here
+            holds your site hostage.
           </p>
         </BlurReveal>
 

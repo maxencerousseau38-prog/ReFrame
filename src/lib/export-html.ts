@@ -33,22 +33,44 @@ const anchorId = (type: string) => (type === "hero" ? "top" : type);
  * <path>.html), with the nav linking between them. A single-page site returns
  * just index.html.
  */
+/** Every image URL referenced anywhere in the schema (for bundling into a zip). */
+export function collectImages(schema: SiteSchema): string[] {
+  const urls = new Set<string>();
+  const visit = (v: unknown) => {
+    if (typeof v === "string") {
+      if (/^https?:\/\//i.test(v) && /\.(png|jpe?g|webp|gif|avif|svg)(\?|#|$)/i.test(v)) urls.add(v);
+      return;
+    }
+    if (Array.isArray(v)) return v.forEach(visit);
+    if (v && typeof v === "object") return Object.values(v).forEach(visit);
+  };
+  const pages = [{ blocks: schema.blocks }, ...(schema.pages ?? [])];
+  for (const p of pages) for (const b of p.blocks) visit(b.props);
+  return Array.from(urls);
+}
+
 export function schemaToFiles(
   schema: SiteSchema,
-  opts: { branded?: boolean } = {}
+  opts: { branded?: boolean; assets?: Record<string, string> } = {}
 ): { name: string; html: string }[] {
   const multiPage = (schema.pages?.length ?? 0) > 0;
   const paths = ["", ...(schema.pages ?? []).map((p) => p.path)];
   return paths.map((path) => ({
     name: path ? `${path}.html` : "index.html",
-    html: schemaToHtml(schema, { branded: opts.branded, page: path, multiPage }),
+    html: schemaToHtml(schema, { branded: opts.branded, page: path, multiPage, assets: opts.assets }),
   }));
 }
 
 export function schemaToHtml(
   schema: SiteSchema,
-  opts: { branded?: boolean; page?: string; multiPage?: boolean } = {}
+  opts: { branded?: boolean; page?: string; multiPage?: boolean; assets?: Record<string, string> } = {}
 ): string {
+  // Rewrite remote image URLs to bundled local asset paths when provided, so the
+  // exported site keeps working with no dependency on ReFrame or the old host.
+  const rw = (url: unknown): string => {
+    const u = typeof url === "string" ? url : "";
+    return (opts.assets && opts.assets[u]) || u;
+  };
   const t = schema.theme;
   const allPages = [{ path: "", label: "Home", blocks: schema.blocks }, ...(schema.pages ?? [])];
   const current = allPages.find((p) => p.path === (opts.page ?? "")) ?? allPages[0];
@@ -57,7 +79,7 @@ export function schemaToHtml(
 
   // Each section is anchored so the sticky nav can jump to it.
   const body = current.blocks
-    .map((b) => `<div id="${anchorId(b.type)}" style="scroll-margin-top:76px">${renderBlock(b)}</div>`)
+    .map((b) => `<div id="${anchorId(b.type)}" style="scroll-margin-top:76px">${renderBlock(b, rw)}</div>`)
     .join("\n");
 
   // Multi-page: link to sibling .html files. Single-page: anchor links.
@@ -162,11 +184,11 @@ function renderServices(p: Record<string, any>): string {
       </div>`).join("")}
     </div></div></section>`;
 }
-function renderPortfolio(p: Record<string, any>): string {
+function renderPortfolio(p: Record<string, any>, rw: (u: unknown) => string): string {
   return `<section><div class="wrap">${sectionHead(p)}
     <div class="grid cols-3" style="margin-top:28px">
       ${(p.items || []).map((it: any) => `<div class="card">
-        ${it.image ? `<div style="aspect-ratio:4/3;border-radius:calc(var(--radius)*.6);background:#eee center/cover no-repeat;background-image:url('${esc(it.image)}')"></div>` : ""}
+        ${it.image ? `<div style="aspect-ratio:4/3;border-radius:calc(var(--radius)*.6);background:#eee center/cover no-repeat;background-image:url('${esc(rw(it.image))}')"></div>` : ""}
         <h3 style="font-size:16px;margin-top:${it.image ? "12px" : "0"}">${esc(it.title)}</h3>
         ${it.tag ? `<p class="muted" style="font-size:12px;text-transform:uppercase;letter-spacing:.1em;margin-top:4px">${esc(it.tag)}</p>` : ""}
       </div>`).join("")}
@@ -178,10 +200,14 @@ function renderStats(p: Record<string, any>): string {
       ${(p.items || []).map((s: any) => `<div><div style="font-size:40px;font-weight:600">${esc(s.value)}</div><div style="opacity:.6;font-size:12px;text-transform:uppercase;letter-spacing:.12em;margin-top:6px">${esc(s.label)}</div></div>`).join("")}
     </div></div></div></section>`;
 }
-function renderAbout(p: Record<string, any>): string {
-  return `<section><div class="wrap" style="max-width:760px">${sectionHead(p)}
-    ${p.body ? `<p class="muted" style="margin-top:16px;font-size:18px;max-width:62ch">${esc(p.body)}</p>` : ""}
-    ${Array.isArray(p.stats) && p.stats.length ? `<div class="grid cols-3" style="margin-top:28px">${p.stats.map((s: any) => `<div><div style="font-size:30px;font-weight:600">${esc(s.value)}</div><div class="muted" style="font-size:13px">${esc(s.label)}</div></div>`).join("")}</div>` : ""}
+function renderAbout(p: Record<string, any>, rw: (u: unknown) => string): string {
+  const image = p.image ? rw(p.image) : "";
+  return `<section><div class="wrap" style="max-width:900px">
+    ${image ? `<div style="aspect-ratio:16/9;border-radius:var(--radius);background:#eee center/cover no-repeat;background-image:url('${esc(image)}');margin-bottom:28px"></div>` : ""}
+    <div style="max-width:760px">${sectionHead(p)}
+      ${p.body ? `<p class="muted" style="margin-top:16px;font-size:18px;max-width:62ch">${esc(p.body)}</p>` : ""}
+      ${Array.isArray(p.stats) && p.stats.length ? `<div class="grid cols-3" style="margin-top:28px">${p.stats.map((s: any) => `<div><div style="font-size:30px;font-weight:600">${esc(s.value)}</div><div class="muted" style="font-size:13px">${esc(s.label)}</div></div>`).join("")}</div>` : ""}
+    </div>
   </div></section>`;
 }
 function renderMenu(p: Record<string, any>): string {
@@ -239,16 +265,17 @@ function renderContact(p: Record<string, any>): string {
   </div></section>`;
 }
 
-function renderBlock(b: Block): string {
+function renderBlock(b: Block, rw: (u: unknown) => string): string {
   const p = b.props as Record<string, any>;
   // Premium blocks are keyed by variant (matching the app renderer).
   if (b.variant === "ServicesList" || b.variant === "ServicesCards") return renderServices(p);
-  if (b.variant === "PortfolioGrid") return renderPortfolio(p);
+  if (b.variant === "PortfolioGrid") return renderPortfolio(p, rw);
   if (b.variant === "StatsCounter") return renderStats(p);
-  if (b.variant === "AboutSplit") return renderAbout(p);
+  if (b.variant === "AboutSplit") return renderAbout(p, rw);
   if (b.variant === "CollectionGrid") return renderMenu(p);
   switch (b.type) {
-    case "hero":
+    case "hero": {
+      const heroImg = p.image ? rw(p.image) : "";
       return `<section><div class="wrap">
         ${p.eyebrow ? `<p style="color:var(--accent);font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.1em">${esc(p.eyebrow)}</p>` : ""}
         <h1 style="font-size:clamp(34px,6vw,64px);margin-top:12px;max-width:14ch">${esc(p.title)}</h1>
@@ -257,7 +284,9 @@ function renderBlock(b: Block): string {
           ${p.primaryCta ? `<a class="btn btn-primary" href="${esc(p.primaryHref || "#contact")}">${esc(p.primaryCta)}</a>` : ""}
           ${p.secondaryCta ? `<a class="btn btn-ghost" href="${esc(p.secondaryHref || "#contact")}">${esc(p.secondaryCta)}</a>` : ""}
         </div>
+        ${heroImg ? `<div style="margin-top:40px;aspect-ratio:16/9;border-radius:calc(var(--radius)*1.4);background:#eee center/cover no-repeat;background-image:url('${esc(heroImg)}')"></div>` : ""}
       </div></section>`;
+    }
 
     case "features":
       return `<section><div class="wrap">

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowUpRight, Trash, Plus, Globe, CircleNotch, CheckCircle, Warning, Copy, Check } from "@phosphor-icons/react";
+import { ArrowUpRight, Trash, Plus, Globe, CircleNotch, CheckCircle, Warning, Copy, Check, DownloadSimple } from "@phosphor-icons/react";
 
 /** One-click copy for fiddly DNS values, so connecting a domain is paste-only. */
 function CopyCell({ value }: { value: string }) {
@@ -337,6 +337,14 @@ function SiteRow({
               <Globe weight="bold" className="h-4 w-4" />
             </button>
           )}
+          <a
+            href={`/api/sites/${site.slug}/export`}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
+            aria-label="Export site"
+            title="Export your full site (HTML, CSS, images) — yours to host anywhere"
+          >
+            <DownloadSimple weight="bold" className="h-4 w-4" />
+          </a>
           <button
             onClick={onDelete}
             disabled={deleting}

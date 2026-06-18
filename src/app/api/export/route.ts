@@ -1,15 +1,18 @@
 import { NextResponse } from "next/server";
-import JSZip from "jszip";
-import { schemaToFiles, slugForFilename } from "@/lib/export-html";
+import { buildSiteExport } from "@/lib/server/export-site";
 import { rateLimit, clientKey } from "@/lib/rate-limit";
 import { parseSiteSchema } from "@/lib/generation/validate";
 import { getCurrentUser } from "@/lib/server/auth";
 import { entitlementsOf, effectivePlan } from "@/lib/server/plans";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
-/** POST /api/export — download the generated site. Single page -> .html;
- *  multi-page -> a .zip of linked HTML files (index.html + <path>.html). */
+/**
+ * POST /api/export — download the generated site, fully self-contained.
+ * Single page with no images -> .html; otherwise a .zip with index.html (+ one
+ * .html per page) and an assets/ folder of the site's downloaded images.
+ */
 export async function POST(req: Request) {
   const limit = await rateLimit(`export:${clientKey(req)}`, 30, 60_000);
   if (!limit.ok) {
@@ -27,26 +30,11 @@ export async function POST(req: Request) {
     const user = await getCurrentUser();
     const branded = !entitlementsOf(effectivePlan(user)).removeBranding;
 
-    const files = schemaToFiles(schema, { branded });
-    const slug = slugForFilename(schema.brand.name);
-
-    if (files.length === 1) {
-      return new NextResponse(files[0].html, {
-        headers: {
-          "Content-Type": "text/html; charset=utf-8",
-          "Content-Disposition": `attachment; filename="${slug}.html"`,
-        },
-      });
-    }
-
-    // Multi-page: zip the linked HTML files.
-    const zip = new JSZip();
-    for (const f of files) zip.file(f.name, f.html);
-    const buf = await zip.generateAsync({ type: "arraybuffer" });
-    return new NextResponse(buf, {
+    const out = await buildSiteExport(schema, { branded });
+    return new NextResponse(out.body, {
       headers: {
-        "Content-Type": "application/zip",
-        "Content-Disposition": `attachment; filename="${slug}.zip"`,
+        "Content-Type": out.contentType,
+        "Content-Disposition": `attachment; filename="${out.filename}"`,
       },
     });
   } catch (err) {

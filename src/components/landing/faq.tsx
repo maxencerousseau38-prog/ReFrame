@@ -30,6 +30,10 @@ const faqs: { q: string; a: string }[] = [
     a: "Rebuilt sites ship clean semantic HTML, proper metadata, social link previews, structured data and a per-site sitemap and robots.txt, so search engines can index them properly.",
   },
   {
+    q: "What happens if I cancel or leave?",
+    a: "Nothing here holds your site hostage. You can export your whole website (HTML, CSS, images and every page) and host it anywhere — it keeps working with or without us. Your domain stays registered to you, and your content and SEO remain yours. You subscribe because ReFrame keeps improving your site (AI editing, new pages, SEO, refreshes), not because leaving is hard.",
+  },
+  {
     q: "Is my data safe?",
     a: "We only read pages that are already public on the web. We never ask for your passwords, CMS logins or hosting access.",
   },

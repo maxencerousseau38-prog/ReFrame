@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { schemaToHtml } from "./export-html";
+import { schemaToHtml, collectImages } from "./export-html";
 import type { SiteSchema } from "./generation/types";
 
 const schema: SiteSchema = {
@@ -46,6 +46,32 @@ describe("schemaToHtml SEO head", () => {
   it("omits the branding badge when branded:false, includes it when true", () => {
     expect(html).not.toContain("Made with ReFrame");
     expect(schemaToHtml(schema, { branded: true })).toContain("Made with ReFrame");
+  });
+});
+
+describe("self-contained export (no lock-in)", () => {
+  const withImages: SiteSchema = {
+    ...schema,
+    blocks: [
+      { id: "h", type: "hero", variant: "HeroPremium2", props: { title: "Hi", subtitle: "Yo", image: "https://cdn.example.com/hero.jpg" } },
+      { id: "pf", type: "portfolio", variant: "PortfolioGrid", props: { title: "Work", items: [{ title: "A", image: "https://cdn.example.com/a.png" }] } },
+      { id: "f", type: "footer", variant: "Footer1", props: { brand: "Acme" } },
+    ],
+  };
+
+  it("collects every referenced image URL", () => {
+    expect(collectImages(withImages).sort()).toEqual([
+      "https://cdn.example.com/a.png",
+      "https://cdn.example.com/hero.jpg",
+    ]);
+  });
+
+  it("rewrites image URLs to bundled local asset paths", () => {
+    const assets = { "https://cdn.example.com/hero.jpg": "assets/img-1.jpg", "https://cdn.example.com/a.png": "assets/img-2.png" };
+    const html = schemaToHtml(withImages, { branded: false, assets });
+    expect(html).toContain("assets/img-1.jpg");
+    expect(html).toContain("assets/img-2.png");
+    expect(html).not.toContain("cdn.example.com"); // no remote dependency left
   });
 });
 

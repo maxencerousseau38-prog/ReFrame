@@ -108,6 +108,9 @@ export function Pricing() {
             Pricing that scales when you do.
           </h2>
           <p className="mt-4 text-zinc-400">Start free. Upgrade when you publish. Cancel anytime.</p>
+          <p className="mt-2 text-[13px] text-zinc-500">
+            Your website, your domain, your content. Export everything anytime — no vendor lock-in.
+          </p>
           {notice && (
             <p className="mt-4 inline-block rounded-lg border border-accent/30 bg-accent/[0.06] px-3 py-2 text-[13px] text-zinc-200">
               {notice}

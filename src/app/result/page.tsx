@@ -69,10 +69,16 @@ export default function ResultPage() {
     });
     if (!res.ok) return;
     const blob = await res.blob();
+    // Honor the real filename/extension: a multi-page or image-bundled export
+    // is a .zip, a bare single page is .html.
+    const slug = schema.brand.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "site";
+    const disposition = res.headers.get("content-disposition") || "";
+    const named = /filename="?([^"]+)"?/.exec(disposition)?.[1];
+    const ext = (res.headers.get("content-type") || "").includes("zip") ? "zip" : "html";
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${schema.brand.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "site"}.html`;
+    a.download = named || `${slug}.${ext}`;
     document.body.appendChild(a);
     a.click();
     a.remove();
