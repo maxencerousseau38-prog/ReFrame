@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Globe, Sparkle, Lightning, ShieldCheck, Star } from "@phosphor-icons/react";
 import { IslandButton } from "@/components/ui/island-button";
+import { useI18n } from "@/lib/i18n";
 
 /**
  * Hero. Monumental, high-contrast, minimal. The promise is unmistakable in
@@ -14,6 +15,7 @@ import { IslandButton } from "@/components/ui/island-button";
 export function Hero() {
   const router = useRouter();
   const reduce = useReducedMotion();
+  const { t } = useI18n();
   const [url, setUrl] = React.useState("");
   const sectionRef = React.useRef<HTMLElement>(null);
 
@@ -40,43 +42,40 @@ export function Hero() {
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
         >
           <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-400">
-            Turn visitors into customers
+            {t.hero.badge}
           </span>
 
           <h1 className="mt-8 font-semibold tracking-[-0.04em] text-white [font-size:clamp(2.9rem,8vw,6.5rem)] [line-height:0.94]">
-            The website your
+            {t.hero.titleA}
             <br />
-            customers
-            <br />
-            <span className="text-accent">trust.</span>
+            {t.hero.titleB}{" "}
+            <span className="text-accent">{t.hero.titleAccent}</span>
           </h1>
 
           <p className="mt-7 max-w-md text-lg leading-relaxed text-zinc-400">
-            Paste your link. ReFrame rebuilds your existing site into one that
-            earns trust on sight — so visitors stop leaving and start buying.
-            No builder, no blank page.
+            {t.hero.subtitle}
           </p>
 
           <form
             onSubmit={go}
             className="glass mt-9 flex max-w-md flex-col gap-3 rounded-2xl p-2 sm:flex-row sm:items-center sm:rounded-full sm:p-1.5"
           >
-            <label htmlFor="hero-url" className="sr-only">Your website URL</label>
+            <label htmlFor="hero-url" className="sr-only">{t.hero.placeholder}</label>
             <div className="relative flex-1">
               <Globe weight="bold" className="pointer-events-none absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-zinc-500" />
               <input
                 id="hero-url"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                placeholder="yourwebsite.com"
+                placeholder={t.hero.placeholder}
                 className="h-11 w-full rounded-full bg-transparent pl-11 pr-3 text-[15px] text-white placeholder:text-zinc-500 focus:outline-none"
               />
             </div>
             <IslandButton onClick={() => go()} variant="accent" className="shrink-0">
-              Transform my website
+              {t.hero.cta}
             </IslandButton>
           </form>
-          <p className="mt-4 text-[13px] text-zinc-500">Free first transformation. No credit card.</p>
+          <p className="mt-4 text-[13px] text-zinc-500">{t.hero.note}</p>
         </motion.div>
 
         <motion.div

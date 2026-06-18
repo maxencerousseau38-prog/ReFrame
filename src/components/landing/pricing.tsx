@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Check, CircleNotch } from "@phosphor-icons/react";
 import { BlurReveal } from "@/components/ui/blur-reveal";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 type Tier = {
   name: string;
@@ -17,58 +18,18 @@ type Tier = {
   featured: boolean;
 };
 
-const tiers: Tier[] = [
-  {
-    name: "Free",
-    plan: "free",
-    price: "$0",
-    period: "forever",
-    desc: "Rebuild your site, see the result, download it. Going live needs a plan.",
-    features: ["Full AI rebuild + live preview", "AI editor", "Download the HTML", "Publishing not included"],
-    cta: "Try it free",
-    featured: false,
-  },
-  {
-    name: "Pro",
-    plan: "pro",
-    price: "$29",
-    period: "per month",
-    desc: "Everything you need to turn visitors into paying customers — live and looked after.",
-    features: [
-      "AI-powered website redesign",
-      "Unlimited AI edits",
-      "Instant page creation",
-      "Redesign without losing content",
-      "Keep your brand assets",
-      "Custom domain included",
-      "Hosting & maintenance included",
-      "No code needed",
-    ],
-    cta: "Choose Pro",
-    featured: true,
-  },
-  {
-    name: "Agency",
-    plan: "studio",
-    price: "$99",
-    period: "per month",
-    desc: "For agencies and freelancers running live sites for several clients.",
-    features: [
-      "Up to 10 live client sites",
-      "Everything in Pro, per site",
-      "A custom domain on each",
-      "Client workspaces",
-      "Priority support",
-    ],
-    cta: "Choose Agency",
-    featured: false,
-  },
-];
-
 export function Pricing() {
   const router = useRouter();
+  const { t } = useI18n();
   const [loading, setLoading] = React.useState<string | null>(null);
   const [notice, setNotice] = React.useState<string | null>(null);
+
+  const p = t.pricing;
+  const tiers: Tier[] = [
+    { plan: "free", price: "$0", period: p.forever, featured: false, ...p.tiers.free },
+    { plan: "pro", price: "$29", period: p.perMonth, featured: true, ...p.tiers.pro },
+    { plan: "studio", price: "$99", period: p.perMonth, featured: false, ...p.tiers.studio },
+  ];
 
   async function choose(tier: Tier) {
     if (tier.plan === "free") {
@@ -105,12 +66,10 @@ export function Pricing() {
       <div className="mx-auto max-w-[1100px]">
         <BlurReveal className="max-w-2xl">
           <h2 className="font-semibold leading-[1.02] tracking-[-0.03em] text-white [font-size:clamp(2.25rem,5.5vw,4rem)]">
-            Pricing that scales when you do.
+            {p.title}
           </h2>
-          <p className="mt-4 text-zinc-400">Start free. Upgrade when you publish. Cancel anytime.</p>
-          <p className="mt-2 text-[13px] text-zinc-500">
-            Your website, your domain, your content. Export everything anytime — no vendor lock-in.
-          </p>
+          <p className="mt-4 text-zinc-400">{p.sub}</p>
+          <p className="mt-2 text-[13px] text-zinc-500">{p.ownership}</p>
           {notice && (
             <p className="mt-4 inline-block rounded-lg border border-accent/30 bg-accent/[0.06] px-3 py-2 text-[13px] text-zinc-200">
               {notice}
@@ -133,7 +92,7 @@ export function Pricing() {
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold text-white">{tier.name}</h3>
                     {tier.featured && (
-                      <span className="rounded-full bg-accent px-2.5 py-1 text-[11px] font-medium text-accent-foreground">Popular</span>
+                      <span className="rounded-full bg-accent px-2.5 py-1 text-[11px] font-medium text-accent-foreground">{p.popular}</span>
                     )}
                   </div>
                   <p className="mt-1 text-sm text-zinc-400">{tier.desc}</p>

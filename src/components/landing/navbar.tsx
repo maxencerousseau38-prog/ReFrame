@@ -5,18 +5,16 @@ import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { List, X } from "@phosphor-icons/react";
 import { Logo } from "@/components/brand/logo";
+import { useI18n } from "@/lib/i18n";
+import { LanguageSwitcher } from "@/components/landing/language-switcher";
 
-const links = [
-  { label: "Before / after", href: "#transformation" },
-  { label: "How it works", href: "#how" },
-  { label: "Examples", href: "#examples" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "FAQ", href: "#faq" },
-];
+const HREFS = ["#transformation", "#how", "#examples", "#pricing", "#faq"];
 
 export function Navbar() {
   const [open, setOpen] = React.useState(false);
   const reduce = useReducedMotion();
+  const { t } = useI18n();
+  const links = HREFS.map((href, i) => ({ href, label: t.nav.links[i] }));
 
   return (
     <motion.header
@@ -43,12 +41,13 @@ export function Navbar() {
             ))}
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
+            <LanguageSwitcher />
             <Link
               href="/dashboard"
               className="rounded-full bg-accent px-4 py-2 text-[13px] font-medium text-accent-foreground transition-transform duration-200 ease-out hover:brightness-105 active:scale-95"
             >
-              Transform a site
+              {t.nav.cta}
             </Link>
             <button
               onClick={() => setOpen((v) => !v)}

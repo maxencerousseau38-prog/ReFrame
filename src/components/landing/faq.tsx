@@ -2,50 +2,17 @@
 
 import { Plus } from "@phosphor-icons/react";
 import { BlurReveal } from "@/components/ui/blur-reveal";
-
-// Honest answers to the real objections a buyer has before paying.
-const faqs: { q: string; a: string }[] = [
-  {
-    q: "Will it work on my existing website?",
-    a: "Paste your URL and ReFrame reads your live site's text, images, logo and colours, then rebuilds from them. If a site is behind heavy bot-protection or is fully JavaScript-rendered, we tell you honestly and start from the details we could read plus sensible defaults you can edit.",
-  },
-  {
-    q: "Do I lose my content or my brand?",
-    a: "No. The rebuild keeps your real content, logo, images and colours, and follows your existing structure. Nothing is invented. You can then change anything you like.",
-  },
-  {
-    q: "Can I keep my own domain?",
-    a: "Yes. On a paid plan you connect your own domain with automatic SSL, and you keep ownership. There's no lock-in: cancel anytime.",
-  },
-  {
-    q: "What if I don't like the result?",
-    a: "The rebuild and preview are free. You see the full result before paying, and you only pay when you choose to publish it live.",
-  },
-  {
-    q: "Do I need a developer or to learn a builder?",
-    a: "No code, no builder. You change copy, colours, add pages or sections, switch to dark mode and more just by chatting with the AI editor. Changes appear instantly.",
-  },
-  {
-    q: "What about SEO?",
-    a: "Rebuilt sites ship clean semantic HTML, proper metadata, social link previews, structured data and a per-site sitemap and robots.txt, so search engines can index them properly.",
-  },
-  {
-    q: "What happens if I cancel or leave?",
-    a: "Nothing here holds your site hostage. You can export your whole website (HTML, CSS, images and every page) and host it anywhere — it keeps working with or without us. Your domain stays registered to you, and your content and SEO remain yours. You subscribe because ReFrame keeps improving your site (AI editing, new pages, SEO, refreshes), not because leaving is hard.",
-  },
-  {
-    q: "Is my data safe?",
-    a: "We only read pages that are already public on the web. We never ask for your passwords, CMS logins or hosting access.",
-  },
-];
+import { useI18n } from "@/lib/i18n";
 
 export function FAQ() {
+  const { t } = useI18n();
+  const faqs = t.faq.items;
   return (
     <section id="faq" className="px-6 py-32">
       <div className="mx-auto max-w-[820px]">
         <BlurReveal className="mb-12 text-center">
           <h2 className="font-semibold leading-[1.04] tracking-[-0.03em] text-white [font-size:clamp(2.25rem,5.5vw,3.5rem)]">
-            Questions, answered honestly.
+            {t.faq.title}
           </h2>
         </BlurReveal>
 

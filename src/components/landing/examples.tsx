@@ -1,27 +1,32 @@
 "use client";
 
 import { BlurReveal } from "@/components/ui/blur-reveal";
+import { useI18n } from "@/lib/i18n";
 
-type Ex = { brand: string; sector: string; title: string; img: string };
+type Ex = { brand: string; sector: string; title: string; img: string; before: string; transformed: string };
 
-const examples: Ex[] = [
-  { brand: "Komorebi", sector: "Restaurant", title: "A table you'll remember.", img: "/brand/scene-1.jpg" },
-  { brand: "Field Studio", sector: "Agency", title: "Work that earns attention.", img: "/brand/scene-2.jpg" },
-  { brand: "Crest Homes", sector: "Real estate", title: "The place you pictured.", img: "/brand/scene-3.jpg" },
-];
+const BRANDS = ["Komorebi", "Field Studio", "Crest Homes"];
+const IMAGES = ["/brand/scene-1.jpg", "/brand/scene-2.jpg", "/brand/scene-3.jpg"];
 
 export function Examples() {
+  const { t } = useI18n();
+  const examples: Ex[] = t.examples.items.map((it, i) => ({
+    brand: BRANDS[i],
+    img: IMAGES[i],
+    title: it.title,
+    sector: it.sector,
+    before: t.examples.before,
+    transformed: t.examples.transformed,
+  }));
+
   return (
     <section id="examples" className="px-6 py-32">
       <div className="mx-auto max-w-[1300px]">
         <BlurReveal className="mb-16 flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-end">
           <h2 className="max-w-2xl font-semibold leading-[1.02] tracking-[-0.03em] text-white [font-size:clamp(2.25rem,5.5vw,4rem)]">
-            Real sites, reframed.
+            {t.examples.title}
           </h2>
-          <p className="max-w-xs text-zinc-400">
-            Same business, same brand — a site customers finally take seriously,
-            and buy from.
-          </p>
+          <p className="max-w-xs text-zinc-400">{t.examples.sub}</p>
         </BlurReveal>
 
         <div className="grid gap-6 lg:grid-cols-3">
@@ -57,7 +62,7 @@ function Card({ e }: { e: Ex }) {
           <div className="mt-1 h-0.5 w-2/3 rounded bg-[#cfcdc2]" />
         </div>
         <span className="absolute left-[5.5rem] top-4 rounded-full bg-black/60 px-2 py-0.5 text-[9px] font-medium text-white backdrop-blur">
-          before
+          {e.before}
         </span>
 
         {/* brand + title over the image */}
@@ -71,7 +76,7 @@ function Card({ e }: { e: Ex }) {
 
       <div className="flex items-center justify-between px-5 py-4">
         <span className="rounded-full bg-accent/15 px-2.5 py-1 text-[11px] font-medium text-accent">{e.sector}</span>
-        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Transformed</span>
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">{e.transformed}</span>
       </div>
     </div>
   );

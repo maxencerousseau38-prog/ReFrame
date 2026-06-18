@@ -2,36 +2,19 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { LinkSimple, Brain, Sparkle } from "@phosphor-icons/react";
+import { useI18n } from "@/lib/i18n";
 
-const steps = [
-  {
-    icon: LinkSimple,
-    n: "01",
-    title: "Paste your URL",
-    body: "Drop in the link to your current website. Nothing to install, nothing to set up.",
-  },
-  {
-    icon: Brain,
-    n: "02",
-    title: "We spot what's costing you",
-    body: "ReFrame reads your content, images, brand and sector — and pinpoints what's quietly turning visitors away.",
-  },
-  {
-    icon: Sparkle,
-    n: "03",
-    title: "A site that wins them over",
-    body: "A faster, modern site your customers trust on sight, rebuilt in minutes. Refine it just by chatting.",
-  },
-];
+const ICONS = [LinkSimple, Brain, Sparkle];
 
 export function HowItWorks() {
   const reduce = useReducedMotion();
+  const { t } = useI18n();
+  const steps = t.how.steps.map((s, i) => ({ ...s, icon: ICONS[i], n: `0${i + 1}` }));
   return (
     <section id="how" className="px-6 py-32">
       <div className="mx-auto max-w-[1200px]">
         <h2 className="max-w-2xl font-semibold leading-[1.02] tracking-[-0.03em] text-white [font-size:clamp(2.25rem,5.5vw,4rem)]">
-          From your link to more customers,
-          <br /> in three steps.
+          {t.how.title}
         </h2>
 
         <div className="mt-16 grid gap-4 md:grid-cols-3">

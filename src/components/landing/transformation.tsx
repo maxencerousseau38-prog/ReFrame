@@ -11,6 +11,7 @@ import {
 } from "framer-motion";
 import { ArrowRight, ArrowsLeftRight, Lightning, ShieldCheck, Star, Sparkle } from "@phosphor-icons/react";
 import { BrowserFrame } from "@/components/ui/browser-frame";
+import { useI18n } from "@/lib/i18n";
 
 /**
  * Before / after, the centrepiece of the landing. One browser compares the SAME
@@ -21,6 +22,7 @@ import { BrowserFrame } from "@/components/ui/browser-frame";
  */
 export function Transformation() {
   const reduce = useReducedMotion();
+  const { t } = useI18n();
   const trackRef = React.useRef<HTMLDivElement>(null);
   const seam = useMotionValue(reduce ? 100 : 50);
   const dragging = React.useRef(false);
@@ -76,14 +78,13 @@ export function Transformation() {
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="mb-12 max-w-3xl"
         >
-          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-accent">See the transformation</p>
+          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-accent">{t.transform.eyebrow}</p>
           <h2 className="mt-4 font-semibold tracking-[-0.03em] text-white [font-size:clamp(2.25rem,5.5vw,4rem)] [line-height:0.98]">
-            The same business.
-            <br /> Customers who don&apos;t hesitate.
+            {t.transform.titleA}
+            <br /> {t.transform.titleB}
           </h2>
           <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-zinc-400">
-            Same content, same brand. Drag the handle to compare the page quietly
-            turning customers away with the one they trust before they&apos;ve even scrolled.
+            {t.transform.sub}
           </p>
         </motion.div>
 
@@ -183,14 +184,14 @@ export function Transformation() {
 
               {/* drag hint */}
               <span className="pointer-events-none absolute left-1/2 top-4 z-20 -translate-x-1/2 rounded-full bg-black/45 px-3 py-1 text-[11px] font-medium text-white/85 backdrop-blur">
-                Drag to compare
+                {t.transform.drag}
               </span>
             </div>
           </BrowserFrame>
 
           {/* truthful capability chips (no fabricated metrics) */}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
-            {["Modern & fast", "Mobile-perfect", "SEO-ready", "Built to convert", "Your content kept"].map((c) => (
+            {t.transform.chips.map((c) => (
               <span key={c} className="rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-1.5 text-[12px] text-zinc-300">
                 {c}
               </span>

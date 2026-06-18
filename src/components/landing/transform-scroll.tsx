@@ -4,6 +4,7 @@ import * as React from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Eye, Brain, SquaresFour, RocketLaunch, ArrowRight } from "@phosphor-icons/react";
 import { BrowserFrame } from "@/components/ui/browser-frame";
+import { useI18n } from "@/lib/i18n";
 
 /**
  * The engine, dramatized — without hijacking the scroll.
@@ -14,17 +15,13 @@ import { BrowserFrame } from "@/components/ui/browser-frame";
  * reveals on view. Reduced-motion shows the shipped state and stops the loop.
  */
 
-const STEPS = [
-  { icon: Eye, label: "Read", body: "Crawl the live site: copy, media, structure, brand." },
-  { icon: Brain, label: "Understand", body: "Infer the sector, the intent and what converts." },
-  { icon: SquaresFour, label: "Compose", body: "Assemble vetted blocks into a coherent system." },
-  { icon: RocketLaunch, label: "Ship", body: "Render a fast, editable site your customers trust, ready to publish." },
-];
-
+const ICONS = [Eye, Brain, SquaresFour, RocketLaunch];
 const PHASE_MS = 3000;
 
 export function TransformScroll() {
   const reduce = useReducedMotion();
+  const { t } = useI18n();
+  const STEPS = t.engine.steps.map((s, i) => ({ ...s, icon: ICONS[i] }));
   const [active, setActive] = React.useState(0);
   const [paused, setPaused] = React.useState(false);
 
@@ -34,7 +31,7 @@ export function TransformScroll() {
       return;
     }
     if (paused) return;
-    const id = window.setInterval(() => setActive((a) => (a + 1) % STEPS.length), PHASE_MS);
+    const id = window.setInterval(() => setActive((a) => (a + 1) % ICONS.length), PHASE_MS);
     return () => window.clearInterval(id);
   }, [reduce, paused]);
 
@@ -50,14 +47,13 @@ export function TransformScroll() {
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
             <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-zinc-400">
-              The engine
+              {t.engine.badge}
             </span>
             <h2 className="mt-5 max-w-md font-semibold leading-[1.02] tracking-[-0.03em] text-white [font-size:clamp(2.1rem,4.6vw,3.5rem)]">
-              It knows exactly what&apos;s turning your customers away.
+              {t.engine.title}
             </h2>
             <p className="mt-5 max-w-sm text-[15px] leading-relaxed text-zinc-400">
-              Four passes turn a tired page into a site visitors trust — and act
-              on. No builder, no blank canvas.
+              {t.engine.sub}
             </p>
           </motion.div>
 

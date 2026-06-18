@@ -10,60 +10,23 @@ import {
   type Icon as PhosphorIcon,
 } from "@phosphor-icons/react";
 import { BlurReveal } from "@/components/ui/blur-reveal";
+import { useI18n } from "@/lib/i18n";
 
-type Promise_ = { icon: PhosphorIcon; title: string; body: string };
-
-// Every claim here is literally true of how ReFrame works. No fabricated proof.
-const promises: Promise_[] = [
-  {
-    icon: CreditCard,
-    title: "Free preview, no card",
-    body: "See your site fully rebuilt before you pay anything. You only pay when you choose to publish it live.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Your content, preserved",
-    body: "We rebuild from your real text, logo, images and colours. We never invent a business or fake your details.",
-  },
-  {
-    icon: DownloadSimple,
-    title: "Export anytime",
-    body: "Download your whole site — HTML, CSS, images and every page — and host it anywhere. It keeps working with or without us.",
-  },
-  {
-    icon: ArrowsClockwise,
-    title: "No vendor lock-in",
-    body: "Keep your own domain with automatic SSL, and cancel anytime. If you leave, your exported site keeps working and your domain stays yours.",
-  },
-  {
-    icon: Eye,
-    title: "Only your public pages",
-    body: "We read what is already public on the web. We never ask for your passwords, CMS or hosting access.",
-  },
-  {
-    icon: LockKey,
-    title: "Edit anything, anytime",
-    body: "Change copy, colours, add pages or sections by chatting in plain English. Changes go live instantly.",
-  },
-];
+const ICONS: PhosphorIcon[] = [CreditCard, ShieldCheck, DownloadSimple, ArrowsClockwise, Eye, LockKey];
 
 export function Trust() {
+  const { t } = useI18n();
+  const promises = t.trust.cards.map((c, i) => ({ ...c, icon: ICONS[i] }));
   return (
     <section id="trust" className="px-6 py-32 sm:py-40">
       <div className="mx-auto max-w-[1100px]">
         <BlurReveal className="max-w-3xl">
-          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-accent">No vendor lock-in</p>
+          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-accent">{t.trust.eyebrow}</p>
           <h2 className="mt-4 font-semibold leading-[1.04] tracking-[-0.03em] text-white [font-size:clamp(2.25rem,5.5vw,3.75rem)]">
-            Your website. Your domain. Your content.
+            {t.trust.title}
           </h2>
-          <p className="mt-5 text-lg leading-relaxed text-zinc-300">
-            We don&apos;t own your website. We improve it. Keep everything, upgrade everything,
-            and export the whole thing the moment you want to.
-          </p>
-          <p className="mt-3 text-[15px] leading-relaxed text-zinc-500">
-            You keep your domain, your content and your SEO. You can leave at any time — nothing here
-            holds your site hostage.
-          </p>
+          <p className="mt-5 text-lg leading-relaxed text-zinc-300">{t.trust.p1}</p>
+          <p className="mt-3 text-[15px] leading-relaxed text-zinc-500">{t.trust.p2}</p>
         </BlurReveal>
 
         <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

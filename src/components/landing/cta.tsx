@@ -3,8 +3,10 @@
 import { BlurReveal } from "@/components/ui/blur-reveal";
 import { IslandButton } from "@/components/ui/island-button";
 import { Bezel } from "@/components/ui/bezel";
+import { useI18n } from "@/lib/i18n";
 
 export function FinalCta() {
+  const { t } = useI18n();
   return (
     <section className="px-6 py-32">
       <div className="mx-auto max-w-[1100px]">
@@ -16,15 +18,12 @@ export function FinalCta() {
             </div>
             <div className="relative">
               <h2 className="mx-auto max-w-2xl text-balance font-semibold leading-[1.05] tracking-tight text-white [font-size:clamp(2.25rem,5vw,3.75rem)]">
-                Your website should be winning customers, not losing them.
+                {t.cta.title}
               </h2>
-              <p className="mx-auto mt-5 max-w-lg text-zinc-400">
-                Paste your link and watch it become the site that turns visitors
-                into customers — in minutes, not months.
-              </p>
+              <p className="mx-auto mt-5 max-w-lg text-zinc-400">{t.cta.sub}</p>
               <div className="mt-9 flex justify-center">
                 <IslandButton href="/dashboard" variant="accent">
-                  Start for free
+                  {t.cta.button}
                 </IslandButton>
               </div>
             </div>
