@@ -71,7 +71,7 @@ export function Hero() {
                 className="h-11 w-full rounded-full bg-transparent pl-11 pr-3 text-[15px] text-white placeholder:text-zinc-500 focus:outline-none"
               />
             </div>
-            <IslandButton onClick={() => go()} variant="accent" className="shrink-0">
+            <IslandButton onClick={() => go()} variant="accent" className="shrink-0 whitespace-nowrap">
               {t.hero.cta}
             </IslandButton>
           </form>

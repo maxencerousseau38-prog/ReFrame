@@ -45,7 +45,7 @@ export function Navbar() {
             <LanguageSwitcher />
             <Link
               href="/dashboard"
-              className="rounded-full bg-accent px-4 py-2 text-[13px] font-medium text-accent-foreground transition-transform duration-200 ease-out hover:brightness-105 active:scale-95"
+              className="whitespace-nowrap rounded-full bg-accent px-4 py-2 text-[13px] font-medium text-accent-foreground transition-transform duration-200 ease-out hover:brightness-105 active:scale-95"
             >
               {t.nav.cta}
             </Link>
