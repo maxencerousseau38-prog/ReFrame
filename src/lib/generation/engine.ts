@@ -523,34 +523,50 @@ function findLogo(root: HTMLElement, base: string): string | undefined {
   return /^https?:/i.test(resolved) ? resolved : undefined;
 }
 
-function findAccent(root: HTMLElement): string | undefined {
-  // 1) Explicit brand-color signals, in order of reliability.
-  const signals = [
-    root.querySelector('link[rel*="mask-icon"]')?.getAttribute("color"), // Safari pinned tab = usually the true brand color
-    root.querySelector('meta[name="theme-color"]')?.getAttribute("content"),
-    root.querySelector('meta[name="msapplication-TileColor"]')?.getAttribute("content"),
-  ];
-  for (const s of signals) {
-    const c = usableAccent(s || "");
-    if (c) return c;
-  }
+export function findAccent(root: HTMLElement): string | undefined {
+  // Weighted voting across every place a brand color hides. Explicit brand
+  // signals dominate; brand-named CSS variables are next; logo/SVG fills beat
+  // generic color tokens, which only win by sheer frequency.
+  const score: Record<string, number> = {};
+  const add = (raw: string | undefined | null, weight: number) => {
+    const c = usableAccent(raw || "");
+    if (c) score[c] = (score[c] || 0) + weight + hexChroma(c) / 255; // chroma = tiebreak
+  };
 
-  // 2) Fallback: most frequent *usable* hex across <style> and inline styles.
+  // 1) Explicit brand-color signals, in order of reliability.
+  add(root.querySelector('link[rel*="mask-icon"]')?.getAttribute("color"), 5000);
+  add(root.querySelector('meta[name="theme-color"]')?.getAttribute("content"), 4000);
+  add(root.querySelector('meta[name="msapplication-TileColor"]')?.getAttribute("content"), 3000);
+
   const styleText = root.querySelectorAll("style").map((s) => s.text).join(" ");
   const inline = root.querySelectorAll("[style]").map((e) => e.getAttribute("style") || "").join(" ");
-  const hexes = ((styleText + " " + inline).match(/#[0-9a-f]{3,8}\b/gi) || []);
-  const counts: Record<string, number> = {};
-  for (const raw of hexes) {
-    const c = usableAccent(raw);
-    if (c) counts[c] = (counts[c] || 0) + 1;
+  const css = `${styleText} ${inline}`;
+
+  // 2) CSS custom properties. Brand-named ones (--brand, --accent, --primary…)
+  //    are the single most reliable signal on modern sites.
+  const varRe = /--([a-z0-9-]+)\s*:\s*([^;}{]+)/gi;
+  let mv: RegExpExecArray | null;
+  while ((mv = varRe.exec(styleText))) {
+    const brandy = /(brand|accent|primary|theme|main|cta|action|highlight|link)/.test(mv[1]);
+    add(mv[2], brandy ? 2000 : 150);
   }
+
+  // 3) Logo / SVG fills carry the brand color on icon-driven sites.
+  for (const el of root.querySelectorAll("[fill], [stop-color], [color]")) {
+    add(el.getAttribute("fill"), 300);
+    add(el.getAttribute("stop-color"), 300);
+    add(el.getAttribute("color"), 150);
+  }
+
+  // 4) Generic color tokens (hex, rgb(), hsl()) by frequency — weakest signal.
+  const tokens = css.match(/#[0-9a-f]{3,8}\b|rgba?\([^)]*\)|hsla?\([^)]*\)/gi) || [];
+  for (const t of tokens) add(t, 10);
+
   let best: string | undefined;
   let bestScore = 0;
-  for (const hex of Object.keys(counts)) {
-    const chroma = hexChroma(hex);
-    const score = counts[hex] * 100 + chroma; // frequency first, vividness as tie-break
-    if (score > bestScore) {
-      bestScore = score;
+  for (const [hex, s] of Object.entries(score)) {
+    if (s > bestScore) {
+      bestScore = s;
       best = hex;
     }
   }
@@ -559,18 +575,54 @@ function findAccent(root: HTMLElement): string | undefined {
 
 /** Normalize a hex and accept it only if it works as an accent (a button fill). */
 function usableAccent(raw: string): string | undefined {
-  let h = raw.trim().toLowerCase();
-  if (!h) return undefined;
-  if (!h.startsWith("#")) h = `#${h}`;
-  const m = /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/.exec(h);
-  if (!m) return undefined;
-  let hex = m[1];
-  if (hex.length === 3) hex = hex.split("").map((c) => c + c).join("");
-  hex = `#${hex.slice(0, 6)}`;
+  const hex = parseColorToHex(raw);
+  if (!hex) return undefined;
   if (isNeutral(hex)) return undefined;
   const l = hexLightness(hex);
   if (l < 0.22 || l > 0.75) return undefined; // too dark/light => unusable as an accent
   return hex;
+}
+
+/** Parse a CSS color (hex / rgb() / rgba() / hsl() / hsla()) to #rrggbb. */
+export function parseColorToHex(raw: string): string | undefined {
+  const s = raw.trim().toLowerCase();
+  if (!s) return undefined;
+
+  const hx = /^#?([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/.exec(s.startsWith("#") ? s.slice(1) : s);
+  if (hx) {
+    let hex = hx[1];
+    if (hex.length === 3) hex = hex.split("").map((c) => c + c).join("");
+    return `#${hex.slice(0, 6)}`;
+  }
+
+  const rgb = /^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)/.exec(s);
+  if (rgb) {
+    const toByte = (n: string) => Math.max(0, Math.min(255, Math.round(parseFloat(n))));
+    return rgbToHex(toByte(rgb[1]), toByte(rgb[2]), toByte(rgb[3]));
+  }
+
+  const hsl = /^hsla?\(\s*([\d.]+)(?:deg)?[\s,]+([\d.]+)%[\s,]+([\d.]+)%/.exec(s);
+  if (hsl) {
+    return hslToHex(parseFloat(hsl[1]), parseFloat(hsl[2]) / 100, parseFloat(hsl[3]) / 100);
+  }
+  return undefined;
+}
+
+function rgbToHex(r: number, g: number, b: number): string {
+  return `#${[r, g, b].map((n) => n.toString(16).padStart(2, "0")).join("")}`;
+}
+
+function hslToHex(h: number, s: number, l: number): string {
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = l - c / 2;
+  const [r1, g1, b1] =
+    h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+  return rgbToHex(
+    Math.round((r1 + m) * 255),
+    Math.round((g1 + m) * 255),
+    Math.round((b1 + m) * 255)
+  );
 }
 
 function hexLightness(hex: string): number {
