@@ -45,7 +45,7 @@ export function Navbar() {
             <LanguageSwitcher />
             <Link
               href="/dashboard"
-              className="whitespace-nowrap rounded-full bg-accent px-4 py-2 text-[13px] font-medium text-accent-foreground transition-transform duration-200 ease-out hover:brightness-105 active:scale-95"
+              className="hidden items-center whitespace-nowrap rounded-full bg-accent px-4 py-2 text-[13px] font-medium text-accent-foreground transition-transform duration-200 ease-out hover:brightness-105 active:scale-95 md:inline-flex"
             >
               {t.nav.cta}
             </Link>
@@ -78,6 +78,13 @@ export function Navbar() {
                   {l.label}
                 </Link>
               ))}
+              <Link
+                href="/dashboard"
+                onClick={() => setOpen(false)}
+                className="mt-1 block rounded-2xl bg-accent px-4 py-3 text-center text-[15px] font-medium text-accent-foreground"
+              >
+                {t.nav.cta}
+              </Link>
             </motion.div>
           )}
         </AnimatePresence>
