@@ -853,6 +853,29 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block | null {
  *   classic  - the proven canonical layout (full rebuild from extracted content).
  * Component selection stays industry-driven and deterministic - never random.
  */
+/**
+ * Strip em/en dashes from copy. The em-dash is the single biggest "AI tell" in
+ * generated text, so we ban it from everything we ship: a spaced dash becomes a
+ * comma, any stray dash a hyphen. Applied to every block's props at the end of
+ * generation, so it covers deterministic copy and Claude-rewritten copy alike.
+ */
+function deAiDash(s: string): string {
+  return s.replace(/\s+[—–]\s+/g, ", ").replace(/[—–]/g, "-");
+}
+
+function sanitizeValue(v: unknown): unknown {
+  if (typeof v === "string") return deAiDash(v);
+  if (Array.isArray(v)) return v.map(sanitizeValue);
+  if (v && typeof v === "object") {
+    return Object.fromEntries(Object.entries(v).map(([k, val]) => [k, sanitizeValue(val)]));
+  }
+  return v;
+}
+
+function sanitizeBlock(b: Block): Block {
+  return { ...b, props: sanitizeValue(b.props) as Block["props"] };
+}
+
 export function generateSite(
   analysis: SiteAnalysis,
   opts: { mode?: GenerationMode } = {}
@@ -927,10 +950,12 @@ export function generateSite(
     id: uid("site"),
     sourceUrl: analysis.url,
     industry: analysis.industry,
-    brand: { name: analysis.brandName, tagline: analysis.extractedContent.headline },
+    brand: { name: analysis.brandName, tagline: deAiDash(analysis.extractedContent.headline) },
     theme,
-    blocks,
-    pages: pages.length ? pages : undefined,
+    blocks: blocks.map(sanitizeBlock),
+    pages: pages.length
+      ? pages.map((p) => ({ ...p, blocks: p.blocks.map(sanitizeBlock) }))
+      : undefined,
     mode,
     recommendations: plan.recommendations.length ? plan.recommendations : undefined,
   };
@@ -957,7 +982,7 @@ function featureBlurb(service: string, industry: Industry): string {
   const lower = service.toLowerCase();
   const patterns = [
     `${service}, handled end to end with senior craft.`,
-    `${service} — considered, on-brand, and delivered on time.`,
+    `${service}, considered, on-brand, and delivered on time.`,
     `${service} done properly: no templates, no shortcuts.`,
     `${service}, tailored to your brand and built to last.`,
     `Clear, results-driven ${lower} that earns its keep.`,

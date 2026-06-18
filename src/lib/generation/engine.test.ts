@@ -94,6 +94,29 @@ describe("generateSite", () => {
     expect(s.recommendations?.length ?? 0).toBeGreaterThan(0);
   });
 
+  it("strips em-dashes from all shipped copy (the #1 AI tell)", () => {
+    const a = analysis({
+      industry: "saas",
+      structure: structure(["hero", "about", "footer"]),
+      extractedContent: {
+        headline: "Fast, simple — and yours",
+        description: "Built for teams — no busywork.",
+        services: ["Onboarding — done for you", "Support"],
+        images: [],
+      },
+    });
+    const s = generateSite(a, { mode: "smart" });
+    const json = JSON.stringify(s);
+    expect(json).not.toContain("—"); // em-dash
+    expect(json).not.toContain("–"); // en-dash
+    expect(s.brand.tagline).toBe("Fast, simple, and yours");
+  });
+
+  it("does not fall back to AI-default purple for saas/generic accents", () => {
+    expect(generateSite(analysis({ industry: "saas" })).theme.accent).not.toBe("#6366f1");
+    expect(generateSite(analysis({ industry: "generic" })).theme.accent).not.toBe("#6366f1");
+  });
+
   it("gives the hero an industry CTA label wired to a real next step", () => {
     const s = generateSite(analysis({ industry: "restaurant" }), { mode: "classic" });
     const hero = s.blocks.find((b) => b.type === "hero")!;

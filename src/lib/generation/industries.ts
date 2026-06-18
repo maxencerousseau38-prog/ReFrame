@@ -65,7 +65,8 @@ export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
     id: "saas",
     label: "Software & SaaS",
     keywords: ["software", "platform", "app", "saas", "dashboard", "api", "integration", "workflow", "automation", "cloud"],
-    theme: { primary: "#0a0a0a", accent: "#6366f1", radius: "lg", font: "inter", mood: "minimal" },
+    // Electric blue, not the AI-default indigo/purple ("the Lila Rule").
+    theme: { primary: "#0a0a0a", accent: "#0284c7", radius: "lg", font: "inter", mood: "minimal" },
     defaults: {
       headline: "The platform your team will actually use",
       description: "Powerful, fast and beautifully simple, built to remove busywork from your day.",
@@ -117,7 +118,8 @@ export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
     id: "generic",
     label: "Business",
     keywords: [],
-    theme: { primary: "#0a0a0a", accent: "#6366f1", radius: "lg", font: "inter", mood: "minimal" },
+    // Emerald: a neutral-friendly, high-contrast accent (not AI-default purple).
+    theme: { primary: "#0a0a0a", accent: "#059669", radius: "lg", font: "inter", mood: "minimal" },
     defaults: {
       headline: "Something better, built for you",
       description: "A modern home for your business. Clear, fast and made to convert.",
