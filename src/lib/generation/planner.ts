@@ -40,6 +40,17 @@ export function planClassic(): Plan {
   return { slots: CANONICAL.map((t) => slot(t)), recommendations: [] };
 }
 
+/**
+ * Explicit/AI layout: build slots from a given ordered list of section types
+ * (e.g. composed by the LLM from the real content). Hero is anchored first and
+ * footer last; a contact section is guaranteed so every CTA has a destination.
+ */
+export function planExplicit(types: BlockType[]): Plan {
+  const hasContact = types.some((t) => renderableCategory(t) === "contact");
+  const list: BlockType[] = hasContact ? types : [...types, "contact"];
+  return { slots: anchor(list.map((t) => slot(t))), recommendations: [] };
+}
+
 /** Preserve: keep the client's architecture and order, upgrade the components. */
 /**
  * Preserve: keep the client's architecture and order, upgrade the components.

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { analyzeUrl, generateSite, BlockedUrlError } from "@/lib/generation/engine";
-import { isLLMEnabled, rewriteContent } from "@/lib/llm";
+import { isLLMEnabled, rewriteContent, designSite, type SiteDesign } from "@/lib/llm";
 import { rateLimit, clientKey } from "@/lib/rate-limit";
 import type { SiteAnalysis, GenerationMode } from "@/lib/generation/types";
 
@@ -30,13 +30,17 @@ export async function POST(req: Request) {
       analysis = await analyzeUrl(body.url);
     }
 
+    // Claude as copywriter (sharper on-brand text) AND art director (page
+    // composition + theme). Both run in parallel and degrade to {} on failure.
+    let design: SiteDesign = {};
     if (isLLMEnabled()) {
-      const improved = await rewriteContent(analysis);
+      const [improved, designed] = await Promise.all([rewriteContent(analysis), designSite(analysis)]);
       analysis = { ...analysis, extractedContent: { ...analysis.extractedContent, ...improved } };
+      design = designed;
     }
 
     const mode: GenerationMode = MODES.includes(body.mode) ? body.mode : "preserve";
-    const schema = generateSite(analysis, { mode });
+    const schema = generateSite(analysis, { mode, layout: design.layout, theme: design.theme });
     return NextResponse.json({ schema, analysis, ai: isLLMEnabled(), mode });
   } catch (err) {
     if (err instanceof BlockedUrlError) {

@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { SiteAnalysis, SiteSchema } from "./generation/types";
+import type { SiteAnalysis, SiteSchema, BlockType, Theme } from "./generation/types";
 import { applyAiEdit, type AiEditResult } from "./generation/engine";
 import { parseSiteSchema } from "./generation/validate";
 
@@ -79,6 +79,82 @@ Respond with ONLY a JSON object of this exact shape:
     if (Array.isArray(json.services) && json.services.length >= 3) {
       out.services = json.services.slice(0, 6).map((s) => String(s).trim());
     }
+    return out;
+  } catch {
+    return {};
+  }
+}
+
+const ALLOWED_SECTIONS: BlockType[] = [
+  "hero", "about", "services", "features", "portfolio", "gallery", "stats",
+  "testimonials", "pricing", "faq", "cta", "contact", "footer",
+];
+const ALLOWED_FONTS: Theme["font"][] = ["inter", "geist", "serif"];
+const ALLOWED_MOODS: Theme["mood"][] = ["minimal", "bold", "warm", "elegant"];
+const ALLOWED_RADIUS: Theme["radius"][] = ["sm", "md", "lg", "xl"];
+
+export interface SiteDesign {
+  layout?: BlockType[];
+  theme?: Partial<Theme>;
+}
+
+/**
+ * Let Claude act as the art director: from the real content it composes the
+ * section order (layout) and a tasteful theme (font / mood / radius / accent),
+ * which the deterministic engine then fills with vetted premium blocks. Output
+ * is strictly validated against our allowed sets; anything off is dropped, and
+ * an empty result means the engine keeps its deterministic plan + theme.
+ */
+export async function designSite(analysis: SiteAnalysis): Promise<SiteDesign> {
+  if (!isLLMEnabled()) return {};
+
+  const c = analysis.extractedContent;
+  const prompt = `You are an elite web art director composing a premium site for a ${analysis.industryLabel} business called "${analysis.brandName}".
+
+Real content available:
+- Headline: ${c.headline}
+- Description: ${c.description}
+- Services/offer: ${c.services.join(", ")}
+- Has real images: ${c.images.length > 0 ? "yes" : "no"}
+- Has real testimonials: ${c.testimonials?.length ? "yes" : "no"}
+- Has real stats/metrics: ${c.stats?.length ? "yes" : "no"}
+
+Decide the most compelling, conversion-focused PAGE COMPOSITION and visual mood for THIS business.
+
+Rules:
+- Order sections from this allowed set only: ${ALLOWED_SECTIONS.join(", ")}.
+- Start with "hero" and end with "footer". Always include "contact".
+- Only include "testimonials" if real testimonials exist; only include "stats"/"portfolio"/"gallery" if real images/metrics exist (no filler).
+- Choose font, mood, radius and an accent hex that fit the sector and brand.
+
+Respond with ONLY a JSON object of this exact shape:
+{"layout": string[] (6 to 9 section types from the allowed set), "theme": {"font": "inter"|"geist"|"serif", "mood": "minimal"|"bold"|"warm"|"elegant", "radius": "sm"|"md"|"lg"|"xl", "accent": "#rrggbb"}}`;
+
+  try {
+    const res = await getClient().messages.create({
+      model: MODEL,
+      max_tokens: 512,
+      messages: [{ role: "user", content: prompt }],
+    });
+    const json = extractJSON<{ layout?: unknown; theme?: Record<string, unknown> }>(textOf(res));
+    const out: SiteDesign = {};
+
+    if (Array.isArray(json.layout)) {
+      const layout = json.layout
+        .map((s) => String(s).toLowerCase().trim())
+        .filter((s): s is BlockType => (ALLOWED_SECTIONS as string[]).includes(s));
+      // Need a real composition with a hero; otherwise let the engine plan it.
+      if (layout.length >= 4 && layout.includes("hero")) out.layout = layout;
+    }
+
+    const t = json.theme || {};
+    const theme: Partial<Theme> = {};
+    if (typeof t.font === "string" && (ALLOWED_FONTS as string[]).includes(t.font)) theme.font = t.font as Theme["font"];
+    if (typeof t.mood === "string" && (ALLOWED_MOODS as string[]).includes(t.mood)) theme.mood = t.mood as Theme["mood"];
+    if (typeof t.radius === "string" && (ALLOWED_RADIUS as string[]).includes(t.radius)) theme.radius = t.radius as Theme["radius"];
+    if (typeof t.accent === "string" && /^#[0-9a-f]{6}$/i.test(t.accent)) theme.accent = t.accent;
+    if (Object.keys(theme).length) out.theme = theme;
+
     return out;
   } catch {
     return {};

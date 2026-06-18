@@ -58,11 +58,12 @@ import type {
   Industry,
   BlockType,
   GenerationMode,
+  Theme,
 } from "./types";
 import { INDUSTRY_PROFILES, detectIndustry } from "./industries";
 import { pickVariant } from "./catalog";
 import { detectStructure, renderableCategory } from "./structure";
-import { planClassic, planPreserve, planSmart, type Slot } from "./planner";
+import { planClassic, planPreserve, planSmart, planExplicit, type Slot } from "./planner";
 import { canRender, renderHtml } from "@/lib/server/render";
 
 /* -------------------------------------------------------------------------- */
@@ -761,7 +762,11 @@ function sectionTitle(type: BlockType, brand: string): string {
 /** Build one block for a planned slot. Reproduces the proven props per category;
  *  semantic types (about/services/portfolio…) keep their type but render through
  *  the closest available component until dedicated premium components land. */
-function buildBlock(slot: Slot, analysis: SiteAnalysis): Block | null {
+function buildBlock(
+  slot: Slot,
+  analysis: SiteAnalysis,
+  mood: Theme["mood"] = INDUSTRY_PROFILES[analysis.industry].theme.mood
+): Block | null {
   const profile = INDUSTRY_PROFILES[analysis.industry];
   const c = analysis.extractedContent;
   const brand = analysis.brandName;
@@ -781,7 +786,7 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block | null {
         // With no usable image, image-led heroes fall flat; route to the
         // image-free "brand canvas" so the first impression still lands.
         variant: c.heroImageUrl
-          ? pickVariant("hero", analysis.industry, brand, profile.theme.mood)
+          ? pickVariant("hero", analysis.industry, brand, mood)
           : "HeroCanvas",
         props: {
           eyebrow: profile.label,
@@ -800,7 +805,7 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block | null {
       return {
         id: uid("features"),
         type: slot.type,
-        variant: pickVariant("features", analysis.industry, brand, profile.theme.mood),
+        variant: pickVariant("features", analysis.industry, brand, mood),
         props: {
           title: sectionTitle(slot.type, brand),
           subtitle: "What makes the difference for our clients.",
@@ -815,7 +820,7 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block | null {
       return {
         id: uid("services"),
         type: slot.type,
-        variant: pickVariant("services", analysis.industry, brand, profile.theme.mood),
+        variant: pickVariant("services", analysis.industry, brand, mood),
         props: {
           eyebrow: "Services",
           title: sectionTitle(slot.type, brand),
@@ -830,7 +835,7 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block | null {
       return {
         id: uid("portfolio"),
         type: slot.type,
-        variant: pickVariant("portfolio", analysis.industry, brand, profile.theme.mood),
+        variant: pickVariant("portfolio", analysis.industry, brand, mood),
         props: {
           eyebrow: slot.type === "products" ? "Collection" : slot.type === "gallery" ? "Gallery" : "Selected work",
           title: sectionTitle(slot.type, brand),
@@ -843,14 +848,14 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block | null {
       return {
         id: uid("stats"),
         type: slot.type,
-        variant: pickVariant("stats", analysis.industry, brand, profile.theme.mood),
+        variant: pickVariant("stats", analysis.industry, brand, mood),
         props: { title: sectionTitle(slot.type, brand), items: c.stats },
       };
     case "about":
       return {
         id: uid("about"),
         type: slot.type,
-        variant: pickVariant("about", analysis.industry, brand, profile.theme.mood),
+        variant: pickVariant("about", analysis.industry, brand, mood),
         props: {
           eyebrow: "About",
           title: sectionTitle(slot.type, brand),
@@ -868,7 +873,7 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block | null {
       return {
         id: uid("test"),
         type: "testimonials",
-        variant: pickVariant("testimonials", analysis.industry, brand, profile.theme.mood),
+        variant: pickVariant("testimonials", analysis.industry, brand, mood),
         props: { title: "What our clients say", items: c.testimonials },
       };
     case "faq":
@@ -882,7 +887,7 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block | null {
       return {
         id: uid("cta"),
         type: "cta",
-        variant: pickVariant("cta", analysis.industry, brand, profile.theme.mood),
+        variant: pickVariant("cta", analysis.industry, brand, mood),
         props: { title: "Ready to get started?", subtitle: "Reach out today and let's make it happen.", cta: profile.cta.primary, ctaHref: bookHref },
       };
     case "contact":
@@ -899,7 +904,7 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block | null {
     case "footer":
       return { id: uid("footer"), type: "footer", variant: "Footer1", props: { brand } };
     default:
-      return buildBlock({ ...slot, category: "features" }, analysis);
+      return buildBlock({ ...slot, category: "features" }, analysis, mood);
   }
 }
 
@@ -938,15 +943,26 @@ function sanitizeBlock(b: Block): Block {
 
 export function generateSite(
   analysis: SiteAnalysis,
-  opts: { mode?: GenerationMode } = {}
+  opts: { mode?: GenerationMode; layout?: BlockType[]; theme?: Partial<Theme> } = {}
 ): SiteSchema {
   const mode: GenerationMode = opts.mode ?? "preserve";
-  const plan =
-    mode === "classic"
+  // An explicit (AI-composed) layout takes precedence over the deterministic
+  // planner; otherwise the mode decides the structure.
+  const plan = opts.layout?.length
+    ? planExplicit(opts.layout)
+    : mode === "classic"
       ? planClassic()
       : mode === "preserve"
         ? planPreserve(analysis.structure)
         : planSmart(analysis.structure);
+
+  // Theme: industry default, refined by any AI theme (font/mood/radius/accent),
+  // then the real extracted brand colour wins so the rebuild stays recognisable.
+  const profile = INDUSTRY_PROFILES[analysis.industry];
+  const aiTheme = opts.theme ?? {};
+  let theme: Theme = { ...profile.theme, ...aiTheme };
+  if (analysis.brand?.accentColor) theme = { ...theme, accent: analysis.brand.accentColor };
+  const mood = theme.mood;
 
   // Guarantee a slot for real content the user/extractor supplied (testimonials,
   // stats) even when the detected structure or canonical plan lacked one - so
@@ -964,21 +980,15 @@ export function generateSite(
   // Some slots (testimonials, stats) are intentionally dropped when we have no
   // real data for them, rather than fabricated - so filter the nulls out.
   const blocks: Block[] = slots
-    .map((s) => buildBlock(s, analysis))
+    .map((s) => buildBlock(s, analysis, mood))
     .filter((b): b is Block => b !== null);
-
-  // Use the source site's real accent color when we found one, so the rebuild
-  // keeps the brand recognisable instead of imposing a generic palette.
-  const profile = INDUSTRY_PROFILES[analysis.industry];
-  const accent = analysis.brand?.accentColor;
-  const theme = accent ? { ...profile.theme, accent } : profile.theme;
 
   // Multi-page: beyond the home overview, build the standard small-business
   // pages (Services, About, Contact). Each is a focused page of real blocks
   // (fabricated sections still drop out). Empty pages are omitted.
   const buildPage = (label: string, path: string, types: BlockType[]): SitePage | null => {
     const pageBlocks = types
-      .map((t) => buildBlock({ type: t, category: renderableCategory(t) }, analysis))
+      .map((t) => buildBlock({ type: t, category: renderableCategory(t) }, analysis, mood))
       .filter((b): b is Block => b !== null);
     // A page needs at least one real content block besides the footer.
     return pageBlocks.some((b) => b.type !== "footer") ? { label, path, blocks: pageBlocks } : null;
@@ -994,7 +1004,7 @@ export function generateSite(
   const collection = analysis.extractedContent.collection;
   if (collection?.items?.length) {
     const meta = collectionMeta(analysis.industry);
-    const footer = buildBlock({ type: "footer", category: "footer" }, analysis);
+    const footer = buildBlock({ type: "footer", category: "footer" }, analysis, mood);
     const block: Block = {
       id: uid("collection"),
       type: "gallery",

@@ -134,6 +134,26 @@ describe("generateSite", () => {
     expect(generateSite(without).blocks.map((b) => b.type)).not.toContain("portfolio");
   });
 
+  it("follows an explicit (AI) layout, anchoring hero/footer and ensuring contact", () => {
+    const s = generateSite(analysis({}), { layout: ["hero", "features", "faq", "cta"] });
+    const types = s.blocks.map((b) => b.type);
+    expect(types[0]).toBe("hero");
+    expect(types[types.length - 1]).toBe("footer");
+    expect(types).toContain("contact"); // guaranteed even if AI omits it
+    expect(types).toContain("faq");
+  });
+
+  it("applies an AI theme (font/mood/radius) but lets the real brand colour win", () => {
+    const s = generateSite(
+      analysis({ industry: "saas", brand: { accentColor: "#ff5500" } }),
+      { theme: { font: "serif", mood: "warm", radius: "xl", accent: "#123456" } }
+    );
+    expect(s.theme.font).toBe("serif");
+    expect(s.theme.mood).toBe("warm");
+    expect(s.theme.radius).toBe("xl");
+    expect(s.theme.accent).toBe("#ff5500"); // extracted brand colour overrides AI's
+  });
+
   it("gives the hero an industry CTA label wired to a real next step", () => {
     const s = generateSite(analysis({ industry: "restaurant" }), { mode: "classic" });
     const hero = s.blocks.find((b) => b.type === "hero")!;
