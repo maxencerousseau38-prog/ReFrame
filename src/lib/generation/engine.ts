@@ -778,7 +778,11 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block | null {
       return {
         id: uid("hero"),
         type: "hero",
-        variant: pickVariant("hero", analysis.industry, brand, profile.theme.mood),
+        // With no usable image, image-led heroes fall flat; route to the
+        // image-free "brand canvas" so the first impression still lands.
+        variant: c.heroImageUrl
+          ? pickVariant("hero", analysis.industry, brand, profile.theme.mood)
+          : "HeroCanvas",
         props: {
           eyebrow: profile.label,
           title: c.headline,

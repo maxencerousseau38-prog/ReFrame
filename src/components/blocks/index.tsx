@@ -1942,8 +1942,154 @@ function CTAAsterisk({ props }: { props: any }) {
 /*  Registry + renderer                                                       */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Image-free premium hero. When the source site has no usable image, a plain
+ * centered text hero reads as a template, so we compose a "brand canvas"
+ * instead: an asymmetric panel with a gradient mesh, the brand monogram and
+ * drifting accent orbs. Entirely token-driven and CSS-only, so it adapts to any
+ * brand colour, works in export, and degrades gracefully with reduced motion.
+ */
+function HeroCanvas({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  const monogram = (props.brand || props.title || "•").trim().charAt(0).toUpperCase() || "•";
+  const rise = (delay: number) => ({
+    initial: reduce ? false : { opacity: 0, y: 16 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.6, ease: EASE, delay },
+  });
+  const drift = (dx: number, dy: number) =>
+    reduce ? {} : { animate: { x: [0, dx, 0], y: [0, dy, 0] }, transition: { duration: 14, ease: "easeInOut" as const, repeat: Infinity } };
+
+  return (
+    <section
+      className="relative overflow-hidden px-6 pb-24 pt-32 sm:pb-28"
+      style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}
+    >
+      {/* overhead accent light + masked grid, for depth */}
+      <div
+        className="pointer-events-none absolute inset-x-0 -top-40 z-0 h-[520px]"
+        style={{ background: "radial-gradient(50% 50% at 50% 0%, color-mix(in srgb, var(--brand-accent) 16%, transparent), transparent 70%)" }}
+      />
+      <div
+        className="pointer-events-none absolute inset-0 z-0 [mask-image:radial-gradient(70%_55%_at_50%_0%,#000,transparent)]"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, color-mix(in srgb, var(--brand-ink) 5%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in srgb, var(--brand-ink) 5%, transparent) 1px, transparent 1px)",
+          backgroundSize: "64px 64px",
+        }}
+      />
+
+      <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
+        {/* Left: message + CTAs */}
+        <div>
+          {props.eyebrow && (
+            <motion.span
+              {...rise(0)}
+              className="inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium"
+              style={{
+                borderColor: "color-mix(in srgb, var(--brand-ink) 12%, transparent)",
+                color: "color-mix(in srgb, var(--brand-ink) 65%, transparent)",
+              }}
+            >
+              {props.eyebrow}
+            </motion.span>
+          )}
+          <motion.h1
+            {...rise(0.05)}
+            className="mt-6 text-5xl font-semibold leading-[1.02] tracking-tight [text-wrap:balance] md:text-6xl"
+            style={{ color: "var(--brand)", fontFamily: "var(--brand-font)" }}
+          >
+            {props.title}
+          </motion.h1>
+          {props.subtitle && (
+            <motion.p
+              {...rise(0.12)}
+              className="mt-5 max-w-md text-lg leading-relaxed"
+              style={{ color: "var(--brand-ink)", opacity: 0.66 }}
+            >
+              {props.subtitle}
+            </motion.p>
+          )}
+          <motion.div {...rise(0.2)} className="mt-9 flex flex-wrap items-center gap-4">
+            <a
+              {...ctaAttrs(props.primaryHref)}
+              className="group inline-flex items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]"
+              style={{
+                background: "var(--brand-accent)",
+                borderRadius: "var(--brand-radius)",
+                boxShadow: "0 14px 36px -12px color-mix(in srgb, var(--brand-accent) 70%, transparent)",
+              }}
+            >
+              {props.primaryCta || "Get started"}
+              <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </a>
+            {props.secondaryCta && (
+              <a
+                {...ctaAttrs(props.secondaryHref)}
+                className="text-sm font-medium underline-offset-4 transition-opacity hover:opacity-70"
+                style={{ color: "var(--brand)" }}
+              >
+                {props.secondaryCta}
+              </a>
+            )}
+          </motion.div>
+        </div>
+
+        {/* Right: the brand canvas (stands in for a hero image) */}
+        <motion.div
+          initial={reduce ? false : { opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="relative aspect-[5/4] w-full overflow-hidden border lg:aspect-[4/5]"
+          style={{
+            borderRadius: "calc(var(--brand-radius) * 1.6)",
+            borderColor: "color-mix(in srgb, var(--brand-ink) 10%, transparent)",
+            background: "linear-gradient(140deg, color-mix(in srgb, var(--brand-accent) 22%, var(--brand-surface)), var(--brand-surface-2))",
+            boxShadow: "0 40px 90px -50px color-mix(in srgb, var(--brand-ink) 60%, transparent)",
+          }}
+        >
+          {/* drifting accent orbs */}
+          <motion.div
+            {...drift(24, -18)}
+            className="pointer-events-none absolute -left-10 -top-10 h-56 w-56 rounded-full blur-3xl"
+            style={{ background: "radial-gradient(circle, color-mix(in srgb, var(--brand-accent) 60%, transparent), transparent 70%)" }}
+          />
+          <motion.div
+            {...drift(-20, 16)}
+            className="pointer-events-none absolute -bottom-12 -right-8 h-52 w-52 rounded-full blur-3xl"
+            style={{ background: "radial-gradient(circle, color-mix(in srgb, var(--brand) 45%, transparent), transparent 70%)" }}
+          />
+          {/* fine grid inside the panel */}
+          <div
+            className="pointer-events-none absolute inset-0 opacity-50"
+            style={{
+              backgroundImage:
+                "linear-gradient(to right, color-mix(in srgb, var(--brand-ink) 6%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in srgb, var(--brand-ink) 6%, transparent) 1px, transparent 1px)",
+              backgroundSize: "40px 40px",
+            }}
+          />
+          {/* giant brand monogram, bleeding off the corner */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -bottom-[0.2em] right-[0.04em] select-none font-semibold leading-none [font-size:clamp(11rem,26vw,20rem)]"
+            style={{ fontFamily: "var(--brand-font)", color: "var(--brand)", opacity: 0.1 }}
+          >
+            {monogram}
+          </span>
+          {/* hairline frame + brand label */}
+          <div className="absolute left-5 top-5 flex items-center gap-2 text-[12px] font-medium" style={{ color: "color-mix(in srgb, var(--brand-ink) 60%, transparent)" }}>
+            <span className="h-2.5 w-2.5 rounded-full" style={{ background: "var(--brand-accent)" }} />
+            {props.brand || props.caption || ""}
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   HeroPremium1,
+  HeroCanvas,
   HeroPremium2,
   HeroEditorial,
   HeroSpotlight,

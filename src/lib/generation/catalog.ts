@@ -35,6 +35,9 @@ export const BLOCK_CATALOG: BlockMeta[] = [
   { variant: "HeroImageFull", category: "hero", sectors: ["restaurant", "realestate", "health", "agency", "ecommerce"], moods: ["warm", "elegant", "bold"], motion: 2, license: "ReFrame original", when: "Full-bleed image hero with an editorial scrim; image-led sectors (hospitality, property, retail)." },
   { variant: "HeroMonumental", category: "hero", sectors: ["realestate", "agency", "restaurant", "ecommerce"], moods: ["bold"], motion: 2, license: "ReFrame original (inspired by ARCFORM/Archinest Framer templates)", when: "Full-bleed photo + colossal brand wordmark across the bottom; confident, bold, image-led brands." },
   { variant: "HeroAgencia", category: "hero", sectors: ["agency", "saas", "ecommerce", "generic"], moods: ["bold"], motion: 3, license: "ReFrame original (inspired by Agencia/Framer agency templates)", when: "Near-black canvas, colossal condensed wordmark, ember accent, two-tone tagline; bold modern studios/agencies." },
+  // sectors:[] => only used explicitly (the engine routes here when no usable
+  // hero image was extracted), never auto-selected by the scorer.
+  { variant: "HeroCanvas", category: "hero", sectors: [], motion: 2, license: "ReFrame original", when: "Image-free premium hero: a brand canvas (gradient mesh, monogram, drifting accent orbs). Used when the source site has no usable image." },
 
   // Features
   { variant: "FeaturesGrid1", category: "features", sectors: "all", moods: ["minimal", "elegant"], motion: 1, license: "ReFrame original", when: "Hairline-gap feature grid. Safe default." },
