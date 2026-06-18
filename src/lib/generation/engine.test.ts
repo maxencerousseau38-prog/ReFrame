@@ -33,7 +33,10 @@ function shape(s: ReturnType<typeof generateSite>) {
 describe("generateSite", () => {
   it("defaults to preserve and keeps the detected structure", () => {
     const s = generateSite(
-      analysis({ structure: structure(["hero", "services", "portfolio", "footer"]) })
+      analysis({
+        structure: structure(["hero", "services", "portfolio", "footer"]),
+        extractedContent: { headline: "H", description: "D", services: ["A", "B", "C"], images: ["https://x/1.jpg", "https://x/2.jpg"] },
+      })
     );
     expect(s.mode).toBe("preserve");
     expect(s.blocks.map((b) => b.type)).toEqual(["hero", "services", "portfolio", "footer"]);
@@ -47,6 +50,7 @@ describe("generateSite", () => {
   it("routes extended section types to their dedicated variants", () => {
     const a = analysis({
       structure: structure(["hero", "about", "services", "portfolio", "footer"]),
+      extractedContent: { headline: "H", description: "D", services: ["A", "B", "C"], images: ["https://x/1.jpg", "https://x/2.jpg"] },
     });
     const byType = Object.fromEntries(
       generateSite(a, { mode: "preserve" }).blocks.map((b) => [b.type, b.variant])
@@ -115,6 +119,19 @@ describe("generateSite", () => {
   it("does not fall back to AI-default purple for saas/generic accents", () => {
     expect(generateSite(analysis({ industry: "saas" })).theme.accent).not.toBe("#6366f1");
     expect(generateSite(analysis({ industry: "generic" })).theme.accent).not.toBe("#6366f1");
+  });
+
+  it("omits the portfolio when there are no real images (no filler)", () => {
+    const withImgs = analysis({
+      structure: structure(["hero", "portfolio", "footer"]),
+      extractedContent: { headline: "H", description: "D", services: ["A", "B", "C"], images: ["https://x/i.jpg", "https://x/j.jpg"] },
+    });
+    const without = analysis({
+      structure: structure(["hero", "portfolio", "footer"]),
+      extractedContent: { headline: "H", description: "D", services: ["A", "B", "C"], images: [] },
+    });
+    expect(generateSite(withImgs).blocks.map((b) => b.type)).toContain("portfolio");
+    expect(generateSite(without).blocks.map((b) => b.type)).not.toContain("portfolio");
   });
 
   it("gives the hero an industry CTA label wired to a real next step", () => {

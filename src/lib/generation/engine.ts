@@ -819,6 +819,10 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block | null {
         },
       };
     case "portfolio":
+      // A portfolio/gallery is its imagery. With no real images it would just
+      // re-list the services already shown elsewhere, which reads as filler —
+      // so omit it (same honesty rule as stats/testimonials).
+      if (!c.images.length) return null;
       return {
         id: uid("portfolio"),
         type: slot.type,

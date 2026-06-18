@@ -407,6 +407,9 @@ function HeroEditorial({ props }: { props: any }) {
  */
 function FeaturesGrid1({ props }: { props: any }) {
   const items = (props.items || []) as any[];
+  // Pick columns that divide the item count so the grid never shows an empty
+  // cell (e.g. 4 items => 2x2, not 3+1). Most sectors ship 4 or 6 items.
+  const lgCols = items.length % 3 === 0 ? "lg:grid-cols-3" : items.length % 2 === 0 ? "lg:grid-cols-2" : "lg:grid-cols-3";
   return (
     <section className="px-6 py-24" style={{ color: "var(--brand-ink)" }}>
       <div className="mx-auto max-w-5xl">
@@ -422,7 +425,7 @@ function FeaturesGrid1({ props }: { props: any }) {
         </div>
 
         <div
-          className="mt-12 grid gap-px overflow-hidden border sm:grid-cols-2 lg:grid-cols-3"
+          className={cn("mt-12 grid gap-px overflow-hidden border sm:grid-cols-2", lgCols)}
           style={{ borderRadius: "calc(var(--brand-radius) * 1.4)", borderColor: HAIRLINE, background: HAIRLINE }}
         >
           {items.map((item, i) => (
