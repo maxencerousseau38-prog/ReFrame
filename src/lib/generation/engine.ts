@@ -63,7 +63,7 @@ import { INDUSTRY_PROFILES, detectIndustry } from "./industries";
 import { pickVariant } from "./catalog";
 import { detectStructure, renderableCategory } from "./structure";
 import { planClassic, planPreserve, planSmart, type Slot } from "./planner";
-import { isRenderConfigured, renderHtml } from "@/lib/server/render";
+import { canRender, renderHtml } from "@/lib/server/render";
 
 /* -------------------------------------------------------------------------- */
 /*  Small deterministic helpers                                               */
@@ -153,7 +153,7 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
   // used to slip through and produce a generic rebuild. Without a render service,
   // we proceed with whatever the static fetch gave.
   const weak = (h: string) => !h || clean(h).length < 220 || looksLikeChallenge(h);
-  if (isRenderConfigured() && (weak(html) || needsRendering(html))) {
+  if ((weak(html) || needsRendering(html)) && (await canRender())) {
     const rendered = await renderHtml(url);
     // Keep the render only if it actually read more of the page than the static
     // fetch (and isn't itself a challenge), so a failed render never makes things

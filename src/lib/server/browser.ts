@@ -37,6 +37,9 @@ async function getBrowser(): Promise<Browser | null> {
 
 /** Whether a local headless browser is usable here (cached after first probe). */
 export async function localBrowserReady(): Promise<boolean> {
+  // Keep unit tests hermetic: never launch a real browser under Vitest unless
+  // the extraction audit explicitly opts in.
+  if (process.env.VITEST && !process.env.AUDIT) return false;
   return (await getBrowser()) !== null;
 }
 

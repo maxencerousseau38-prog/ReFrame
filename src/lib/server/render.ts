@@ -16,7 +16,7 @@
  * doing the plain static fetch it does today.
  */
 
-import { withPage } from "./browser";
+import { withPage, localBrowserReady } from "./browser";
 
 const RENDER_URL = process.env.BROWSERLESS_URL;
 const RENDER_TOKEN = process.env.BROWSERLESS_TOKEN;
@@ -26,13 +26,43 @@ export function isRenderConfigured(): boolean {
 }
 
 /**
- * Return the page's rendered HTML via the render service, or null if rendering
- * is unconfigured, times out, or fails. Callers must have already validated the
- * URL (SSRF guard) before calling this.
+ * Whether the analyzer should attempt a headless render for a weak/JS page.
+ * True when an external service is set OR a local browser is usable, so the
+ * extractor reads SPA shells even with no Browserless configured.
+ */
+export async function canRender(): Promise<boolean> {
+  return Boolean(RENDER_URL) || (await localBrowserReady());
+}
+
+/**
+ * Return the page's post-JS HTML. Prefers the configured render service, then
+ * falls back to a local headless browser; returns null only when neither is
+ * available or both fail. Callers must have already validated the URL (SSRF
+ * guard) before calling this.
  */
 export async function renderHtml(targetUrl: string): Promise<string | null> {
-  if (!RENDER_URL) return null;
-  const base = RENDER_URL.replace(/\/$/, "");
+  if (RENDER_URL) {
+    const viaService = await renderViaService(targetUrl);
+    if (viaService) return viaService;
+  }
+  if (!(await localBrowserReady())) return null;
+  return withPage(
+    async (page) => {
+      const ok = await page
+        .goto(targetUrl, { waitUntil: "domcontentloaded", timeout: 15_000 })
+        .then(() => true)
+        .catch(() => false);
+      if (!ok) return null;
+      await page.waitForLoadState("networkidle", { timeout: 6_000 }).catch(() => {});
+      const html = await page.content();
+      return html && html.length > 200 ? html : null;
+    },
+    { timeoutMs: 20_000 }
+  );
+}
+
+async function renderViaService(targetUrl: string): Promise<string | null> {
+  const base = RENDER_URL!.replace(/\/$/, "");
   const endpoint = `${base}/content${RENDER_TOKEN ? `?token=${encodeURIComponent(RENDER_TOKEN)}` : ""}`;
 
   // Stay within the analyze route's 30s budget (≈7s static fetch + this): cap the
@@ -71,6 +101,7 @@ export async function screenshot(targetUrl: string): Promise<Buffer | null> {
     const viaService = await screenshotViaService(targetUrl);
     if (viaService) return viaService;
   }
+  if (!(await localBrowserReady())) return null;
   return withPage(
     async (page) => {
       const ok = await page
