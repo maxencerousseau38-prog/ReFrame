@@ -32,8 +32,8 @@ export function Trust() {
         <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {promises.map((p, i) => (
             <BlurReveal key={p.title} delay={i * 0.06}>
-              <div className="panel flex h-full flex-col rounded-[1.5rem] p-7 ring-1 ring-inset ring-white/10">
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-accent">
+              <div className="panel group flex h-full flex-col rounded-[1.5rem] p-7 ring-1 ring-inset ring-white/10 transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:ring-white/20">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-accent transition-transform duration-300 group-hover:scale-105">
                   <p.icon weight="bold" className="h-5 w-5" />
                 </span>
                 <h3 className="mt-5 text-lg font-semibold text-white">{p.title}</h3>

@@ -10,6 +10,7 @@ import { AnalyzeLoader } from "@/components/dashboard/analyze-loader";
 import { RecentProjects } from "@/components/dashboard/recent-projects";
 import { AdminEmailTest } from "@/components/dashboard/admin-email-test";
 import { AdminReadiness } from "@/components/dashboard/admin-readiness";
+import { useDash } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { saveAnalysis, saveSchema, createProject } from "@/lib/store";
@@ -55,6 +56,7 @@ const MODES: { id: GenerationMode; label: string; desc: string; recommended?: bo
 function DashboardInner() {
   const router = useRouter();
   const params = useSearchParams();
+  const d = useDash();
   const [url, setUrl] = React.useState("");
   const [phase, setPhase] = React.useState<Phase>("idle");
   const [analysis, setAnalysis] = React.useState<SiteAnalysis | null>(null);
@@ -149,10 +151,8 @@ function DashboardInner() {
           <Badge variant="outline" className="mb-3">
             <Sparkle weight="fill" className="h-3 w-3" /> New project
           </Badge>
-          <h1 className="text-4xl font-semibold tracking-[-0.02em]">Win back your customers</h1>
-          <p className="mt-3 text-muted-foreground">
-            Paste your URL. ReFrame rebuilds your site into one your customers trust on sight — in minutes.
-          </p>
+          <h1 className="text-4xl font-semibold tracking-[-0.02em]">{d.title}</h1>
+          <p className="mt-3 text-muted-foreground">{d.subtitle}</p>
         </div>
 
         {/* URL input */}
@@ -168,7 +168,7 @@ function DashboardInner() {
             <input
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="yourwebsite.com"
+              placeholder={d.urlPlaceholder}
               disabled={phase === "analyzing" || phase === "generating"}
               className="h-12 w-full rounded-xl border border-border bg-background pl-12 pr-4 text-[15px] shadow-sm transition-all focus:border-foreground/20 focus:outline-none focus:ring-4 focus:ring-foreground/5"
             />
@@ -179,7 +179,7 @@ function DashboardInner() {
             variant="light"
             disabled={phase === "analyzing" || phase === "generating" || !url.trim()}
           >
-            Analyze <ArrowRight weight="bold" className="h-4 w-4" />
+            {d.analyze} <ArrowRight weight="bold" className="h-4 w-4" />
           </Button>
         </form>
 

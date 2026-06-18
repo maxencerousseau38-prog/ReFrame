@@ -1,4 +1,3 @@
-import { LocaleProvider } from "@/lib/i18n";
 import { Navbar } from "@/components/landing/navbar";
 import { Hero } from "@/components/landing/hero";
 import { Transformation } from "@/components/landing/transformation";
@@ -13,20 +12,18 @@ import { Footer } from "@/components/landing/footer";
 
 export default function HomePage() {
   return (
-    <LocaleProvider>
-      <main className="relative w-full max-w-full overflow-x-clip">
-        <Navbar />
-        <Hero />
-        <Transformation />
-        <HowItWorks />
-        <TransformScroll />
-        <Examples />
-        <Trust />
-        <Pricing />
-        <FAQ />
-        <FinalCta />
-        <Footer />
-      </main>
-    </LocaleProvider>
+    <main className="relative w-full max-w-full overflow-x-clip">
+      <Navbar />
+      <Hero />
+      <Transformation />
+      <HowItWorks />
+      <TransformScroll />
+      <Examples />
+      <Trust />
+      <Pricing />
+      <FAQ />
+      <FinalCta />
+      <Footer />
+    </main>
   );
 }

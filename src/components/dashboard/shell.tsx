@@ -13,17 +13,21 @@ import {
 } from "@phosphor-icons/react";
 import { Logo } from "@/components/brand/logo";
 import { cn } from "@/lib/utils";
+import { useDash } from "@/lib/i18n";
+import { LanguageSwitcher } from "@/components/landing/language-switcher";
 
-const nav = [
-  { label: "Dashboard", href: "/dashboard", icon: SquaresFour },
-  { label: "My sites", href: "/dashboard/sites", icon: FolderSimple },
-  { label: "Result", href: "/result", icon: Sparkle },
-  { label: "AI Editor", href: "/editor", icon: MagicWand },
+const NAV_META = [
+  { href: "/dashboard", icon: SquaresFour },
+  { href: "/dashboard/sites", icon: FolderSimple },
+  { href: "/result", icon: Sparkle },
+  { href: "/editor", icon: MagicWand },
 ];
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const d = useDash();
+  const nav = NAV_META.map((n, i) => ({ ...n, label: d.nav[i] }));
   const [email, setEmail] = React.useState<string | null>(null);
   const [verified, setVerified] = React.useState(true);
   const [loaded, setLoaded] = React.useState(false);
@@ -95,6 +99,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
+        <div className="mb-1 flex justify-start px-1">
+          <LanguageSwitcher />
+        </div>
         <div className="border-t border-white/8 pt-4">
           {!loaded ? (
             <div className="flex h-10 items-center px-3 text-zinc-600">
@@ -104,7 +111,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             <div className="flex items-center justify-between gap-2 px-3 py-2">
               <div className="min-w-0">
                 <p className="truncate text-[13px] font-medium text-white">{email}</p>
-                <p className="text-[11px] text-zinc-500">Signed in</p>
+                <p className="text-[11px] text-zinc-500">{d.signedIn}</p>
               </div>
               <button
                 onClick={logout}
@@ -124,7 +131,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               href="/login"
               className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-accent hover:bg-white/5"
             >
-              <SignOut weight="bold" className="h-[18px] w-[18px] rotate-180" /> Sign in
+              <SignOut weight="bold" className="h-[18px] w-[18px] rotate-180" /> {d.signIn}
             </Link>
           )}
         </div>
@@ -133,15 +140,13 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       <main className="flex-1">
         {loaded && email && !verified && (
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-500/20 bg-amber-500/[0.06] px-6 py-2.5 text-[13px]">
-            <span className="text-amber-200/90">
-              Confirm your email to secure your account.
-            </span>
+            <span className="text-amber-200/90">{d.verifyMsg}</span>
             <button
               onClick={resendVerification}
               disabled={resent !== "idle"}
               className="font-medium text-amber-200 underline-offset-2 hover:underline disabled:no-underline disabled:opacity-70"
             >
-              {resent === "sent" ? "Verification sent" : resent === "sending" ? "Sending." : "Resend email"}
+              {resent === "sent" ? d.verifySent : resent === "sending" ? d.verifySending : d.verifyResend}
             </button>
           </div>
         )}

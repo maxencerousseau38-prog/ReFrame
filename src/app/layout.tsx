@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import "./globals.css";
+import { LocaleProvider } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: "ReFrame — win the customers your website is losing",
@@ -28,7 +29,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" translate="no" className={`${GeistSans.variable} ${GeistMono.variable}`}>
-      <body className="grain min-h-screen bg-background font-sans">{children}</body>
+      <body className="grain min-h-screen bg-background font-sans">
+        <LocaleProvider>{children}</LocaleProvider>
+      </body>
     </html>
   );
 }

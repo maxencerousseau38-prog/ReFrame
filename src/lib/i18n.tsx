@@ -747,3 +747,76 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
 export function useI18n(): Ctx {
   return React.useContext(I18nContext);
 }
+
+/* -------------------------------------------------------------------------- */
+/*  Dashboard (connected app) strings                                         */
+/* -------------------------------------------------------------------------- */
+
+type Dash = {
+  nav: string[]; // Dashboard, My sites, Result, AI Editor
+  signedIn: string;
+  signIn: string;
+  signOut: string;
+  verifyMsg: string;
+  verifyResend: string;
+  verifySending: string;
+  verifySent: string;
+  title: string;
+  subtitle: string;
+  urlPlaceholder: string;
+  analyze: string;
+};
+
+const DASH: Record<Locale, Dash> = {
+  en: {
+    nav: ["Dashboard", "My sites", "Result", "AI Editor"],
+    signedIn: "Signed in", signIn: "Sign in", signOut: "Sign out",
+    verifyMsg: "Confirm your email to secure your account.",
+    verifyResend: "Resend email", verifySending: "Sending…", verifySent: "Verification sent",
+    title: "Win back your customers",
+    subtitle: "Paste your URL. ReFrame rebuilds your site into one your customers trust on sight, in minutes.",
+    urlPlaceholder: "yourwebsite.com", analyze: "Analyze",
+  },
+  fr: {
+    nav: ["Tableau de bord", "Mes sites", "Résultat", "Éditeur IA"],
+    signedIn: "Connecté", signIn: "Se connecter", signOut: "Se déconnecter",
+    verifyMsg: "Confirmez votre e-mail pour sécuriser votre compte.",
+    verifyResend: "Renvoyer l'e-mail", verifySending: "Envoi…", verifySent: "E-mail envoyé",
+    title: "Reconquérez vos clients",
+    subtitle: "Collez votre URL. ReFrame reconstruit votre site en une version qui inspire confiance immédiatement, en quelques minutes.",
+    urlPlaceholder: "votresite.com", analyze: "Analyser",
+  },
+  es: {
+    nav: ["Panel", "Mis sitios", "Resultado", "Editor IA"],
+    signedIn: "Conectado", signIn: "Iniciar sesión", signOut: "Cerrar sesión",
+    verifyMsg: "Confirma tu correo para proteger tu cuenta.",
+    verifyResend: "Reenviar correo", verifySending: "Enviando…", verifySent: "Correo enviado",
+    title: "Recupera tus clientes",
+    subtitle: "Pega tu URL. ReFrame reconstruye tu sitio en una versión que inspira confianza al instante, en minutos.",
+    urlPlaceholder: "tusitio.com", analyze: "Analizar",
+  },
+  de: {
+    nav: ["Dashboard", "Meine Seiten", "Ergebnis", "KI-Editor"],
+    signedIn: "Angemeldet", signIn: "Anmelden", signOut: "Abmelden",
+    verifyMsg: "Bestätigen Sie Ihre E-Mail, um Ihr Konto zu sichern.",
+    verifyResend: "E-Mail erneut senden", verifySending: "Senden…", verifySent: "E-Mail gesendet",
+    title: "Gewinnen Sie Ihre Kunden zurück",
+    subtitle: "URL einfügen. ReFrame baut Ihre Website in Minuten in eine um, der Kunden sofort vertrauen.",
+    urlPlaceholder: "ihrewebsite.de", analyze: "Analysieren",
+  },
+  it: {
+    nav: ["Dashboard", "I miei siti", "Risultato", "Editor IA"],
+    signedIn: "Connesso", signIn: "Accedi", signOut: "Esci",
+    verifyMsg: "Conferma la tua email per proteggere l'account.",
+    verifyResend: "Reinvia email", verifySending: "Invio…", verifySent: "Email inviata",
+    title: "Riconquista i tuoi clienti",
+    subtitle: "Incolla il tuo URL. ReFrame ricostruisce il tuo sito in una versione di cui i clienti si fidano subito, in pochi minuti.",
+    urlPlaceholder: "tuosito.com", analyze: "Analizza",
+  },
+};
+
+/** Dashboard strings for the active locale. */
+export function useDash(): Dash {
+  const { locale } = useI18n();
+  return DASH[locale];
+}
