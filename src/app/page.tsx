@@ -4,8 +4,9 @@ import { Transformation } from "@/components/landing/transformation";
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { TransformScroll } from "@/components/landing/transform-scroll";
 import { Examples } from "@/components/landing/examples";
-import { Results } from "@/components/landing/results";
+import { Trust } from "@/components/landing/trust";
 import { Pricing } from "@/components/landing/pricing";
+import { FAQ } from "@/components/landing/faq";
 import { FinalCta } from "@/components/landing/cta";
 import { Footer } from "@/components/landing/footer";
 
@@ -18,8 +19,9 @@ export default function HomePage() {
       <HowItWorks />
       <TransformScroll />
       <Examples />
-      <Results />
+      <Trust />
       <Pricing />
+      <FAQ />
       <FinalCta />
       <Footer />
     </main>
