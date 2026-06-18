@@ -2,7 +2,35 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowUpRight, Trash, Plus, Globe, CircleNotch, CheckCircle, Warning } from "@phosphor-icons/react";
+import { ArrowUpRight, Trash, Plus, Globe, CircleNotch, CheckCircle, Warning, Copy, Check } from "@phosphor-icons/react";
+
+/** One-click copy for fiddly DNS values, so connecting a domain is paste-only. */
+function CopyCell({ value }: { value: string }) {
+  const [copied, setCopied] = React.useState(false);
+  return (
+    <button
+      type="button"
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(value);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1200);
+        } catch {
+          /* clipboard blocked; the value is still visible to copy manually */
+        }
+      }}
+      title={`Copy: ${value}`}
+      className="flex min-w-0 items-center gap-1.5 text-left transition-colors hover:text-white"
+    >
+      <span className="truncate">{value}</span>
+      {copied ? (
+        <Check weight="bold" className="h-3 w-3 shrink-0 text-accent" />
+      ) : (
+        <Copy weight="bold" className="h-3 w-3 shrink-0 text-zinc-500" />
+      )}
+    </button>
+  );
+}
 
 type SiteCard = {
   slug: string;
@@ -277,10 +305,14 @@ function SiteRow({
                     className="grid grid-cols-[auto_1fr_2fr] gap-x-3 border-t border-white/5 px-3 py-1.5 font-mono text-[11px] text-zinc-300"
                   >
                     <span className="text-accent">{r.type}</span>
-                    <span className="truncate">{r.name}</span>
-                    <span className="truncate" title={r.value}>{r.value}</span>
+                    <CopyCell value={r.name} />
+                    <CopyCell value={r.value} />
                   </div>
                 ))}
+                <p className="border-t border-white/5 px-3 py-2 font-sans text-[11px] leading-relaxed text-zinc-500">
+                  Add this at your domain registrar (where you bought the domain). HTTPS turns on
+                  automatically once DNS propagates, then click Re-verify.
+                </p>
               </div>
             )}
             {connected && (
