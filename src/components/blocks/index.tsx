@@ -24,6 +24,16 @@ import { cn } from "@/lib/utils";
 import { useParallax } from "./use-parallax";
 import { toProxiedUrl } from "@/lib/img";
 
+/**
+ * Anchor attributes for a CTA so every button leads somewhere. Defaults to
+ * scrolling to the on-page contact section; external links (booking) open in a
+ * new tab, while tel:/mailto stay inline.
+ */
+function ctaAttrs(href?: string): { href: string; target?: string; rel?: string } {
+  const h = href || "#contact";
+  return /^https?:/i.test(h) ? { href: h, target: "_blank", rel: "noreferrer" } : { href: h };
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Theme plumbing                                                            */
 /* -------------------------------------------------------------------------- */
@@ -176,7 +186,8 @@ function HeroPremium1({ props }: { props: any }) {
         )}
 
         <motion.div {...rise(0.2)} className="mt-9 flex flex-wrap items-center justify-center gap-4">
-          <button
+          <a
+            {...ctaAttrs(props.primaryHref)}
             className="group inline-flex items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]"
             style={{
               background: "var(--brand-accent)",
@@ -186,14 +197,15 @@ function HeroPremium1({ props }: { props: any }) {
           >
             {props.primaryCta || props.cta || "Get started"}
             <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </button>
+          </a>
           {props.secondaryCta && (
-            <button
+            <a
+              {...ctaAttrs(props.secondaryHref)}
               className="text-sm font-medium underline-offset-4 transition-opacity hover:opacity-70"
               style={{ color: "var(--brand)" }}
             >
               {props.secondaryCta}
-            </button>
+            </a>
           )}
         </motion.div>
       </div>
@@ -225,18 +237,22 @@ function HeroPremium2({ props }: { props: any }) {
           </motion.h1>
           <p className="mt-5 max-w-md text-lg text-neutral-500">{props.subtitle}</p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <button
+            <a
+              {...ctaAttrs(props.primaryHref)}
               className="px-6 py-3 text-sm font-medium text-white shadow-lg"
               style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}
             >
               {props.primaryCta}
-            </button>
-            <button
-              className="border px-6 py-3 text-sm font-medium"
-              style={{ borderColor: "var(--brand)", color: "var(--brand)", borderRadius: "var(--brand-radius)" }}
-            >
-              {props.secondaryCta}
-            </button>
+            </a>
+            {props.secondaryCta && (
+              <a
+                {...ctaAttrs(props.secondaryHref)}
+                className="border px-6 py-3 text-sm font-medium"
+                style={{ borderColor: "var(--brand)", color: "var(--brand)", borderRadius: "var(--brand-radius)" }}
+              >
+                {props.secondaryCta}
+              </a>
+            )}
           </div>
         </div>
         <motion.div
@@ -327,18 +343,22 @@ function HeroEditorial({ props }: { props: any }) {
             {props.subtitle}
           </motion.p>
           <div className="mt-9 flex flex-wrap items-center gap-5">
-            <button
+            <a
+              {...ctaAttrs(props.primaryHref)}
               className="px-7 py-3.5 text-sm font-medium tracking-wide text-white shadow-sm transition-transform active:scale-[0.98]"
               style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}
             >
               {props.primaryCta}
-            </button>
-            <button
-              className="text-sm font-medium underline-offset-4 transition-opacity hover:opacity-70"
-              style={{ color: "var(--brand)" }}
-            >
-              {props.secondaryCta} &rarr;
-            </button>
+            </a>
+            {props.secondaryCta && (
+              <a
+                {...ctaAttrs(props.secondaryHref)}
+                className="text-sm font-medium underline-offset-4 transition-opacity hover:opacity-70"
+                style={{ color: "var(--brand)" }}
+              >
+                {props.secondaryCta} &rarr;
+              </a>
+            )}
           </div>
         </div>
 
@@ -612,13 +632,14 @@ function CTASection1({ props }: { props: any }) {
           {props.subtitle && (
             <p className="mx-auto mt-4 max-w-lg text-white/60 [text-wrap:balance]">{props.subtitle}</p>
           )}
-          <button
+          <a
+            {...ctaAttrs(props.ctaHref)}
             className="group mt-8 inline-flex items-center gap-1.5 bg-white px-7 py-3.5 text-sm font-medium transition-colors hover:bg-white/90"
             style={{ color: "var(--brand)", borderRadius: "var(--brand-radius)" }}
           >
             {props.cta}
             <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </button>
+          </a>
         </div>
       </motion.div>
     </section>
@@ -673,7 +694,7 @@ function ContactFormPremium1({ props }: { props: any }) {
     });
 
   return (
-    <section className="px-6 py-24" style={{ color: "var(--brand-ink)" }}>
+    <section id="contact" className="px-6 py-24" style={{ color: "var(--brand-ink)" }}>
       <div className="mx-auto grid max-w-5xl items-start gap-12 lg:grid-cols-2">
         <div>
           <h2 className="text-3xl font-semibold tracking-tight [text-wrap:balance] md:text-4xl" style={{ color: "var(--brand)" }}>
@@ -830,18 +851,22 @@ function HeroSpotlight({ props }: { props: any }) {
         </motion.h1>
         <p className="mx-auto mt-5 max-w-xl text-lg text-neutral-500">{props.subtitle}</p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <button
+          <a
+            {...ctaAttrs(props.primaryHref)}
             className="px-6 py-3 text-sm font-medium text-white shadow-lg transition-transform active:scale-[0.98]"
             style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}
           >
             {props.primaryCta}
-          </button>
-          <button
-            className="border px-6 py-3 text-sm font-medium transition-colors"
-            style={{ borderColor: "var(--brand-accent)", color: "var(--brand)", borderRadius: "var(--brand-radius)" }}
-          >
-            {props.secondaryCta}
-          </button>
+          </a>
+          {props.secondaryCta && (
+            <a
+              {...ctaAttrs(props.secondaryHref)}
+              className="border px-6 py-3 text-sm font-medium transition-colors"
+              style={{ borderColor: "var(--brand-accent)", color: "var(--brand)", borderRadius: "var(--brand-radius)" }}
+            >
+              {props.secondaryCta}
+            </a>
+          )}
         </div>
       </div>
     </section>
@@ -1240,12 +1265,13 @@ function AboutSplit({ props }: { props: any }) {
           )}
 
           {props.cta && (
-            <button
-              className="mt-10 text-sm font-medium underline-offset-4 transition-opacity hover:opacity-70"
+            <a
+              {...ctaAttrs(props.ctaHref)}
+              className="mt-10 inline-block text-sm font-medium underline-offset-4 transition-opacity hover:opacity-70"
               style={{ color: "var(--brand)" }}
             >
               {props.cta} &rarr;
-            </button>
+            </a>
           )}
         </div>
       </div>
@@ -1345,7 +1371,8 @@ function CTAEditorial({ props }: { props: any }) {
             {props.subtitle}
           </p>
         )}
-        <button
+        <a
+          {...ctaAttrs(props.ctaHref)}
           className="group mt-9 inline-flex items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]"
           style={{
             background: "var(--brand-accent)",
@@ -1355,7 +1382,7 @@ function CTAEditorial({ props }: { props: any }) {
         >
           {props.cta}
           <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-        </button>
+        </a>
       </motion.div>
     </section>
   );
@@ -1465,14 +1492,14 @@ function HeroImageFull({ props }: { props: any }) {
         {props.subtitle && <p className="mt-5 max-w-xl text-lg text-white/80">{props.subtitle}</p>}
         <div className="mt-8 flex flex-wrap gap-3">
           {props.primaryCta && (
-            <button className="px-6 py-3 text-sm font-medium text-white" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}>
+            <a {...ctaAttrs(props.primaryHref)} className="px-6 py-3 text-sm font-medium text-white" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}>
               {props.primaryCta}
-            </button>
+            </a>
           )}
           {props.secondaryCta && (
-            <button className="border px-6 py-3 text-sm font-medium text-white" style={{ borderColor: "rgba(255,255,255,0.5)", borderRadius: "var(--brand-radius)" }}>
+            <a {...ctaAttrs(props.secondaryHref)} className="border px-6 py-3 text-sm font-medium text-white" style={{ borderColor: "rgba(255,255,255,0.5)", borderRadius: "var(--brand-radius)" }}>
               {props.secondaryCta}
-            </button>
+            </a>
           )}
         </div>
       </div>
@@ -1695,14 +1722,14 @@ function HeroMonumental({ props }: { props: any }) {
         </motion.h1>
         <div className="mt-7 flex flex-wrap gap-3">
           {props.primaryCta && (
-            <button className="px-6 py-3 text-sm font-medium text-white" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}>
+            <a {...ctaAttrs(props.primaryHref)} className="px-6 py-3 text-sm font-medium text-white" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}>
               {props.primaryCta}
-            </button>
+            </a>
           )}
           {props.secondaryCta && (
-            <button className="border px-6 py-3 text-sm font-medium text-white" style={{ borderColor: "rgba(255,255,255,0.5)", borderRadius: "var(--brand-radius)" }}>
+            <a {...ctaAttrs(props.secondaryHref)} className="border px-6 py-3 text-sm font-medium text-white" style={{ borderColor: "rgba(255,255,255,0.5)", borderRadius: "var(--brand-radius)" }}>
               {props.secondaryCta}
-            </button>
+            </a>
           )}
         </div>
       </div>
@@ -1803,14 +1830,14 @@ function HeroAgencia({ props }: { props: any }) {
 
         <div className="mt-8 flex flex-wrap gap-3">
           {props.primaryCta && (
-            <button className="px-6 py-3 text-sm font-medium text-white" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}>
+            <a {...ctaAttrs(props.primaryHref)} className="px-6 py-3 text-sm font-medium text-white" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}>
               {props.primaryCta}
-            </button>
+            </a>
           )}
           {props.secondaryCta && (
-            <button className="border px-6 py-3 text-sm font-medium text-white" style={{ borderColor: "rgba(255,255,255,0.4)", borderRadius: "var(--brand-radius)" }}>
+            <a {...ctaAttrs(props.secondaryHref)} className="border px-6 py-3 text-sm font-medium text-white" style={{ borderColor: "rgba(255,255,255,0.4)", borderRadius: "var(--brand-radius)" }}>
               {props.secondaryCta}
-            </button>
+            </a>
           )}
         </div>
       </div>

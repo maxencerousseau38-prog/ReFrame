@@ -714,6 +714,13 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block | null {
   const c = analysis.extractedContent;
   const brand = analysis.brandName;
 
+  // Every CTA must lead to a real next step. Prefer a booking link, else scroll
+  // to the on-page contact section; offer the phone as the secondary action
+  // when we know it (great on mobile) rather than a dead "Learn more".
+  const contact = c.contact ?? {};
+  const bookHref = contact.bookingUrl || "#contact";
+  const phoneHref = contact.phone ? `tel:${contact.phone.replace(/\s+/g, "")}` : undefined;
+
   switch (slot.category) {
     case "hero":
       return {
@@ -724,8 +731,10 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block | null {
           eyebrow: profile.label,
           title: c.headline,
           subtitle: c.description,
-          primaryCta: "Get started",
-          secondaryCta: "Learn more",
+          primaryCta: profile.cta.primary,
+          primaryHref: bookHref,
+          secondaryCta: phoneHref ? "Call us" : "Learn more",
+          secondaryHref: phoneHref || "#contact",
           image: c.heroImageUrl,
           brand,
           caption: c.services[0],
@@ -790,6 +799,7 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block | null {
           // Real stats only; AboutSplit hides the chip row when absent.
           stats: c.stats?.slice(0, 3),
           cta: "Get in touch",
+          ctaHref: "#contact",
         },
       };
     case "testimonials":
@@ -813,7 +823,7 @@ function buildBlock(slot: Slot, analysis: SiteAnalysis): Block | null {
         id: uid("cta"),
         type: "cta",
         variant: pickVariant("cta", analysis.industry, brand, profile.theme.mood),
-        props: { title: "Ready to get started?", subtitle: "Reach out today and let's make it happen.", cta: "Get in touch" },
+        props: { title: "Ready to get started?", subtitle: "Reach out today and let's make it happen.", cta: profile.cta.primary, ctaHref: bookHref },
       };
     case "contact":
       return {

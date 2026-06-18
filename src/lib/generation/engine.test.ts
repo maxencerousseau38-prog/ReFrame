@@ -94,6 +94,36 @@ describe("generateSite", () => {
     expect(s.recommendations?.length ?? 0).toBeGreaterThan(0);
   });
 
+  it("gives the hero an industry CTA label wired to a real next step", () => {
+    const s = generateSite(analysis({ industry: "restaurant" }), { mode: "classic" });
+    const hero = s.blocks.find((b) => b.type === "hero")!;
+    // Restaurant's métier action, scrolling to the on-page contact section.
+    expect(hero.props.primaryCta).toBe("Book a table");
+    expect(hero.props.primaryHref).toBe("#contact");
+    // No phone known -> soft secondary, also actionable.
+    expect(hero.props.secondaryHref).toBe("#contact");
+  });
+
+  it("prefers booking link and offers Call when contact details exist", () => {
+    const a = analysis({
+      industry: "artisan",
+      extractedContent: {
+        headline: "H", description: "D", services: ["A", "B", "C"], images: [],
+        contact: { phone: "01 23 45 67 89", bookingUrl: "https://book.example.com" },
+      },
+    });
+    const s = generateSite(a, { mode: "classic" });
+    const hero = s.blocks.find((b) => b.type === "hero")!;
+    expect(hero.props.primaryCta).toBe("Get a free quote");
+    expect(hero.props.primaryHref).toBe("https://book.example.com");
+    expect(hero.props.secondaryCta).toBe("Call us");
+    expect(hero.props.secondaryHref).toBe("tel:0123456789");
+    // The closing CTA section is wired to the same booking action.
+    const cta = s.blocks.find((b) => b.type === "cta")!;
+    expect(cta.props.cta).toBe("Get a free quote");
+    expect(cta.props.ctaHref).toBe("https://book.example.com");
+  });
+
   it("produces standard sub-pages (Services / About / Contact)", () => {
     const s = generateSite(analysis());
     const labels = (s.pages ?? []).map((p) => p.label);

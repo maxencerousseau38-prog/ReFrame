@@ -17,6 +17,8 @@ interface IndustryProfile {
     hero: string;
     features: string;
   };
+  /** Primary call-to-action label, tuned to the sector. */
+  cta: { primary: string };
 }
 
 export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
@@ -31,6 +33,7 @@ export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
       services: ["Seasonal menu", "Private dining", "Wine pairing", "Online reservations"],
     },
     preferred: { hero: "HeroPremium2", features: "FeaturesGrid1" },
+    cta: { primary: "Book a table" },
   },
   artisan: {
     id: "artisan",
@@ -43,6 +46,7 @@ export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
       services: ["Free quotes", "24/7 emergencies", "Licensed & insured", "Workmanship guarantee"],
     },
     preferred: { hero: "HeroPremium1", features: "FeaturesGrid1" },
+    cta: { primary: "Get a free quote" },
   },
   realestate: {
     id: "realestate",
@@ -55,6 +59,7 @@ export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
       services: ["Curated listings", "Market valuation", "Buyer matching", "End-to-end support"],
     },
     preferred: { hero: "HeroPremium2", features: "FeaturesGrid1" },
+    cta: { primary: "Book a viewing" },
   },
   saas: {
     id: "saas",
@@ -67,6 +72,7 @@ export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
       services: ["Automation", "Integrations", "Analytics", "Team collaboration"],
     },
     preferred: { hero: "HeroPremium1", features: "FeaturesGrid1" },
+    cta: { primary: "Start free" },
   },
   agency: {
     id: "agency",
@@ -79,6 +85,7 @@ export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
       services: ["Brand identity", "Web design", "Campaigns", "Content"],
     },
     preferred: { hero: "HeroPremium2", features: "FeaturesGrid1" },
+    cta: { primary: "Start a project" },
   },
   ecommerce: {
     id: "ecommerce",
@@ -91,6 +98,7 @@ export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
       services: ["Free shipping", "Easy returns", "Secure checkout", "New drops weekly"],
     },
     preferred: { hero: "HeroPremium1", features: "FeaturesGrid1" },
+    cta: { primary: "Shop now" },
   },
   health: {
     id: "health",
@@ -103,6 +111,7 @@ export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
       services: ["Easy booking", "Expert practitioners", "Personalized care", "Insurance accepted"],
     },
     preferred: { hero: "HeroPremium2", features: "FeaturesGrid1" },
+    cta: { primary: "Book an appointment" },
   },
   generic: {
     id: "generic",
@@ -115,6 +124,7 @@ export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
       services: ["Quality first", "Trusted by clients", "Fast turnaround", "Personal service"],
     },
     preferred: { hero: "HeroPremium1", features: "FeaturesGrid1" },
+    cta: { primary: "Get in touch" },
   },
 };
 
