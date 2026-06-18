@@ -260,7 +260,7 @@ function HeroPremium2({ props }: { props: any }) {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7 }}
           className="relative aspect-[4/3] overflow-hidden"
-          style={{ borderRadius: "var(--brand-radius)" }}
+          style={{ borderRadius: "var(--brand-radius)", boxShadow: "0 40px 100px -45px rgba(0,0,0,0.5), 0 0 0 1px color-mix(in srgb, var(--brand-ink) 8%, transparent)" }}
         >
           <div
             ref={imgRef}
@@ -371,7 +371,7 @@ function HeroEditorial({ props }: { props: any }) {
         >
           <div
             className="relative aspect-[4/5] overflow-hidden"
-            style={{ borderRadius: "var(--brand-radius)" }}
+            style={{ borderRadius: "var(--brand-radius)", boxShadow: "0 40px 100px -45px rgba(0,0,0,0.5), 0 0 0 1px color-mix(in srgb, var(--brand-ink) 8%, transparent)" }}
           >
             <div
               ref={imgRef}
@@ -1199,7 +1199,7 @@ function AboutSplit({ props }: { props: any }) {
             viewport={{ once: true }}
             transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
             className="relative aspect-[4/5] overflow-hidden"
-            style={{ borderRadius: "var(--brand-radius)" }}
+            style={{ borderRadius: "var(--brand-radius)", boxShadow: "0 40px 100px -45px rgba(0,0,0,0.5), 0 0 0 1px color-mix(in srgb, var(--brand-ink) 8%, transparent)" }}
           >
             <div
               ref={imgRef}
