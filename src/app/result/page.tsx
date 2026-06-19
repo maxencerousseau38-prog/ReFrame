@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { MagicWand, RocketLaunch, Check, ArrowSquareOut, CircleNotch, ArrowLeft, DownloadSimple, Sparkle, Warning } from "@phosphor-icons/react";
+import { MagicWand, RocketLaunch, Check, ArrowSquareOut, CircleNotch, ArrowLeft, DownloadSimple, Sparkle, Warning, LinkSimple } from "@phosphor-icons/react";
 import { DashboardShell } from "@/components/dashboard/shell";
 import { SiteRenderer } from "@/components/blocks";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,52 @@ export default function ResultPage() {
   const [projectId, setProjectId] = React.useState<string | null>(null);
   const [needAuth, setNeedAuth] = React.useState(false);
   const [pubError, setPubError] = React.useState<string | null>(null);
+  const [shareUrl, setShareUrl] = React.useState<string | null>(null);
+  const [copied, setCopied] = React.useState(false);
+
+  // Persist the redesign server-side and get a shareable link, so it survives a
+  // closed tab and can be sent to a partner (created once per result).
+  React.useEffect(() => {
+    if (!schema) return;
+    const key = `rf-share:${schema.id}`;
+    const cached = typeof sessionStorage !== "undefined" ? sessionStorage.getItem(key) : null;
+    if (cached) {
+      setShareUrl(cached);
+      return;
+    }
+    let alive = true;
+    fetch("/api/share", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ schema, analysis }),
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!alive || !d?.url) return;
+        const abs = `${window.location.origin}${d.url}`;
+        try {
+          sessionStorage.setItem(key, abs);
+        } catch {
+          /* ignore */
+        }
+        setShareUrl(abs);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [schema, analysis]);
+
+  async function copyShare() {
+    if (!shareUrl) return;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* clipboard blocked; link is still visible */
+    }
+  }
 
   React.useEffect(() => {
     const fromSession = () => {
@@ -162,6 +208,10 @@ export default function ResultPage() {
         </div>
 
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={copyShare} disabled={!shareUrl} title={shareUrl ?? "Saving…"}>
+            {copied ? <Check weight="bold" className="h-4 w-4 text-accent" /> : <LinkSimple weight="bold" className="h-4 w-4" />}
+            {copied ? "Copied" : "Share"}
+          </Button>
           <Button variant="outline" size="sm" onClick={downloadHtml}>
             <DownloadSimple weight="bold" className="h-4 w-4" /> Download
           </Button>

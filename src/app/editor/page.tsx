@@ -48,6 +48,29 @@ export default function EditorPage() {
   const scrollRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
+    // Loading a public share (from /r/<id> "Edit with AI"): fetch its schema so
+    // an anonymous visitor can pick up exactly where their redesign left off.
+    const shareId = new URLSearchParams(window.location.search).get("share");
+    if (shareId) {
+      fetch(`/api/share?id=${encodeURIComponent(shareId)}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => {
+          if (d?.schema) {
+            setSchema(d.schema);
+            saveSchema(d.schema);
+          } else {
+            const s = loadSchema();
+            if (!s) router.replace("/dashboard");
+            else setSchema(s);
+          }
+        })
+        .catch(() => {
+          const s = loadSchema();
+          if (s) setSchema(s);
+          else router.replace("/dashboard");
+        });
+      return;
+    }
     const pid = projectIdFromUrl();
     if (pid) {
       setProjectId(pid);
