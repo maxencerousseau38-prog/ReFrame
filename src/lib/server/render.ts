@@ -53,11 +53,32 @@ export async function renderHtml(targetUrl: string): Promise<string | null> {
         .then(() => true)
         .catch(() => false);
       if (!ok) return null;
+      // Let the framework hydrate, then scroll the page so lazy-loaded sections
+      // and images render before we capture (SPAs commonly defer below-the-fold).
       await page.waitForLoadState("networkidle", { timeout: 6_000 }).catch(() => {});
+      await page
+        .evaluate(async () => {
+          await new Promise<void>((resolve) => {
+            let y = 0;
+            const step = () => {
+              y += window.innerHeight;
+              window.scrollTo(0, y);
+              if (y < document.body.scrollHeight && y < 12000) setTimeout(step, 120);
+              else resolve();
+            };
+            step();
+          });
+        })
+        .catch(() => {});
+      await page.waitForTimeout(400);
+      // Wait until there is real body text (a hydrated SPA), up to a short cap.
+      await page
+        .waitForFunction(() => (document.body?.innerText || "").trim().length > 200, { timeout: 3_000 })
+        .catch(() => {});
       const html = await page.content();
       return html && html.length > 200 ? html : null;
     },
-    { timeoutMs: 20_000 }
+    { timeoutMs: 22_000 }
   );
 }
 

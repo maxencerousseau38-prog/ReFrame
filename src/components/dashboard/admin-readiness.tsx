@@ -15,6 +15,7 @@ type Health = {
   stripe: boolean;
   email: boolean;
   render: boolean;
+  renderReady: boolean;
   blob: boolean;
   customDomains: boolean;
   authSecret: boolean;
@@ -28,6 +29,7 @@ const CHECKS: { key: keyof Health; label: string; hint: string; severity: "criti
   { key: "authSecret", label: "Session secret", hint: "AUTH_SECRET set (sessions not forgeable)", severity: "critical" },
   { key: "durable", label: "Durable storage", hint: "Vercel KV (not the local filesystem)", severity: "critical" },
   { key: "stripe", label: "Payments", hint: "Stripe keys + price IDs + webhook", severity: "critical" },
+  { key: "renderReady", label: "Renders JS sites", hint: "Can read React/Next/SPA sites (service or local browser). Off = generic rebuilds.", severity: "critical" },
   { key: "llm", label: "AI copywriting", hint: "ANTHROPIC_API_KEY (rebuild quality)", severity: "recommended" },
   { key: "email", label: "Email delivery", hint: "RESEND_API_KEY (verification, reset, contact)", severity: "recommended" },
   { key: "customDomains", label: "Custom domains", hint: "Vercel domains token (Pro feature)", severity: "recommended" },

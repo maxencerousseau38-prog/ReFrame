@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { MagicWand, RocketLaunch, Check, ArrowSquareOut, CircleNotch, ArrowLeft, DownloadSimple, Sparkle } from "@phosphor-icons/react";
+import { MagicWand, RocketLaunch, Check, ArrowSquareOut, CircleNotch, ArrowLeft, DownloadSimple, Sparkle, Warning } from "@phosphor-icons/react";
 import { DashboardShell } from "@/components/dashboard/shell";
 import { SiteRenderer } from "@/components/blocks";
 import { Button } from "@/components/ui/button";
@@ -206,6 +206,33 @@ export default function ResultPage() {
       {pubError && (
         <div className="flex items-center justify-center gap-2 border-b border-red-500/30 bg-red-500/10 px-6 py-2.5 text-sm text-red-300">
           {pubError}
+        </div>
+      )}
+
+      {/* Honest read-quality banner: when we couldn't fully read the source
+          (JS-rendered / blocked), say so plainly and route to fixing it, rather
+          than passing a partly-templated rebuild off as the client's real site. */}
+      {analysis && analysis.confidence && analysis.confidence !== "full" && (
+        <div className="border-b border-amber-500/25 bg-amber-500/[0.07] px-6 py-3.5">
+          <div className="mx-auto flex max-w-5xl flex-wrap items-start gap-x-3 gap-y-2 text-sm">
+            <Warning weight="fill" className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+            <p className="min-w-0 flex-1 text-amber-200/90">
+              {analysis.notice ||
+                "We couldn't fully read this site, so parts were rebuilt from sensible defaults. Add your real details and they'll appear instantly."}
+            </p>
+            <Link
+              href={projectId ? `/editor?p=${projectId}` : "/editor"}
+              className="shrink-0 rounded-full bg-amber-400/90 px-3.5 py-1 text-xs font-medium text-black transition hover:brightness-105"
+            >
+              Add your details
+            </Link>
+            <button
+              onClick={() => setView("before")}
+              className="shrink-0 rounded-full border border-amber-400/40 px-3.5 py-1 text-xs font-medium text-amber-200 transition hover:bg-amber-400/10"
+            >
+              See my current site
+            </button>
+          </div>
         </div>
       )}
 
