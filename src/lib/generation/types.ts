@@ -152,6 +152,14 @@ export interface SiteAnalysis {
     images: string[];
     contactHint?: string;
     /**
+     * Real prose pulled from the source page so the rebuild reuses the client's
+     * own words instead of generic copy. `aboutBody` is the real "about"/story
+     * paragraph; `serviceItems` are real service headings with their real
+     * descriptions. Both optional - absent when nothing solid was extracted.
+     */
+    aboutBody?: string;
+    serviceItems?: { title: string; description?: string }[];
+    /**
      * Real social proof / metrics, only when genuinely extracted (or provided
      * by the user via the hybrid flow). We never fabricate these: a testimonials
      * or stats section is rendered only when real data is present.

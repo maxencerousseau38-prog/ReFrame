@@ -337,6 +337,8 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
       // client's actual contact + credibility (never fabricated).
       contact: extractContact(root, bodyText, ld),
       stats: extractStats(ld),
+      // Real prose: reuse the client's own About paragraph and service copy.
+      ...extractProse(root),
     },
     scores,
     issues,
@@ -567,6 +569,83 @@ export function extractContact(
     ...(email ? { email: email.slice(0, 120) } : {}),
     ...(address && address.length <= 160 ? { address } : {}),
   };
+}
+
+const GENERIC_HEADING = /^(home|welcome|menu|contact|about|services|our services|gallery|blog|news|faq|testimonials|reviews|pricing|accueil|services|à propos|contactez?-?nous)$/i;
+
+/**
+ * Walk the section that follows a heading and gather its real body text and
+ * list items. Handles both flat (<h2><p>...) and wrapped (<h2><div><p>...)
+ * layouts by descending one level into container siblings.
+ */
+function sectionAfter(heading: HTMLElement): { body: string; items: string[] } {
+  const paras: string[] = [];
+  const items: string[] = [];
+  let el = heading.nextElementSibling;
+  let hops = 0;
+  while (el && hops < 8) {
+    const tag = el.tagName?.toUpperCase();
+    if (tag === "H1" || tag === "H2" || tag === "H3") break;
+    if (tag === "P") {
+      const t = clean(el.text);
+      if (t.length > 30) paras.push(t);
+    } else if (tag === "UL" || tag === "OL") {
+      for (const li of el.querySelectorAll("li")) {
+        const t = clean(li.text);
+        if (t.length >= 3 && t.length <= 80) items.push(t);
+      }
+    } else if (tag === "DIV" || tag === "SECTION" || tag === "ARTICLE") {
+      for (const p of el.querySelectorAll("p")) {
+        const t = clean(p.text);
+        if (t.length > 30) paras.push(t);
+      }
+      for (const li of el.querySelectorAll("li")) {
+        const t = clean(li.text);
+        if (t.length >= 3 && t.length <= 80) items.push(t);
+      }
+    }
+    el = el.nextElementSibling;
+    hops++;
+  }
+  return { body: paras.join(" ").slice(0, 320), items: items.slice(0, 8) };
+}
+
+/**
+ * Reuse the client's own words: pull the real "about" paragraph and real
+ * service headings + descriptions from the page, so the rebuilt About / Services
+ * read like the client's site, not generic copy. Conservative and never fabricated.
+ */
+export function extractProse(root: HTMLElement): {
+  aboutBody?: string;
+  serviceItems?: { title: string; description?: string }[];
+} {
+  const out: { aboutBody?: string; serviceItems?: { title: string; description?: string }[] } = {};
+
+  // About: the section whose heading reads like about/story/mission.
+  for (const h of root.querySelectorAll("h2, h3")) {
+    const title = clean(h.text);
+    if (/about|story|mission|who we are|why us|à propos|qui sommes|notre histoire|notre mission/i.test(title)) {
+      const { body } = sectionAfter(h);
+      if (body.length >= 60) {
+        out.aboutBody = body;
+        break;
+      }
+    }
+  }
+
+  // Services: prefer repeated "h3 title + paragraph" cards (real names + real
+  // descriptions). Collect across the page; keep only solid title/description pairs.
+  const items: { title: string; description?: string }[] = [];
+  for (const h of root.querySelectorAll("h3")) {
+    const title = clean(h.text);
+    if (title.length < 3 || title.length > 60 || GENERIC_HEADING.test(title)) continue;
+    const { body } = sectionAfter(h);
+    if (body.length >= 30) items.push({ title, description: body.slice(0, 160) });
+    if (items.length >= 6) break;
+  }
+  if (items.length >= 3) out.serviceItems = items;
+
+  return out;
 }
 
 /** Real credibility metrics from structured data (ratings). Never fabricated. */
@@ -898,11 +977,10 @@ function buildBlock(
         props: {
           title: sectionTitle(slot.type, brand),
           subtitle: "What makes the difference for our clients.",
-          items: c.services.map((s, i) => ({
-            title: s,
-            description: featureBlurb(s, analysis.industry),
-            icon: FEATURE_ICONS[i % FEATURE_ICONS.length],
-          })),
+          items: (c.serviceItems?.length
+            ? c.serviceItems.map((s) => ({ title: s.title, description: s.description || featureBlurb(s.title, analysis.industry) }))
+            : c.services.map((s) => ({ title: s, description: featureBlurb(s, analysis.industry) }))
+          ).map((it, i) => ({ ...it, icon: FEATURE_ICONS[i % FEATURE_ICONS.length] })),
         },
       };
     case "services":
@@ -913,7 +991,9 @@ function buildBlock(
         props: {
           eyebrow: "Services",
           title: sectionTitle(slot.type, brand),
-          items: c.services.map((s) => ({ title: s, description: featureBlurb(s, analysis.industry) })),
+          items: c.serviceItems?.length
+            ? c.serviceItems.map((s) => ({ title: s.title, description: s.description || featureBlurb(s.title, analysis.industry) }))
+            : c.services.map((s) => ({ title: s, description: featureBlurb(s, analysis.industry) })),
         },
       };
     case "portfolio":
@@ -948,7 +1028,7 @@ function buildBlock(
         props: {
           eyebrow: "About",
           title: sectionTitle(slot.type, brand),
-          body: c.description,
+          body: c.aboutBody || c.description,
           image: analysis.extractedContent.images[1] || c.heroImageUrl,
           // Real stats only; AboutSplit hides the chip row when absent.
           stats: c.stats?.slice(0, 3),
