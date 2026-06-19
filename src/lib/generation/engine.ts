@@ -333,6 +333,10 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
       heroImageUrl,
       images,
       contactHint: root.querySelector("form") ? "Contact form detected" : undefined,
+      // Real business details pulled from the page, so the rebuild keeps the
+      // client's actual contact + credibility (never fabricated).
+      contact: extractContact(root, bodyText, ld),
+      stats: extractStats(ld),
     },
     scores,
     issues,
@@ -467,8 +471,29 @@ export function extractImages(root: HTMLElement, base: string): string[] {
  * server-side body often still emit structured data, so this is a reliable
  * source of brand + industry signals when the DOM text is thin.
  */
-function jsonLd(root: HTMLElement): { name?: string; description?: string; type?: string } {
-  const out: { name?: string; description?: string; type?: string } = {};
+interface JsonLd {
+  name?: string;
+  description?: string;
+  type?: string;
+  telephone?: string;
+  email?: string;
+  address?: string;
+  ratingValue?: string;
+  reviewCount?: string;
+}
+
+/** Flatten a schema.org PostalAddress (or string) into one human line. */
+function flattenAddress(a: unknown): string | undefined {
+  if (typeof a === "string") return clean(a) || undefined;
+  if (!a || typeof a !== "object") return undefined;
+  const o = a as Record<string, unknown>;
+  const parts = [o.streetAddress, o.postalCode, o.addressLocality, o.addressRegion, o.addressCountry]
+    .filter((p): p is string => typeof p === "string" && p.trim().length > 0);
+  return parts.length ? clean(parts.join(", ")) : undefined;
+}
+
+function jsonLd(root: HTMLElement): JsonLd {
+  const out: JsonLd = {};
   for (const s of root.querySelectorAll('script[type="application/ld+json"]')) {
     let data: unknown;
     try {
@@ -486,13 +511,77 @@ function jsonLd(root: HTMLElement): { name?: string; description?: string; type?
       if (!out.type && typeof t === "string") out.type = t;
       if (!out.name && typeof n.name === "string") out.name = clean(n.name);
       if (!out.description && typeof n.description === "string") out.description = clean(n.description);
-      if (out.name && out.description && out.type) return out;
+      // Real business details, when the site ships structured data.
+      if (!out.telephone && typeof n.telephone === "string") out.telephone = clean(n.telephone);
+      if (!out.email && typeof n.email === "string") out.email = clean(n.email).replace(/^mailto:/i, "");
+      if (!out.address) {
+        const addr = flattenAddress(n.address);
+        if (addr) out.address = addr;
+      }
+      const rating = n.aggregateRating as Record<string, unknown> | undefined;
+      if (rating && typeof rating === "object") {
+        const rv = rating.ratingValue;
+        const rc = rating.reviewCount ?? rating.ratingCount;
+        if (!out.ratingValue && (typeof rv === "string" || typeof rv === "number")) out.ratingValue = String(rv);
+        if (!out.reviewCount && (typeof rc === "string" || typeof rc === "number")) out.reviewCount = String(rc);
+      }
     }
   }
   return out;
 }
 
 /* ---- extraction helpers ---- */
+
+/**
+ * Real contact details from the page so the rebuild keeps the client's actual
+ * phone / email / address (and wires the Call / Directions / contact actions).
+ * Prefers structured data and explicit tel:/mailto: links, then conservative
+ * text patterns. Never invents anything.
+ */
+export function extractContact(
+  root: HTMLElement,
+  text: string,
+  ld: JsonLd
+): { phone?: string; email?: string; address?: string } | undefined {
+  const telHref = root.querySelector('a[href^="tel:"]')?.getAttribute("href")?.replace(/^tel:/i, "").trim();
+  const mailHref = root.querySelector('a[href^="mailto:"]')?.getAttribute("href")?.replace(/^mailto:/i, "").split("?")[0].trim();
+
+  let phone = ld.telephone || telHref;
+  if (!phone) {
+    // A phone-like run of digits with separators and at least 9 digits.
+    const m = text.match(/(\+?\d[\d\s().-]{7,}\d)/);
+    if (m && (m[1].match(/\d/g) || []).length >= 9) phone = m[1].trim();
+  }
+
+  let email = ld.email || mailHref;
+  if (!email) {
+    const m = text.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i);
+    if (m && !/\.(png|jpe?g|webp|gif|svg)$/i.test(m[0])) email = m[0];
+  }
+
+  const address = ld.address || clean(root.querySelector("address")?.text || "") || undefined;
+
+  if (!phone && !email && !address) return undefined;
+  return {
+    ...(phone ? { phone: phone.slice(0, 40) } : {}),
+    ...(email ? { email: email.slice(0, 120) } : {}),
+    ...(address && address.length <= 160 ? { address } : {}),
+  };
+}
+
+/** Real credibility metrics from structured data (ratings). Never fabricated. */
+export function extractStats(ld: JsonLd): { value: string; label: string }[] | undefined {
+  const stats: { value: string; label: string }[] = [];
+  if (ld.ratingValue) {
+    const v = parseFloat(ld.ratingValue);
+    if (!Number.isNaN(v) && v > 0 && v <= 5) stats.push({ value: `${v}★`, label: "Average rating" });
+  }
+  if (ld.reviewCount) {
+    const n = parseInt(ld.reviewCount, 10);
+    if (!Number.isNaN(n) && n > 0) stats.push({ value: `${n}+`, label: "Reviews" });
+  }
+  return stats.length ? stats : undefined;
+}
 
 function abs(src: string, base: string): string {
   if (!src) return "";
