@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { motion, AnimatePresence, useReducedMotion, useInView } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion, useInView, MotionConfig } from "framer-motion";
 import {
   Sparkle,
   ShieldCheck,
@@ -2232,21 +2232,30 @@ export function SiteRenderer({
     cta = { label: "Contact", href: `#${schema.blocks.some((b) => b.type === "contact") ? "contact" : "top"}` };
   }
 
+  // The client can switch motion off from the AI editor (schema.animations).
+  // reducedMotion="always" stops framer transforms/parallax/scroll-reveals from
+  // animating (content still ends visible), and data-animate kills CSS
+  // transitions/animations (marquees, hovers) without touching layout transforms.
+  const animationsOn = schema.animations !== false;
+
   return (
-    <div
-      style={{
-        ...themeStyle(schema.theme),
-        background: "var(--brand-surface)",
-        color: "var(--brand-ink)",
-        scrollBehavior: "smooth",
-      }}
-    >
-      <SiteNav brand={brand} items={items} cta={cta} />
-      {current.blocks.map((block, i) => (
-        <div key={block.id} id={anchorId(block.type)} style={{ scrollMarginTop: "76px" }}>
-          <BlockRenderer block={block} index={i + 1} />
-        </div>
-      ))}
-    </div>
+    <MotionConfig reducedMotion={animationsOn ? "user" : "always"}>
+      <div
+        data-animate={animationsOn ? "on" : "off"}
+        style={{
+          ...themeStyle(schema.theme),
+          background: "var(--brand-surface)",
+          color: "var(--brand-ink)",
+          scrollBehavior: "smooth",
+        }}
+      >
+        <SiteNav brand={brand} items={items} cta={cta} />
+        {current.blocks.map((block, i) => (
+          <div key={block.id} id={anchorId(block.type)} style={{ scrollMarginTop: "76px" }}>
+            <BlockRenderer block={block} index={i + 1} />
+          </div>
+        ))}
+      </div>
+    </MotionConfig>
   );
 }

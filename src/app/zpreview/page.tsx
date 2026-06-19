@@ -76,5 +76,6 @@ export default function PreviewPage({ searchParams }: { searchParams: Record<str
   const withImages = searchParams.img !== "0";
   const mode = (["preserve", "smart", "classic"].includes(searchParams.mode || "") ? searchParams.mode : "smart") as GenerationMode;
   const schema = generateSite(buildAnalysis(industry, withImages), { mode });
+  if (searchParams.anim === "0") schema.animations = false; // QA: preview with motion off
   return <SiteRenderer schema={schema} />;
 }

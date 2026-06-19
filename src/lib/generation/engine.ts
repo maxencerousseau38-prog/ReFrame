@@ -1177,6 +1177,20 @@ export function applyAiEdit(schema: SiteSchema, instruction: string): AiEditResu
     }
   }
 
+  // 3c. Toggle animations on/off (the client owns the motion).
+  if (/(animation|motion|\banim\b|effets?\b|effect|static|statique)/.test(text)) {
+    const off = /(\bremove\b|disable|\boff\b|\bstop\b|\bsans\b|enl[eè]v|supprim|retir|\bno\b|without|turn off|d[eé]sactiv|\bmoins\b|\bless\b|static|statique)/.test(text);
+    const on = /(\badd\b|enable|\bon\b|activ|\bback\b|turn on|remet|réactiv|reactiv|\bmore\b)/.test(text);
+    if (off && !on) {
+      next.animations = false;
+      return { schema: next, message: "Turned off the animations. The site now renders static. Say “add the animations back” anytime.", changed: true };
+    }
+    if (on) {
+      next.animations = true;
+      return { schema: next, message: "Turned the animations back on.", changed: true };
+    }
+  }
+
   // 4. Remove a section
   if (/(remove|delete|supprime)/.test(text)) {
     const target = (["testimonials", "faq", "contact", "cta", "features"] as const).find((t) => text.includes(t));
@@ -1216,7 +1230,7 @@ export function applyAiEdit(schema: SiteSchema, instruction: string): AiEditResu
   return {
     schema: next,
     message:
-      "I can change the hero title, add or remove sections (FAQ, testimonials, contact, CTA), change colors, or make it more premium. Try “Add an FAQ section” or “Change hero title to …”.",
+      "I can change the hero title, add or remove sections (FAQ, testimonials, contact, CTA), change colors, turn the animations on or off, or make it more premium. Try “Add an FAQ section”, “Remove the animations” or “Change hero title to …”.",
     changed: false,
   };
 }

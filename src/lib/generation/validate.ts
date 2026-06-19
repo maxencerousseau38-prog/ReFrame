@@ -146,5 +146,6 @@ export function parseSiteSchema(value: unknown, fallbackSeed = "site"): SiteSche
     pages: pages && pages.length ? pages : undefined,
     mode,
     recommendations: recommendations && recommendations.length ? recommendations : undefined,
+    animations: typeof v.animations === "boolean" ? v.animations : undefined,
   };
 }

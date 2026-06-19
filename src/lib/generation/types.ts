@@ -110,6 +110,12 @@ export interface SiteSchema {
   mode?: GenerationMode;
   /** Smart-mode optimizations applied, for display in the UI. */
   recommendations?: Recommendation[];
+  /**
+   * Whether the rendered site plays entrance/scroll/hover motion. Defaults to
+   * on (undefined === true); the client can switch it off from the AI editor
+   * ("remove the animations") and back on again.
+   */
+  animations?: boolean;
 }
 
 /** Result of analyzing an existing website. */

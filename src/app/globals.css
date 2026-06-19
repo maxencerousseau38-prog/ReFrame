@@ -144,6 +144,18 @@
   }
 }
 
+/* Client-toggled motion kill switch (set on a rebuilt site via the AI editor).
+   Stops CSS keyframe animations (marquee, ping, spin) and makes transitions
+   instant, without zeroing transforms (so layout/centering stays intact). */
+[data-animate="off"] *,
+[data-animate="off"] *::before,
+[data-animate="off"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;

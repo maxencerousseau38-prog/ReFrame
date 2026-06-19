@@ -175,13 +175,15 @@ Schema shape:
 - "pages": OPTIONAL array of extra pages, each {path, label, blocks}. Common
   paths: "services", "about", "contact". Edit these to change those pages.
 - "theme": { primary, accent (hex), radius, font, mood }.
+- "animations": OPTIONAL boolean. Set false to make the site static (no motion),
+  true to re-enable it. Toggle this when the user asks to remove/add animations.
 
 Rules:
 - Apply the instruction by returning the FULL updated schema (home blocks, every
   page in "pages", and theme), preserving the overall shape and all ids.
 - You may edit any page: change prop text, replace image URLs (props.image,
   props.images, props.heroImageUrl), add/remove/reorder blocks or pages, or
-  change theme.accent.
+  change theme.accent, or toggle "animations".
 - If the user names a page ("the about page", "services"), edit that page's
   blocks; otherwise edit the home blocks.
 - Allowed block types: hero, features, services, portfolio, stats, about,
