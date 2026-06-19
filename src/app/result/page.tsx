@@ -31,6 +31,25 @@ export default function ResultPage() {
   const [pubError, setPubError] = React.useState<string | null>(null);
   const [shareUrl, setShareUrl] = React.useState<string | null>(null);
   const [copied, setCopied] = React.useState(false);
+  const [email, setEmail] = React.useState("");
+  const [emailState, setEmailState] = React.useState<"idle" | "sending" | "sent" | "error">("idle");
+
+  async function emailMyRedesign(e: React.FormEvent) {
+    e.preventDefault();
+    const id = shareUrl?.split("/r/")[1];
+    if (!id || !email.trim()) return;
+    setEmailState("sending");
+    try {
+      const res = await fetch("/api/share/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, email: email.trim() }),
+      });
+      setEmailState(res.ok ? "sent" : "error");
+    } catch {
+      setEmailState("error");
+    }
+  }
 
   // Persist the redesign server-side and get a shareable link, so it survives a
   // closed tab and can be sent to a partner (created once per result).
@@ -230,6 +249,37 @@ export default function ResultPage() {
           )}
         </div>
       </div>
+
+      {/* Don't lose the redesign: email the link to capture the lead. */}
+      {shareUrl && !published && (
+        <div className="border-b border-border bg-secondary/30 px-6 py-3">
+          <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-3 gap-y-2">
+            {emailState === "sent" ? (
+              <p className="flex items-center gap-2 text-sm text-emerald-300">
+                <Check weight="bold" className="h-4 w-4" /> Sent. Your redesign link is in your inbox.
+              </p>
+            ) : (
+              <>
+                <span className="text-sm font-medium">Don&apos;t lose this redesign</span>
+                <form onSubmit={emailMyRedesign} className="flex flex-1 items-center gap-2">
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@business.com"
+                    className="h-9 min-w-0 flex-1 rounded-lg border border-border bg-background px-3 text-[13px] focus:border-foreground/20 focus:outline-none"
+                  />
+                  <Button type="submit" size="sm" variant="light" disabled={emailState === "sending"}>
+                    {emailState === "sending" ? <CircleNotch weight="bold" className="h-4 w-4 animate-spin" /> : "Email it to me"}
+                  </Button>
+                </form>
+                {emailState === "error" && <span className="text-xs text-amber-400">Couldn&apos;t send. Use the Share button to copy the link.</span>}
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {published && (
         <div className="flex items-center justify-center gap-2 border-b border-emerald-500/30 bg-emerald-500/10 px-6 py-2.5 text-sm text-emerald-300">

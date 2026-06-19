@@ -18,6 +18,8 @@ export interface Share {
   schema: SiteSchema;
   /** Kept so the share page can still show the before/after. */
   analysis?: SiteAnalysis;
+  /** Captured when the visitor emails themselves the link (a lead). */
+  email?: string;
   createdAt: string;
 }
 
@@ -58,6 +60,20 @@ export async function createShare(schema: SiteSchema, analysis?: SiteAnalysis): 
   } else {
     await fs.mkdir(FS_DIR, { recursive: true });
     await fs.writeFile(fileFor(share.id), json, "utf8");
+  }
+  return share;
+}
+
+/** Record the visitor's email on a share (lead capture). Best-effort. */
+export async function attachEmail(id: string, email: string): Promise<Share | null> {
+  const share = await getShare(id);
+  if (!share) return null;
+  share.email = email;
+  const json = JSON.stringify(share);
+  if (useKv) await kv(["SET", kvKey(id), json, "EX", TTL_SECONDS]);
+  else {
+    await fs.mkdir(FS_DIR, { recursive: true });
+    await fs.writeFile(fileFor(id), json, "utf8");
   }
   return share;
 }

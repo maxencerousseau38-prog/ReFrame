@@ -80,3 +80,14 @@ export function resetPasswordTemplate(link: string) {
     ),
   };
 }
+
+export function redesignLinkTemplate(link: string, brandName: string) {
+  return {
+    subject: `Your ${brandName} redesign is ready`,
+    html: shell(
+      "Your redesign is saved",
+      `Here's the modern, premium rebuild of ${brandName}. Open it anytime, share it with your team, or keep editing it by chatting with the AI.`,
+      { href: link, label: "View my redesign" }
+    ),
+  };
+}
