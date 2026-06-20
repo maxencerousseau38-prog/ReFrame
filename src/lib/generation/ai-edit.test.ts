@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { generateSite, applyAiEdit } from "./engine";
+import { aiEdit } from "@/lib/llm";
 import type { SiteAnalysis } from "./types";
 
 function analysis(): SiteAnalysis {
@@ -37,5 +38,20 @@ describe("applyAiEdit — animations toggle", () => {
 
   it("defaults to animated (undefined === on) and never hides content", () => {
     expect(base.animations).toBeUndefined(); // undefined is treated as on by the renderer
+  });
+});
+
+describe("aiEdit — instant deterministic fast path (no LLM round-trip)", () => {
+  const base = generateSite(analysis(), { mode: "smart" });
+
+  it("applies a known intent instantly and returns changed", async () => {
+    const r = await aiEdit(base, "remove the animations");
+    expect(r.changed).toBe(true);
+    expect(r.schema.animations).toBe(false);
+  });
+
+  it("returns guidance (no change) for an unhandled request when no LLM is set", async () => {
+    const r = await aiEdit(base, "do something totally ambiguous and unspecified");
+    expect(r.changed).toBe(false);
   });
 });

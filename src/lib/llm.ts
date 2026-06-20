@@ -162,11 +162,18 @@ Respond with ONLY a JSON object of this exact shape:
 }
 
 /**
- * Apply a natural-language edit with Claude, returning an updated SiteSchema.
- * Falls back to the deterministic intent router on any failure.
+ * Apply a natural-language edit. Tries the fast deterministic router FIRST so
+ * common edits (title, colour, add/remove section, premium, animations) apply
+ * instantly and for free; only open-ended requests the router can't handle fall
+ * through to Claude. Always degrades safely.
  */
 export async function aiEdit(schema: SiteSchema, instruction: string): Promise<AiEditResult> {
-  if (!isLLMEnabled()) return applyAiEdit(schema, instruction);
+  // 1) Instant path: deterministic intents, no network round-trip.
+  const quick = applyAiEdit(schema, instruction);
+  if (quick.changed) return quick;
+
+  // 2) Open-ended path: hand to Claude when configured, else the router's help.
+  if (!isLLMEnabled()) return quick;
 
   const prompt = `You edit multi-page website definitions expressed as JSON "SiteSchema" objects.
 
@@ -217,5 +224,5 @@ Respond with ONLY a JSON object: {"message": string (one short sentence describi
   } catch {
     // fall through
   }
-  return applyAiEdit(schema, instruction);
+  return quick; // deterministic result (help message) when the LLM can't help
 }

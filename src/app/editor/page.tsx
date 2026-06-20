@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { PaperPlaneTilt, CircleNotch, ArrowLeft, MagicWand, RocketLaunch, Check } from "@phosphor-icons/react";
+import { PaperPlaneTilt, CircleNotch, ArrowLeft, MagicWand, RocketLaunch, Check, ArrowCounterClockwise } from "@phosphor-icons/react";
 import { DashboardShell } from "@/components/dashboard/shell";
 import { SiteRenderer } from "@/components/blocks";
 import { Button } from "@/components/ui/button";
@@ -45,7 +45,25 @@ export default function EditorPage() {
   const [busy, setBusy] = React.useState(false);
   const [published, setPublished] = React.useState<string | null>(null);
   const [projectId, setProjectId] = React.useState<string | null>(null);
+  const [past, setPast] = React.useState<SiteSchema[]>([]); // undo history
   const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  function commit(nextSchema: SiteSchema, prevSchema: SiteSchema) {
+    setPast((p) => [...p.slice(-19), prevSchema]); // remember the pre-edit state
+    setSchema(nextSchema);
+    saveSchema(nextSchema);
+    if (projectId) void updateProject(projectId, nextSchema);
+  }
+
+  function undo() {
+    if (!past.length || busy) return;
+    const prev = past[past.length - 1];
+    setPast((p) => p.slice(0, -1));
+    setSchema(prev);
+    saveSchema(prev);
+    if (projectId) void updateProject(projectId, prev);
+    setMessages((m) => [...m, { role: "assistant", content: "Reverted the last change." }]);
+  }
 
   React.useEffect(() => {
     // Loading a public share (from /r/<id> "Edit with AI"): fetch its schema so
@@ -110,13 +128,10 @@ export default function EditorPage() {
         body: JSON.stringify({ schema, instruction }),
       });
       const data = await res.json();
-      await new Promise((r) => setTimeout(r, 500));
-      if (data.schema) {
-        setSchema(data.schema);
-        saveSchema(data.schema);
-        // Persist the edit back to the saved project, when there is one.
-        if (projectId) void updateProject(projectId, data.schema);
-      }
+      await new Promise((r) => setTimeout(r, 300));
+      // Only push history when something actually changed (keeps undo meaningful).
+      if (data.schema && data.changed !== false && schema) commit(data.schema, schema);
+      else if (data.schema) setSchema(data.schema);
       setMessages((m) => [...m, { role: "assistant", content: data.message || "Done." }]);
     } catch {
       setMessages((m) => [...m, { role: "assistant", content: "Something went wrong applying that edit." }]);
@@ -178,9 +193,21 @@ export default function EditorPage() {
                 <div className="text-xs text-muted-foreground">{schema.brand.name}</div>
               </div>
             </div>
-            <Link href="/result">
-              <Button variant="ghost" size="sm"><ArrowLeft weight="bold" className="h-4 w-4" /></Button>
-            </Link>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={undo}
+                disabled={!past.length || busy}
+                title="Undo last change"
+                aria-label="Undo last change"
+              >
+                <ArrowCounterClockwise weight="bold" className="h-4 w-4" />
+              </Button>
+              <Link href="/result">
+                <Button variant="ghost" size="sm"><ArrowLeft weight="bold" className="h-4 w-4" /></Button>
+              </Link>
+            </div>
           </div>
 
           <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto p-5">
