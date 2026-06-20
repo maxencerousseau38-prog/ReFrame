@@ -363,6 +363,66 @@ export default function ResultPage() {
         </div>
       )}
 
+      {/* C2 — make "it's better" objective: the real (measured) scores of the
+          client's current site next to the concrete upgrades the rebuild ships. */}
+      {analysis && (
+        <div className="border-b border-border bg-secondary/20 px-6 py-5">
+          <div className="mx-auto max-w-5xl">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <Sparkle weight="fill" className="h-4 w-4 text-accent" /> Why your new site is better
+            </div>
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <div className="rounded-xl border border-border bg-background/50 p-4">
+                <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  Your current site, scored
+                </div>
+                <ul className="mt-3 space-y-2">
+                  {([
+                    ["design", "Design"],
+                    ["performance", "Speed"],
+                    ["seo", "SEO"],
+                    ["mobile", "Mobile"],
+                    ["accessibility", "Access."],
+                  ] as const).map(([k, label]) => {
+                    const v = analysis.scores[k];
+                    const color = v < 60 ? "#ef4444" : v < 75 ? "#f59e0b" : "#10b981";
+                    return (
+                      <li key={k} className="flex items-center gap-3 text-[13px]">
+                        <span className="w-20 shrink-0 text-muted-foreground">{label}</span>
+                        <span className="h-1.5 flex-1 overflow-hidden rounded bg-white/10">
+                          <span className="block h-full" style={{ width: `${v}%`, background: color }} />
+                        </span>
+                        <span className="w-7 text-right tabular-nums text-muted-foreground">{v}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+              <div className="rounded-xl border border-accent/20 bg-accent/[0.05] p-4">
+                <div className="text-[11px] font-medium uppercase tracking-wide text-accent">
+                  Your ReFrame rebuild
+                </div>
+                <ul className="mt-3 space-y-2 text-[13px]">
+                  {[
+                    "Modern, responsive layout — flawless on mobile",
+                    "SEO: clean metadata, Open Graph & structured data",
+                    "Fast, semantic HTML (no page-builder bloat)",
+                    "Clear calls to action, wired to contact",
+                    "Your logo, colours, images & content kept",
+                    "Edit anything later, just by chatting",
+                  ].map((t) => (
+                    <li key={t} className="flex items-start gap-2">
+                      <Check weight="bold" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" />
+                      {t}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Preview */}
       <div className="p-6">
         <div className="overflow-hidden rounded-2xl border border-border panel shadow-xl shadow-black/5">
