@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSite } from "@/lib/server/sites-store";
 import { getUserById } from "@/lib/server/users-store";
+import { createLead } from "@/lib/server/leads-store";
 import { sendEmail } from "@/lib/server/email";
 import { rateLimit, clientKey } from "@/lib/rate-limit";
 
@@ -41,10 +42,16 @@ export async function POST(req: Request) {
 
   let delivered = false;
   if (site?.ownerId) {
+    const brand = site.schema.brand?.name || "your site";
+    // Store the lead FIRST so it's never lost, even if email delivery fails.
+    try {
+      await createLead({ ownerId: site.ownerId, slug, brand, name, email, message });
+    } catch {
+      /* storage hiccup shouldn't block the visitor's confirmation */
+    }
     try {
       const owner = await getUserById(site.ownerId);
       if (owner?.email) {
-        const brand = site.schema.brand?.name || "your site";
         const res = await sendEmail({
           to: owner.email,
           subject: `New message from your ${brand} site`,

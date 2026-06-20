@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SiteRenderer } from "@/components/blocks";
+import { Pageview } from "@/components/pageview";
 import { getUserById } from "@/lib/server/users-store";
 import { entitlementsOf, effectivePlan } from "@/lib/server/plans";
 import { buildJsonLd } from "@/lib/server/seo";
@@ -41,6 +42,7 @@ export async function PublishedSite({
         // JSON.stringify output is safe to inline; no user-controlled HTML.
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <Pageview slug={site.slug} />
       <SiteRenderer schema={site.schema} basePath={basePath} page={page} />
       {branded && (
         <Link

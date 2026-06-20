@@ -8,6 +8,7 @@ import {
   Sparkle,
   MagicWand,
   FolderSimple,
+  Tray,
   SignOut,
   CircleNotch,
 } from "@phosphor-icons/react";
@@ -19,6 +20,7 @@ import { LanguageSwitcher } from "@/components/landing/language-switcher";
 const NAV_META = [
   { href: "/dashboard", icon: SquaresFour },
   { href: "/dashboard/sites", icon: FolderSimple },
+  { href: "/dashboard/leads", icon: Tray },
   { href: "/result", icon: Sparkle },
   { href: "/editor", icon: MagicWand },
 ];

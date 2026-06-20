@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowUpRight, Trash, Plus, Globe, CircleNotch, CheckCircle, Warning, Copy, Check, DownloadSimple } from "@phosphor-icons/react";
+import { ArrowUpRight, Trash, Plus, Globe, CircleNotch, CheckCircle, Warning, Copy, Check, DownloadSimple, Sparkle } from "@phosphor-icons/react";
 
 /** One-click copy for fiddly DNS values, so connecting a domain is paste-only. */
 function CopyCell({ value }: { value: string }) {
@@ -40,6 +40,9 @@ type SiteCard = {
   blocks: number;
   domain?: string | null;
   domainVerified?: boolean;
+  views7?: number;
+  viewsTotal?: number;
+  suggestions?: string[];
 };
 
 /** DNS record the customer adds at their registrar (mirrors the API response). */
@@ -258,6 +261,27 @@ function SiteRow({
           </span>
         </div>
         {site.tagline && <p className="mt-1 line-clamp-2 text-sm text-zinc-400">{site.tagline}</p>}
+
+        {/* Recurring-value signals: real traffic + the next best move. */}
+        {(site.views7 !== undefined || site.suggestions?.length) && (
+          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-zinc-400">
+            <span>
+              <span className="font-semibold text-white">{site.views7 ?? 0}</span> visits this week
+            </span>
+            <span className="text-zinc-600">·</span>
+            <span>
+              <span className="font-semibold text-white">{site.viewsTotal ?? 0}</span> all-time
+            </span>
+          </div>
+        )}
+        {site.suggestions && site.suggestions.length > 0 && (
+          <div className="mt-3 rounded-lg border border-accent/20 bg-accent/[0.05] p-3">
+            <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-accent">
+              <Sparkle weight="fill" className="h-3 w-3" /> AI webmaster
+            </div>
+            <p className="mt-1.5 text-[12px] leading-relaxed text-zinc-300">{site.suggestions[0]}</p>
+          </div>
+        )}
 
         <p className="mt-3 font-mono text-[11px] text-zinc-500">{liveHost}</p>
 

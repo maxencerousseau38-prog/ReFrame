@@ -769,7 +769,7 @@ type Dash = {
 
 const DASH: Record<Locale, Dash> = {
   en: {
-    nav: ["Dashboard", "My sites", "Result", "AI Editor"],
+    nav: ["Dashboard", "My sites", "Leads", "Result", "AI Editor"],
     signedIn: "Signed in", signIn: "Sign in", signOut: "Sign out",
     verifyMsg: "Confirm your email to secure your account.",
     verifyResend: "Resend email", verifySending: "Sending…", verifySent: "Verification sent",
@@ -778,7 +778,7 @@ const DASH: Record<Locale, Dash> = {
     urlPlaceholder: "yourwebsite.com", analyze: "Analyze",
   },
   fr: {
-    nav: ["Tableau de bord", "Mes sites", "Résultat", "Éditeur IA"],
+    nav: ["Tableau de bord", "Mes sites", "Leads", "Résultat", "Éditeur IA"],
     signedIn: "Connecté", signIn: "Se connecter", signOut: "Se déconnecter",
     verifyMsg: "Confirmez votre e-mail pour sécuriser votre compte.",
     verifyResend: "Renvoyer l'e-mail", verifySending: "Envoi…", verifySent: "E-mail envoyé",
@@ -787,7 +787,7 @@ const DASH: Record<Locale, Dash> = {
     urlPlaceholder: "votresite.com", analyze: "Analyser",
   },
   es: {
-    nav: ["Panel", "Mis sitios", "Resultado", "Editor IA"],
+    nav: ["Panel", "Mis sitios", "Leads", "Resultado", "Editor IA"],
     signedIn: "Conectado", signIn: "Iniciar sesión", signOut: "Cerrar sesión",
     verifyMsg: "Confirma tu correo para proteger tu cuenta.",
     verifyResend: "Reenviar correo", verifySending: "Enviando…", verifySent: "Correo enviado",
@@ -796,7 +796,7 @@ const DASH: Record<Locale, Dash> = {
     urlPlaceholder: "tusitio.com", analyze: "Analizar",
   },
   de: {
-    nav: ["Dashboard", "Meine Seiten", "Ergebnis", "KI-Editor"],
+    nav: ["Dashboard", "Meine Seiten", "Leads", "Ergebnis", "KI-Editor"],
     signedIn: "Angemeldet", signIn: "Anmelden", signOut: "Abmelden",
     verifyMsg: "Bestätigen Sie Ihre E-Mail, um Ihr Konto zu sichern.",
     verifyResend: "E-Mail erneut senden", verifySending: "Senden…", verifySent: "E-Mail gesendet",
@@ -805,7 +805,7 @@ const DASH: Record<Locale, Dash> = {
     urlPlaceholder: "ihrewebsite.de", analyze: "Analysieren",
   },
   it: {
-    nav: ["Dashboard", "I miei siti", "Risultato", "Editor IA"],
+    nav: ["Dashboard", "I miei siti", "Lead", "Risultato", "Editor IA"],
     signedIn: "Connesso", signIn: "Accedi", signOut: "Esci",
     verifyMsg: "Conferma la tua email per proteggere l'account.",
     verifyResend: "Reinvia email", verifySending: "Invio…", verifySent: "Email inviata",
