@@ -43,7 +43,7 @@ export async function PublishedSite({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Pageview slug={site.slug} />
-      <SiteRenderer schema={site.schema} basePath={basePath} page={page} />
+      <SiteRenderer schema={site.schema} basePath={basePath} page={page} published />
       {branded && (
         <Link
           href="https://reframe.design"

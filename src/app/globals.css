@@ -161,6 +161,15 @@
   transition-duration: 0.001ms !important;
   scroll-behavior: auto !important;
 }
+/* Neutralise framer-motion's inline entrance state (opacity:0 + translate/scale)
+   so hosted/static sites paint their content immediately — no JS-dependent
+   reveal, no fade-in flash. Targets only inline reveal states (framer), not the
+   class-based decorative opacity. */
+[data-animate="off"] [style*="opacity:0"],
+[data-animate="off"] [style*="opacity: 0"] {
+  opacity: 1 !important;
+  transform: none !important;
+}
 
 ::-webkit-scrollbar {
   width: 10px;

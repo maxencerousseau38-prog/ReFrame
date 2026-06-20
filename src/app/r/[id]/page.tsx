@@ -55,7 +55,7 @@ export default async function SharePage({ params }: { params: { id: string } }) 
           </Link>
         </div>
       </div>
-      <SiteRenderer schema={share.schema} />
+      <SiteRenderer schema={share.schema} published />
     </div>
   );
 }

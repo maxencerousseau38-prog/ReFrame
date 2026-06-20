@@ -2198,10 +2198,15 @@ export function SiteRenderer({
   schema,
   basePath,
   page,
+  published,
 }: {
   schema: SiteSchema;
   basePath?: string;
   page?: string;
+  /** A live/hosted render (vs the in-app editor preview). Hosted sites default
+   *  to static for instant paint + SEO; the owner opts into motion via the AI
+   *  editor (schema.animations === true). */
+  published?: boolean;
 }) {
   const allPages = [{ path: "", label: "Home", blocks: schema.blocks }, ...(schema.pages ?? [])];
   const multi = allPages.length > 1;
@@ -2244,11 +2249,13 @@ export function SiteRenderer({
     cta = { label: "Contact", href: `#${schema.blocks.some((b) => b.type === "contact") ? "contact" : "top"}` };
   }
 
-  // The client can switch motion off from the AI editor (schema.animations).
-  // reducedMotion="always" stops framer transforms/parallax/scroll-reveals from
-  // animating (content still ends visible), and data-animate kills CSS
-  // transitions/animations (marquees, hovers) without touching layout transforms.
-  const animationsOn = schema.animations !== false;
+  // Motion policy. In the editor preview, animations are on by default (off only
+  // if the client turned them off). On a live/hosted site we default to STATIC
+  // for instant paint + SEO (content visible with no JS-dependent reveal), and
+  // the owner opts in via the AI editor (schema.animations === true).
+  // reducedMotion="always" stops framer motion; data-animate kills CSS
+  // animations AND forces framer's inline reveal states (opacity:0) visible.
+  const animationsOn = published ? schema.animations === true : schema.animations !== false;
 
   return (
     <MotionConfig reducedMotion={animationsOn ? "user" : "always"}>
