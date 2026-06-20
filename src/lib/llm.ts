@@ -226,3 +226,71 @@ Respond with ONLY a JSON object: {"message": string (one short sentence describi
   }
   return quick; // deterministic result (help message) when the LLM can't help
 }
+
+/**
+ * Streaming variant of aiEdit: the deterministic fast path returns instantly;
+ * for open-ended edits Claude streams a one-sentence explanation live (the
+ * "typing webmaster" feel) via onText, then the full updated schema is parsed
+ * and applied. Always degrades to the deterministic result.
+ */
+export async function aiEditStream(
+  schema: SiteSchema,
+  instruction: string,
+  onText: (delta: string) => void
+): Promise<AiEditResult> {
+  const quick = applyAiEdit(schema, instruction);
+  if (quick.changed) {
+    onText(quick.message);
+    return quick;
+  }
+  if (!isLLMEnabled()) {
+    onText(quick.message);
+    return quick;
+  }
+
+  const prompt = `You edit a website "SiteSchema" (blocks, optional pages, theme{primary,accent,radius,font,mood,dark}, animations:boolean). Allowed block types: hero, features, services, portfolio, stats, about, testimonials, faq, cta, contact, footer. Preserve shape and ids. Do not invent testimonials or statistics. Do not use em dashes.
+
+First write ONE short sentence describing what you changed (plain text, no quotes, no JSON). Then a line containing exactly:
+===SCHEMA===
+Then ONLY the full updated SiteSchema as JSON.
+
+Current schema:
+${JSON.stringify(schema)}
+
+Instruction: ${instruction}`;
+
+  const DELIM = "===SCHEMA===";
+  try {
+    const stream = getClient().messages.stream({
+      model: MODEL,
+      max_tokens: 8192,
+      messages: [{ role: "user", content: prompt }],
+    });
+    let acc = "";
+    let sent = 0;
+    stream.on("text", (delta: string) => {
+      acc += delta;
+      const at = acc.indexOf(DELIM);
+      const msgEnd = at === -1 ? acc.length : at; // only stream the message part
+      if (msgEnd > sent) {
+        onText(acc.slice(sent, msgEnd));
+        sent = msgEnd;
+      }
+    });
+    await stream.finalMessage();
+
+    const at = acc.indexOf(DELIM);
+    const message = (at === -1 ? acc : acc.slice(0, at)).trim() || "Done.";
+    if (at !== -1) {
+      const parsed = parseSiteSchema(extractJSON(acc.slice(at + DELIM.length)), schema.brand.name);
+      if (parsed) {
+        parsed.id = schema.id;
+        parsed.sourceUrl = schema.sourceUrl;
+        return { schema: parsed, message, changed: true };
+      }
+    }
+  } catch {
+    // fall through to the deterministic result
+  }
+  return quick;
+}

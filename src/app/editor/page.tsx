@@ -130,25 +130,75 @@ export default function EditorPage() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
+  function setLastAssistant(content: string) {
+    setMessages((m) => {
+      const c = [...m];
+      for (let i = c.length - 1; i >= 0; i--) {
+        if (c[i].role === "assistant") {
+          c[i] = { role: "assistant", content };
+          return c;
+        }
+      }
+      return [...m, { role: "assistant", content }];
+    });
+  }
+
   async function send(instruction: string) {
     if (!schema || !instruction.trim() || busy) return;
+    const prev = schema;
     setInput("");
-    setMessages((m) => [...m, { role: "user", content: instruction }]);
+    setMessages((m) => [...m, { role: "user", content: instruction }, { role: "assistant", content: "" }]);
     setBusy(true);
     try {
-      const res = await fetch("/api/ai-edit", {
+      const res = await fetch("/api/ai-edit/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ schema, instruction }),
+        body: JSON.stringify({ schema: prev, instruction }),
       });
-      const data = await res.json();
-      await new Promise((r) => setTimeout(r, 300));
-      // Only push history when something actually changed (keeps undo meaningful).
-      if (data.schema && data.changed !== false && schema) commit(data.schema, schema);
-      else if (data.schema) setSchema(data.schema);
-      setMessages((m) => [...m, { role: "assistant", content: data.message || "Done." }]);
+      if (!res.ok || !res.body) throw new Error("stream unavailable");
+
+      const reader = res.body.getReader();
+      const dec = new TextDecoder();
+      let buf = "";
+      let streamed = "";
+      let final: { schema?: SiteSchema; message?: string; changed?: boolean; error?: string } | null = null;
+
+      for (;;) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        let nl: number;
+        while ((nl = buf.indexOf("\n")) >= 0) {
+          const lineStr = buf.slice(0, nl).trim();
+          buf = buf.slice(nl + 1);
+          if (!lineStr) continue;
+          const obj = JSON.parse(lineStr) as { t?: string; done?: boolean; schema?: SiteSchema; message?: string; changed?: boolean; error?: string };
+          if (typeof obj.t === "string") {
+            streamed += obj.t;
+            setLastAssistant(streamed);
+          }
+          if (obj.done) final = obj;
+        }
+      }
+
+      if (final?.schema && final.changed !== false) commit(final.schema, prev);
+      else if (final?.schema) setSchema(final.schema);
+      setLastAssistant(final?.message || streamed || final?.error || "Done.");
     } catch {
-      setMessages((m) => [...m, { role: "assistant", content: "Something went wrong applying that edit." }]);
+      // Fall back to the non-streaming endpoint so an edit never just fails.
+      try {
+        const res = await fetch("/api/ai-edit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ schema: prev, instruction }),
+        });
+        const data = await res.json();
+        if (data.schema && data.changed !== false) commit(data.schema, prev);
+        else if (data.schema) setSchema(data.schema);
+        setLastAssistant(data.message || "Done.");
+      } catch {
+        setLastAssistant("Something went wrong applying that edit.");
+      }
     } finally {
       setBusy(false);
     }
