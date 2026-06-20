@@ -41,6 +41,23 @@ describe("applyAiEdit — animations toggle", () => {
   });
 });
 
+describe("applyAiEdit — dark / light mode", () => {
+  const base = generateSite(analysis(), { mode: "smart" });
+  it("switches to dark mode", () => {
+    for (const cmd of ["switch to dark mode", "passe le site en mode sombre", "make it dark"]) {
+      const r = applyAiEdit(base, cmd);
+      expect(r.changed).toBe(true);
+      expect(r.schema.theme.dark).toBe(true);
+    }
+  });
+  it("switches back to light mode", () => {
+    const dark = applyAiEdit(base, "dark mode").schema;
+    const r = applyAiEdit(dark, "switch to light mode");
+    expect(r.changed).toBe(true);
+    expect(r.schema.theme.dark).toBe(false);
+  });
+});
+
 describe("aiEdit — instant deterministic fast path (no LLM round-trip)", () => {
   const base = generateSite(analysis(), { mode: "smart" });
 

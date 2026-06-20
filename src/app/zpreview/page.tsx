@@ -77,5 +77,6 @@ export default function PreviewPage({ searchParams }: { searchParams: Record<str
   const mode = (["preserve", "smart", "classic"].includes(searchParams.mode || "") ? searchParams.mode : "smart") as GenerationMode;
   const schema = generateSite(buildAnalysis(industry, withImages), { mode });
   if (searchParams.anim === "0") schema.animations = false; // QA: preview with motion off
+  if (searchParams.dark === "1") schema.theme = { ...schema.theme, dark: true }; // QA: dark mode
   return <SiteRenderer schema={schema} />;
 }

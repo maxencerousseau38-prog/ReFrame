@@ -1360,6 +1360,17 @@ export function applyAiEdit(schema: SiteSchema, instruction: string): AiEditResu
     }
   }
 
+  // 3d. Dark / light colour scheme. Guard against colour phrases ("dark blue").
+  const mentionsColor = /(blue|indigo|violet|purple|green|emerald|teal|red|rose|pink|orange|amber)/.test(text);
+  if (/(dark mode|mode sombre|sombre|night|nuit|dark theme|\bdark\b)/.test(text) && !/(light|clair|jour|day)/.test(text) && !mentionsColor) {
+    next.theme.dark = true;
+    return { schema: next, message: "Switched the site to dark mode.", changed: true };
+  }
+  if (/(light mode|mode clair|clair|day mode|jour)/.test(text) && /(mode|theme|thème|light|clair|jour)/.test(text)) {
+    next.theme.dark = false;
+    return { schema: next, message: "Switched the site to light mode.", changed: true };
+  }
+
   // 4. Remove a section
   if (/(remove|delete|supprime)/.test(text)) {
     const target = (["testimonials", "faq", "contact", "cta", "features"] as const).find((t) => text.includes(t));

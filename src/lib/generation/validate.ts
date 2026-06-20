@@ -43,6 +43,7 @@ const themeSchema: z.ZodType<Theme> = z
     radius: z.enum(["sm", "md", "lg", "xl"]).catch(DEFAULT_THEME.radius),
     font: z.enum(["inter", "geist", "serif"]).catch(DEFAULT_THEME.font),
     mood: z.enum(["minimal", "bold", "warm", "elegant"]).catch(DEFAULT_THEME.mood),
+    dark: z.boolean().optional().catch(undefined),
     surface: z.string().regex(HEX).optional().catch(undefined),
     surface2: z.string().regex(HEX).optional().catch(undefined),
     ink: z.string().regex(HEX).optional().catch(undefined),

@@ -144,6 +144,12 @@
   }
 }
 
+/* Card surface for rebuilt sites: white in light mode, elevated dark in dark
+   mode (driven by the --brand-card token), so dark mode has no white cards. */
+.rf-card {
+  background: var(--brand-card, #ffffff);
+}
+
 /* Client-toggled motion kill switch (set on a rebuilt site via the AI editor).
    Stops CSS keyframe animations (marquee, ping, spin) and makes transitions
    instant, without zeroing transforms (so layout/centering stays intact). */

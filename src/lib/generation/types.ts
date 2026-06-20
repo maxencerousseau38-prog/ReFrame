@@ -75,6 +75,8 @@ export interface Theme {
   radius: "sm" | "md" | "lg" | "xl";
   font: "inter" | "geist" | "serif";
   mood: "minimal" | "bold" | "warm" | "elegant";
+  /** Dark colour scheme. Off (light) by default; the AI editor can toggle it. */
+  dark?: boolean;
   /**
    * Optional surface palette. When omitted, blocks derive sensible values from
    * `mood` so the section background adapts to the brand instead of defaulting

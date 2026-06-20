@@ -63,14 +63,26 @@ const moodSurface: Record<Theme["mood"], { surface: string; surface2: string; in
 
 function themeStyle(theme: Theme): React.CSSProperties {
   const s = moodSurface[theme.mood] ?? moodSurface.minimal;
+  const dark = theme.dark === true;
+  const surface = theme.surface ?? (dark ? "#0b0b0c" : s.surface);
+  const surface2 = theme.surface2 ?? (dark ? "#16161a" : s.surface2);
+  const ink = theme.ink ?? (dark ? "#e7e7ea" : s.ink);
+  // Headings/brand text go light in dark mode so they read on the dark surface.
+  const brand = dark ? "#f4f4f5" : theme.primary;
+  // Inverse "panel" (stats / CTA bands) stays dark-ish with light text in BOTH
+  // schemes: an elevated dark in dark mode, the brand-dark in light mode.
+  const contrast = dark ? surface2 : theme.primary;
   return {
     // exposed to children as CSS custom properties
-    ["--brand" as string]: theme.primary,
+    ["--brand" as string]: brand,
     ["--brand-accent" as string]: theme.accent,
     ["--brand-radius" as string]: radiusMap[theme.radius],
-    ["--brand-surface" as string]: theme.surface ?? s.surface,
-    ["--brand-surface-2" as string]: theme.surface2 ?? s.surface2,
-    ["--brand-ink" as string]: theme.ink ?? s.ink,
+    ["--brand-surface" as string]: surface,
+    ["--brand-surface-2" as string]: surface2,
+    ["--brand-ink" as string]: ink,
+    ["--brand-contrast" as string]: contrast,
+    ["--brand-contrast-ink" as string]: "#ffffff",
+    ["--brand-card" as string]: dark ? surface2 : "#ffffff",
     ["--brand-font" as string]: fontStacks[theme.font],
     ["--brand-mood" as string]: theme.mood,
   };
@@ -435,7 +447,7 @@ function FeaturesGrid1({ props }: { props: any }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.5, ease: EASE, delay: i * 0.05 }}
-              className="group bg-white p-7 transition-colors hover:bg-[var(--brand-surface)]"
+              className="group rf-card p-7 transition-colors hover:bg-[var(--brand-surface)]"
             >
               <div
                 className="flex h-10 w-10 items-center justify-center transition-transform group-hover:scale-105"
@@ -480,7 +492,7 @@ function TestimonialsSlider1({ props }: { props: any }) {
   const t = items[i];
 
   return (
-    <section className="px-6 py-28 text-white" style={{ background: "var(--brand)" }}>
+    <section className="px-6 py-28 text-white" style={{ background: "var(--brand-contrast)" }}>
       <div className="mx-auto max-w-3xl text-center">
         {props.title && (
           <p className="text-sm font-medium uppercase tracking-widest text-white/40">{props.title}</p>
@@ -617,7 +629,7 @@ function CTASection1({ props }: { props: any }) {
         transition={{ duration: 0.6, ease: EASE }}
         className="relative mx-auto max-w-4xl overflow-hidden border px-8 py-16 text-center text-white md:px-16 md:py-20"
         style={{
-          background: "var(--brand)",
+          background: "var(--brand-contrast)",
           borderRadius: "28px",
           borderColor: HAIRLINE,
           boxShadow: "0 30px 80px -40px rgba(0,0,0,0.5)",
@@ -638,7 +650,7 @@ function CTASection1({ props }: { props: any }) {
           <a
             {...ctaAttrs(props.ctaHref)}
             className="group mt-8 inline-flex items-center gap-1.5 bg-white px-7 py-3.5 text-sm font-medium transition-colors hover:bg-white/90"
-            style={{ color: "var(--brand)", borderRadius: "var(--brand-radius)" }}
+            style={{ color: "var(--brand-contrast)", borderRadius: "var(--brand-radius)" }}
           >
             {props.cta}
             <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -735,7 +747,7 @@ function ContactFormPremium1({ props }: { props: any }) {
 
         {status === "sent" ? (
           <div
-            className="flex flex-col items-center justify-center gap-3 border bg-white px-7 py-16 text-center sm:p-10"
+            className="flex flex-col items-center justify-center gap-3 border rf-card px-7 py-16 text-center sm:p-10"
             style={{ borderRadius: "calc(var(--brand-radius) * 1.4)", borderColor: HAIRLINE }}
           >
             <CheckCircle weight="fill" className="h-10 w-10" style={{ color: "var(--brand-accent)" }} />
@@ -745,7 +757,7 @@ function ContactFormPremium1({ props }: { props: any }) {
         ) : (
           <form
             onSubmit={submit}
-            className="space-y-4 border bg-white p-7 sm:p-8"
+            className="space-y-4 border rf-card p-7 sm:p-8"
             style={{ borderRadius: "calc(var(--brand-radius) * 1.4)", borderColor: HAIRLINE, boxShadow: "0 20px 50px -30px rgba(0,0,0,0.18)" }}
           >
             <div className="grid gap-4 sm:grid-cols-2">
@@ -898,7 +910,7 @@ function FeaturesBento({ props }: { props: any }) {
               variants={fade}
               transition={{ duration: 0.5, delay: i * 0.06 }}
               className={cn(
-                "group border bg-white p-6 transition-transform duration-300 hover:-translate-y-1",
+                "group border rf-card p-6 transition-transform duration-300 hover:-translate-y-1",
                 i === 0 && "md:col-span-2 md:row-span-2"
               )}
               style={{ borderRadius: "var(--brand-radius)", borderColor: "#ececec" }}
@@ -969,7 +981,7 @@ function StatsCounter({ props }: { props: any }) {
     <section className="px-6 py-16 sm:py-20">
       <div
         className="mx-auto max-w-6xl overflow-hidden px-8 py-14 sm:px-12 sm:py-16"
-        style={{ background: "var(--brand)", borderRadius: "calc(var(--brand-radius) * 1.5)" }}
+        style={{ background: "var(--brand-contrast)", borderRadius: "calc(var(--brand-radius) * 1.5)" }}
       >
         {props.title && (
           <p className="mb-10 text-[0.7rem] font-medium uppercase tracking-[0.28em] text-white/45">
@@ -1656,7 +1668,7 @@ function TestimonialsGrid({ props }: { props: any }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.5, ease: EASE, delay: i * 0.06 }}
-              className="flex flex-col border bg-white p-7"
+              className="flex flex-col border rf-card p-7"
               style={{ borderColor: HAIRLINE, borderRadius: "calc(var(--brand-radius) * 1.1)" }}
             >
               <div className="text-sm tracking-widest" style={{ color: "var(--brand-accent)" }}>★★★★★</div>

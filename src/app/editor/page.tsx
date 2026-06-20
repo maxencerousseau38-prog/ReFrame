@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { PaperPlaneTilt, CircleNotch, ArrowLeft, MagicWand, RocketLaunch, Check, ArrowCounterClockwise } from "@phosphor-icons/react";
+import { PaperPlaneTilt, CircleNotch, ArrowLeft, MagicWand, RocketLaunch, Check, ArrowCounterClockwise, ArrowClockwise } from "@phosphor-icons/react";
 import { DashboardShell } from "@/components/dashboard/shell";
 import { SiteRenderer } from "@/components/blocks";
 import { Button } from "@/components/ui/button";
@@ -46,23 +46,37 @@ export default function EditorPage() {
   const [published, setPublished] = React.useState<string | null>(null);
   const [projectId, setProjectId] = React.useState<string | null>(null);
   const [past, setPast] = React.useState<SiteSchema[]>([]); // undo history
+  const [future, setFuture] = React.useState<SiteSchema[]>([]); // redo stack
   const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  function applyTo(s: SiteSchema) {
+    setSchema(s);
+    saveSchema(s);
+    if (projectId) void updateProject(projectId, s);
+  }
 
   function commit(nextSchema: SiteSchema, prevSchema: SiteSchema) {
     setPast((p) => [...p.slice(-19), prevSchema]); // remember the pre-edit state
-    setSchema(nextSchema);
-    saveSchema(nextSchema);
-    if (projectId) void updateProject(projectId, nextSchema);
+    setFuture([]); // a fresh edit starts a new branch
+    applyTo(nextSchema);
   }
 
   function undo() {
-    if (!past.length || busy) return;
+    if (!past.length || busy || !schema) return;
     const prev = past[past.length - 1];
     setPast((p) => p.slice(0, -1));
-    setSchema(prev);
-    saveSchema(prev);
-    if (projectId) void updateProject(projectId, prev);
+    setFuture((f) => [schema, ...f]);
+    applyTo(prev);
     setMessages((m) => [...m, { role: "assistant", content: "Reverted the last change." }]);
+  }
+
+  function redo() {
+    if (!future.length || busy || !schema) return;
+    const next = future[0];
+    setFuture((f) => f.slice(1));
+    setPast((p) => [...p.slice(-19), schema]);
+    applyTo(next);
+    setMessages((m) => [...m, { role: "assistant", content: "Reapplied that change." }]);
   }
 
   React.useEffect(() => {
@@ -203,6 +217,16 @@ export default function EditorPage() {
                 aria-label="Undo last change"
               >
                 <ArrowCounterClockwise weight="bold" className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={redo}
+                disabled={!future.length || busy}
+                title="Redo"
+                aria-label="Redo"
+              >
+                <ArrowClockwise weight="bold" className="h-4 w-4" />
               </Button>
               <Link href="/result">
                 <Button variant="ghost" size="sm"><ArrowLeft weight="bold" className="h-4 w-4" /></Button>
