@@ -11,11 +11,13 @@ import {
   Tray,
   SignOut,
   CircleNotch,
+  List,
 } from "@phosphor-icons/react";
 import { Logo } from "@/components/brand/logo";
 import { cn } from "@/lib/utils";
 import { useDash } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/landing/language-switcher";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui";
 
 const NAV_META = [
   { href: "/dashboard", icon: SquaresFour },
@@ -35,6 +37,12 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const [loaded, setLoaded] = React.useState(false);
   const [signingOut, setSigningOut] = React.useState(false);
   const [resent, setResent] = React.useState<"idle" | "sending" | "sent">("idle");
+  const [navOpen, setNavOpen] = React.useState(false);
+
+  // Close the mobile sheet whenever the route changes.
+  React.useEffect(() => {
+    setNavOpen(false);
+  }, [pathname]);
 
   React.useEffect(() => {
     let active = true;
@@ -75,71 +83,102 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const renderNav = (onNavigate?: () => void) => (
+    <nav className="mt-6 flex flex-1 flex-col gap-1">
+      {nav.map((item) => {
+        const active = pathname === item.href;
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={onNavigate}
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+              active ? "bg-white/8 text-white" : "text-zinc-400 hover:bg-white/5 hover:text-white"
+            )}
+          >
+            <item.icon weight="bold" className="h-[18px] w-[18px]" />
+            {item.label}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+
+  const renderAccount = () =>
+    !loaded ? (
+      <div className="flex h-10 items-center px-3 text-zinc-600">
+        <CircleNotch weight="bold" className="h-4 w-4 animate-spin" />
+      </div>
+    ) : email ? (
+      <div className="flex items-center justify-between gap-2 px-3 py-2">
+        <div className="min-w-0">
+          <p className="truncate text-[13px] font-medium text-white">{email}</p>
+          <p className="text-[11px] text-zinc-500">{d.signedIn}</p>
+        </div>
+        <button
+          onClick={logout}
+          disabled={signingOut}
+          aria-label="Sign out"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-50"
+        >
+          {signingOut ? (
+            <CircleNotch weight="bold" className="h-4 w-4 animate-spin" />
+          ) : (
+            <SignOut weight="bold" className="h-[18px] w-[18px]" />
+          )}
+        </button>
+      </div>
+    ) : (
+      <Link
+        href="/login"
+        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-accent hover:bg-white/5"
+      >
+        <SignOut weight="bold" className="h-[18px] w-[18px] rotate-180" /> {d.signIn}
+      </Link>
+    );
+
   return (
     <div className="flex min-h-screen bg-background">
+      {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-white/10 bg-white/[0.03] p-4 backdrop-blur-xl lg:flex">
         <Link href="/" className="px-2 py-3">
           <Logo />
         </Link>
-
-        <nav className="mt-6 flex flex-1 flex-col gap-1">
-          {nav.map((item) => {
-            const active = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                  active ? "bg-white/8 text-white" : "text-zinc-400 hover:bg-white/5 hover:text-white"
-                )}
-              >
-                <item.icon weight="bold" className="h-[18px] w-[18px]" />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-
+        {renderNav()}
         <div className="mb-1 flex justify-start px-1">
           <LanguageSwitcher />
         </div>
-        <div className="border-t border-white/8 pt-4">
-          {!loaded ? (
-            <div className="flex h-10 items-center px-3 text-zinc-600">
-              <CircleNotch weight="bold" className="h-4 w-4 animate-spin" />
-            </div>
-          ) : email ? (
-            <div className="flex items-center justify-between gap-2 px-3 py-2">
-              <div className="min-w-0">
-                <p className="truncate text-[13px] font-medium text-white">{email}</p>
-                <p className="text-[11px] text-zinc-500">{d.signedIn}</p>
-              </div>
-              <button
-                onClick={logout}
-                disabled={signingOut}
-                aria-label="Sign out"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-50"
-              >
-                {signingOut ? (
-                  <CircleNotch weight="bold" className="h-4 w-4 animate-spin" />
-                ) : (
-                  <SignOut weight="bold" className="h-[18px] w-[18px]" />
-                )}
-              </button>
-            </div>
-          ) : (
-            <Link
-              href="/login"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-accent hover:bg-white/5"
-            >
-              <SignOut weight="bold" className="h-[18px] w-[18px] rotate-180" /> {d.signIn}
-            </Link>
-          )}
-        </div>
+        <div className="border-t border-white/8 pt-4">{renderAccount()}</div>
       </aside>
 
       <main className="flex-1">
+        {/* Mobile top bar + Sheet menu (below lg) */}
+        <div className="sticky top-0 z-30 flex items-center justify-between border-b border-white/10 bg-background/80 px-4 py-3 backdrop-blur-xl lg:hidden">
+          <Link href="/" aria-label="Home">
+            <Logo />
+          </Link>
+          <Sheet open={navOpen} onOpenChange={setNavOpen}>
+            <SheetTrigger
+              aria-label="Open menu"
+              className="flex h-10 w-10 items-center justify-center rounded-lg text-zinc-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <List weight="bold" className="h-5 w-5" />
+            </SheetTrigger>
+            <SheetContent side="left" className="w-72">
+              <SheetTitle className="sr-only">Menu</SheetTitle>
+              <Link href="/" className="px-2 py-1" onClick={() => setNavOpen(false)}>
+                <Logo />
+              </Link>
+              {renderNav(() => setNavOpen(false))}
+              <div className="flex justify-start px-1">
+                <LanguageSwitcher />
+              </div>
+              <div className="border-t border-white/8 pt-4">{renderAccount()}</div>
+            </SheetContent>
+          </Sheet>
+        </div>
+
         {loaded && email && !verified && (
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-500/20 bg-amber-500/[0.06] px-6 py-2.5 text-[13px]">
             <span className="text-amber-200/90">{d.verifyMsg}</span>
