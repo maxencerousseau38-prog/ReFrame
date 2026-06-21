@@ -102,6 +102,9 @@ export interface SiteSchema {
   brand: {
     name: string;
     tagline: string;
+    /** Real logo image URL pulled from the source site, when found. The nav
+     *  renders it with the wordmark (brand name) as a fallback. */
+    logo?: string;
   };
   theme: Theme;
   /** The home page's blocks. */

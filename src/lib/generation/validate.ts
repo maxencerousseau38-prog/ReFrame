@@ -141,6 +141,7 @@ export function parseSiteSchema(value: unknown, fallbackSeed = "site"): SiteSche
     brand: {
       name: brandName,
       tagline: typeof v.brand?.tagline === "string" ? v.brand.tagline : "",
+      ...(typeof v.brand?.logo === "string" && v.brand.logo ? { logo: v.brand.logo } : {}),
     },
     theme,
     blocks,

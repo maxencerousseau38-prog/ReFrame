@@ -2238,7 +2238,33 @@ type NavItem = { label: string; href?: string; onClick?: () => void; active?: bo
 
 /** Sticky brand navigation. Items can be anchors (single-page) or buttons that
  *  switch page client-side (multi-page). */
-function SiteNav({ brand, items, cta }: { brand: NavItem; items: NavItem[]; cta: NavItem }) {
+/**
+ * Brand mark for the rebuilt site's nav: the REAL logo pulled from the source
+ * site, proxied (caching/referrer/hotlink bypass), with the wordmark (brand
+ * name) as a graceful fallback when there is no logo or it fails to load.
+ */
+function BrandLogo({ logo, name }: { logo?: string; name: string }) {
+  const [failed, setFailed] = React.useState(false);
+  const src = logo ? toProxiedUrl(logo) : undefined;
+  if (src && !failed) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return (
+      <img
+        src={src}
+        alt={name}
+        onError={() => setFailed(true)}
+        className="h-7 w-auto max-w-[170px] object-contain"
+      />
+    );
+  }
+  return (
+    <span className="text-lg font-medium tracking-tight" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>
+      {name}
+    </span>
+  );
+}
+
+function SiteNav({ brand, items, cta, logoUrl }: { brand: NavItem; items: NavItem[]; cta: NavItem; logoUrl?: string }) {
   const link = (it: NavItem, key: React.Key) => {
     const cls = "text-sm transition-opacity hover:opacity-70";
     const style = { color: "var(--brand-ink)", opacity: it.active ? 1 : 0.72 } as React.CSSProperties;
@@ -2248,7 +2274,6 @@ function SiteNav({ brand, items, cta }: { brand: NavItem; items: NavItem[]; cta:
       <button key={key} type="button" onClick={it.onClick} className={cls} style={style}>{it.label}</button>
     );
   };
-  const wordmark = { className: "text-lg font-medium tracking-tight", style: { fontFamily: "var(--brand-font)", color: "var(--brand)" } as React.CSSProperties };
   const ctaCls = "shrink-0 px-4 py-2 text-sm font-medium text-white transition-transform active:scale-[0.98]";
   const ctaStyle = { background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" } as React.CSSProperties;
 
@@ -2264,9 +2289,13 @@ function SiteNav({ brand, items, cta }: { brand: NavItem; items: NavItem[]; cta:
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-[max(1.5rem,env(safe-area-inset-left))] py-3.5">
         {brand.href ? (
-          <a href={brand.href} {...wordmark}>{brand.label}</a>
+          <a href={brand.href} className="inline-flex items-center" aria-label={brand.label}>
+            <BrandLogo logo={logoUrl} name={brand.label} />
+          </a>
         ) : (
-          <button type="button" onClick={brand.onClick} {...wordmark}>{brand.label}</button>
+          <button type="button" onClick={brand.onClick} className="inline-flex items-center" aria-label={brand.label}>
+            <BrandLogo logo={logoUrl} name={brand.label} />
+          </button>
         )}
         <nav className="hidden items-center gap-7 md:flex">{items.map(link)}</nav>
         {cta.href ? (
@@ -2354,7 +2383,7 @@ export function SiteRenderer({
           scrollBehavior: "smooth",
         }}
       >
-        <SiteNav brand={brand} items={items} cta={cta} />
+        <SiteNav brand={brand} items={items} cta={cta} logoUrl={schema.brand.logo} />
         {current.blocks.map((block, i) => (
           <div key={block.id} id={anchorId(block.type)} style={{ scrollMarginTop: "76px" }}>
             <BlockRenderer block={block} index={i + 1} />

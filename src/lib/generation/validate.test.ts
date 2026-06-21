@@ -30,6 +30,13 @@ describe("parseSiteSchema", () => {
     expect(s.theme.mood).toBe("minimal");
   });
 
+  it("preserves the real brand logo across a round-trip", () => {
+    const s = parseSiteSchema({ ...valid, brand: { name: "Acme", tagline: "t", logo: "https://acme.com/logo.svg" } })!;
+    expect(s.brand.logo).toBe("https://acme.com/logo.svg");
+    // a missing/blank logo stays undefined (wordmark fallback), never ""
+    expect(parseSiteSchema(valid)!.brand.logo).toBeUndefined();
+  });
+
   it("defaults every malformed theme field", () => {
     const s = parseSiteSchema({
       ...valid,

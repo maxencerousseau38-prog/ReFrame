@@ -1187,7 +1187,7 @@ export function generateSite(
     id: uid("site"),
     sourceUrl: analysis.url,
     industry: analysis.industry,
-    brand: { name: analysis.brandName, tagline: deAiDash(analysis.extractedContent.headline) },
+    brand: { name: analysis.brandName, tagline: deAiDash(analysis.extractedContent.headline), logo: analysis.brand?.logoUrl },
     theme,
     blocks: blocks.map(sanitizeBlock),
     pages: pages.length
