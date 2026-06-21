@@ -48,7 +48,10 @@ export async function GET(req: Request) {
       signal: controller.signal,
       redirect: "follow",
       headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; ReFrameBot/1.0; +https://reframe.design)",
+        // A real browser UA: bot UAs are widely blocked by CDNs/hotlink
+        // protection, which would 404 here and drop the client's real image.
+        "User-Agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
         Accept: "image/avif,image/webp,image/*,*/*;q=0.8",
         Referer: referer,
       },

@@ -1,6 +1,24 @@
 import { describe, it, expect } from "vitest";
 import { parse } from "node-html-parser";
-import { extractContact, extractStats, cleanServiceLabels, extractProse } from "./engine";
+import { extractContact, extractStats, cleanServiceLabels, extractProse, extractImages } from "./engine";
+
+describe("extractImages junk filter", () => {
+  it("drops decorative/campaign assets (stars, squiggles), keeps real photos", () => {
+    const root = parse(
+      `<main>
+        <img src="/v/home/a/stars/star01__x_large.png" width="400" height="400">
+        <img src="/v/home/a/squiggle03__y_large.png" width="400" height="400">
+        <img src="/media/our-bakery-interior.jpg" width="1200" height="800">
+        <img src="/media/sourdough-loaf.jpg" width="1200" height="800">
+      </main>`,
+      { blockTextElements: { script: false, style: true } }
+    );
+    const imgs = extractImages(root, "https://example.com");
+    expect(imgs.some((u) => /star01|squiggle/.test(u))).toBe(false);
+    expect(imgs.some((u) => /our-bakery-interior/.test(u))).toBe(true);
+    expect(imgs.some((u) => /sourdough-loaf/.test(u))).toBe(true);
+  });
+});
 
 const root = (html: string) => parse(html, { blockTextElements: { script: false, style: true } });
 

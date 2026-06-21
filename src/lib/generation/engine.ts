@@ -128,8 +128,7 @@ async function fetchStatic(url: string): Promise<string> {
         // A real browser UA: many sites (and CDNs/WAFs) serve an empty page or a
         // block to unknown bots, which would force us into the generic fallback.
         // We only ever read public marketing pages, so this is safe and honest.
-        "User-Agent":
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "User-Agent": BROWSER_UA,
         Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "Accept-Language": "en-US,en;q=0.9,fr;q=0.8",
       },
@@ -139,6 +138,54 @@ async function fetchStatic(url: string): Promise<string> {
   } catch {
     return "";
   }
+}
+
+// Shared real-browser UA. Unknown bot UAs are widely blocked by CDNs/WAFs and
+// hotlink protection, which is exactly what would leave the rebuild with broken
+// images; a browser UA loads far more of the client's real content.
+const BROWSER_UA =
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
+
+/**
+ * Keep only image URLs that ACTUALLY load (real image bytes), preserving order.
+ * Bounded and parallel, headers matching the render-time proxy, body never
+ * downloaded (we check status + content-type only). This is what stops dead or
+ * hotlink-blocked URLs from leaving broken/placeholder tiles in the rebuild:
+ * the renderer only ever receives images it can show, and image-led sections
+ * degrade gracefully (image-free hero, omitted gallery) when none survive.
+ */
+export async function validateImages(urls: string[], max = 8): Promise<string[]> {
+  const ok = await Promise.all(
+    urls.slice(0, max).map(async (u) => {
+      try {
+        await assertSafeTarget(u);
+        const controller = new AbortController();
+        const t = setTimeout(() => controller.abort(), 4500);
+        let referer = "";
+        try {
+          referer = new URL(u).origin;
+        } catch {
+          /* validated above */
+        }
+        const res = await fetch(u, {
+          signal: controller.signal,
+          redirect: "follow",
+          headers: {
+            "User-Agent": BROWSER_UA,
+            Accept: "image/avif,image/webp,image/*,*/*;q=0.8",
+            Referer: referer,
+            Range: "bytes=0-0", // hint: we only need headers, not the payload
+          },
+        });
+        clearTimeout(t);
+        const type = res.headers.get("content-type") || "";
+        return res.ok && type.startsWith("image/") ? u : null;
+      } catch {
+        return null;
+      }
+    })
+  );
+  return ok.filter((u): u is string => !!u);
 }
 
 export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
@@ -235,9 +282,11 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
   const logoUrl = findLogo(root, url);
   const accentColor = findAccent(root);
 
-  // Images: og:image first, then sizeable content images
+  // Images: og:image first, then sizeable content images. Validate that they
+  // actually load (real image bytes) so the rebuild never renders broken or
+  // placeholder tiles - dead/hotlink-blocked URLs are dropped here.
   const ogImage = abs(meta('meta[property="og:image"]'), url);
-  const images = extractImages(root, url);
+  const images = await validateImages(extractImages(root, url));
   const heroImageUrl = images[0];
 
   // Navigation labels double as a real list of what the business offers
@@ -427,7 +476,7 @@ function backgroundImageUrls(styleText: string): string[] {
 // Filenames that are almost never the content imagery we want to rebuild with:
 // chrome (logos, icons), spacers/placeholders, and analytics/tracking pixels.
 const IMAGE_JUNK_RE =
-  /sprite|favicon|logo|icon|pixel|spacer|blank|placeholder|loading|avatar|1x1|transparent|tracking|beacon|datadog|doubleclick|google-analytics|gtag|facebook\.com\/tr/i;
+  /sprite|favicon|logo|icon|pixel|spacer|blank|placeholder|loading|avatar|1x1|transparent|tracking|beacon|datadog|doubleclick|google-analytics|gtag|facebook\.com\/tr|star\d|\/stars?\/|sparkle|squiggle|scribble|doodle|ornament|flourish|divider|confetti|pattern|texture|gradient|\/blobs?\/|\bblob\d|\/shapes?\/|decor|\/deco|overlay|backdrop|watermark|swirl|\/waves?\/|\/dots?\/|grain|\/noise|\bmesh\b|startframe|emoji|badge|ribbon/i;
 
 /**
  * Collect the real content imagery of a page, robustly. Unlike a naive
@@ -1060,10 +1109,11 @@ function buildBlock(
         },
       };
     case "portfolio":
-      // A portfolio/gallery is its imagery. With no real images it would just
-      // re-list the services already shown elsewhere, which reads as filler —
-      // so omit it (same honesty rule as stats/testimonials).
-      if (!c.images.length) return null;
+      // A portfolio/gallery IS its imagery. Need at least a couple of real,
+      // loadable images (validated upstream) to form a credible grid; a single
+      // image reads as filler, so omit it (honesty rule, like stats/testimonials).
+      // Tiles are never padded with placeholders (see portfolioItems).
+      if (c.images.length < 2) return null;
       return {
         id: uid("portfolio"),
         type: slot.type,
@@ -1304,8 +1354,10 @@ function portfolioItems(a: SiteAnalysis): { image?: string; title: string; tag: 
   const names = a.extractedContent.services;
   // Neutral, varied tags so tiles don't all repeat the industry label.
   const tags = ["Featured", "Recent work", "Case study", "Selected", "Highlight", "Project"];
-  return Array.from({ length: 6 }).map((_, i) => ({
-    image: imgs[i],
+  // One tile per REAL image only (validated upstream): never pad with empty
+  // placeholder tiles, which is what made the gallery read as a template.
+  return imgs.slice(0, 6).map((image, i) => ({
+    image,
     title: names[i] || `Project ${String(i + 1).padStart(2, "0")}`,
     tag: tags[i % tags.length],
   }));
