@@ -19,10 +19,25 @@ describe("pickVariant scoring", () => {
   });
 
   it("routes testimonials and CTA by mood (light editorial vs dark)", () => {
-    expect(pickVariant("testimonials", "restaurant", "X", "warm")).toBe("TestimonialsEditorial");
+    // Warm/elegant brands get a LIGHT testimonials/CTA treatment (not the dark
+    // slider/panel). Which light variant can vary per brand (seeded jitter), so
+    // assert the routing intent rather than a single template.
+    expect(["TestimonialsEditorial", "TestimonialsGrid"]).toContain(
+      pickVariant("testimonials", "restaurant", "X", "warm")
+    );
     expect(pickVariant("testimonials", "saas", "X", "minimal")).toBe("TestimonialsSlider1");
     expect(pickVariant("cta", "health", "X", "elegant")).toBe("CTAEditorial");
     expect(pickVariant("cta", "saas", "X", "minimal")).toBe("CTASection1");
+  });
+
+  it("diversifies same-profile brands where variants are competitive", () => {
+    // Where several variants fit equally (e.g. warm testimonials: Editorial vs
+    // Grid), distinct brands should not all land on the same template. (Where
+    // one variant clearly dominates, it is still used for all - by design.)
+    const picks = ["Acme", "Globex", "Initech", "Umbra", "Vertex", "Nimbus"].map((n) =>
+      pickVariant("testimonials", "restaurant", n, "warm")
+    );
+    expect(new Set(picks).size).toBeGreaterThan(1);
   });
 
   it("always returns a registered variant of the requested category", () => {

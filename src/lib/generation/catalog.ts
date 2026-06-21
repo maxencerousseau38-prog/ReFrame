@@ -122,10 +122,15 @@ function scoreVariant(b: BlockMeta, industry: Industry, mood: Mood): number {
 
 /**
  * Deterministically pick the best variant for a section, scoring each candidate
- * on sector + mood + motion fit. Ties are broken by a seed (e.g. the brand name)
- * so distinct brands with the same profile don't all land on the same template.
- * Deterministic = same site, same result; no randomness.
+ * on sector + mood + motion fit, plus a brand-seeded jitter so that two brands
+ * with the SAME profile still get different layouts (the doctrine's "never the
+ * same layout for every website"). The jitter is capped below the weight of a
+ * single mood/sector signal, so a clearly superior variant always wins and only
+ * genuinely comparable variants get reshuffled per brand. Fully deterministic:
+ * same site, same result; no randomness.
  */
+const JITTER_MAX = 1.6; // < the 3-pt mood / 4-pt sector weights, so fit still dominates
+
 export function pickVariant(
   category: BlockType,
   industry: Industry,
@@ -134,8 +139,10 @@ export function pickVariant(
 ): string {
   const pool = poolFor(category, industry);
   if (pool.length === 0) return `${category}`;
-  const scored = pool.map((b) => ({ variant: b.variant, score: scoreVariant(b, industry, mood) }));
-  const best = Math.max(...scored.map((s) => s.score));
-  const top = scored.filter((s) => s.score === best).map((s) => s.variant);
-  return top[hash(seed + category) % top.length];
+  const scored = pool.map((b) => ({
+    variant: b.variant,
+    score: scoreVariant(b, industry, mood) + ((hash(seed + b.variant) % 1024) / 1024) * JITTER_MAX,
+  }));
+  scored.sort((a, b) => b.score - a.score);
+  return scored[0].variant;
 }

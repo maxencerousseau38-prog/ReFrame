@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { PaperPlaneTilt, CircleNotch, ArrowLeft, MagicWand, RocketLaunch, Check, ArrowCounterClockwise, ArrowClockwise } from "@phosphor-icons/react";
+import { PaperPlaneTilt, CircleNotch, ArrowLeft, MagicWand, RocketLaunch, Check, ArrowCounterClockwise, ArrowClockwise, Sun, Moon } from "@phosphor-icons/react";
 import { DashboardShell } from "@/components/dashboard/shell";
 import { SiteRenderer } from "@/components/blocks";
 import { Button } from "@/components/ui/button";
@@ -59,6 +59,14 @@ export default function EditorPage() {
     setPast((p) => [...p.slice(-19), prevSchema]); // remember the pre-edit state
     setFuture([]); // a fresh edit starts a new branch
     applyTo(nextSchema);
+  }
+
+  // Flip the brand-derived light/dark scheme. Undoable + persisted like any edit;
+  // the surfaces re-derive from the brand colour, so the toggle stays on-brand.
+  function toggleDark() {
+    if (!schema || busy) return;
+    const next = { ...schema, theme: { ...schema.theme, dark: !schema.theme.dark } };
+    commit(next, schema);
   }
 
   function undo() {
@@ -349,19 +357,30 @@ export default function EditorPage() {
         <div className="flex flex-1 flex-col bg-secondary/30">
           <div className="flex items-center justify-between border-b border-white/10 bg-black/55 px-5 py-3 backdrop-blur-2xl backdrop-saturate-150">
             <span className="text-xs font-medium text-muted-foreground">Live preview</span>
-            {published ? (
-              <a href={published} target="_blank" rel="noreferrer">
-                <Button size="sm"><Check weight="bold" className="h-4 w-4" /> Live</Button>
-              </a>
-            ) : (
-              <Button size="sm" onClick={publish}><RocketLaunch weight="bold" className="h-4 w-4" /> Publish</Button>
-            )}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={toggleDark}
+                disabled={busy}
+                aria-label={schema.theme.dark ? "Switch to light mode" : "Switch to dark mode"}
+                title={schema.theme.dark ? "Light mode" : "Dark mode"}
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground disabled:opacity-50"
+              >
+                {schema.theme.dark ? <Sun weight="bold" className="h-4 w-4" /> : <Moon weight="bold" className="h-4 w-4" />}
+              </button>
+              {published ? (
+                <a href={published} target="_blank" rel="noreferrer">
+                  <Button size="sm"><Check weight="bold" className="h-4 w-4" /> Live</Button>
+                </a>
+              ) : (
+                <Button size="sm" onClick={publish}><RocketLaunch weight="bold" className="h-4 w-4" /> Publish</Button>
+              )}
+            </div>
           </div>
           <div className="flex-1 overflow-y-auto p-6">
             <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-xl shadow-black/5">
               <AnimatePresence mode="wait">
                 <motion.div
-                  key={JSON.stringify(schema.blocks.map((b) => b.id + b.variant)) + schema.theme.accent}
+                  key={JSON.stringify(schema.blocks.map((b) => b.id + b.variant)) + schema.theme.accent + String(schema.theme.dark)}
                   initial={{ opacity: 0.4 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
