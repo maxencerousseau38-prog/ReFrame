@@ -40,6 +40,14 @@ describe("pickVariant scoring", () => {
     expect(new Set(picks).size).toBeGreaterThan(1);
   });
 
+  it("prefers the centered product hero for retail across brands", () => {
+    // Apple-style centered product hero is the house default for e-commerce:
+    // it should win for every brand (variety comes from other sections).
+    for (const brand of ["Acme", "Globex", "Nimbus", "Vertex"]) {
+      expect(pickVariant("hero", "ecommerce", brand, "minimal")).toBe("HeroPremium1");
+    }
+  });
+
   it("always returns a registered variant of the requested category", () => {
     for (const industry of ["saas", "restaurant", "artisan", "health"] as const) {
       const v = pickVariant("hero", industry, "Seed", "bold");

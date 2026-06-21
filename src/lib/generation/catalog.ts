@@ -17,6 +17,12 @@ export interface BlockMeta {
   category: BlockType;
   /** Sectors this variant suits, or "all". */
   sectors: Industry[] | "all";
+  /**
+   * Sectors where this variant is the intended house default and should be
+   * strongly preferred (e.g. the centered Apple-style product hero for retail).
+   * Adds a decisive bonus, above sector/mood fit, without hard-coding routing.
+   */
+  prefer?: Industry[];
   /** Brand moods this variant flatters. Omit for mood-neutral variants. */
   moods?: Mood[];
   /** 0 = static, 1 = subtle, 2 = rich, 3 = cinematic. */
@@ -28,7 +34,7 @@ export interface BlockMeta {
 
 export const BLOCK_CATALOG: BlockMeta[] = [
   // Heroes
-  { variant: "HeroPremium1", category: "hero", sectors: "all", moods: ["minimal", "bold"], motion: 1, license: "ReFrame original", when: "Centered, message-first hero. Safe default." },
+  { variant: "HeroPremium1", category: "hero", sectors: "all", prefer: ["ecommerce"], moods: ["minimal", "bold"], motion: 1, license: "ReFrame original", when: "Centered, message-first hero with a large centered product shot. Safe default; the house hero for retail/product (Apple-style)." },
   { variant: "HeroPremium2", category: "hero", sectors: ["restaurant", "realestate", "health", "agency"], moods: ["warm", "minimal"], motion: 1, license: "ReFrame original", when: "Split hero with a strong asset; warm/visual sectors." },
   { variant: "HeroSpotlight", category: "hero", sectors: ["saas", "agency", "ecommerce", "generic"], moods: ["bold", "minimal"], motion: 2, license: "ReFrame original (inspired by Aceternity/Magic UI, MIT)", when: "Tech/SaaS hero with an animated accent aura." },
   { variant: "HeroEditorial", category: "hero", sectors: ["restaurant", "realestate", "health", "agency", "ecommerce"], moods: ["elegant", "warm"], motion: 2, license: "ReFrame original", when: "Editorial luxury hero: serif display, framed client portrait, monumental wordmark. Warm/elegant brands." },
@@ -115,6 +121,7 @@ const MOTION_APPETITE: Record<Mood, number> = { minimal: 1, elegant: 2, warm: 2,
 function scoreVariant(b: BlockMeta, industry: Industry, mood: Mood): number {
   let score = 0;
   if (b.sectors !== "all" && (b.sectors as Industry[]).includes(industry)) score += 4;
+  if (b.prefer?.includes(industry)) score += 5; // decisive house-default preference
   if (b.moods?.includes(mood)) score += 3;
   score += 2 - Math.abs(b.motion - MOTION_APPETITE[mood]); // +2 perfect … negative if far off
   return score;
