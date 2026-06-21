@@ -11,6 +11,20 @@ import { parseSiteSchema } from "./generation/validate";
 
 const MODEL = process.env.ANTHROPIC_MODEL || "claude-opus-4-8";
 
+/**
+ * The ReFrame transformation doctrine — distilled to the rules that actually
+ * steer model decisions. Prepended to every content/design prompt so copy,
+ * composition and theme all pull in the same direction: a premium redesign of
+ * the SAME company, never a template. See DESIGN.md for the visual grammar.
+ */
+const DOCTRINE = `You work for ReFrame. You do NOT build generic websites. You transform an existing business site into a premium modern experience while PRESERVING the company's identity. The owner must think "this is my site, dramatically better" — never "this looks like a template".
+
+PRESERVE (never replace): logo, business name, brand assets, core content, company positioning, real services, contact info.
+IMPROVE: design, layout, visual hierarchy, conversion, UX, trust, readability.
+NEVER: invent services, fabricate testimonials or statistics, change the business message, or add filler content. Use only the real extracted content; if proof (reviews/metrics/images) is absent, omit that section rather than faking it.
+TASTE: take inspiration from Linear, Framer, Stripe, Vercel, Raycast — typography, white space, contrast, restrained color, premium micro-motion. Avoid generic AI templates, Bootstrap aesthetics, stock startup layouts, and overused gradients. Composition must fit THIS industry and content, not a one-size template.
+WRITING: confident, specific, conversion-focused, true to the real offering. No em dashes.`;
+
 export function isLLMEnabled(): boolean {
   return !!process.env.ANTHROPIC_API_KEY;
 }
@@ -54,7 +68,9 @@ export async function rewriteContent(
 ): Promise<Partial<SiteAnalysis["extractedContent"]>> {
   if (!isLLMEnabled()) return {};
 
-  const prompt = `You are a senior copywriter rebuilding a website for a ${analysis.industryLabel} business called "${analysis.brandName}".
+  const prompt = `${DOCTRINE}
+
+You are the senior copywriter rebuilding the site for a ${analysis.industryLabel} business called "${analysis.brandName}".
 
 Here is the content extracted from their current site:
 - Headline: ${analysis.extractedContent.headline}
@@ -109,7 +125,9 @@ export async function designSite(analysis: SiteAnalysis): Promise<SiteDesign> {
   if (!isLLMEnabled()) return {};
 
   const c = analysis.extractedContent;
-  const prompt = `You are an elite web art director composing a premium site for a ${analysis.industryLabel} business called "${analysis.brandName}".
+  const prompt = `${DOCTRINE}
+
+You are the art director composing a premium site for a ${analysis.industryLabel} business called "${analysis.brandName}". The deterministic engine fills each section with vetted premium blocks; you decide the COMPOSITION (section order) and visual MOOD that best fit this business.
 
 Real content available:
 - Headline: ${c.headline}
@@ -195,7 +213,10 @@ Rules:
   blocks; otherwise edit the home blocks.
 - Allowed block types: hero, features, services, portfolio, stats, about,
   testimonials, faq, cta, contact, footer.
-- Do not invent fake testimonials or statistics. Do not use em dashes.
+- Preserve the business identity (name, logo, real services, positioning,
+  contact). Improve design, hierarchy and conversion; never fabricate
+  testimonials, statistics or services, and never change the business message.
+  Keep the premium Linear/Framer/Stripe taste. Do not use em dashes.
 
 Current schema:
 ${JSON.stringify(schema)}
@@ -248,7 +269,7 @@ export async function aiEditStream(
     return quick;
   }
 
-  const prompt = `You edit a website "SiteSchema" (blocks, optional pages, theme{primary,accent,radius,font,mood,dark}, animations:boolean). Allowed block types: hero, features, services, portfolio, stats, about, testimonials, faq, cta, contact, footer. Preserve shape and ids. Do not invent testimonials or statistics. Do not use em dashes.
+  const prompt = `You edit a website "SiteSchema" (blocks, optional pages, theme{primary,accent,radius,font,mood,dark}, animations:boolean). Allowed block types: hero, features, services, portfolio, stats, about, testimonials, faq, cta, contact, footer. Preserve shape and ids. Preserve the business identity (name, real services, positioning); improve design and conversion without changing the message. Never invent testimonials, statistics or services. Keep the premium Linear/Framer/Stripe taste. Do not use em dashes.
 
 First write ONE short sentence describing what you changed (plain text, no quotes, no JSON). Then a line containing exactly:
 ===SCHEMA===
