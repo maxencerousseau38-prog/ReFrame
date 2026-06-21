@@ -20,6 +20,7 @@ import {
   type Icon as PhosphorIcon,
 } from "@phosphor-icons/react";
 import type { Block, BlockType, SiteSchema, Theme } from "@/lib/generation/types";
+import { deriveScheme } from "@/lib/generation/color";
 import { cn } from "@/lib/utils";
 import { useParallax } from "./use-parallax";
 import { toProxiedUrl } from "@/lib/img";
@@ -52,37 +53,33 @@ const fontStacks: Record<Theme["font"], string> = {
   serif: "'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif",
 };
 
-// When a theme doesn't specify surfaces, derive them from the brand mood so the
-// canvas adapts (warm brands get a warm off-white, tech brands stay crisp).
-const moodSurface: Record<Theme["mood"], { surface: string; surface2: string; ink: string }> = {
-  warm: { surface: "#faf6f0", surface2: "#f0e7da", ink: "#2a2320" },
-  elegant: { surface: "#f7f6f3", surface2: "#ece9e3", ink: "#211e1b" },
-  minimal: { surface: "#ffffff", surface2: "#f5f5f5", ink: "#0a0a0a" },
-  bold: { surface: "#ffffff", surface2: "#f4f4f5", ink: "#111111" },
-};
-
 function themeStyle(theme: Theme): React.CSSProperties {
-  const s = moodSurface[theme.mood] ?? moodSurface.minimal;
   const dark = theme.dark === true;
-  const surface = theme.surface ?? (dark ? "#0b0b0c" : s.surface);
-  const surface2 = theme.surface2 ?? (dark ? "#16161a" : s.surface2);
-  const ink = theme.ink ?? (dark ? "#e7e7ea" : s.ink);
-  // Headings/brand text go light in dark mode so they read on the dark surface.
-  const brand = dark ? "#f4f4f5" : theme.primary;
-  // Inverse "panel" (stats / CTA bands) stays dark-ish with light text in BOTH
-  // schemes: an elevated dark in dark mode, the brand-dark in light mode.
-  const contrast = dark ? surface2 : theme.primary;
+  // Derive a coherent, brand-tinted scheme (surfaces + complementary accent)
+  // from the single brand colour, for this light/dark mode. Explicit theme
+  // surfaces still win when a brand provides them.
+  const sc = deriveScheme(theme.accent, dark, theme.mood);
+  const surface = theme.surface ?? sc.surface;
+  const surface2 = theme.surface2 ?? sc.surface2;
+  const ink = theme.ink ?? sc.ink;
+  // Headings/brand text: the brand primary in light, a near-white (brand-tinted)
+  // in dark so they read on the dark surface.
+  const brand = dark ? sc.ink : theme.primary;
+  // Inverse "panel" (stats / CTA bands) keeps light text in BOTH schemes: an
+  // elevated brand-tinted dark in dark mode, the brand-dark in light mode.
+  const contrast = dark ? sc.contrast : theme.primary;
   return {
     // exposed to children as CSS custom properties
     ["--brand" as string]: brand,
     ["--brand-accent" as string]: theme.accent,
+    ["--brand-accent-2" as string]: sc.accent2,
     ["--brand-radius" as string]: radiusMap[theme.radius],
     ["--brand-surface" as string]: surface,
     ["--brand-surface-2" as string]: surface2,
     ["--brand-ink" as string]: ink,
     ["--brand-contrast" as string]: contrast,
     ["--brand-contrast-ink" as string]: "#ffffff",
-    ["--brand-card" as string]: dark ? surface2 : "#ffffff",
+    ["--brand-card" as string]: dark ? sc.card : "#ffffff",
     ["--brand-font" as string]: fontStacks[theme.font],
     ["--brand-mood" as string]: theme.mood,
   };

@@ -1,5 +1,6 @@
 import { lookup } from "node:dns/promises";
 import { parse, type HTMLElement } from "node-html-parser";
+import { rgbToHex, hslToHex } from "./color";
 
 /** Thrown when a URL targets a private/blocked address (SSRF protection). */
 export class BlockedUrlError extends Error {
@@ -775,23 +776,6 @@ export function parseColorToHex(raw: string): string | undefined {
     return hslToHex(parseFloat(hsl[1]), parseFloat(hsl[2]) / 100, parseFloat(hsl[3]) / 100);
   }
   return undefined;
-}
-
-function rgbToHex(r: number, g: number, b: number): string {
-  return `#${[r, g, b].map((n) => n.toString(16).padStart(2, "0")).join("")}`;
-}
-
-function hslToHex(h: number, s: number, l: number): string {
-  const c = (1 - Math.abs(2 * l - 1)) * s;
-  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
-  const m = l - c / 2;
-  const [r1, g1, b1] =
-    h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
-  return rgbToHex(
-    Math.round((r1 + m) * 255),
-    Math.round((g1 + m) * 255),
-    Math.round((b1 + m) * 255)
-  );
 }
 
 function hexLightness(hex: string): number {
