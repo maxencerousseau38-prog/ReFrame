@@ -203,6 +203,64 @@
   line-height: 1.6;
 }
 
+/* Premium effect primitives (see components/blocks/fx.tsx). Brand-token driven,
+   dependency-free, export-safe: the data-animate="off" rule below stops the
+   keyframes while the static layer (gradient/border/wash) stays visible. */
+.rf-aurora {
+  animation: rf-aurora 22s ease-in-out infinite alternate;
+}
+@keyframes rf-aurora {
+  0% { transform: translate3d(-4%, -2%, 0) rotate(0deg) scale(1.05); }
+  50% { transform: translate3d(4%, 3%, 0) rotate(8deg) scale(1.15); }
+  100% { transform: translate3d(-2%, 2%, 0) rotate(-6deg) scale(1.08); }
+}
+
+.rf-meteor {
+  animation: rf-meteor linear infinite;
+  opacity: 0;
+}
+/* A thin trailing streak drawn off the leading dot. */
+.rf-meteor::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  transform-origin: left center;
+  width: 64px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--brand-accent), transparent);
+  opacity: 0.5;
+}
+@keyframes rf-meteor {
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translate3d(-260px, 320px, 0); opacity: 0; }
+}
+
+/* Border beam: a light travelling around a card edge (animated conic angle). */
+@property --rf-beam-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+.rf-border-beam {
+  background: conic-gradient(from var(--rf-beam-angle), transparent 0%, var(--brand-accent) 12%, transparent 28%);
+  animation: rf-beam 4.5s linear infinite;
+}
+@keyframes rf-beam {
+  to { --rf-beam-angle: 360deg; }
+}
+
+/* Shine border: a highlight sweeping along the edge. */
+.rf-shine {
+  animation: rf-shine 3.2s linear infinite;
+}
+@keyframes rf-shine {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+
 /* Client-toggled motion kill switch (set on a rebuilt site via the AI editor).
    Stops CSS keyframe animations (marquee, ping, spin) and makes transitions
    instant, without zeroing transforms (so layout/centering stays intact). */

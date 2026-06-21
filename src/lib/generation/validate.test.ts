@@ -14,7 +14,7 @@ const valid = {
 };
 
 const HERO_VARIANTS = [
-  "HeroSplitPremium", "HeroBento", "HeroPremium1", "HeroPremium2", "HeroSpotlight",
+  "HeroAurora", "HeroSplitPremium", "HeroBento", "HeroPremium1", "HeroPremium2", "HeroSpotlight",
   "HeroEditorial", "HeroImageFull", "HeroMonumental", "HeroAgencia", "HeroCanvas",
 ];
 

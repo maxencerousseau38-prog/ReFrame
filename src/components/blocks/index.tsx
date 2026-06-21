@@ -21,6 +21,7 @@ import {
 } from "@phosphor-icons/react";
 import type { Block, BlockType, SiteSchema, Theme } from "@/lib/generation/types";
 import { deriveScheme } from "@/lib/generation/color";
+import { Aurora, Spotlight, Meteors, BlurFade, BorderBeam } from "./fx";
 import { cn } from "@/lib/utils";
 import { useParallax } from "./use-parallax";
 import { toProxiedUrl } from "@/lib/img";
@@ -939,11 +940,13 @@ function FeaturesBento({ props }: { props: any }) {
                 variants={fade}
                 transition={{ duration: 0.5, delay: i * 0.05 }}
                 className={cn(
-                  "group flex flex-col overflow-hidden rf-card transition-transform duration-300 hover:-translate-y-1",
+                  "group relative flex flex-col overflow-hidden rf-card transition-transform duration-300 hover:-translate-y-1",
                   lead && "sm:col-span-2 lg:row-span-2"
                 )}
                 style={{ borderRadius: "var(--brand-radius)", boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
               >
+                {/* Premium beam-lit edge on the lead tile. */}
+                {lead && <BorderBeam radius="var(--brand-radius)" />}
                 {item.image ? (
                   <div
                     className={cn("w-full overflow-hidden", lead ? "min-h-[220px] flex-1" : "aspect-[16/10]")}
@@ -2292,7 +2295,64 @@ function HeroBento({ props }: { props: any }) {
   );
 }
 
+/**
+ * Aurora hero — an ambient, cinematic hero: a drifting brand aurora, an overhead
+ * spotlight and faint meteors behind blur-fade copy, with the real product image
+ * in a beam-lit preview card. Showcases the premium effect primitives; fully
+ * brand-tokened and export-safe (effects freeze, content stays). Apple/Linear
+ * "atmosphere" feel.
+ */
+function HeroAurora({ props }: { props: any }) {
+  return (
+    <section className="relative overflow-hidden px-6 py-24 text-center sm:py-32" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}>
+      <Aurora className="opacity-70" />
+      <Spotlight />
+      <Meteors count={12} className="opacity-60" />
+      <div
+        className="pointer-events-none absolute inset-0 [mask-image:radial-gradient(60%_50%_at_50%_0%,#000,transparent)]"
+        style={{ backgroundImage: "linear-gradient(to right, color-mix(in srgb, var(--brand-ink) 5%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in srgb, var(--brand-ink) 5%, transparent) 1px, transparent 1px)", backgroundSize: "64px 64px" }}
+      />
+      <div className="relative z-10 mx-auto max-w-3xl">
+        {props.eyebrow && (
+          <BlurFade>
+            <span className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium backdrop-blur" style={{ borderColor: "color-mix(in srgb, var(--brand-ink) 12%, transparent)", color: "color-mix(in srgb, var(--brand-ink) 65%, transparent)" }}>
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--brand-accent)" }} />
+              {props.eyebrow}
+            </span>
+          </BlurFade>
+        )}
+        <BlurFade delay={0.08}>
+          <h1 className="mt-6 rf-fluid-display font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h1>
+        </BlurFade>
+        {props.subtitle && (
+          <BlurFade delay={0.16}>
+            <p className="mx-auto mt-5 max-w-xl rf-fluid-lead" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{props.subtitle}</p>
+          </BlurFade>
+        )}
+        <BlurFade delay={0.24}>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <a {...ctaAttrs(props.primaryHref)} className="group inline-flex items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" }}>
+              {props.primaryCta || "Get started"}
+              <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </a>
+            {props.secondaryCta && <a {...ctaAttrs(props.secondaryHref)} className="text-sm font-medium underline-offset-4 transition-opacity hover:opacity-70" style={{ color: "var(--brand)" }}>{props.secondaryCta}</a>}
+          </div>
+        </BlurFade>
+        {props.image && (
+          <BlurFade delay={0.32}>
+            <div className="relative mx-auto mt-14 w-full max-w-3xl">
+              <BorderBeam radius="1.25rem" />
+              <div className="overflow-hidden rounded-[1.25rem]" style={{ aspectRatio: "16 / 10", background: imageBg(props.image, `linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 25%, transparent), transparent)`), backgroundSize: "cover", backgroundPosition: "center", boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }} />
+            </div>
+          </BlurFade>
+        )}
+      </div>
+    </section>
+  );
+}
+
 const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
+  HeroAurora,
   HeroSplitPremium,
   HeroBento,
   HeroPremium1,
