@@ -8,13 +8,11 @@ describe("pickVariant scoring", () => {
     );
   });
 
-  it("gives warm/elegant sectors the editorial hero", () => {
-    expect(pickVariant("hero", "restaurant", "X", "warm")).toBe("HeroEditorial");
-    expect(pickVariant("hero", "realestate", "X", "elegant")).toBe("HeroEditorial");
-  });
-
-  it("gives tech/bold sectors the spotlight hero and the bento features", () => {
-    expect(pickVariant("hero", "saas", "X", "minimal")).toBe("HeroSpotlight");
+  it("gives each sector its signature premium hero", () => {
+    expect(pickVariant("hero", "restaurant", "X", "warm")).toBe("HeroImageFull"); // immersive food
+    expect(pickVariant("hero", "realestate", "X", "elegant")).toBe("HeroMonumental"); // property showcase
+    expect(pickVariant("hero", "agency", "X", "bold")).toBe("HeroAgencia"); // colossal wordmark
+    expect(pickVariant("hero", "saas", "X", "minimal")).toBe("HeroBento"); // product + proof
     expect(pickVariant("features", "agency", "X", "bold")).toBe("FeaturesBento");
   });
 
@@ -40,11 +38,11 @@ describe("pickVariant scoring", () => {
     expect(new Set(picks).size).toBeGreaterThan(1);
   });
 
-  it("prefers the centered product hero for retail across brands", () => {
-    // Apple-style centered product hero is the house default for e-commerce:
-    // it should win for every brand (variety comes from other sections).
+  it("prefers the split product-preview hero for retail across brands", () => {
+    // E-commerce gets the modern split hero with a floating product preview
+    // (never the banned centered-headline + button), for every brand.
     for (const brand of ["Acme", "Globex", "Nimbus", "Vertex"]) {
-      expect(pickVariant("hero", "ecommerce", brand, "minimal")).toBe("HeroPremium1");
+      expect(pickVariant("hero", "ecommerce", brand, "minimal")).toBe("HeroSplitPremium");
     }
   });
 

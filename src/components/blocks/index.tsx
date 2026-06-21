@@ -2179,7 +2179,122 @@ function HeroCanvas({ props }: { props: any }) {
   );
 }
 
+/**
+ * Split Premium hero — left: eyebrow, large headline, lead, CTA group; right: a
+ * floating "product preview" card (browser chrome + the real image) with a brand
+ * glow, hairline, mouse-follow tilt and a gentle float. The modern Linear/Stripe/
+ * Vercel hero: copy and product side by side, never a centered headline + button.
+ */
+function HeroSplitPremium({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  const [t, setT] = React.useState({ x: 0, y: 0 });
+  const onMove = (e: React.MouseEvent) => {
+    if (reduce) return;
+    const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    setT({ x: ((e.clientX - r.left) / r.width - 0.5) * 2, y: ((e.clientY - r.top) / r.height - 0.5) * 2 });
+  };
+  const rise = (d: number) => ({
+    initial: reduce ? false : { opacity: 0, y: 16 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true },
+    transition: { duration: 0.6, ease: EASE, delay: d },
+  });
+  return (
+    <section className="relative overflow-hidden px-6 py-20 sm:py-28" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}>
+      <div aria-hidden className="pointer-events-none absolute -right-32 -top-28 h-[520px] w-[520px] rounded-full blur-3xl" style={{ background: "radial-gradient(closest-side, color-mix(in srgb, var(--brand-accent) 45%, transparent), transparent)", opacity: 0.5 }} />
+      <div className="relative mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_1fr]">
+        <div>
+          {props.eyebrow && (
+            <motion.span {...rise(0)} className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium" style={{ borderColor: "color-mix(in srgb, var(--brand-ink) 12%, transparent)", color: "color-mix(in srgb, var(--brand-ink) 65%, transparent)" }}>
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--brand-accent)" }} />
+              {props.eyebrow}
+            </motion.span>
+          )}
+          <motion.h1 {...rise(0.06)} className="mt-5 rf-fluid-display font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</motion.h1>
+          {props.subtitle && <motion.p {...rise(0.12)} className="mt-5 max-w-xl rf-fluid-lead" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{props.subtitle}</motion.p>}
+          <motion.div {...rise(0.18)} className="mt-8 flex flex-wrap items-center gap-4">
+            <a {...ctaAttrs(props.primaryHref)} className="group inline-flex items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" }}>
+              {props.primaryCta || "Get started"}
+              <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </a>
+            {props.secondaryCta && <a {...ctaAttrs(props.secondaryHref)} className="text-sm font-medium underline-offset-4 transition-opacity hover:opacity-70" style={{ color: "var(--brand)" }}>{props.secondaryCta}</a>}
+          </motion.div>
+        </div>
+        <motion.div {...rise(0.22)} onMouseMove={onMove} onMouseLeave={() => setT({ x: 0, y: 0 })} style={{ perspective: 1000 }}>
+          <motion.div
+            className="flex flex-col overflow-hidden rounded-[1.25rem]"
+            style={{ aspectRatio: "4 / 3", boxShadow: `0 44px 120px -28px color-mix(in srgb, var(--brand-accent) 45%, transparent), inset 0 0 0 1px ${HAIRLINE}`, transformStyle: "preserve-3d" }}
+            animate={reduce ? {} : { rotateY: t.x * 4, rotateX: -t.y * 4, y: [0, -10, 0] }}
+            transition={{ rotateY: { duration: 0.3 }, rotateX: { duration: 0.3 }, y: { duration: 6, repeat: Infinity, ease: "easeInOut" } }}
+          >
+            <div className="flex shrink-0 items-center gap-1.5 px-4 py-3" style={{ background: "color-mix(in srgb, var(--brand-ink) 7%, transparent)" }}>
+              {[0, 1, 2].map((i) => <span key={i} className="h-2.5 w-2.5 rounded-full" style={{ background: "color-mix(in srgb, var(--brand-ink) 18%, transparent)" }} />)}
+            </div>
+            <div className="flex-1" style={{ background: imageBg(props.image, "linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 30%, transparent), transparent)"), backgroundSize: "cover", backgroundPosition: "center" }} />
+          </motion.div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Bento hero — a large headline beside a Framer-style bento that fuses the
+ * product preview with real proof: animated metric tiles when genuine stats were
+ * extracted, otherwise the brand's real key services. Never fabricates numbers.
+ */
+function HeroBento({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  const stats = (props.stats || []) as { value: string; label: string }[];
+  const services = (props.services || []) as string[];
+  const rise = (d: number) => ({
+    initial: reduce ? false : { opacity: 0, y: 16 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true },
+    transition: { duration: 0.55, ease: EASE, delay: d },
+  });
+  const tile = "rounded-[1.1rem] p-5";
+  const tileStyle = { background: "var(--brand-card)", boxShadow: `inset 0 0 0 1px ${HAIRLINE}` } as React.CSSProperties;
+  return (
+    <section className="relative overflow-hidden px-6 py-20 sm:py-24" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}>
+      <div aria-hidden className="pointer-events-none absolute left-1/2 top-[-6rem] h-[420px] w-[720px] -translate-x-1/2 rounded-full blur-3xl" style={{ background: "radial-gradient(closest-side, color-mix(in srgb, var(--brand-accent) 35%, transparent), transparent)", opacity: 0.45 }} />
+      <div className="relative mx-auto max-w-6xl">
+        <div className="max-w-3xl">
+          {props.eyebrow && (
+            <motion.span {...rise(0)} className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium" style={{ borderColor: "color-mix(in srgb, var(--brand-ink) 12%, transparent)", color: "color-mix(in srgb, var(--brand-ink) 65%, transparent)" }}>
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--brand-accent)" }} />
+              {props.eyebrow}
+            </motion.span>
+          )}
+          <motion.h1 {...rise(0.06)} className="mt-5 rf-fluid-display font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</motion.h1>
+          {props.subtitle && <motion.p {...rise(0.12)} className="mt-5 max-w-xl rf-fluid-lead" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{props.subtitle}</motion.p>}
+          <motion.div {...rise(0.18)} className="mt-7 flex flex-wrap items-center gap-4">
+            <a {...ctaAttrs(props.primaryHref)} className="group inline-flex items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" }}>
+              {props.primaryCta || "Get started"}
+              <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </a>
+            {props.secondaryCta && <a {...ctaAttrs(props.secondaryHref)} className="text-sm font-medium underline-offset-4 transition-opacity hover:opacity-70" style={{ color: "var(--brand)" }}>{props.secondaryCta}</a>}
+          </motion.div>
+        </div>
+        <div className="mt-12 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {/* Large product-preview tile */}
+          <motion.div {...rise(0.2)} className="col-span-2 row-span-2 overflow-hidden rounded-[1.1rem]" style={{ minHeight: 220, boxShadow: `inset 0 0 0 1px ${HAIRLINE}`, background: imageBg(props.image, "linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 30%, transparent), transparent)"), backgroundSize: "cover", backgroundPosition: "center" }} />
+          {/* Proof tiles: real metrics, else real services */}
+          {(stats.length ? stats.slice(0, 4) : services.slice(0, 4).map((s) => ({ value: "", label: s }))).map((it, i) => (
+            <motion.div key={i} {...rise(0.24 + i * 0.05)} className={cn(tile, "flex flex-col justify-center transition-transform duration-300 hover:-translate-y-1")} style={tileStyle}>
+              {it.value && <div className="text-2xl font-semibold tabular-nums" style={{ color: "var(--brand)" }}><StatValue value={it.value} /></div>}
+              <div className={cn(it.value ? "mt-1 text-xs" : "text-sm font-medium")} style={{ color: it.value ? "color-mix(in srgb, var(--brand-ink) 55%, transparent)" : "var(--brand)" }}>{it.label}</div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
+  HeroSplitPremium,
+  HeroBento,
   HeroPremium1,
   HeroCanvas,
   HeroPremium2,

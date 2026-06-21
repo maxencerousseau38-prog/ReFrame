@@ -1065,6 +1065,10 @@ function buildBlock(
           image: c.heroImageUrl,
           brand,
           caption: c.services[0],
+          // For proof-bearing heroes (Bento): real metrics only, plus real
+          // service names as a non-fabricated fallback.
+          stats: c.stats,
+          services: c.services,
         },
       };
     case "features": {

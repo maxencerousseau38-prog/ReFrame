@@ -13,7 +13,10 @@ const valid = {
   ],
 };
 
-const HERO_VARIANTS = ["HeroPremium1", "HeroPremium2", "HeroSpotlight", "HeroEditorial"];
+const HERO_VARIANTS = [
+  "HeroSplitPremium", "HeroBento", "HeroPremium1", "HeroPremium2", "HeroSpotlight",
+  "HeroEditorial", "HeroImageFull", "HeroMonumental", "HeroAgencia", "HeroCanvas",
+];
 
 describe("parseSiteSchema", () => {
   it("rejects non-objects and unsalvageable schemas", () => {
