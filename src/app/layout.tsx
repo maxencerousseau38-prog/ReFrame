@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import "./globals.css";
@@ -20,6 +20,17 @@ export const metadata: Metadata = {
   // hydration mismatch (React #425). `translate="no"` on <html> below is the
   // primary signal; this meta covers Google's translate specifically.
   other: { google: "notranslate" },
+};
+
+// Make every page (and every recreated client site) fit the device perfectly:
+// scale to the screen width, allow pinch-zoom for accessibility, and extend
+// under the notch / rounded corners on phones (paired with safe-area insets).
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
+  themeColor: "#000000",
 };
 
 export default function RootLayout({

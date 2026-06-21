@@ -181,7 +181,7 @@ function HeroPremium1({ props }: { props: any }) {
 
         <motion.h1
           {...rise(0.05)}
-          className="mt-6 text-5xl font-semibold tracking-tight [text-wrap:balance] md:text-6xl"
+          className="mt-6 rf-fluid-display font-semibold [text-wrap:balance]"
           style={{ color: "var(--brand)" }}
         >
           {props.title}
@@ -190,7 +190,7 @@ function HeroPremium1({ props }: { props: any }) {
         {props.subtitle && (
           <motion.p
             {...rise(0.12)}
-            className="mx-auto mt-5 max-w-xl text-lg [text-wrap:balance]"
+            className="mx-auto mt-5 max-w-xl rf-fluid-lead [text-wrap:balance]"
             style={{ color: "var(--brand-ink)", opacity: 0.65 }}
           >
             {props.subtitle}
@@ -242,7 +242,7 @@ function HeroPremium2({ props }: { props: any }) {
             animate="visible"
             variants={fade}
             transition={{ duration: 0.6 }}
-            className="mt-4 text-4xl font-semibold leading-tight tracking-tight sm:text-5xl"
+            className="mt-4 rf-fluid-display font-semibold [text-wrap:balance]"
             style={{ color: "var(--brand)" }}
           >
             {props.title}
@@ -426,7 +426,7 @@ function FeaturesGrid1({ props }: { props: any }) {
     <section className="px-6 py-24" style={{ color: "var(--brand-ink)" }}>
       <div className="mx-auto max-w-5xl">
         <div className="max-w-2xl">
-          <h2 className="text-3xl font-semibold tracking-tight [text-wrap:balance] md:text-4xl" style={{ color: "var(--brand)" }}>
+          <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>
             {props.title}
           </h2>
           {props.subtitle && (
@@ -562,7 +562,7 @@ function FAQAccordion1({ props }: { props: any }) {
   return (
     <section className="px-6 py-24" style={{ color: "var(--brand-ink)" }}>
       <div className="mx-auto max-w-3xl">
-        <h2 className="text-center text-3xl font-semibold tracking-tight [text-wrap:balance] md:text-4xl" style={{ color: "var(--brand)" }}>
+        <h2 className="text-center rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>
           {props.title}
         </h2>
         <div className="mt-12 border-t" style={{ borderColor: HAIRLINE }}>
@@ -643,7 +643,7 @@ function CTASection1({ props }: { props: any }) {
           }}
         />
         <div className="relative">
-          <h2 className="text-3xl font-semibold tracking-tight [text-wrap:balance] md:text-4xl">{props.title}</h2>
+          <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]">{props.title}</h2>
           {props.subtitle && (
             <p className="mx-auto mt-4 max-w-lg text-white/60 [text-wrap:balance]">{props.subtitle}</p>
           )}
@@ -712,7 +712,7 @@ function ContactFormPremium1({ props }: { props: any }) {
     <section id="contact" className="px-6 py-24" style={{ color: "var(--brand-ink)" }}>
       <div className="mx-auto grid max-w-5xl items-start gap-12 lg:grid-cols-2">
         <div>
-          <h2 className="text-3xl font-semibold tracking-tight [text-wrap:balance] md:text-4xl" style={{ color: "var(--brand)" }}>
+          <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>
             {props.title}
           </h2>
           {props.subtitle && (
@@ -859,12 +859,12 @@ function HeroSpotlight({ props }: { props: any }) {
           animate="visible"
           variants={fade}
           transition={{ duration: 0.6 }}
-          className="mt-6 text-4xl font-semibold tracking-tight sm:text-6xl"
+          className="mt-6 rf-fluid-display font-semibold [text-wrap:balance]"
           style={{ color: "var(--brand)" }}
         >
           {props.title}
         </motion.h1>
-        <p className="mx-auto mt-5 max-w-xl text-lg text-neutral-500">{props.subtitle}</p>
+        <p className="mx-auto mt-5 max-w-xl rf-fluid-lead text-neutral-500">{props.subtitle}</p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <a
             {...ctaAttrs(props.primaryHref)}
@@ -895,7 +895,7 @@ function FeaturesBento({ props }: { props: any }) {
     <section className="px-6 py-20 sm:py-24">
       <div className="mx-auto max-w-6xl">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl" style={{ color: "var(--brand)" }}>
+          <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>
             {props.title}
           </h2>
           {props.subtitle && <p className="mt-3 text-neutral-500">{props.subtitle}</p>}
@@ -1533,7 +1533,7 @@ function FeaturesAlternating({ props }: { props: any }) {
     <section className="px-6 py-24" style={{ color: "var(--brand-ink)" }}>
       <div className="mx-auto max-w-5xl">
         <div className="max-w-2xl">
-          <h2 className="text-3xl font-semibold tracking-tight [text-wrap:balance] md:text-4xl" style={{ color: "var(--brand)" }}>
+          <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>
             {props.title}
           </h2>
           {props.subtitle && (
@@ -2008,7 +2008,7 @@ function HeroCanvas({ props }: { props: any }) {
           )}
           <motion.h1
             {...rise(0.05)}
-            className="mt-6 text-5xl font-semibold leading-[1.02] tracking-tight [text-wrap:balance] md:text-6xl"
+            className="mt-6 rf-fluid-display font-semibold [text-wrap:balance]"
             style={{ color: "var(--brand)", fontFamily: "var(--brand-font)" }}
           >
             {props.title}
@@ -2175,9 +2175,14 @@ function SiteNav({ brand, items, cta }: { brand: NavItem; items: NavItem[]; cta:
   return (
     <header
       className="sticky top-0 z-40 backdrop-blur-md"
-      style={{ background: "color-mix(in srgb, var(--brand-surface) 82%, transparent)", borderBottom: `1px solid ${HAIRLINE}` }}
+      style={{
+        background: "color-mix(in srgb, var(--brand-surface) 82%, transparent)",
+        borderBottom: `1px solid ${HAIRLINE}`,
+        // Sit below the status bar / notch on phones (viewportFit: cover).
+        paddingTop: "env(safe-area-inset-top)",
+      }}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3.5">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-[max(1.5rem,env(safe-area-inset-left))] py-3.5">
         {brand.href ? (
           <a href={brand.href} {...wordmark}>{brand.label}</a>
         ) : (
@@ -2260,6 +2265,7 @@ export function SiteRenderer({
   return (
     <MotionConfig reducedMotion={animationsOn ? "user" : "always"}>
       <div
+        className="rf-site"
         data-animate={animationsOn ? "on" : "off"}
         style={{
           ...themeStyle(schema.theme),

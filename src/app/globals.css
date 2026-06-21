@@ -150,6 +150,59 @@
   background: var(--brand-card, #ffffff);
 }
 
+/* ──────────────────────────────────────────────────────────────────────────
+   Recreated client sites: fit every device perfectly, like a native app.
+   `.rf-site` wraps the whole rendered site (set by SiteRenderer). These rules
+   guarantee an app-like fit from a 320px phone to a 4K display without editing
+   each block:
+     • never scroll sideways (the #1 thing that breaks "fits like an app")
+     • media and embeds never exceed their column
+     • flex/grid children may shrink instead of forcing overflow
+     • long unbroken strings (URLs, emails) wrap instead of pushing the width
+   ────────────────────────────────────────────────────────────────────────── */
+.rf-site {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+.rf-site img,
+.rf-site video,
+.rf-site svg,
+.rf-site iframe,
+.rf-site canvas {
+  max-width: 100%;
+}
+.rf-site * {
+  min-width: 0; /* let flex/grid items shrink below their content size */
+}
+.rf-site h1,
+.rf-site h2,
+.rf-site h3,
+.rf-site p,
+.rf-site a,
+.rf-site li,
+.rf-site span {
+  overflow-wrap: break-word;
+}
+
+/* Fluid type for recreated sites: headings scale continuously WITH the screen
+   (clamp), so the site "follows" the viewport instead of jumping at breakpoints.
+   Min keeps phones tidy; max caps it on large displays; the vw term scales the
+   middle. Applied to hero/section titles in the block renderer. */
+.rf-fluid-display {
+  font-size: clamp(2.25rem, 1.4rem + 4.2vw, 4rem);
+  line-height: 1.04;
+  letter-spacing: -0.022em;
+}
+.rf-fluid-h2 {
+  font-size: clamp(1.75rem, 1.2rem + 2.6vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.rf-fluid-lead {
+  font-size: clamp(1.0625rem, 1rem + 0.5vw, 1.25rem);
+  line-height: 1.6;
+}
+
 /* Client-toggled motion kill switch (set on a rebuilt site via the AI editor).
    Stops CSS keyframe animations (marquee, ping, spin) and makes transitions
    instant, without zeroing transforms (so layout/centering stays intact). */
