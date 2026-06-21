@@ -239,7 +239,11 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
 
   let root: HTMLElement;
   try {
-    root = parse(html, { blockTextElements: { script: false, style: true } });
+    // script: true keeps <script type="ld+json"> content as raw text so JSON-LD
+    // (products, stats, structured contact) is actually readable; element text
+    // queries (title/h1/p/nav) never touch <script>, and bodyText is derived
+    // from the raw HTML, so this doesn't pollute text extraction.
+    root = parse(html, { blockTextElements: { script: true, style: true } });
   } catch {
     return fallbackAnalysis(url, true);
   }
@@ -289,6 +293,10 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
   const ogImage = abs(meta('meta[property="og:image"]'), url);
   const images = await validateImages(extractImages(root, url));
   const heroImageUrl = images[0];
+
+  // Real products (the client's actual catalogue) - kept and modernized, never
+  // dropped. Empty unless the page genuinely exposes products.
+  const products = extractProducts(root, url);
 
   // Navigation labels double as a real list of what the business offers
   const navItems = dedupe(
@@ -400,6 +408,7 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
       // client's actual contact + credibility (never fabricated).
       contact: extractContact(root, bodyText, ld),
       stats: extractStats(ld),
+      ...(products.length ? { products } : {}),
       // Real prose: reuse the client's own About paragraph and service copy.
       ...prose,
     },
@@ -555,6 +564,120 @@ function flattenAddress(a: unknown): string | undefined {
   const parts = [o.streetAddress, o.postalCode, o.addressLocality, o.addressRegion, o.addressCountry]
     .filter((p): p is string => typeof p === "string" && p.trim().length > 0);
   return parts.length ? clean(parts.join(", ")) : undefined;
+}
+
+export interface ScrapedProduct {
+  name: string;
+  price?: string;
+  image?: string;
+  url?: string;
+}
+
+function priceFromOffers(offers: unknown): string | undefined {
+  const o = (Array.isArray(offers) ? offers[0] : offers) as Record<string, unknown> | undefined;
+  if (!o || typeof o !== "object") return undefined;
+  const raw = o.price ?? o.lowPrice ?? o.highPrice;
+  if (raw == null) return undefined;
+  const p = String(raw);
+  const cur = o.priceCurrency;
+  if (cur === "USD") return `$${p}`;
+  if (cur === "GBP") return `£${p}`;
+  if (cur === "EUR") return `${p} €`;
+  return typeof cur === "string" ? `${p} ${cur}` : p;
+}
+
+const PRICE_RE = /[€$£]\s?\d[\d.,]*|\d[\d.,]*\s?[€$£]|\d[\d.,]*\s?(?:EUR|USD|GBP)\b/i;
+
+/**
+ * Scrape the page's REAL products - the client's actual catalogue - so the
+ * rebuild keeps and modernizes them instead of dropping them. Prefers JSON-LD
+ * Product / ItemList (Shopify, WooCommerce, most stores emit it), then falls
+ * back to repeated product-card detection (an <a> + <img> with a price nearby).
+ * Never fabricates: only returns products really found on the page.
+ */
+export function extractProducts(root: HTMLElement, base: string): ScrapedProduct[] {
+  const out: ScrapedProduct[] = [];
+  const seen = new Set<string>();
+  const push = (p: ScrapedProduct) => {
+    const key = (p.url || p.name || "").toLowerCase();
+    if (!p.name || p.name.length < 2 || seen.has(key) || out.length >= 60) return;
+    seen.add(key);
+    out.push(p);
+  };
+
+  // 1) Structured data: JSON-LD Product / ItemList.
+  for (const s of root.querySelectorAll('script[type="application/ld+json"]')) {
+    let data: unknown;
+    try {
+      data = JSON.parse(s.text);
+    } catch {
+      continue;
+    }
+    const stack: unknown[] = [data];
+    while (stack.length && out.length < 60) {
+      const node = stack.shift(); // FIFO: preserve catalogue order
+      if (Array.isArray(node)) {
+        stack.unshift(...node);
+        continue;
+      }
+      if (!node || typeof node !== "object") continue;
+      const n = node as Record<string, unknown>;
+      if (n["@graph"]) stack.push(...([] as unknown[]).concat(n["@graph"] as unknown[]));
+      if (n.itemListElement) stack.push(...([] as unknown[]).concat(n.itemListElement as unknown[]));
+      if (n.item && typeof n.item === "object") stack.push(n.item);
+      const t = Array.isArray(n["@type"]) ? n["@type"][0] : n["@type"];
+      if (t === "Product" && typeof n.name === "string") {
+        const im = n.image;
+        const image = Array.isArray(im) ? im[0] : typeof im === "string" ? im : (im as Record<string, unknown>)?.url;
+        push({
+          name: clean(n.name).slice(0, 80),
+          price: priceFromOffers(n.offers),
+          image: image ? abs(String(image), base) : undefined,
+          url: typeof n.url === "string" ? abs(n.url, base) : undefined,
+        });
+      }
+    }
+  }
+
+  // 2) DOM product cards (when structured data is thin). A card = a small
+  //    container with one image, a link, and a price signal or product-ish class.
+  if (out.length < 6) {
+    for (const el of root.querySelectorAll("li, article, div")) {
+      if (out.length >= 60) break;
+      const img = el.querySelector("img");
+      const link = el.querySelector("a[href]");
+      if (!img || !link) continue;
+      if (el.querySelectorAll("img").length > 2) continue; // a list/grid, not a single card
+      const cls = el.getAttribute("class") || "";
+      const text = clean(el.text);
+      const priceM = text.match(PRICE_RE);
+      // A real product card needs a price OR an explicit product class - not just
+      // "item/card" (those match nav, language switchers, menus, etc.).
+      const looksProduct = /\bproducts?\b|\bproduit[s]?\b/i.test(cls);
+      if (!priceM && !looksProduct) continue;
+      const name = clean(link.getAttribute("title") || img.getAttribute("alt") || link.text).slice(0, 80);
+      // Reject language/country/currency switchers and nav noise masquerading as
+      // products (the #1 false positive on real stores).
+      const meta = `${cls} ${img.getAttribute("src") || ""} ${img.getAttribute("alt") || ""} ${link.getAttribute("href") || ""}`;
+      if (
+        name.length < 3 ||
+        /^[a-z]{2}$/i.test(name) ||
+        isServiceNoise(name) ||
+        /flag|country|locale|\blang\b|language|currency|switcher/i.test(meta)
+      )
+        continue;
+      const srcset = img.getAttribute("srcset") || img.getAttribute("data-srcset");
+      const src = (srcset ? largestFromSrcset(srcset) : "") || img.getAttribute("src") || img.getAttribute("data-src") || "";
+      push({
+        name,
+        price: priceM ? priceM[0].trim() : undefined,
+        image: src && !IMAGE_JUNK_RE.test(src) ? abs(src, base) : undefined,
+        url: abs(link.getAttribute("href") || "", base),
+      });
+    }
+  }
+
+  return out;
 }
 
 function jsonLd(root: HTMLElement): JsonLd {
@@ -1310,6 +1433,23 @@ export function generateSite(
     const blocks2 = footer ? [block, footer] : [block];
     const at = Math.max(0, pages.findIndex((p) => p.path === "contact"));
     pages.splice(at, 0, { path: meta.path, label: meta.label, blocks: blocks2 });
+  }
+
+  // Real catalogue: keep ALL the client's scraped products on a dedicated Shop
+  // page, modernized into a premium grid (never fabricated). Inserted before
+  // Contact so the nav reads Home / ... / Shop / Contact.
+  const products = analysis.extractedContent.products;
+  if (products?.length) {
+    const footer = buildBlock({ type: "footer", category: "footer" }, analysis, mood);
+    const grid: Block = {
+      id: uid("products"),
+      type: "products",
+      variant: "ProductGrid",
+      props: { eyebrow: "Catalogue", title: "Our products", items: products },
+    };
+    const shopBlocks = footer ? [grid, footer] : [grid];
+    const at = pages.findIndex((p) => p.path === "contact");
+    pages.splice(at >= 0 ? at : pages.length, 0, { path: "shop", label: "Shop", blocks: shopBlocks });
   }
 
   // Agency Quality Pass: normalize the assembled home page (single hero first,

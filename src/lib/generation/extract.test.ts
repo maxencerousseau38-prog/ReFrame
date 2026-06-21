@@ -1,6 +1,33 @@
 import { describe, it, expect } from "vitest";
 import { parse } from "node-html-parser";
-import { extractContact, extractStats, cleanServiceLabels, extractProse, extractImages } from "./engine";
+import { extractContact, extractStats, cleanServiceLabels, extractProse, extractImages, extractProducts } from "./engine";
+
+describe("extractProducts", () => {
+  it("reads JSON-LD Product entries with price + image", () => {
+    const ld = JSON.stringify([
+      { "@type": "Product", name: "Pro Mixer 500", image: "https://x/m.jpg", url: "https://x/p/1", offers: { price: "129.00", priceCurrency: "EUR" } },
+      { "@type": "Product", name: "Cold Display", image: ["https://x/c.jpg"], offers: [{ price: "899", priceCurrency: "USD" }] },
+    ]);
+    const r = parse(`<html><head><script type="application/ld+json">${ld}</script></head><body></body></html>`,
+      { blockTextElements: { script: true, style: true } });
+    const products = extractProducts(r, "https://x.com");
+    expect(products.map((p) => p.name)).toEqual(["Pro Mixer 500", "Cold Display"]);
+    expect(products[0].price).toBe("129.00 €");
+    expect(products[1].price).toBe("$899");
+    expect(products[0].image).toBe("https://x/m.jpg");
+  });
+
+  it("falls back to DOM product cards (link + image + price)", () => {
+    const card = (n: string, p: string) =>
+      `<li class="product"><a href="/p/${n}" title="${n}"><img src="/img/${n}.jpg" alt="${n}"></a><span class="price">${p}</span></li>`;
+    const r = parse(`<ul>${card("Whisk", "12,90 €")}${card("Pan", "24,00 €")}${card("Oven", "499 €")}</ul>`,
+      { blockTextElements: { script: false, style: true } });
+    const products = extractProducts(r, "https://x.com");
+    expect(products.length).toBeGreaterThanOrEqual(3);
+    expect(products[0].price).toMatch(/12,90/);
+    expect(products[0].url).toBe("https://x.com/p/Whisk");
+  });
+});
 
 describe("extractImages junk filter", () => {
   it("drops decorative/campaign assets (stars, squiggles), keeps real photos", () => {

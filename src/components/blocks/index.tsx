@@ -2554,7 +2554,59 @@ function FeaturesColumns({ props }: { props: any }) {
   );
 }
 
+/**
+ * Product grid - the client's REAL catalogue, kept whole and modernized. A
+ * responsive grid of premium product cards (image + name + price), every entry
+ * scraped from the source site (never fabricated). Cards link to the real
+ * product. Brand-tokened, dark-mode, export-safe.
+ */
+function ProductGrid({ props }: { props: any }) {
+  const items = (props.items || []) as { name: string; price?: string; image?: string; url?: string }[];
+  return (
+    <section className="px-6 py-20 sm:py-24" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}>
+      <div className="mx-auto max-w-6xl">
+        <div className="max-w-2xl">
+          {props.eyebrow && (
+            <div className="mb-3 text-xs font-medium uppercase tracking-[0.2em]" style={{ color: "var(--brand-accent)" }}>{props.eyebrow}</div>
+          )}
+          <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>
+          {props.subtitle && <p className="mt-3" style={{ color: "var(--brand-ink)", opacity: 0.55 }}>{props.subtitle}</p>}
+        </div>
+        <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {items.map((it, i) => (
+            <motion.a
+              key={i}
+              href={it.url || "#contact"}
+              {...(it.url && /^https?:/i.test(it.url) ? { target: "_blank", rel: "noreferrer" } : {})}
+              initial={{ opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.45, delay: (i % 8) * 0.04, ease: EASE }}
+              className="group flex flex-col overflow-hidden rounded-[1rem] rf-card transition-transform duration-300 hover:-translate-y-1"
+              style={{ boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
+            >
+              <div
+                className="aspect-square w-full overflow-hidden"
+                style={{
+                  background: imageBg(it.image, "linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 18%, transparent), transparent)"),
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              />
+              <div className="flex flex-1 flex-col gap-1 p-4">
+                <h3 className="line-clamp-2 text-sm font-medium" style={{ color: "var(--brand)" }}>{it.name}</h3>
+                {it.price && <div className="mt-auto pt-1 text-sm font-semibold" style={{ color: "var(--brand-accent)" }}>{it.price}</div>}
+              </div>
+            </motion.a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
+  ProductGrid,
   FooterColumns,
   FooterMinimal,
   CTABanner,

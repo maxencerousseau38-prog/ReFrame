@@ -182,6 +182,12 @@ export interface SiteAnalysis {
      * rendered as a dedicated page. Real content only - never fabricated.
      */
     collection?: { items: { name: string; price?: string; description?: string }[] };
+    /**
+     * Real products scraped from the page (JSON-LD Product / repeated product
+     * cards): the client's actual catalogue, kept and modernized rather than
+     * dropped. Each is real - never fabricated.
+     */
+    products?: { name: string; price?: string; image?: string; url?: string }[];
   };
   scores: {
     design: number;
