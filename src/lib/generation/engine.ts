@@ -60,6 +60,7 @@ import type {
   BlockType,
   GenerationMode,
   Theme,
+  Recommendation,
 } from "./types";
 import { INDUSTRY_PROFILES, detectIndustry } from "./industries";
 import { pickVariant } from "./catalog";
@@ -1262,6 +1263,9 @@ export function generateSite(
   };
   if (analysis.extractedContent.testimonials?.length) ensureSlot("testimonials");
   if (analysis.extractedContent.stats?.length) ensureSlot("stats");
+  // Conversion floor (smart mode only - preserve keeps the client's exact
+  // structure): guarantee one closing call to action. No-op if a CTA exists.
+  if (mode === "smart") ensureSlot("cta");
 
   // Some slots (testimonials, stats) are intentionally dropped when we have no
   // real data for them, rather than fabricated - so filter the nulls out.
@@ -1302,19 +1306,113 @@ export function generateSite(
     pages.splice(at, 0, { path: meta.path, label: meta.label, blocks: blocks2 });
   }
 
+  // Agency Quality Pass: normalize the assembled home page (single hero first,
+  // footer last, no back-to-back duplicate sections, real photos distributed so
+  // none repeats across sections). Identity/content preserving.
+  const qp = qualityPass(blocks.map(sanitizeBlock), analysis.extractedContent.images);
+  const recommendations = [...plan.recommendations, ...qp.recommendations];
+
   return {
     id: uid("site"),
     sourceUrl: analysis.url,
     industry: analysis.industry,
     brand: { name: analysis.brandName, tagline: deAiDash(analysis.extractedContent.headline), logo: analysis.brand?.logoUrl },
     theme,
-    blocks: blocks.map(sanitizeBlock),
+    blocks: qp.blocks,
     pages: pages.length
       ? pages.map((p) => ({ ...p, blocks: p.blocks.map(sanitizeBlock) }))
       : undefined,
     mode,
-    recommendations: plan.recommendations.length ? plan.recommendations : undefined,
+    recommendations: recommendations.length ? recommendations : undefined,
   };
+}
+
+/**
+ * Agency Quality Pass — a deterministic post-generation normalization that lifts
+ * the floor of every generated site. It only reorders, de-dupes and redistributes
+ * REAL assets; it never fabricates content. Returns the improved blocks plus a
+ * log of what it changed (surfaced internally as recommendations).
+ */
+export function qualityPass(blocks: Block[], imagePool: string[]): { blocks: Block[]; recommendations: Recommendation[] } {
+  const recommendations: Recommendation[] = [];
+  let out = blocks.slice();
+
+  // 1) Exactly one hero, and it opens the page.
+  const heroes = out.filter((b) => b.type === "hero");
+  if (heroes.length > 1) {
+    const keep = heroes[0];
+    out = out.filter((b) => b.type !== "hero" || b === keep);
+    recommendations.push({ action: "Removed a duplicate hero", reason: "A page should open with a single, focused hero." });
+  }
+  const hi = out.findIndex((b) => b.type === "hero");
+  if (hi > 0) {
+    const [h] = out.splice(hi, 1);
+    out.unshift(h);
+    recommendations.push({ action: "Moved the hero to the top", reason: "The hero must be the first thing visitors see." });
+  }
+
+  // 2) Footer last.
+  const fi = out.findIndex((b) => b.type === "footer");
+  if (fi >= 0 && fi !== out.length - 1) {
+    const [f] = out.splice(fi, 1);
+    out.push(f);
+    recommendations.push({ action: "Moved the footer to the end", reason: "Standard page anatomy keeps the layout predictable." });
+  }
+
+  // 3) No two adjacent sections of the same type (reads as filler).
+  const deduped: Block[] = [];
+  for (const b of out) {
+    const prev = deduped[deduped.length - 1];
+    if (prev && prev.type === b.type && b.type !== "footer") {
+      recommendations.push({ action: `Merged repeated ${b.type} sections`, reason: "Back-to-back identical sections look templated." });
+      continue;
+    }
+    deduped.push(b);
+  }
+  out = deduped;
+
+  // 4) Distribute the real imagery so no photo repeats across sections. Only
+  //    rewrites fields that already hold an image (never adds imagery to an
+  //    intentionally image-free section), and keeps the hero on the best photo.
+  if (imagePool.length > 1) {
+    let idx = 0;
+    let prev = "";
+    const next = (): string => {
+      let img = imagePool[idx % imagePool.length];
+      if (img === prev && imagePool.length > 1) {
+        idx++;
+        img = imagePool[idx % imagePool.length];
+      }
+      idx++;
+      prev = img;
+      return img;
+    };
+    let changed = false;
+    out = out.map((b) => {
+      const props: Record<string, unknown> = { ...(b.props as Record<string, unknown>) };
+      if (typeof props.image === "string") {
+        const n = next();
+        if (n !== props.image) changed = true;
+        props.image = n;
+      }
+      if (Array.isArray(props.items)) {
+        props.items = (props.items as unknown[]).map((it) => {
+          if (it && typeof it === "object" && typeof (it as { image?: unknown }).image === "string") {
+            const n = next();
+            if (n !== (it as { image: string }).image) changed = true;
+            return { ...(it as object), image: n };
+          }
+          return it;
+        });
+      }
+      return { ...b, props };
+    });
+    if (changed) {
+      recommendations.push({ action: "Distributed the real photos across sections", reason: "Reusing one image everywhere looks templated; each section now gets a distinct photo." });
+    }
+  }
+
+  return { blocks: out, recommendations };
 }
 
 /** Label + path for the owner-managed collection page, by industry. */

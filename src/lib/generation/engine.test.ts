@@ -1,6 +1,40 @@
 import { describe, it, expect } from "vitest";
-import { generateSite } from "./engine";
-import type { BlockType, SiteAnalysis, SiteStructure } from "./types";
+import { generateSite, qualityPass } from "./engine";
+import type { Block, BlockType, SiteAnalysis, SiteStructure } from "./types";
+
+const qpBlock = (type: BlockType, props: Record<string, unknown> = {}): Block =>
+  ({ id: type + Math.random(), type, variant: "X", props } as Block);
+
+describe("qualityPass (agency quality pass)", () => {
+  it("enforces a single hero first and the footer last", () => {
+    const { blocks } = qualityPass(
+      [qpBlock("footer"), qpBlock("features"), qpBlock("hero"), qpBlock("hero"), qpBlock("contact")],
+      []
+    );
+    expect(blocks.map((b) => b.type)).toEqual(["hero", "features", "contact", "footer"]);
+  });
+
+  it("drops back-to-back duplicate sections", () => {
+    const { blocks } = qualityPass([qpBlock("hero"), qpBlock("features"), qpBlock("features"), qpBlock("footer")], []);
+    expect(blocks.map((b) => b.type)).toEqual(["hero", "features", "footer"]);
+  });
+
+  it("distributes real photos so the hero image is not reused by the next section", () => {
+    const pool = ["a.jpg", "b.jpg", "c.jpg"];
+    const { blocks } = qualityPass(
+      [qpBlock("hero", { image: "a.jpg" }), qpBlock("features", { items: [{ image: "a.jpg" }, { image: "a.jpg" }] })],
+      pool
+    );
+    const heroImg = (blocks[0].props as { image: string }).image;
+    const firstTile = (blocks[1].props as { items: { image: string }[] }).items[0].image;
+    expect(firstTile).not.toBe(heroImg);
+  });
+
+  it("never invents images for an image-free section", () => {
+    const { blocks } = qualityPass([qpBlock("hero", {}), qpBlock("cta", {})], ["a.jpg", "b.jpg"]);
+    expect((blocks[0].props as Record<string, unknown>).image).toBeUndefined();
+  });
+});
 
 function analysis(overrides: Partial<SiteAnalysis> = {}): SiteAnalysis {
   return {
