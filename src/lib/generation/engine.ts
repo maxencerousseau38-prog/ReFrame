@@ -315,6 +315,10 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
       ? "We couldn't fully read this site - it looks JavaScript-rendered or it blocks crawlers. We rebuilt it from its metadata and sensible defaults, so double-check the copy and edit anything that's off."
       : undefined;
 
+  // Real prose (about paragraph + service headings) - computed once and reused
+  // for both the services source decision and the extracted content.
+  const prose = extractProse(root);
+
   return {
     url,
     brandName,
@@ -330,7 +334,15 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
     extractedContent: {
       headline,
       description,
-      services: navItems.length >= 3 ? navItems : finalProfile.defaults.services,
+      // Services source, cleanest first: real on-page service headings, else
+      // de-noised nav labels (drop CTA/utility/location items), else industry
+      // defaults - so we never surface "View all" / "Locations" as a service.
+      services:
+        (prose.serviceItems?.length ?? 0) >= 3
+          ? prose.serviceItems!.map((s) => s.title)
+          : cleanServiceLabels(navItems).length >= 3
+            ? cleanServiceLabels(navItems)
+            : finalProfile.defaults.services,
       heroImageUrl,
       images,
       contactHint: root.querySelector("form") ? "Contact form detected" : undefined,
@@ -339,7 +351,7 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
       contact: extractContact(root, bodyText, ld),
       stats: extractStats(ld),
       // Real prose: reuse the client's own About paragraph and service copy.
-      ...extractProse(root),
+      ...prose,
     },
     scores,
     issues,
@@ -646,6 +658,44 @@ export function extractProse(root: HTMLElement): {
   }
   if (items.length >= 3) out.serviceItems = items;
 
+  return out;
+}
+
+// Nav/CTA/utility labels that are never real services (the nav bar is a poor
+// services source: it's full of these). Anchored so it only drops exact labels.
+const SERVICE_NOISE =
+  /^(home|menu|locations?|view all|see all|see more|view more|shop|shop all|shop now|order|order online|order now|book|book now|reserve|reservations?|gift ?cards?|careers?|jobs|press|blog|news|events?|faqs?|account|my account|log ?in|sign ?in|sign ?up|register|search|cart|bag|checkout|contact|contact us|about|about us|our story|our team|team|stores?|find a store|store locator|directions|hours|opening hours|privacy|terms|cookies?|newsletter|subscribe|follow us|wholesale|gallery|portfolio|home page|get started|learn more|read more|explore|discover|all|more|next|previous|back|skip|english|fran[cç]ais|deutsch|espa[nñ]ol)$/i;
+
+// Place-name-ish nav labels (store/location menus), which masquerade as services.
+function isLocationish(t: string): boolean {
+  return (
+    /\b(SF|NYC|LA|USA|UK|US)\b/.test(t) ||
+    /\b(area|district|downtown|uptown|street|st\.?|avenue|ave\.?|road|rd\.?|sunset|valley|heights|manufactory|city|borough|county)\b/i.test(t)
+  );
+}
+
+/**
+ * Turn a noisy nav-label list into plausible service/offering names: drop
+ * utility/CTA/location labels, numerics, and CTA phrases ("View all", "Shop
+ * now"). Used as a fallback service source only when the page exposes no real
+ * service headings; callers fall back to industry defaults if too few survive.
+ */
+export function cleanServiceLabels(labels: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of labels) {
+    const t = (raw || "").trim();
+    const key = t.toLowerCase();
+    if (!t || seen.has(key)) continue;
+    if (t.length < 3 || t.length > 40) continue;
+    if (SERVICE_NOISE.test(t)) continue;
+    if (isLocationish(t)) continue;
+    if (/^[\d\s\W]+$/.test(t)) continue; // digits/punctuation only
+    // CTA phrases: an action verb followed by a filler word.
+    if (/^(view|see|shop|order|book|get|learn|read|explore|discover|find|browse)\b/i.test(t) && /\b(all|more|now|us|online|store|a|here|today)\b/i.test(t)) continue;
+    seen.add(key);
+    out.push(t);
+  }
   return out;
 }
 

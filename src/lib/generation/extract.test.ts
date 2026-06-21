@@ -1,8 +1,29 @@
 import { describe, it, expect } from "vitest";
 import { parse } from "node-html-parser";
-import { extractContact, extractStats } from "./engine";
+import { extractContact, extractStats, cleanServiceLabels } from "./engine";
 
 const root = (html: string) => parse(html, { blockTextElements: { script: false, style: true } });
+
+describe("cleanServiceLabels", () => {
+  it("strips nav/CTA/location noise (real Tartine nav)", () => {
+    const out = cleanServiceLabels(["LOCATIONS", "VIEW ALL", "Bay Area", "The Bakery", "Tartine Manufactory", "Inner Sunset SF"]);
+    expect(out).not.toContain("LOCATIONS");
+    expect(out).not.toContain("VIEW ALL");
+    expect(out).not.toContain("Bay Area");
+    expect(out).not.toContain("Inner Sunset SF");
+    expect(out).not.toContain("Tartine Manufactory"); // "manufactory" => location-ish
+    expect(out).toContain("The Bakery");
+  });
+
+  it("keeps real offering names and dedupes", () => {
+    const out = cleanServiceLabels(["Catering", "Wedding Cakes", "Catering", "Contact", "Shop Now", "Pastry Classes"]);
+    expect(out).toEqual(["Catering", "Wedding Cakes", "Pastry Classes"]);
+  });
+
+  it("drops utility labels and pure symbols", () => {
+    expect(cleanServiceLabels(["Home", "Cart", "FAQ", "→", "123"]).length).toBe(0);
+  });
+});
 
 describe("extractContact", () => {
   it("prefers tel:/mailto: links and reads an <address>", () => {
