@@ -52,6 +52,8 @@ export const BLOCK_CATALOG: BlockMeta[] = [
   { variant: "FeaturesGrid1", category: "features", sectors: "all", moods: ["minimal", "elegant"], motion: 1, license: "ReFrame original", when: "Hairline-gap feature grid. Safe default." },
   { variant: "FeaturesBento", category: "features", sectors: ["saas", "agency", "ecommerce", "generic"], moods: ["bold", "minimal"], motion: 2, license: "ReFrame original", when: "Asymmetric bento with hover depth; modern brands." },
   { variant: "FeaturesAlternating", category: "features", sectors: ["saas", "health", "agency", "realestate", "generic"], moods: ["minimal", "elegant"], motion: 1, license: "ReFrame original", when: "Alternating feature rows; calm editorial narrative." },
+  { variant: "FeaturesSpotlight", category: "features", sectors: ["saas", "agency", "ecommerce", "generic"], moods: ["bold", "minimal"], motion: 2, license: "ReFrame original (cursor spotlight, Aceternity-inspired)", when: "Feature cards lit by a cursor-following spotlight; modern tech brands." },
+  { variant: "FeaturesColumns", category: "features", sectors: "all", moods: ["minimal", "elegant", "warm"], motion: 1, license: "ReFrame original", when: "Tidy numbered columns with a top accent rule; calm, content-dense friendly." },
 
   // Services
   { variant: "ServicesList", category: "services", sectors: "all", moods: ["elegant", "warm", "minimal"], motion: 1, license: "ReFrame original", when: "Editorial numbered services index; serif titles, hairline rules." },
@@ -81,8 +83,12 @@ export const BLOCK_CATALOG: BlockMeta[] = [
   { variant: "CTASection1", category: "cta", sectors: "all", moods: ["bold", "minimal"], motion: 1, license: "ReFrame original", when: "High-contrast dark closing CTA with accent glow." },
   { variant: "CTAEditorial", category: "cta", sectors: "all", moods: ["elegant", "warm"], motion: 1, license: "ReFrame original", when: "Light serif CTA framed by hairline rules." },
   { variant: "CTAAsterisk", category: "cta", sectors: ["agency", "saas", "ecommerce", "generic"], moods: ["bold"], motion: 3, license: "ReFrame original (inspired by Agencia/Framer agency templates)", when: "Colossal condensed sign-off over a hot gradient plate with a rotating asterisk + contact link; bold dark brands." },
+  { variant: "CTABanner", category: "cta", sectors: "all", moods: ["minimal", "bold", "warm"], motion: 1, license: "ReFrame original", when: "Compact horizontal CTA band (headline left, button right) on a brand-tinted surface." },
+  { variant: "CTAGradient", category: "cta", sectors: ["saas", "agency", "ecommerce", "generic"], moods: ["bold", "minimal"], motion: 1, license: "ReFrame original (Stripe/Vercel-inspired)", when: "Full-bleed accent-gradient closing panel with an ambient glow and a colossal headline." },
   { variant: "ContactFormPremium1", category: "contact", sectors: "all", motion: 0, license: "ReFrame original", when: "Two-column contact form." },
   { variant: "Footer1", category: "footer", sectors: "all", motion: 0, license: "ReFrame original", when: "Editorial footer." },
+  { variant: "FooterColumns", category: "footer", sectors: ["saas", "agency", "ecommerce", "generic"], moods: ["minimal", "bold"], motion: 0, license: "ReFrame original", when: "Multi-column site-map footer: brand + pages + real services + real contact." },
+  { variant: "FooterMinimal", category: "footer", sectors: "all", moods: ["bold", "elegant"], motion: 0, license: "ReFrame original", when: "Minimal centered footer with a colossal brand wordmark watermark." },
 ];
 
 function hash(s: string): number {

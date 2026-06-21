@@ -1189,7 +1189,13 @@ function buildBlock(
         },
       };
     case "footer":
-      return { id: uid("footer"), type: "footer", variant: "Footer1", props: { brand } };
+      return {
+        id: uid("footer"),
+        type: "footer",
+        variant: pickVariant("footer", analysis.industry, brand, mood),
+        // Real data for the multi-column footer; other footers ignore the extras.
+        props: { brand, services: c.services, contact: c.contact },
+      };
     default:
       return buildBlock({ ...slot, category: "features" }, analysis, mood);
   }

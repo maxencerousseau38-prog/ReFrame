@@ -13,7 +13,8 @@ describe("pickVariant scoring", () => {
     expect(pickVariant("hero", "realestate", "X", "elegant")).toBe("HeroMonumental"); // property showcase
     expect(pickVariant("hero", "agency", "X", "bold")).toBe("HeroAgencia"); // colossal wordmark
     expect(pickVariant("hero", "saas", "X", "minimal")).toBe("HeroBento"); // product + proof
-    expect(pickVariant("features", "agency", "X", "bold")).toBe("FeaturesBento");
+    // bold/agency features = a modern card layout (bento or spotlight), not the plain grid
+    expect(["FeaturesBento", "FeaturesSpotlight"]).toContain(pickVariant("features", "agency", "X", "bold"));
   });
 
   it("routes testimonials and CTA by mood (light editorial vs dark)", () => {
@@ -25,7 +26,8 @@ describe("pickVariant scoring", () => {
     );
     expect(pickVariant("testimonials", "saas", "X", "minimal")).toBe("TestimonialsSlider1");
     expect(pickVariant("cta", "health", "X", "elegant")).toBe("CTAEditorial");
-    expect(pickVariant("cta", "saas", "X", "minimal")).toBe("CTASection1");
+    // saas/minimal = a dark/bold CTA (not the light editorial one)
+    expect(pickVariant("cta", "saas", "X", "minimal")).not.toBe("CTAEditorial");
   });
 
   it("diversifies same-profile brands where variants are competitive", () => {

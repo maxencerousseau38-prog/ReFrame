@@ -2351,7 +2351,216 @@ function HeroAurora({ props }: { props: any }) {
   );
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Catalog expansion - extra premium variants (footers / CTA / features)      */
+/* -------------------------------------------------------------------------- */
+
+/** Multi-column footer: brand + real page links + real services + real contact.
+ *  The "agency site map" footer. Only renders columns that have real content. */
+function FooterColumns({ props }: { props: any }) {
+  const services = (props.services || []).slice(0, 5) as string[];
+  const contact = props.contact || {};
+  const pages = [
+    { label: "Home", href: "#top" },
+    { label: "Services", href: "#services" },
+    { label: "About", href: "#about" },
+    { label: "Contact", href: "#contact" },
+  ];
+  const col = "flex flex-col gap-2.5 text-sm";
+  const head = "text-xs font-medium uppercase tracking-wider";
+  return (
+    <footer className="border-t px-6 py-16" style={{ borderColor: HAIRLINE, color: "var(--brand-ink)" }}>
+      <div className="mx-auto grid max-w-6xl gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+        <div>
+          <div className="text-2xl font-medium tracking-tight" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>{props.brand}</div>
+          <p className="mt-3 max-w-xs text-sm" style={{ opacity: 0.55 }}>Crafted with care.</p>
+        </div>
+        <div className={col}>
+          <span className={head} style={{ opacity: 0.5 }}>Pages</span>
+          {pages.map((p) => (
+            <a key={p.label} href={p.href} className="transition-opacity hover:opacity-100" style={{ opacity: 0.7 }}>{p.label}</a>
+          ))}
+        </div>
+        {services.length > 0 && (
+          <div className={col}>
+            <span className={head} style={{ opacity: 0.5 }}>Services</span>
+            {services.map((s) => (
+              <a key={s} href="#services" className="transition-opacity hover:opacity-100" style={{ opacity: 0.7 }}>{s}</a>
+            ))}
+          </div>
+        )}
+        {(contact.email || contact.phone || contact.address) && (
+          <div className={col}>
+            <span className={head} style={{ opacity: 0.5 }}>Contact</span>
+            {contact.email && <a href={`mailto:${contact.email}`} className="transition-opacity hover:opacity-100" style={{ opacity: 0.7 }}>{contact.email}</a>}
+            {contact.phone && <a href={`tel:${String(contact.phone).replace(/\s+/g, "")}`} className="transition-opacity hover:opacity-100" style={{ opacity: 0.7 }}>{contact.phone}</a>}
+            {contact.address && <span style={{ opacity: 0.7 }}>{contact.address}</span>}
+          </div>
+        )}
+      </div>
+      <div className="mx-auto mt-12 flex max-w-6xl flex-col gap-2 border-t pt-6 text-xs sm:flex-row sm:items-center sm:justify-between" style={{ borderColor: HAIRLINE, opacity: 0.55 }}>
+        <span>&copy; {new Date().getFullYear()} {props.brand}. All rights reserved.</span>
+        <span>Privacy &middot; Terms</span>
+      </div>
+    </footer>
+  );
+}
+
+/** Minimal centered footer: a colossal brand wordmark over a thin legal line.
+ *  Confident and quiet - for brands that let the name carry it. */
+function FooterMinimal({ props }: { props: any }) {
+  return (
+    <footer className="overflow-hidden border-t px-6 pt-16 text-center" style={{ borderColor: HAIRLINE, color: "var(--brand-ink)" }}>
+      <a href="#top" className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition-colors hover:bg-[var(--brand-surface)]" style={{ borderColor: HAIRLINE, color: "var(--brand)" }}>
+        Back to top <span aria-hidden>&uarr;</span>
+      </a>
+      <div className="mt-10 flex flex-col gap-2 text-xs sm:flex-row sm:items-center sm:justify-between" style={{ opacity: 0.55 }}>
+        <span>&copy; {new Date().getFullYear()} {props.brand}. All rights reserved.</span>
+        <span>Privacy &middot; Terms</span>
+      </div>
+      <div className="pointer-events-none -mb-[0.18em] mt-6 select-none whitespace-nowrap text-[22vw] font-semibold leading-none tracking-tight" style={{ color: "var(--brand)", opacity: 0.06 }}>
+        {props.brand}
+      </div>
+    </footer>
+  );
+}
+
+/** Horizontal CTA band: headline left, button right, on a brand-tinted surface
+ *  with a hairline. Compact and high-conversion; great between content and footer. */
+function CTABanner({ props }: { props: any }) {
+  return (
+    <section className="px-6 py-16">
+      <motion.div
+        initial={{ opacity: 0, y: 18 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 0.6, ease: EASE }}
+        className="mx-auto flex max-w-5xl flex-col items-start gap-6 rounded-[1.5rem] p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10"
+        style={{ background: "color-mix(in srgb, var(--brand-accent) 10%, var(--brand-surface))", boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
+      >
+        <div>
+          <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>
+          {props.subtitle && <p className="mt-2 max-w-md text-sm" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{props.subtitle}</p>}
+        </div>
+        <a {...ctaAttrs(props.ctaHref)} className="group inline-flex shrink-0 items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" }}>
+          {props.cta}
+          <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+        </a>
+      </motion.div>
+    </section>
+  );
+}
+
+/** Full-bleed gradient CTA: a bold accent-gradient panel with an ambient glow and
+ *  a colossal headline. Stripe/Vercel-grade closing moment. */
+function CTAGradient({ props }: { props: any }) {
+  return (
+    <section className="px-6 py-20">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 0.6, ease: EASE }}
+        className="relative mx-auto max-w-5xl overflow-hidden rounded-[2rem] px-8 py-20 text-center sm:px-16"
+        style={{ background: "linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 90%, black), color-mix(in srgb, var(--brand-accent) 55%, black))" }}
+      >
+        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(60% 80% at 50% 0%, rgba(255,255,255,0.25), transparent 60%)" }} />
+        <div className="relative">
+          <h2 className="rf-fluid-display font-semibold text-white [text-wrap:balance]">{props.title}</h2>
+          {props.subtitle && <p className="mx-auto mt-4 max-w-lg text-white/80 [text-wrap:balance]">{props.subtitle}</p>}
+          <a {...ctaAttrs(props.ctaHref)} className="group mt-8 inline-flex items-center gap-1.5 bg-white px-8 py-4 text-sm font-medium text-neutral-900 shadow-xl transition-transform active:scale-[0.98]" style={{ borderRadius: "var(--brand-radius)" }}>
+            {props.cta}
+            <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          </a>
+        </div>
+      </motion.div>
+    </section>
+  );
+}
+
+/** Spotlight feature cards: a cursor-following radial light warms each card on
+ *  hover (Linear/Aceternity feel). Export-safe: no JS just means no spotlight. */
+function FeaturesSpotlight({ props }: { props: any }) {
+  const items = (props.items || []) as any[];
+  const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
+    e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
+  };
+  return (
+    <section className="px-6 py-20 sm:py-24" style={{ background: "var(--brand-surface)" }}>
+      <div className="mx-auto max-w-6xl">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>
+          {props.subtitle && <p className="mt-3" style={{ color: "var(--brand-ink)", opacity: 0.55 }}>{props.subtitle}</p>}
+        </div>
+        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((item, i) => (
+            <motion.div
+              key={i}
+              onMouseMove={onMove}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.05, ease: EASE }}
+              className="group relative overflow-hidden rounded-[1.1rem] p-6 rf-card"
+              style={{ boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
+            >
+              <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ background: "radial-gradient(220px circle at var(--mx) var(--my), color-mix(in srgb, var(--brand-accent) 18%, transparent), transparent 70%)" }} />
+              <div className="relative">
+                <div className="flex h-10 w-10 items-center justify-center" style={{ color: "var(--brand-accent)", background: "color-mix(in srgb, var(--brand-accent) 12%, transparent)", borderRadius: "calc(var(--brand-radius) * 0.7)" }}>
+                  <BlockIcon name={item.icon} className="h-5 w-5" />
+                </div>
+                <h3 className="mt-4 text-base font-semibold" style={{ color: "var(--brand)" }}>{item.title}</h3>
+                {item.description && <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{item.description}</p>}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** Columns feature layout: tidy 3-up columns, each with a top accent rule and a
+ *  numbered index. Calm, editorial, content-dense friendly. */
+function FeaturesColumns({ props }: { props: any }) {
+  const items = (props.items || []) as any[];
+  return (
+    <section className="px-6 py-20 sm:py-24" style={{ background: "var(--brand-surface)" }}>
+      <div className="mx-auto max-w-6xl">
+        <div className="max-w-2xl">
+          <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>
+          {props.subtitle && <p className="mt-3" style={{ color: "var(--brand-ink)", opacity: 0.55 }}>{props.subtitle}</p>}
+        </div>
+        <div className="mt-12 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.05, ease: EASE }}
+            >
+              <div className="h-px w-10" style={{ background: "var(--brand-accent)" }} />
+              <div className="mt-4 text-xs font-medium tabular-nums" style={{ color: "var(--brand-ink)", opacity: 0.4 }}>{String(i + 1).padStart(2, "0")}</div>
+              <h3 className="mt-2 text-lg font-semibold" style={{ color: "var(--brand)" }}>{item.title}</h3>
+              {item.description && <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{item.description}</p>}
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
+  FooterColumns,
+  FooterMinimal,
+  CTABanner,
+  CTAGradient,
+  FeaturesSpotlight,
+  FeaturesColumns,
   HeroAurora,
   HeroSplitPremium,
   HeroBento,
