@@ -649,11 +649,22 @@ export function extractProse(root: HTMLElement): {
   // Services: prefer repeated "h3 title + paragraph" cards (real names + real
   // descriptions). Collect across the page; keep only solid title/description pairs.
   const items: { title: string; description?: string }[] = [];
+  const seen = new Set<string>();
   for (const h of root.querySelectorAll("h3")) {
     const title = clean(h.text);
-    if (title.length < 3 || title.length > 60 || GENERIC_HEADING.test(title)) continue;
+    if (title.length < 3 || title.length > 60) continue;
+    // A real service name is a short noun phrase - not a section label, a nav/
+    // CTA/location word, a sentence, or a long phrase (those are headings, FAQ
+    // questions, client names, etc.).
+    if (GENERIC_HEADING.test(title) || isServiceNoise(title)) continue;
+    if (/[.!?]$/.test(title) || title.split(/\s+/).length > 5) continue;
+    const key = title.toLowerCase();
+    if (seen.has(key)) continue;
     const { body } = sectionAfter(h);
-    if (body.length >= 30) items.push({ title, description: body.slice(0, 160) });
+    if (body.length >= 30) {
+      seen.add(key);
+      items.push({ title, description: body.slice(0, 160) });
+    }
     if (items.length >= 6) break;
   }
   if (items.length >= 3) out.serviceItems = items;
@@ -664,7 +675,7 @@ export function extractProse(root: HTMLElement): {
 // Nav/CTA/utility labels that are never real services (the nav bar is a poor
 // services source: it's full of these). Anchored so it only drops exact labels.
 const SERVICE_NOISE =
-  /^(home|menu|locations?|view all|see all|see more|view more|shop|shop all|shop now|order|order online|order now|book|book now|reserve|reservations?|gift ?cards?|careers?|jobs|press|blog|news|events?|faqs?|account|my account|log ?in|sign ?in|sign ?up|register|search|cart|bag|checkout|contact|contact us|about|about us|our story|our team|team|stores?|find a store|store locator|directions|hours|opening hours|privacy|terms|cookies?|newsletter|subscribe|follow us|wholesale|gallery|portfolio|home page|get started|learn more|read more|explore|discover|all|more|next|previous|back|skip|english|fran[cç]ais|deutsch|espa[nñ]ol)$/i;
+  /^(home|menu|locations?|view all|see all|see more|view more|shop|shop all|shop now|order|order online|order now|book|book now|reserve|reservations?|gift ?cards?|careers?|jobs|press|blog|news|events?|faqs?|frequently asked questions|account|my account|log ?in|sign ?in|sign ?up|register|search|cart|bag|checkout|contact|contact us|about|about us|our story|our team|team|stores?|find a store|store locator|directions|hours|opening hours|privacy|terms|cookies?|newsletter|subscribe|follow us|wholesale|gallery|portfolio|home page|get started|learn more|read more|explore|discover|all|more|next|previous|back|skip|english|fran[cç]ais|deutsch|espa[nñ]ol|work|our work|featured work|selected work|latest|clients|our clients|customers|partners|partnerships|industries|services|our services|solutions|products|projects|case studies|resources|company|insights|overview|capabilities|expertise|approach|process|methodology|pricing|plans|people|culture|values|mission|vision|sitemap|legal|support|help|docs|documentation|community|enterprise|features|integrations|use cases?)$/i;
 
 // Place-name-ish nav labels (store/location menus), which masquerade as services.
 function isLocationish(t: string): boolean {
@@ -672,6 +683,11 @@ function isLocationish(t: string): boolean {
     /\b(SF|NYC|LA|USA|UK|US)\b/.test(t) ||
     /\b(area|district|downtown|uptown|street|st\.?|avenue|ave\.?|road|rd\.?|sunset|valley|heights|manufactory|city|borough|county)\b/i.test(t)
   );
+}
+
+/** A label that is never a real service (utility/CTA/section/location). */
+function isServiceNoise(t: string): boolean {
+  return SERVICE_NOISE.test(t) || isLocationish(t);
 }
 
 /**
@@ -688,8 +704,7 @@ export function cleanServiceLabels(labels: string[]): string[] {
     const key = t.toLowerCase();
     if (!t || seen.has(key)) continue;
     if (t.length < 3 || t.length > 40) continue;
-    if (SERVICE_NOISE.test(t)) continue;
-    if (isLocationish(t)) continue;
+    if (isServiceNoise(t)) continue;
     if (/^[\d\s\W]+$/.test(t)) continue; // digits/punctuation only
     // CTA phrases: an action verb followed by a filler word.
     if (/^(view|see|shop|order|book|get|learn|read|explore|discover|find|browse)\b/i.test(t) && /\b(all|more|now|us|online|store|a|here|today)\b/i.test(t)) continue;

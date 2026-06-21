@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { parse } from "node-html-parser";
-import { extractContact, extractStats, cleanServiceLabels } from "./engine";
+import { extractContact, extractStats, cleanServiceLabels, extractProse } from "./engine";
 
 const root = (html: string) => parse(html, { blockTextElements: { script: false, style: true } });
 
@@ -22,6 +22,28 @@ describe("cleanServiceLabels", () => {
 
   it("drops utility labels and pure symbols", () => {
     expect(cleanServiceLabels(["Home", "Cart", "FAQ", "→", "123"]).length).toBe(0);
+  });
+
+  it("drops generic section labels but keeps real offerings", () => {
+    const out = cleanServiceLabels(["Work", "Clients", "Services", "Industries", "Brand Identity", "Web Design"]);
+    expect(out).toEqual(["Brand Identity", "Web Design"]);
+  });
+});
+
+describe("extractProse services", () => {
+  const html = (inner: string) => parse(`<main>${inner}</main>`, { blockTextElements: { script: false, style: true } });
+  const card = (t: string) => `<h3>${t}</h3><p>A real, sufficiently long description of this offering for clients.</p>`;
+
+  it("keeps real service headings, drops section/FAQ/sentence headings", () => {
+    const root = html(
+      card("Brand Strategy") +
+        card("Web Design") +
+        card("Frequently asked questions") + // section label -> noise
+        card("We craft brands people remember.") + // sentence -> dropped
+        card("Content Production")
+    );
+    const titles = extractProse(root).serviceItems?.map((s) => s.title);
+    expect(titles).toEqual(["Brand Strategy", "Web Design", "Content Production"]);
   });
 });
 
