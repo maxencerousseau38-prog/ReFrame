@@ -27,6 +27,8 @@
     --muted-foreground: 0 0% 65%;
     --accent: 80 84% 56%;            /* electric lime, peak vivid */
     --accent-foreground: 100 40% 5%;
+    --brand: 80 84% 56%;             /* explicit brand token (alias of accent) */
+    --brand-foreground: 100 40% 5%;
     --border: 0 0% 14%;              /* neutral hairline */
     --input: 0 0% 14%;
     --ring: 80 84% 56%;
