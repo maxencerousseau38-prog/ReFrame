@@ -218,6 +218,27 @@ function HeroPremium1({ props }: { props: any }) {
           )}
         </motion.div>
       </div>
+
+      {/* Large centered product visual below the copy - the Apple-style
+          "hero shot". Only when a real image was extracted; brand-tinted
+          gradient + glow fallback keeps a blocked image from leaving a hole. */}
+      {props.image && (
+        <motion.div {...rise(0.28)} className="relative z-10 mx-auto mt-16 w-full max-w-5xl">
+          <div
+            className="overflow-hidden rounded-[1.25rem]"
+            style={{
+              aspectRatio: "16 / 10",
+              background: imageBg(
+                props.image,
+                "linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 22%, transparent), transparent)"
+              ),
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              boxShadow: `0 50px 140px -40px color-mix(in srgb, var(--brand-accent) 45%, transparent), inset 0 0 0 1px ${HAIRLINE}`,
+            }}
+          />
+        </motion.div>
+      )}
     </section>
   );
 }
@@ -957,6 +978,30 @@ function FeaturesBento({ props }: { props: any }) {
                     <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>
                       {item.description}
                     </p>
+                  )}
+                  {(props.primaryCta || props.secondaryCta) && (
+                    <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+                      {props.primaryCta && (
+                        <a
+                          {...ctaAttrs(props.primaryHref)}
+                          className="group/cta inline-flex items-center gap-1 text-sm font-medium transition-opacity hover:opacity-80"
+                          style={{ color: "var(--brand-accent)" }}
+                        >
+                          {props.primaryCta}
+                          <ArrowRight weight="bold" className="h-3.5 w-3.5 transition-transform group-hover/cta:translate-x-0.5" />
+                        </a>
+                      )}
+                      {props.secondaryCta && props.secondaryCta !== props.primaryCta && (
+                        <a
+                          {...ctaAttrs(props.secondaryHref)}
+                          className="group/cta2 inline-flex items-center gap-1 text-sm font-medium transition-opacity hover:opacity-80"
+                          style={{ color: "var(--brand-accent)" }}
+                        >
+                          {props.secondaryCta}
+                          <ArrowRight weight="bold" className="h-3.5 w-3.5 transition-transform group-hover/cta2:translate-x-0.5" />
+                        </a>
+                      )}
+                    </div>
                   )}
                 </div>
               </motion.div>

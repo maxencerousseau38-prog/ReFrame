@@ -967,6 +967,12 @@ function buildBlock(
         props: {
           title: sectionTitle(slot.type, brand),
           subtitle: "What makes the difference for our clients.",
+          // Real CTAs reused on each tile (Apple-style "Learn more / Book"),
+          // pointing at the same booking/contact next steps as the hero.
+          primaryCta: "Learn more",
+          primaryHref: "#contact",
+          secondaryCta: phoneHref ? "Call us" : profile.cta.primary,
+          secondaryHref: phoneHref || bookHref,
           items: base.map((it, i) => ({
             ...it,
             icon: FEATURE_ICONS[i % FEATURE_ICONS.length],
