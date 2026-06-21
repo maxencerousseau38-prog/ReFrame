@@ -953,7 +953,13 @@ function buildBlock(
           caption: c.services[0],
         },
       };
-    case "features":
+    case "features": {
+      const base = c.serviceItems?.length
+        ? c.serviceItems.map((s) => ({ title: s.title, description: s.description || featureBlurb(s.title, analysis.industry) }))
+        : c.services.map((s) => ({ title: s, description: featureBlurb(s, analysis.industry) }));
+      // Image-led tiles (Apple-store grade) when there is enough REAL imagery to
+      // vary across tiles; otherwise the bento degrades to restrained icon tiles.
+      const useImages = c.images.length >= 3;
       return {
         id: uid("features"),
         type: slot.type,
@@ -961,12 +967,14 @@ function buildBlock(
         props: {
           title: sectionTitle(slot.type, brand),
           subtitle: "What makes the difference for our clients.",
-          items: (c.serviceItems?.length
-            ? c.serviceItems.map((s) => ({ title: s.title, description: s.description || featureBlurb(s.title, analysis.industry) }))
-            : c.services.map((s) => ({ title: s, description: featureBlurb(s, analysis.industry) }))
-          ).map((it, i) => ({ ...it, icon: FEATURE_ICONS[i % FEATURE_ICONS.length] })),
+          items: base.map((it, i) => ({
+            ...it,
+            icon: FEATURE_ICONS[i % FEATURE_ICONS.length],
+            ...(useImages ? { image: c.images[i % c.images.length] } : {}),
+          })),
         },
       };
+    }
     case "services":
       return {
         id: uid("services"),

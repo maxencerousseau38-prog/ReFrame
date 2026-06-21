@@ -886,44 +886,82 @@ function HeroSpotlight({ props }: { props: any }) {
 }
 
 /** Asymmetric bento; first item is featured, cards lift on hover. */
+/**
+ * Image-led bento, Apple-store grade. A monumental lead tile and supporting
+ * tiles, each an elevated brand-card surface (correct in light AND dark) with a
+ * real product/work image on top and the real title + description below. When no
+ * imagery is available it degrades to a restrained monochrome-icon tile (no loud
+ * accent chip) so the accent stays rare, per the design golden rules.
+ */
 function FeaturesBento({ props }: { props: any }) {
   const items = (props.items || []) as any[];
   return (
-    <section className="px-6 py-20 sm:py-24">
+    <section className="px-6 py-20 sm:py-24" style={{ background: "var(--brand-surface)" }}>
       <div className="mx-auto max-w-6xl">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>
             {props.title}
           </h2>
-          {props.subtitle && <p className="mt-3 text-neutral-500">{props.subtitle}</p>}
+          {props.subtitle && (
+            <p className="mt-3" style={{ color: "var(--brand-ink)", opacity: 0.55 }}>{props.subtitle}</p>
+          )}
         </div>
-        <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-3 md:[grid-auto-flow:dense]">
-          {items.map((item, i) => (
-            <motion.div
-              key={i}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fade}
-              transition={{ duration: 0.5, delay: i * 0.06 }}
-              className={cn(
-                "group border rf-card p-6 transition-transform duration-300 hover:-translate-y-1",
-                i === 0 && "md:col-span-2 md:row-span-2"
-              )}
-              style={{ borderRadius: "var(--brand-radius)", borderColor: "#ececec" }}
-            >
-              <div
-                className="mb-4 flex h-10 w-10 items-center justify-center text-white"
-                style={{ background: "var(--brand-accent)", borderRadius: "calc(var(--brand-radius) * 0.7)" }}
+        <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:[grid-auto-flow:dense]">
+          {items.map((item, i) => {
+            const lead = i === 0;
+            return (
+              <motion.div
+                key={i}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fade}
+                transition={{ duration: 0.5, delay: i * 0.05 }}
+                className={cn(
+                  "group flex flex-col overflow-hidden rf-card transition-transform duration-300 hover:-translate-y-1",
+                  lead && "sm:col-span-2 lg:row-span-2"
+                )}
+                style={{ borderRadius: "var(--brand-radius)", boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
               >
-                <BlockIcon name={item.icon} className="h-5 w-5" />
-              </div>
-              <h3 className={cn("font-semibold", i === 0 ? "text-xl" : "text-base")} style={{ color: "var(--brand)" }}>
-                {item.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-neutral-500">{item.description}</p>
-            </motion.div>
-          ))}
+                {item.image ? (
+                  <div
+                    className={cn("w-full overflow-hidden", lead ? "min-h-[220px] flex-1" : "aspect-[16/10]")}
+                    style={{
+                      background: imageBg(
+                        item.image,
+                        "linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 20%, transparent), transparent)"
+                      ),
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }}
+                  />
+                ) : (
+                  <div className="px-6 pt-6">
+                    <div
+                      className="flex h-10 w-10 items-center justify-center"
+                      style={{
+                        color: "var(--brand-accent)",
+                        background: "color-mix(in srgb, var(--brand-accent) 12%, transparent)",
+                        borderRadius: "calc(var(--brand-radius) * 0.7)",
+                      }}
+                    >
+                      <BlockIcon name={item.icon} className="h-5 w-5" />
+                    </div>
+                  </div>
+                )}
+                <div className="p-6">
+                  <h3 className={cn("font-semibold", lead ? "text-xl" : "text-base")} style={{ color: "var(--brand)" }}>
+                    {item.title}
+                  </h3>
+                  {item.description && (
+                    <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>
+                      {item.description}
+                    </p>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>
