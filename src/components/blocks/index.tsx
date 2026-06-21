@@ -2242,18 +2242,81 @@ type NavItem = { label: string; href?: string; onClick?: () => void; active?: bo
  * Brand mark for the rebuilt site's nav: the REAL logo pulled from the source
  * site, proxied (caching/referrer/hotlink bypass), with the wordmark (brand
  * name) as a graceful fallback when there is no logo or it fails to load.
+ *
+ * Auto-contrast: the proxied logo is same-origin, so once loaded we sample it on
+ * a canvas. A near-monochrome logo that would vanish against the canvas (a dark
+ * logo on dark, a light logo on light) is flipped to read; colour logos are left
+ * untouched. Tainted/failed reads simply skip the treatment.
  */
-function BrandLogo({ logo, name }: { logo?: string; name: string }) {
+/** Light/dark hint from the logo's filename (e.g. "logo-black.svg",
+ *  "brand-white.svg"). Many sites ship theme-specific assets and name them so;
+ *  this is the reliable signal for SVG logos, which taint a canvas and can't be
+ *  pixel-sampled. Returns the logo's own tone: "dark" = a dark-coloured mark. */
+function logoToneFromUrl(u: string): "dark" | "light" | undefined {
+  if (/(?:^|[-_/.])(black|dark|noir|onlight|on-light)(?:[-_/.]|$)/i.test(u)) return "dark";
+  if (/(?:^|[-_/.])(white|light|blanc|ondark|on-dark|inverse|inverted)(?:[-_/.]|$)/i.test(u)) return "light";
+  return undefined;
+}
+
+/** Filter needed for a logo of the given tone to read on this theme. */
+function fixFor(tone: "dark" | "light" | undefined, dark?: boolean): string | undefined {
+  if (tone === "dark" && dark) return "brightness(0) invert(1)"; // dark mark -> white on dark
+  if (tone === "light" && !dark) return "brightness(0)"; // light mark -> black on light
+  return undefined;
+}
+
+function BrandLogo({ logo, name, dark }: { logo?: string; name: string; dark?: boolean }) {
   const [failed, setFailed] = React.useState(false);
+  // Seed from the filename hint (works for SVGs); canvas sampling refines it for
+  // raster logos once loaded.
+  const [filter, setFilter] = React.useState<string | undefined>(
+    logo ? fixFor(logoToneFromUrl(logo), dark) : undefined
+  );
   const src = logo ? toProxiedUrl(logo) : undefined;
+
+  const analyze = React.useCallback(
+    (img: HTMLImageElement) => {
+      try {
+        const w = 24, h = 24;
+        const cv = document.createElement("canvas");
+        cv.width = w;
+        cv.height = h;
+        const ctx = cv.getContext("2d", { willReadFrequently: true });
+        if (!ctx) return;
+        ctx.drawImage(img, 0, 0, w, h);
+        const { data } = ctx.getImageData(0, 0, w, h);
+        let n = 0, lum = 0, sat = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          if (data[i + 3] < 32) continue; // ignore transparent pixels
+          const r = data[i] / 255, g = data[i + 1] / 255, b = data[i + 2] / 255;
+          const max = Math.max(r, g, b), min = Math.min(r, g, b);
+          lum += (max + min) / 2;
+          sat += max === 0 ? 0 : (max - min) / max;
+          n++;
+        }
+        if (!n) return;
+        lum /= n;
+        sat /= n;
+        if (sat >= 0.15) return; // colour logo: never recolour it
+        if (dark && lum < 0.5) setFilter("brightness(0) invert(1)"); // dark logo -> white on dark
+        else if (!dark && lum > 0.6) setFilter("brightness(0)"); // light logo -> black on light
+      } catch {
+        /* cross-origin/tainted: leave the logo as extracted */
+      }
+    },
+    [dark]
+  );
+
   if (src && !failed) {
     // eslint-disable-next-line @next/next/no-img-element
     return (
       <img
         src={src}
         alt={name}
+        onLoad={(e) => analyze(e.currentTarget)}
         onError={() => setFailed(true)}
         className="h-7 w-auto max-w-[170px] object-contain"
+        style={filter ? { filter } : undefined}
       />
     );
   }
@@ -2264,7 +2327,7 @@ function BrandLogo({ logo, name }: { logo?: string; name: string }) {
   );
 }
 
-function SiteNav({ brand, items, cta, logoUrl }: { brand: NavItem; items: NavItem[]; cta: NavItem; logoUrl?: string }) {
+function SiteNav({ brand, items, cta, logoUrl, dark }: { brand: NavItem; items: NavItem[]; cta: NavItem; logoUrl?: string; dark?: boolean }) {
   const link = (it: NavItem, key: React.Key) => {
     const cls = "text-sm transition-opacity hover:opacity-70";
     const style = { color: "var(--brand-ink)", opacity: it.active ? 1 : 0.72 } as React.CSSProperties;
@@ -2290,11 +2353,11 @@ function SiteNav({ brand, items, cta, logoUrl }: { brand: NavItem; items: NavIte
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-[max(1.5rem,env(safe-area-inset-left))] py-3.5">
         {brand.href ? (
           <a href={brand.href} className="inline-flex items-center" aria-label={brand.label}>
-            <BrandLogo logo={logoUrl} name={brand.label} />
+            <BrandLogo logo={logoUrl} name={brand.label} dark={dark} />
           </a>
         ) : (
           <button type="button" onClick={brand.onClick} className="inline-flex items-center" aria-label={brand.label}>
-            <BrandLogo logo={logoUrl} name={brand.label} />
+            <BrandLogo logo={logoUrl} name={brand.label} dark={dark} />
           </button>
         )}
         <nav className="hidden items-center gap-7 md:flex">{items.map(link)}</nav>
@@ -2383,7 +2446,7 @@ export function SiteRenderer({
           scrollBehavior: "smooth",
         }}
       >
-        <SiteNav brand={brand} items={items} cta={cta} logoUrl={schema.brand.logo} />
+        <SiteNav brand={brand} items={items} cta={cta} logoUrl={schema.brand.logo} dark={schema.theme.dark === true} />
         {current.blocks.map((block, i) => (
           <div key={block.id} id={anchorId(block.type)} style={{ scrollMarginTop: "76px" }}>
             <BlockRenderer block={block} index={i + 1} />
