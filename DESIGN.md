@@ -442,3 +442,86 @@ Quand on recrée un site client, viser ce rendu :
 > **Rappel d'intention :** on copie la **grammaire** (espacements, type, motion,
 > retenue chromatique), pas l'**identité** (couleur de marque, contenu, logos).
 > La couleur d'accent vient toujours du client.
+
+---
+
+## 9. Variante marque — ReFrame (Monochrome)
+
+Marque ReFrame = **monochrome pur**. Aucun accent chromatique :
+`#000000 · #0A0A0A · #111111 · #FFFFFF`. L'« accent » devient le **blanc sur
+noir** — exactement la logique du bouton primaire de Linear, donc le système
+tient sans rien forcer. La hiérarchie repose à 100 % sur les **niveaux de gris**
+et le **contraste de surface**.
+
+```css
+/* ── ReFrame — re-skin monochrome. Remplace la section MARQUE + FONDS. ── */
+:root {
+  /* Fonds — les 3 noirs de la marque + 3 paliers dérivés */
+  --bg-0:           #000000;   /* canvas (noir pur, choix de marque) */
+  --bg-1:           #0A0A0A;   /* panneaux, header */
+  --bg-2:           #111111;   /* surface élevée */
+  --bg-3:           #161616;   /* dérivé : hover de surface profonde */
+  --bg-secondary:   #111111;   /* cards, inputs */
+  --bg-tertiary:    #1A1A1A;   /* dérivé : hover de card */
+  --bg-quaternary:  #222222;   /* dérivé : pressé / actif */
+  --bg-marketing:   #000000;   /* hero plein */
+  --bg-translucent: rgba(255,255,255,0.05);
+
+  /* Texte — niveaux de gris neutres (la hiérarchie vit ici) */
+  --fg-primary:     #FFFFFF;   /* titres, texte fort */
+  --fg-secondary:   #B4B4B4;   /* sous-titres, corps clair */
+  --fg-tertiary:    #8A8A8A;   /* paragraphes secondaires */
+  --fg-quaternary:  #5A5A5A;   /* placeholders, légendes, désactivé */
+
+  /* Bordures — hairlines translucides blanches */
+  --border-primary:            rgba(255,255,255,0.08);
+  --border-secondary:          rgba(255,255,255,0.14);
+  --border-translucent:        rgba(255,255,255,0.05);
+  --border-translucent-strong: rgba(255,255,255,0.10);
+  --header-border:             rgba(255,255,255,0.08);
+
+  /* MARQUE — l'accent EST le blanc (CTA = blanc sur noir) */
+  --brand:          #FFFFFF;
+  --brand-hover:    #E5E5E5;   /* on ne peut pas dépasser blanc → on assombrit au survol */
+  --brand-tint:     #1A1A1A;   /* « pastille » de marque sur fond noir */
+  --brand-contrast: #000000;   /* texte posé SUR --brand (noir sur bouton blanc) */
+  --brand-link:     #FFFFFF;   /* liens : blanc + soulignement (pas de couleur) */
+}
+
+/* Liens : pas d'accent couleur → on signale par le soulignement. */
+a { color: var(--brand-link); text-underline-offset: 0.2em;
+    text-decoration-color: rgba(255,255,255,0.35); }
+a:hover { text-decoration-color: #fff; }
+
+/* Focus ring monochrome (le halo coloré n'a plus de sens) */
+.input:focus {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.6),
+              0 0 0 3px rgba(255,255,255,0.12);
+}
+```
+
+**CTA principal** → utiliser `.btn-primary` (déjà blanc `#e5e5e6` sur noir) :
+c'est natif au système, rien à changer. `.btn-brand` devient identique au
+primaire — pour ReFrame, garde simplement `.btn-primary`.
+
+### ⚠️ Une nuance de craft (recommandée)
+Tu as choisi `#000000` + `#FFFFFF` purs. Sur OLED, **blanc pur sur noir pur**
+en grandes surfaces de texte crée un léger *halation* (bavure lumineuse) et
+fatigue l'œil. Linear évite ça en adoucissant le texte à `#f7f8f8`. Mon conseil :
+garder `#000000` pour le **canvas** (c'est ta signature, OK), mais passer le
+texte courant à un blanc cassé :
+
+```css
+--fg-primary: #F4F4F5;   /* au lieu de #FFFFFF — réserve le blanc pur aux gros titres / logo */
+```
+
+Le `#FFFFFF` pur reste parfait pour le logo, les titres display et les CTA.
+Ça ne change rien à l'identité, ça gagne juste en confort de lecture.
+
+### Synthèse — ta marque mappée
+| Ton hex   | Rôle dans le système                          |
+|-----------|-----------------------------------------------|
+| `#000000` | `--bg-0` canvas + `--brand-contrast`          |
+| `#0A0A0A` | `--bg-1` panneaux / header                    |
+| `#111111` | `--bg-2` / `--bg-secondary` (cards, inputs)   |
+| `#FFFFFF` | `--brand` (accent/CTA) + `--fg-primary`       |
