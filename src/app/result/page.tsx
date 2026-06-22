@@ -16,6 +16,7 @@ import {
   saveAnalysis,
   saveSchema,
   fetchProject,
+  updateProject,
   projectIdFromUrl,
 } from "@/lib/store";
 import type { SiteAnalysis, SiteSchema } from "@/lib/generation/types";
@@ -151,6 +152,19 @@ export default function ResultPage() {
     URL.revokeObjectURL(url);
   }
 
+  // Reconnect a detected tool: store the validated ID on the schema so the
+  // published pages re-inject the real vendor snippet. Persisted immediately.
+  function connectIntegration(id: string, value: string) {
+    setSchema((prev) => {
+      if (!prev) return prev;
+      const others = (prev.connectedIntegrations ?? []).filter((c) => c.id !== id);
+      const next = { ...prev, connectedIntegrations: [...others, { id, value }] };
+      saveSchema(next);
+      if (projectId) void updateProject(projectId, next);
+      return next;
+    });
+  }
+
   async function publish() {
     if (!schema) return;
     setPublishing(true);
@@ -251,9 +265,13 @@ export default function ResultPage() {
         </div>
       </div>
 
-      {/* Pre-publish safety: surface business tools that need reconnecting. */}
+      {/* Pre-publish safety: surface + actually reconnect business tools. */}
       {!published && analysis?.integrations?.length ? (
-        <IntegrationsNotice integrations={analysis.integrations} />
+        <IntegrationsNotice
+          integrations={analysis.integrations}
+          connected={schema?.connectedIntegrations}
+          onConnect={connectIntegration}
+        />
       ) : null}
 
       {/* Don't lose the redesign: email the link to capture the lead. */}

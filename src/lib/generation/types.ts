@@ -113,6 +113,13 @@ export interface SiteSchema {
   pages?: SitePage[];
   /** Which mode produced this schema. Defaults to the engine default. */
   mode?: GenerationMode;
+  /**
+   * Reconnected third-party tools: the customer's IDs for tools detected on
+   * their old site (GA4, GTM, Meta Pixel, Calendly, Crisp, Intercom). The
+   * published pages re-inject the real vendor snippets from these, after strict
+   * validation, so analytics/chat/booking keep working post-rebuild.
+   */
+  connectedIntegrations?: { id: string; value: string }[];
   /** Smart-mode optimizations applied, for display in the UI. */
   recommendations?: Recommendation[];
   /**

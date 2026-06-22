@@ -149,5 +149,13 @@ export function parseSiteSchema(value: unknown, fallbackSeed = "site"): SiteSche
     mode,
     recommendations: recommendations && recommendations.length ? recommendations : undefined,
     animations: typeof v.animations === "boolean" ? v.animations : undefined,
+    // Preserve reconnected integrations across AI-edit round-trips / republish.
+    ...(Array.isArray(v.connectedIntegrations)
+      ? {
+          connectedIntegrations: (v.connectedIntegrations as unknown[])
+            .filter((c): c is { id: string; value: string } => !!c && typeof (c as { id?: unknown }).id === "string" && typeof (c as { value?: unknown }).value === "string")
+            .map((c) => ({ id: c.id, value: c.value })),
+        }
+      : {}),
   };
 }

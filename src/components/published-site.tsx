@@ -4,6 +4,7 @@ import { Pageview } from "@/components/pageview";
 import { getUserById } from "@/lib/server/users-store";
 import { entitlementsOf, effectivePlan } from "@/lib/server/plans";
 import { buildJsonLd } from "@/lib/server/seo";
+import { buildIntegrationTags } from "@/lib/integrations";
 import type { PublishedSite as PublishedSiteRecord } from "@/lib/server/sites-store";
 
 /** Should this published site carry the "Made with ReFrame" badge? */
@@ -34,6 +35,9 @@ export async function PublishedSite({
 }) {
   const branded = await showBranding(site.ownerId);
   const jsonLd = buildJsonLd(site.schema, canonicalUrl);
+  // Reconnected third-party tools, re-injected as real (validated) vendor tags
+  // so the customer's analytics/chat/booking keep working after the rebuild.
+  const tags = buildIntegrationTags(site.schema.connectedIntegrations);
   return (
     <>
       {/* Machine-readable business identity for search engines / local results. */}
@@ -42,6 +46,19 @@ export async function PublishedSite({
         // JSON.stringify output is safe to inline; no user-controlled HTML.
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      {tags.map((t, i) =>
+        t.kind === "src" ? (
+          <script key={i} async src={t.content} />
+        ) : t.kind === "css" ? (
+          // eslint-disable-next-line @next/next/no-page-custom-font
+          <link key={i} rel="stylesheet" href={t.content} />
+        ) : t.kind === "noscript" ? (
+          <noscript key={i} dangerouslySetInnerHTML={{ __html: t.content }} />
+        ) : (
+          // Inline vendor snippet; the value inside was strictly validated.
+          <script key={i} dangerouslySetInnerHTML={{ __html: t.content }} />
+        )
+      )}
       <Pageview slug={site.slug} />
       <SiteRenderer schema={site.schema} basePath={basePath} page={page} published />
       {branded && (
