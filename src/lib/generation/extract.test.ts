@@ -1,6 +1,25 @@
 import { describe, it, expect } from "vitest";
 import { parse } from "node-html-parser";
-import { extractContact, extractStats, cleanServiceLabels, extractProse, extractImages, extractProducts } from "./engine";
+import { extractContact, extractStats, cleanServiceLabels, extractProse, extractImages, extractProducts, navPageLinks } from "./engine";
+
+describe("navPageLinks (multi-page discovery)", () => {
+  it("keeps real internal pages, drops home/anchors/assets/external/system", () => {
+    const html = `<header>
+      <a href="/">Home</a>
+      <a href="/services">Services</a>
+      <a href="/about-us">About us</a>
+      <a href="#section">Jump</a>
+      <a href="/brochure.pdf">PDF</a>
+      <a href="/cart">Cart</a>
+      <a href="https://other.com/x">External</a>
+      <a href="mailto:a@b.com">Mail</a>
+      <a href="/contact" title="Contact">Reach us</a>
+    </header>`;
+    const links = navPageLinks(parse(html, { blockTextElements: { script: true, style: true } }), "https://acme.com");
+    expect(links.map((l) => l.path)).toEqual(["/services", "/about-us", "/contact"]);
+    expect(links.find((l) => l.path === "/contact")?.label).toBe("Contact"); // title wins
+  });
+});
 
 describe("extractProducts", () => {
   it("reads JSON-LD Product entries with price + image", () => {

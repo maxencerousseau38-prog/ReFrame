@@ -189,6 +189,126 @@ export async function validateImages(urls: string[], max = 8): Promise<string[]>
   return ok.filter((u): u is string => !!u);
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Multi-page crawl - discover and keep the client's REAL pages (A to Z)      */
+/* -------------------------------------------------------------------------- */
+
+const PAGE_ASSET_RE = /\.(pdf|jpe?g|png|gif|svg|webp|avif|zip|mp4|mov|css|js|ico|xml|json|rss|txt|woff2?)(\?|$)/i;
+// Paths that are not real "pages" to recreate (account/system/legal/locale).
+const PAGE_SKIP_RE = /(\/(cart|panier|checkout|account|compte|login|connexion|register|wishlist|search|recherche|admin|wp-admin|wp-login|feed|tag|author|cdn-cgi)\b|\?(add-to-cart|replytocom)=)/i;
+
+function sameOrigin(u: string, base: string): boolean {
+  try {
+    return new URL(u, base).origin === new URL(base).origin;
+  } catch {
+    return false;
+  }
+}
+function pathKey(u: string, base: string): string {
+  try {
+    return new URL(u, base).pathname.replace(/\/+$/, "") || "/";
+  } catch {
+    return "";
+  }
+}
+/** Human label from a URL path segment (e.g. /our-services -> "Our services"). */
+function labelFromPath(p: string): string {
+  const seg = p.split("/").filter(Boolean).pop() || "";
+  const words = decodeURIComponent(seg).replace(/[-_]+/g, " ").replace(/\.\w+$/, "").trim();
+  if (!words) return "";
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+export interface DiscoveredPage {
+  url: string;
+  label: string;
+  path: string;
+}
+
+/** Internal page links from the site's nav/header (the pages the client chose to
+ *  surface). Labeled, same-origin, no assets/anchors/system paths. Order kept. */
+export function navPageLinks(root: HTMLElement, base: string): DiscoveredPage[] {
+  const out: DiscoveredPage[] = [];
+  const seen = new Set<string>();
+  for (const a of root.querySelectorAll("header a, nav a")) {
+    const href = a.getAttribute("href") || "";
+    if (!href || href.startsWith("#") || /^(mailto:|tel:|javascript:|data:)/i.test(href)) continue;
+    const u = abs(href, base);
+    if (!/^https?:/i.test(u) || !sameOrigin(u, base) || PAGE_ASSET_RE.test(u) || PAGE_SKIP_RE.test(u)) continue;
+    const path = pathKey(u, base);
+    if (path === "/" || path === "" || seen.has(path)) continue;
+    const label = clean(a.getAttribute("title") || a.text).slice(0, 32);
+    if (!label || label.length < 2) continue;
+    seen.add(path);
+    out.push({ url: u.split("#")[0], label, path });
+    if (out.length >= 14) break;
+  }
+  return out;
+}
+
+async function fetchText(url: string, ms = 6000): Promise<string> {
+  try {
+    const c = new AbortController();
+    const t = setTimeout(() => c.abort(), ms);
+    const r = await fetch(url, { signal: c.signal, redirect: "follow", headers: { "User-Agent": BROWSER_UA } });
+    clearTimeout(t);
+    return r.ok ? await r.text() : "";
+  } catch {
+    return "";
+  }
+}
+
+/** Page URLs from the site's sitemap.xml (and a sitemap index), capped. The most
+ *  complete source of the client's real pages when present. */
+async function sitemapUrls(base: string): Promise<string[]> {
+  let origin = "";
+  try {
+    origin = new URL(base).origin;
+  } catch {
+    return [];
+  }
+  const locs = (xml: string) => Array.from(xml.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/gi), (m) => m[1]);
+  const xml = await fetchText(`${origin}/sitemap.xml`);
+  if (!xml) return [];
+  let urls = locs(xml);
+  // Sitemap index: entries are themselves .xml sitemaps - expand a few.
+  if (urls.length && urls.every((u) => /\.xml(\?|$)/i.test(u))) {
+    const collected: string[] = [];
+    for (const sm of urls.slice(0, 3)) {
+      collected.push(...locs(await fetchText(sm)));
+      if (collected.length > 300) break;
+    }
+    urls = collected;
+  }
+  return urls.filter((u) => sameOrigin(u, base) && !PAGE_ASSET_RE.test(u) && !PAGE_SKIP_RE.test(u));
+}
+
+/**
+ * Discover the client's real pages: nav links first (labeled, the pages they
+ * chose to surface), then sitemap entries to fill in the rest. Same-origin,
+ * de-duped by path, system/asset paths excluded, capped.
+ */
+export async function discoverPages(base: string, root: HTMLElement, max = 10): Promise<DiscoveredPage[]> {
+  const out: DiscoveredPage[] = [];
+  const seen = new Set<string>([pathKey(base, base)]); // exclude home
+  const add = (d: DiscoveredPage) => {
+    if (seen.has(d.path) || out.length >= max) return;
+    seen.add(d.path);
+    out.push(d);
+  };
+  for (const d of navPageLinks(root, base)) add(d);
+  if (out.length < max) {
+    for (const u of await sitemapUrls(base)) {
+      const path = pathKey(u, base);
+      // keep shallow pages (depth <= 2) to favour real sections over deep leaves
+      if (path.split("/").filter(Boolean).length > 2) continue;
+      add({ url: u.split("#")[0], label: labelFromPath(path), path });
+    }
+  }
+  return out;
+}
+
+
 export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
   const url = normalizeUrl(rawUrl);
   await assertSafeTarget(url);
@@ -1359,7 +1479,7 @@ function sanitizeBlock(b: Block): Block {
 
 export function generateSite(
   analysis: SiteAnalysis,
-  opts: { mode?: GenerationMode; layout?: BlockType[]; theme?: Partial<Theme> } = {}
+  opts: { mode?: GenerationMode; layout?: BlockType[]; theme?: Partial<Theme>; realPages?: SitePage[] } = {}
 ): SiteSchema {
   const mode: GenerationMode = opts.mode ?? "preserve";
   // An explicit (AI-composed) layout takes precedence over the deterministic
@@ -1412,11 +1532,15 @@ export function generateSite(
     // A page needs at least one real content block besides the footer.
     return pageBlocks.some((b) => b.type !== "footer") ? { label, path, blocks: pageBlocks } : null;
   };
-  const pages: SitePage[] = [
-    buildPage("Services", "services", ["services", "portfolio", "cta", "footer"]),
-    buildPage("About", "about", ["about", "stats", "testimonials", "footer"]),
-    buildPage("Contact", "contact", ["contact", "footer"]),
-  ].filter((p): p is SitePage => p !== null);
+  // Real pages from a multi-page crawl take precedence (keep the client's whole
+  // site); otherwise build the canonical small-business pages.
+  const pages: SitePage[] = opts.realPages?.length
+    ? opts.realPages.slice()
+    : [
+        buildPage("Services", "services", ["services", "portfolio", "cta", "footer"]),
+        buildPage("About", "about", ["about", "stats", "testimonials", "footer"]),
+        buildPage("Contact", "contact", ["contact", "footer"]),
+      ].filter((p): p is SitePage => p !== null);
 
   // CMS-lite: an owner-managed collection (menu / price list) becomes a real
   // page. Industry-labelled, inserted before Contact.
@@ -1438,15 +1562,12 @@ export function generateSite(
   // Real catalogue: keep ALL the client's scraped products on a dedicated Shop
   // page, modernized into a premium grid (never fabricated). Inserted before
   // Contact so the nav reads Home / ... / Shop / Contact.
+  // A crawl already places products on their own real pages, so only add the
+  // synthetic Shop page in single-page mode.
   const products = analysis.extractedContent.products;
-  if (products?.length) {
+  if (products?.length && !opts.realPages?.length) {
     const footer = buildBlock({ type: "footer", category: "footer" }, analysis, mood);
-    const grid: Block = {
-      id: uid("products"),
-      type: "products",
-      variant: "ProductGrid",
-      props: { eyebrow: "Catalogue", title: "Our products", items: products },
-    };
+    const grid = productGridBlock(products);
     const shopBlocks = footer ? [grid, footer] : [grid];
     const at = pages.findIndex((p) => p.path === "contact");
     pages.splice(at >= 0 ? at : pages.length, 0, { path: "shop", label: "Shop", blocks: shopBlocks });
@@ -1471,6 +1592,121 @@ export function generateSite(
     mode,
     recommendations: recommendations.length ? recommendations : undefined,
   };
+}
+
+/** Premium product grid block from real products (shared by the Shop page and
+ *  crawled catalogue pages). */
+function productGridBlock(
+  products: { name: string; price?: string; image?: string; url?: string }[],
+  title = "Our products",
+  eyebrow = "Catalogue"
+): Block {
+  return { id: uid("products"), type: "products", variant: "ProductGrid", props: { eyebrow, title, items: products } };
+}
+
+/** URL path -> a clean route slug for a recreated page (e.g. "/our-services" ->
+ *  "our-services"). Falls back to a hash so two pages never collide. */
+function slugFromPath(path: string): string {
+  const s = path.split("/").filter(Boolean).join("-").toLowerCase().replace(/[^a-z0-9-]/g, "");
+  return s || `page-${Math.abs(hashStr(path)) % 9999}`;
+}
+function hashStr(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h << 5) - h + s.charCodeAt(i);
+  return h;
+}
+
+/**
+ * Build ONE real client page (from its own analysis) as a premium page: a
+ * header/hero, then its real content - the full product catalogue if the page is
+ * a shop/category, else its real sections (features/portfolio/about) - and a
+ * footer. Content-preserving, never fabricated.
+ */
+function buildRealPage(a: SiteAnalysis, label: string, path: string, mood: Theme["mood"]): SitePage | null {
+  const c = a.extractedContent;
+  const blocks: Block[] = [];
+  const add = (t: BlockType) => {
+    const b = buildBlock({ type: t, category: renderableCategory(t) }, a, mood);
+    if (b) blocks.push(b);
+  };
+
+  add("hero");
+  if (c.products?.length) {
+    blocks.push(productGridBlock(c.products, label || "Products"));
+  } else {
+    if (c.serviceItems?.length || c.services.length >= 3) add("features");
+    if (c.images.length >= 2) add("portfolio");
+    if (c.aboutBody) add("about");
+    if (c.testimonials?.length) add("testimonials");
+  }
+  add("cta");
+  add("contact");
+  add("footer");
+
+  // A real page needs at least one content block besides hero/footer.
+  const hasContent = blocks.some((b) => !["hero", "footer", "cta"].includes(b.type));
+  if (!hasContent) return null;
+  return { label: label || "Page", path, blocks: blocks.map(sanitizeBlock) };
+}
+
+export interface SiteCrawl {
+  home: SiteAnalysis;
+  pages: { label: string; path: string; analysis: SiteAnalysis }[];
+}
+
+/**
+ * Crawl the client's site: analyze the home page, discover its real pages
+ * (nav + sitemap), and analyze each (bounded + concurrent). The foundation of
+ * "keep the whole site A to Z" - every real page is captured, never invented.
+ */
+export async function crawlSite(rawUrl: string, opts: { maxPages?: number } = {}): Promise<SiteCrawl> {
+  const maxPages = opts.maxPages ?? 6;
+  const home = await analyzeUrl(rawUrl);
+
+  let discovered: DiscoveredPage[] = [];
+  try {
+    const html = await fetchStatic(home.url);
+    if (html) {
+      const root = parse(html, { blockTextElements: { script: true, style: true } });
+      discovered = await discoverPages(home.url, root, maxPages);
+    }
+  } catch {
+    /* discovery is best-effort */
+  }
+
+  const pages: SiteCrawl["pages"] = [];
+  const queue = discovered.slice(0, maxPages);
+  const seenSlug = new Set<string>(["", "shop"]);
+  const worker = async () => {
+    for (;;) {
+      const d = queue.shift();
+      if (!d) return;
+      try {
+        const analysis = await analyzeUrl(d.url);
+        let slug = slugFromPath(d.path);
+        while (seenSlug.has(slug)) slug = `${slug}-${pages.length}`;
+        seenSlug.add(slug);
+        pages.push({ label: d.label, path: slug, analysis });
+      } catch {
+        /* skip a page that fails to analyze */
+      }
+    }
+  };
+  await Promise.all([worker(), worker(), worker()]);
+  return { home, pages };
+}
+
+/**
+ * Generate a full multi-page site from a crawl: the home page (premium blocks
+ * from its analysis) plus every real client page, each rebuilt premium and
+ * content-preserving. This is the "keep the whole site, upgrade the design" path.
+ */
+export function generateSiteCrawled(crawl: SiteCrawl, opts: { mode?: GenerationMode; theme?: Partial<Theme> } = {}): SiteSchema {
+  const mood = (opts.theme?.mood ?? INDUSTRY_PROFILES[crawl.home.industry].theme.mood) as Theme["mood"];
+  const realPages = crawl.pages
+    .map((p) => buildRealPage(p.analysis, p.label, p.path, mood))
+    .filter((p): p is SitePage => p !== null);
+  return generateSite(crawl.home, { ...opts, realPages });
 }
 
 /**
