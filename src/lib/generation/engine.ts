@@ -1660,15 +1660,24 @@ export interface SiteCrawl {
  * "keep the whole site A to Z" - every real page is captured, never invented.
  */
 export async function crawlSite(rawUrl: string, opts: { maxPages?: number } = {}): Promise<SiteCrawl> {
-  const maxPages = opts.maxPages ?? 6;
   const home = await analyzeUrl(rawUrl);
+  const pages = await crawlPages(home.url, opts.maxPages ?? 6);
+  return { home, pages };
+}
 
+/**
+ * Discover and analyze the client's other real pages (everything but the home),
+ * given the home URL. Used by crawlSite and by the generation API (which already
+ * holds the home analysis, so it only needs the rest). Bounded + concurrent;
+ * each failure is skipped, never fabricated.
+ */
+export async function crawlPages(homeUrl: string, maxPages = 6): Promise<SiteCrawl["pages"]> {
   let discovered: DiscoveredPage[] = [];
   try {
-    const html = await fetchStatic(home.url);
+    const html = await fetchStatic(homeUrl);
     if (html) {
       const root = parse(html, { blockTextElements: { script: true, style: true } });
-      discovered = await discoverPages(home.url, root, maxPages);
+      discovered = await discoverPages(homeUrl, root, maxPages);
     }
   } catch {
     /* discovery is best-effort */
@@ -1693,7 +1702,7 @@ export async function crawlSite(rawUrl: string, opts: { maxPages?: number } = {}
     }
   };
   await Promise.all([worker(), worker(), worker()]);
-  return { home, pages };
+  return pages;
 }
 
 /**
