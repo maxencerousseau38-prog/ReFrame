@@ -122,6 +122,48 @@ function imageBg(image: string | undefined, gradient: string): string {
   return url ? `url(${url}), ${gradient}` : gradient;
 }
 
+/**
+ * A cover image rendered as a REAL <img> (for Core Web Vitals): native lazy-load
+ * below the fold, fetchpriority="high" + eager for the LCP hero, async decode,
+ * and a brand-gradient fallback kept behind it (so a blocked/missing image still
+ * shows the gradient, never a blank box). The container takes the caller's
+ * size/radius/shadow via className/style; the img absolutely fills it.
+ */
+function CoverImage({
+  image,
+  gradient,
+  priority,
+  position,
+  className,
+  style,
+}: {
+  image?: string;
+  gradient: string;
+  priority?: boolean;
+  position?: string;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  const src = toProxiedUrl(image);
+  return (
+    <div className={cn("relative overflow-hidden", className)} style={{ background: gradient, ...style }}>
+      {src ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src}
+          alt=""
+          aria-hidden
+          loading={priority ? "eager" : "lazy"}
+          decoding="async"
+          fetchPriority={priority ? "high" : "auto"}
+          className="absolute inset-0 h-full w-full"
+          style={{ objectFit: "cover", objectPosition: position ?? "center" }}
+        />
+      ) : null}
+    </div>
+  );
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Hero blocks                                                               */
 /* -------------------------------------------------------------------------- */
@@ -948,16 +990,11 @@ function FeaturesBento({ props }: { props: any }) {
                 {/* Premium beam-lit edge on the lead tile. */}
                 {lead && <BorderBeam radius="var(--brand-radius)" />}
                 {item.image ? (
-                  <div
-                    className={cn("w-full overflow-hidden", lead ? "min-h-[220px] flex-1" : "aspect-[16/10]")}
-                    style={{
-                      background: imageBg(
-                        item.image,
-                        "linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 20%, transparent), transparent)"
-                      ),
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                    }}
+                  <CoverImage
+                    image={item.image}
+                    priority={lead && i === 0}
+                    gradient="linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 20%, transparent), transparent)"
+                    className={cn("w-full", lead ? "min-h-[220px] flex-1" : "aspect-[16/10]")}
                   />
                 ) : (
                   <div className="px-6 pt-6">
@@ -2233,7 +2270,7 @@ function HeroSplitPremium({ props }: { props: any }) {
             <div className="flex shrink-0 items-center gap-1.5 px-4 py-3" style={{ background: "color-mix(in srgb, var(--brand-ink) 7%, transparent)" }}>
               {[0, 1, 2].map((i) => <span key={i} className="h-2.5 w-2.5 rounded-full" style={{ background: "color-mix(in srgb, var(--brand-ink) 18%, transparent)" }} />)}
             </div>
-            <div className="flex-1" style={{ background: imageBg(props.image, "linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 30%, transparent), transparent)"), backgroundSize: "cover", backgroundPosition: "center" }} />
+            <CoverImage image={props.image} priority gradient="linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 30%, transparent), transparent)" className="flex-1" />
           </motion.div>
         </motion.div>
       </div>
@@ -2281,7 +2318,9 @@ function HeroBento({ props }: { props: any }) {
         </div>
         <div className="mt-12 grid grid-cols-2 gap-4 lg:grid-cols-4">
           {/* Large product-preview tile */}
-          <motion.div {...rise(0.2)} className="col-span-2 row-span-2 overflow-hidden rounded-[1.1rem]" style={{ minHeight: 220, boxShadow: `inset 0 0 0 1px ${HAIRLINE}`, background: imageBg(props.image, "linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 30%, transparent), transparent)"), backgroundSize: "cover", backgroundPosition: "center" }} />
+          <motion.div {...rise(0.2)} className="col-span-2 row-span-2">
+            <CoverImage image={props.image} priority gradient="linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 30%, transparent), transparent)" className="h-full w-full rounded-[1.1rem]" style={{ minHeight: 220, boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }} />
+          </motion.div>
           {/* Proof tiles: real metrics, else real services */}
           {(stats.length ? stats.slice(0, 4) : services.slice(0, 4).map((s) => ({ value: "", label: s }))).map((it, i) => (
             <motion.div key={i} {...rise(0.24 + i * 0.05)} className={cn(tile, "flex flex-col justify-center transition-transform duration-300 hover:-translate-y-1")} style={tileStyle}>
@@ -2342,7 +2381,7 @@ function HeroAurora({ props }: { props: any }) {
           <BlurFade delay={0.32}>
             <div className="relative mx-auto mt-14 w-full max-w-3xl">
               <BorderBeam radius="1.25rem" />
-              <div className="overflow-hidden rounded-[1.25rem]" style={{ aspectRatio: "16 / 10", background: imageBg(props.image, `linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 25%, transparent), transparent)`), backgroundSize: "cover", backgroundPosition: "center", boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }} />
+              <CoverImage image={props.image} priority gradient="linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 25%, transparent), transparent)" className="rounded-[1.25rem]" style={{ aspectRatio: "16 / 10", boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }} />
             </div>
           </BlurFade>
         )}
@@ -2585,13 +2624,10 @@ function ProductGrid({ props }: { props: any }) {
               className="group flex flex-col overflow-hidden rounded-[1rem] rf-card transition-transform duration-300 hover:-translate-y-1"
               style={{ boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
             >
-              <div
-                className="aspect-square w-full overflow-hidden"
-                style={{
-                  background: imageBg(it.image, "linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 18%, transparent), transparent)"),
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
+              <CoverImage
+                image={it.image}
+                gradient="linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 18%, transparent), transparent)"
+                className="aspect-square w-full"
               />
               <div className="flex flex-1 flex-col gap-1 p-4">
                 <h3 className="line-clamp-2 text-sm font-medium" style={{ color: "var(--brand)" }}>{it.name}</h3>
@@ -2791,8 +2827,9 @@ function GalleryMasonry({ props }: { props: any }) {
               viewport={{ once: true, margin: "-40px" }}
               transition={{ duration: 0.5, ease: EASE, delay: (i % 3) * 0.05 }}
               className="group relative mb-4 overflow-hidden break-inside-avoid rounded-[1rem]"
-              style={{ boxShadow: `inset 0 0 0 1px ${HAIRLINE}`, aspectRatio: i % 3 === 0 ? "3 / 4" : "4 / 3", background: imageBg(it.image, "linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 18%, transparent), transparent)"), backgroundSize: "cover", backgroundPosition: "center" }}
+              style={{ boxShadow: `inset 0 0 0 1px ${HAIRLINE}`, aspectRatio: i % 3 === 0 ? "3 / 4" : "4 / 3" }}
             >
+              <CoverImage image={it.image} gradient="linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 18%, transparent), transparent)" className="absolute inset-0 h-full w-full" />
               {it.title && (
                 <div className="absolute inset-x-0 bottom-0 translate-y-2 p-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7), transparent)" }}>
                   <span className="text-sm font-medium text-white">{it.title}</span>
@@ -2821,9 +2858,10 @@ function GalleryStrip({ props }: { props: any }) {
           <div
             key={i}
             className="relative w-[78%] shrink-0 snap-center overflow-hidden rounded-[1.1rem] sm:w-[42%] lg:w-[30%]"
-            style={{ aspectRatio: "4 / 3", boxShadow: `inset 0 0 0 1px ${HAIRLINE}`, background: imageBg(it.image, "linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 18%, transparent), transparent)"), backgroundSize: "cover", backgroundPosition: "center" }}
+            style={{ aspectRatio: "4 / 3", boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
           >
-            {it.title && <div className="absolute inset-x-0 bottom-0 p-4" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.65), transparent)" }}><span className="text-sm font-medium text-white">{it.title}</span></div>}
+            <CoverImage image={it.image} gradient="linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 18%, transparent), transparent)" className="absolute inset-0 h-full w-full" />
+            {it.title && <div className="absolute inset-x-0 bottom-0 z-10 p-4" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.65), transparent)" }}><span className="text-sm font-medium text-white">{it.title}</span></div>}
           </div>
         ))}
       </div>
@@ -2849,7 +2887,7 @@ function GalleryFeature({ props }: { props: any }) {
             transition={{ duration: 0.6, ease: EASE }}
             className={cn("flex flex-col gap-6 sm:items-center", i % 2 === 1 ? "sm:flex-row-reverse" : "sm:flex-row")}
           >
-            <div className="w-full overflow-hidden rounded-[1.25rem] sm:w-[62%]" style={{ aspectRatio: "16 / 10", boxShadow: `inset 0 0 0 1px ${HAIRLINE}`, background: imageBg(it.image, "linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 20%, transparent), transparent)"), backgroundSize: "cover", backgroundPosition: "center" }} />
+            <CoverImage image={it.image} gradient="linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 20%, transparent), transparent)" className="w-full rounded-[1.25rem] sm:w-[62%]" style={{ aspectRatio: "16 / 10", boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }} />
             <div className="flex-1">
               {it.tag && <div className="text-xs font-medium uppercase tracking-[0.2em]" style={{ color: "var(--brand-accent)" }}>{it.tag}</div>}
               <h3 className="mt-2 text-2xl font-semibold" style={{ color: "var(--brand)" }}>{it.title}</h3>
