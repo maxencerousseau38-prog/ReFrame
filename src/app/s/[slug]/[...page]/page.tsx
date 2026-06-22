@@ -3,16 +3,18 @@ import { notFound } from "next/navigation";
 import { getSite } from "@/lib/server/sites-store";
 import { PublishedSite } from "@/components/published-site";
 
-// Sub-pages are read from the store at request time.
+// Catch-all so the client's REAL nested URLs are preserved
+// (e.g. /collections/mens-bestsellers), not flattened - SEO continuity.
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string; page: string };
+  params: { slug: string; page: string[] };
 }): Promise<Metadata> {
+  const path = params.page.join("/");
   const site = await getSite(params.slug);
-  const page = site?.schema.pages?.find((p) => p.path === params.page);
+  const page = site?.schema.pages?.find((p) => p.path === path);
   if (!site || !page) return { title: "Page not found" };
 
   const { name, tagline } = site.schema.brand;
@@ -24,26 +26,21 @@ export async function generateMetadata({
     description: tagline,
     robots: { index: true, follow: true },
     ...(url ? { metadataBase: new URL(`https://${params.slug}.${root}`), alternates: { canonical: url } } : {}),
-    openGraph: {
-      type: "website",
-      siteName: name,
-      title,
-      description: tagline,
-      ...(url ? { url } : {}),
-    },
+    openGraph: { type: "website", siteName: name, title, description: tagline, ...(url ? { url } : {}) },
     twitter: { card: "summary_large_image", title, description: tagline },
   };
 }
 
-/** A single sub-page of a published site (real URL, per-page SEO). */
+/** A single sub-page of a published site at its real (possibly nested) path. */
 export default async function PublishedSubPage({
   params,
 }: {
-  params: { slug: string; page: string };
+  params: { slug: string; page: string[] };
 }) {
+  const path = params.page.join("/");
   const site = await getSite(params.slug);
   if (!site) notFound();
-  const exists = site.schema.pages?.some((p) => p.path === params.page);
+  const exists = site.schema.pages?.some((p) => p.path === path);
   if (!exists) notFound();
-  return <PublishedSite site={site} basePath={`/s/${params.slug}`} page={params.page} />;
+  return <PublishedSite site={site} basePath={`/s/${params.slug}`} page={path} />;
 }

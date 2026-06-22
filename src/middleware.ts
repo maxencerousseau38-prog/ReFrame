@@ -33,7 +33,10 @@ export function middleware(req: NextRequest) {
   }
 
   const url = req.nextUrl.clone();
-  url.pathname = `/sites/host/${encodeURIComponent(siteHost)}`;
+  // Preserve the original path so the client's REAL URLs resolve on their domain
+  // (e.g. theirsite.com/collections/x -> the rebuilt page at the same path).
+  const orig = req.nextUrl.pathname.replace(/^\/+/, "");
+  url.pathname = `/sites/host/${encodeURIComponent(siteHost)}${orig ? `/${orig}` : ""}`;
   return NextResponse.rewrite(url);
 }
 

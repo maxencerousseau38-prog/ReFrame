@@ -1742,16 +1742,26 @@ function productGridBlock(
   return { id: uid("products"), type: "products", variant: "ProductGrid", props: { eyebrow, title, items: products } };
 }
 
-/** URL path -> a clean route slug for a recreated page (e.g. "/our-services" ->
- *  "our-services"). Falls back to a hash so two pages never collide. */
-function slugFromPath(path: string): string {
-  const s = path.split("/").filter(Boolean).join("-").toLowerCase().replace(/[^a-z0-9-]/g, "");
-  return s || `page-${Math.abs(hashStr(path)) % 9999}`;
-}
-function hashStr(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (h << 5) - h + s.charCodeAt(i);
-  return h;
+/**
+ * Keep the client's REAL URL path (SEO continuity): preserve the nested
+ * structure ("/collections/mens-bestsellers" stays "collections/mens-bestsellers")
+ * so the rebuilt site answers the same URLs - existing rankings and inbound
+ * links keep working. Only sanitizes each segment to be route-safe.
+ */
+export function routePath(path: string): string {
+  return (
+    path
+      .replace(/^\/+|\/+$/g, "")
+      .split("/")
+      .map((seg) =>
+        decodeURIComponent(seg)
+          .toLowerCase()
+          .replace(/[^a-z0-9-]+/g, "-")
+          .replace(/^-+|-+$/g, "")
+      )
+      .filter(Boolean)
+      .join("/") || "page"
+  );
 }
 
 /**
@@ -1830,7 +1840,8 @@ export async function crawlPages(homeUrl: string, maxPages = 6): Promise<SiteCra
       if (!d) return;
       try {
         const analysis = await analyzeUrl(d.url);
-        let slug = slugFromPath(d.path);
+        // Preserve the client's real URL path for SEO continuity.
+        let slug = routePath(d.path);
         while (seenSlug.has(slug)) slug = `${slug}-${pages.length}`;
         seenSlug.add(slug);
         pages.push({ label: d.label, path: slug, analysis });

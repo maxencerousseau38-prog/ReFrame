@@ -1,6 +1,15 @@
 import { describe, it, expect } from "vitest";
 import { parse } from "node-html-parser";
-import { extractContact, extractStats, cleanServiceLabels, extractProse, extractImages, extractProducts, navPageLinks, detectIntegrations } from "./engine";
+import { extractContact, extractStats, cleanServiceLabels, extractProse, extractImages, extractProducts, navPageLinks, detectIntegrations, routePath } from "./engine";
+
+describe("routePath (SEO continuity)", () => {
+  it("preserves the real nested path, only sanitizing segments", () => {
+    expect(routePath("/collections/mens-bestsellers")).toBe("collections/mens-bestsellers");
+    expect(routePath("/gb/12609-snack-cuisson/")).toBe("gb/12609-snack-cuisson");
+    expect(routePath("/Our Services")).toBe("our-services");
+    expect(routePath("/")).toBe("page");
+  });
+});
 
 describe("detectIntegrations", () => {
   it("detects payments, scheduling, analytics, chat from real embed signatures", () => {
