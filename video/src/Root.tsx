@@ -3,6 +3,7 @@ import { ReframeDemo } from "./ReframeDemo";
 import { ReframeShowcase } from "./ReframeShowcase";
 import { ArchShowcase, TOTAL as ARCH_TOTAL } from "./ArchShowcase";
 import { ReframeAd, AD_TOTAL } from "./ReframeAd";
+import { ReframePromo, PROMO_TOTAL } from "./ReframePromo";
 
 /**
  * Remotion compositions for ReFrame.
@@ -16,6 +17,22 @@ import { ReframeAd, AD_TOTAL } from "./ReframeAd";
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      <Composition
+        id="ReframePromo"
+        component={ReframePromo}
+        durationInFrames={PROMO_TOTAL}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+      <Composition
+        id="ReframePromoVertical"
+        component={ReframePromo}
+        durationInFrames={PROMO_TOTAL}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
       <Composition
         id="ReframeAd"
         component={ReframeAd}
