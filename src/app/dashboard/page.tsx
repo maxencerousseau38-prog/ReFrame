@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowRight, Globe, Sparkle, Warning } from "@phosphor-icons/react";
 import { DashboardShell } from "@/components/dashboard/shell";
+import { ValueSummary } from "@/components/dashboard/value-summary";
 import { AnalyzeLoader } from "@/components/dashboard/analyze-loader";
 import { RecentProjects } from "@/components/dashboard/recent-projects";
 import { AdminEmailTest } from "@/components/dashboard/admin-email-test";
@@ -147,6 +148,8 @@ function DashboardInner() {
   return (
     <DashboardShell>
       <div className="mx-auto max-w-5xl px-6 py-10 sm:py-16">
+        {/* Recurring value first for returning customers (self-hides otherwise). */}
+        <ValueSummary />
         <div className="mb-10">
           <Badge variant="outline" className="mb-3">
             <Sparkle weight="fill" className="h-3 w-3" /> New project
