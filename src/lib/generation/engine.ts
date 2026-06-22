@@ -61,6 +61,8 @@ import type {
   GenerationMode,
   Theme,
   Recommendation,
+  DetectedIntegration,
+  IntegrationCategory,
 } from "./types";
 import { INDUSTRY_PROFILES, detectIndustry } from "./industries";
 import { pickVariant } from "./catalog";
@@ -517,6 +519,10 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
   // for both the services source decision and the extracted content.
   const prose = extractProse(root);
 
+  // Business-critical third-party tools on the source page (payments, booking,
+  // analytics, chat) - surfaced so the customer reconnects them before publish.
+  const integrations = detectIntegrations(html);
+
   return {
     url,
     brandName,
@@ -527,6 +533,7 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
     notice,
     brand: { logoUrl, accentColor },
     detectedSections: detectSections(root),
+    ...(integrations.length ? { integrations } : {}),
     structure,
     navItems,
     extractedContent: {
@@ -878,6 +885,55 @@ export function extractProducts(root: HTMLElement, base: string): ScrapedProduct
     if (tiles.length >= 4) for (const t of tiles) push(t);
   }
 
+  return out;
+}
+
+interface IntegrationSig {
+  id: string;
+  name: string;
+  category: IntegrationCategory;
+  hint: string;
+  patterns: (string | RegExp)[];
+}
+
+// Signatures for business-critical third-party tools embedded on the source
+// page. Rebuilding drops the original embeds, so we surface these before publish.
+const INTEGRATION_SIGS: IntegrationSig[] = [
+  { id: "stripe", name: "Stripe", category: "payments", hint: "Re-add your Stripe checkout / payment links so customers can still pay.", patterns: ["js.stripe.com", "stripe.com/v3", "data-stripe"] },
+  { id: "paypal", name: "PayPal", category: "payments", hint: "Reconnect your PayPal buttons / checkout.", patterns: ["paypal.com/sdk", "paypalobjects.com", "paypal.com/cgi-bin"] },
+  { id: "shopify", name: "Shopify", category: "payments", hint: "Reconnect your Shopify Buy Button / store checkout.", patterns: ["cdn.shopify.com", "shopify-buy", "myshopify.com"] },
+  { id: "calendly", name: "Calendly", category: "scheduling", hint: "Re-embed your Calendly booking widget.", patterns: ["calendly.com", "calendly-inline-widget"] },
+  { id: "acuity", name: "Acuity Scheduling", category: "scheduling", hint: "Re-embed your Acuity scheduler.", patterns: ["acuityscheduling.com", "squarespace-scheduling"] },
+  { id: "ga4", name: "Google Analytics", category: "analytics", hint: "Re-add your GA4 measurement ID so you keep tracking traffic.", patterns: ["googletagmanager.com/gtag/js", "google-analytics.com/analytics.js", /\bua-\d{4,}-\d/i] },
+  { id: "gtm", name: "Google Tag Manager", category: "analytics", hint: "Re-add your GTM container so your tags keep firing.", patterns: ["googletagmanager.com/gtm.js", /\bgtm-[a-z0-9]{4,}\b/i] },
+  { id: "metapixel", name: "Meta Pixel", category: "marketing", hint: "Re-add your Meta (Facebook) Pixel to keep ad tracking / retargeting.", patterns: ["connect.facebook.net", "fbevents.js", "fbq(", "facebook.com/tr?"] },
+  { id: "hubspot", name: "HubSpot", category: "crm", hint: "Reconnect HubSpot forms / tracking.", patterns: ["js.hs-scripts.com", "hs-script-loader", "hsforms.net", "hbspt."] },
+  { id: "intercom", name: "Intercom", category: "chat", hint: "Re-add your Intercom messenger.", patterns: ["widget.intercom.io", "intercomsettings", "intercom('"] },
+  { id: "crisp", name: "Crisp", category: "chat", hint: "Re-add your Crisp chat widget.", patterns: ["client.crisp.chat", "$crisp"] },
+  { id: "tawk", name: "Tawk.to", category: "chat", hint: "Re-add your Tawk.to chat.", patterns: ["embed.tawk.to"] },
+  { id: "drift", name: "Drift", category: "chat", hint: "Re-add your Drift chat.", patterns: ["js.driftt.com", "driftt.com", "drift.com/anonymous"] },
+  { id: "zendesk", name: "Zendesk", category: "chat", hint: "Re-add your Zendesk widget.", patterns: ["static.zdassets.com", "zendesk.com/embeddable"] },
+  { id: "mailchimp", name: "Mailchimp", category: "marketing", hint: "Reconnect your Mailchimp signup form.", patterns: ["chimpstatic.com", "list-manage.com", "mailchimp.com"] },
+  { id: "klaviyo", name: "Klaviyo", category: "marketing", hint: "Reconnect your Klaviyo signup / flows.", patterns: ["static.klaviyo.com", "klaviyo.com/onsite"] },
+  { id: "typeform", name: "Typeform", category: "marketing", hint: "Re-embed your Typeform.", patterns: ["embed.typeform.com", "typeform.com/to/"] },
+  { id: "opentable", name: "OpenTable", category: "booking", hint: "Re-embed your OpenTable reservation widget.", patterns: ["opentable.com/widget", "opentable.com/restref"] },
+  { id: "thefork", name: "TheFork", category: "booking", hint: "Re-embed your TheFork / LaFourchette booking.", patterns: ["thefork.com", "lafourchette.com"] },
+  { id: "resy", name: "Resy", category: "booking", hint: "Re-embed your Resy reservations.", patterns: ["widgets.resy.com", "resy.com/cities"] },
+];
+
+/**
+ * Detect business-critical third-party tools embedded on the source page so we
+ * can warn the customer to reconnect them before publishing (never let a rebuild
+ * silently break payments, booking, analytics or chat). Real signatures only.
+ */
+export function detectIntegrations(html: string): DetectedIntegration[] {
+  if (!html) return [];
+  const lower = html.toLowerCase();
+  const out: DetectedIntegration[] = [];
+  for (const sig of INTEGRATION_SIGS) {
+    const hit = sig.patterns.some((p) => (typeof p === "string" ? lower.includes(p) : p.test(html)));
+    if (hit) out.push({ id: sig.id, name: sig.name, category: sig.category, hint: sig.hint });
+  }
   return out;
 }
 

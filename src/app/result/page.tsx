@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { MagicWand, RocketLaunch, Check, ArrowSquareOut, CircleNotch, ArrowLeft, DownloadSimple, Sparkle, Warning, LinkSimple } from "@phosphor-icons/react";
 import { DashboardShell } from "@/components/dashboard/shell";
+import { IntegrationsNotice } from "@/components/integrations-notice";
 import { SiteRenderer } from "@/components/blocks";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -249,6 +250,11 @@ export default function ResultPage() {
           )}
         </div>
       </div>
+
+      {/* Pre-publish safety: surface business tools that need reconnecting. */}
+      {!published && analysis?.integrations?.length ? (
+        <IntegrationsNotice integrations={analysis.integrations} />
+      ) : null}
 
       {/* Don't lose the redesign: email the link to capture the lead. */}
       {shareUrl && !published && (

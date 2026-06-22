@@ -1,6 +1,29 @@
 import { describe, it, expect } from "vitest";
 import { parse } from "node-html-parser";
-import { extractContact, extractStats, cleanServiceLabels, extractProse, extractImages, extractProducts, navPageLinks } from "./engine";
+import { extractContact, extractStats, cleanServiceLabels, extractProse, extractImages, extractProducts, navPageLinks, detectIntegrations } from "./engine";
+
+describe("detectIntegrations", () => {
+  it("detects payments, scheduling, analytics, chat from real embed signatures", () => {
+    const html = `<html><head>
+      <script src="https://js.stripe.com/v3/"></script>
+      <script src="https://assets.calendly.com/assets/external/widget.js"></script>
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-ABC123"></script>
+      <script>window.intercomSettings={app_id:'abc'};</script>
+      <script src="https://client.crisp.chat/l.js"></script>
+    </head><body></body></html>`;
+    const ids = detectIntegrations(html).map((i) => i.id).sort();
+    expect(ids).toContain("stripe");
+    expect(ids).toContain("calendly");
+    expect(ids).toContain("ga4"); // gtag/js is GA4
+    expect(ids).toContain("intercom");
+    expect(ids).toContain("crisp");
+    expect(detectIntegrations(html).find((i) => i.id === "stripe")?.category).toBe("payments");
+  });
+
+  it("returns nothing for a plain page (no false positives)", () => {
+    expect(detectIntegrations("<html><body><h1>Hello</h1><p>About us</p></body></html>")).toEqual([]);
+  });
+});
 
 describe("navPageLinks (multi-page discovery)", () => {
   it("keeps real internal pages, drops home/anchors/assets/external/system", () => {

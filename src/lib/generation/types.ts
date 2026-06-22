@@ -124,6 +124,23 @@ export interface SiteSchema {
 }
 
 /** Result of analyzing an existing website. */
+export type IntegrationCategory =
+  | "payments"
+  | "scheduling"
+  | "analytics"
+  | "marketing"
+  | "chat"
+  | "crm"
+  | "booking";
+
+export interface DetectedIntegration {
+  id: string;
+  name: string;
+  category: IntegrationCategory;
+  /** What to do about it when republishing on ReFrame. */
+  hint: string;
+}
+
 export interface SiteAnalysis {
   url: string;
   brandName: string;
@@ -146,6 +163,13 @@ export interface SiteAnalysis {
     accentColor?: string; // hex
   };
   detectedSections: string[];
+  /**
+   * Third-party business tools detected on the source page (payments, booking,
+   * analytics, chat, marketing). Rebuilding the site drops the original embeds,
+   * so these MUST be surfaced before publish to avoid silently breaking the
+   * customer's business. Real detections only.
+   */
+  integrations?: DetectedIntegration[];
   /** Normalized structural model, when the page could be analyzed. */
   structure?: SiteStructure;
   navItems: string[];
