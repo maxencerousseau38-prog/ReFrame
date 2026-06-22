@@ -1561,6 +1561,9 @@ function buildBlock(
       return {
         id: uid("contact"),
         type: "contact",
+        // Default to the form so every site captures leads (feeds the leads
+        // inbox / value dashboard). The premium no-form variants
+        // (ContactDetailsCard / ContactBanner) stay available via the AI editor.
         variant: "ContactFormPremium1",
         props: {
           title: "Contact us",

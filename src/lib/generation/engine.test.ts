@@ -91,7 +91,8 @@ describe("generateSite", () => {
     );
     expect(["AboutSplit", "StatementAgencia"]).toContain(byType.about);
     expect(["ServicesList", "ServicesCards"]).toContain(byType.services);
-    expect(byType.portfolio).toBe("PortfolioGrid");
+    // any of the visual-grid gallery variants is valid for a portfolio slot
+    expect(["PortfolioGrid", "GalleryMasonry", "GalleryStrip", "GalleryFeature"]).toContain(byType.portfolio);
   });
 
   it("never fabricates testimonials or stats: omits them without real data", () => {

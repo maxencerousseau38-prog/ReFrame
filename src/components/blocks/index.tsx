@@ -2605,7 +2605,270 @@ function ProductGrid({ props }: { props: any }) {
   );
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Catalog expansion - testimonials / contact / gallery (premium variants)    */
+/* -------------------------------------------------------------------------- */
+
+const initialsOf = (n: string) =>
+  (n || "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase() || "").join("");
+
+/** Single monumental pull-quote on a brand-contrast panel with a soft glow.
+ *  Apple/Linear "one big proof" moment; secondary names sit quietly below. */
+function TestimonialsSpotlight({ props }: { props: any }) {
+  const items = (props.items || []) as any[];
+  if (!items.length) return null;
+  const t = items[0];
+  return (
+    <section className="px-6 py-24" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}>
+      <div className="mx-auto max-w-4xl text-center">
+        {props.title && <div className="mb-10 text-xs font-medium uppercase tracking-[0.28em]" style={{ color: "var(--brand-accent)" }}>{props.title}</div>}
+        <motion.figure
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6, ease: EASE }}
+          className="relative overflow-hidden px-8 py-14 text-white sm:px-16"
+          style={{ background: "var(--brand-contrast)", borderRadius: "calc(var(--brand-radius) * 1.6)", boxShadow: "0 40px 100px -40px rgba(0,0,0,0.5)" }}
+        >
+          <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(60% 120% at 50% 0%, color-mix(in srgb, var(--brand-accent) 30%, transparent), transparent 60%)" }} />
+          <div className="relative">
+            <div className="text-sm tracking-widest" style={{ color: "var(--brand-accent)" }}>★★★★★</div>
+            <blockquote className="mx-auto mt-6 max-w-3xl text-[clamp(1.5rem,3.2vw,2.4rem)] font-medium leading-[1.25] [text-wrap:balance]">
+              &ldquo;{t.quote}&rdquo;
+            </blockquote>
+            <figcaption className="mt-8 flex items-center justify-center gap-3">
+              <span className="flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold" style={{ background: "color-mix(in srgb, var(--brand-accent) 22%, transparent)", color: "var(--brand-accent)" }}>{initialsOf(t.name || t.author)}</span>
+              <span className="text-left">
+                <span className="block text-sm font-semibold">{t.name || t.author}</span>
+                {t.role && <span className="block text-xs text-white/60">{t.role}</span>}
+              </span>
+            </figcaption>
+          </div>
+        </motion.figure>
+        {items.length > 1 && (
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm" style={{ color: "var(--brand-ink)", opacity: 0.5 }}>
+            {items.slice(1, 5).map((o, i) => <span key={i}>{o.name || o.author}</span>)}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/** Editorial stacked quotes: large pull-quotes separated by hairlines, alternating
+ *  alignment, generous whitespace. Reads like a press page. */
+function TestimonialsStacked({ props }: { props: any }) {
+  const items = (props.items || []) as any[];
+  if (!items.length) return null;
+  return (
+    <section className="px-6 py-24" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}>
+      <div className="mx-auto max-w-4xl">
+        {props.title && <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>}
+        <div className="mt-12 flex flex-col">
+          {items.slice(0, 4).map((t, i) => (
+            <motion.figure
+              key={i}
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.5, ease: EASE }}
+              className={cn("border-t py-9", i % 2 === 1 && "sm:pl-[18%]")}
+              style={{ borderColor: HAIRLINE }}
+            >
+              <blockquote className="text-[clamp(1.25rem,2.4vw,1.8rem)] font-medium leading-[1.3] [text-wrap:balance]" style={{ color: "var(--brand)" }}>
+                &ldquo;{t.quote}&rdquo;
+              </blockquote>
+              <figcaption className="mt-4 text-sm" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>
+                <span className="font-semibold" style={{ opacity: 1 }}>{t.name || t.author}</span>
+                {t.role && <span> · {t.role}</span>}
+              </figcaption>
+            </motion.figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** Contact details card: a centered premium card with real email/phone/address
+ *  rows + a primary action. For businesses where a form would be friction. */
+function ContactDetailsCard({ props }: { props: any }) {
+  const c = props.contact || {};
+  const phoneHref = c.phone ? `tel:${String(c.phone).replace(/\s+/g, "")}` : undefined;
+  const rows = [
+    c.email && { label: "Email", value: c.email, href: `mailto:${c.email}` },
+    c.phone && { label: "Phone", value: c.phone, href: phoneHref },
+    c.address && { label: "Visit", value: c.address },
+  ].filter(Boolean) as { label: string; value: string; href?: string }[];
+  const primary = c.bookingUrl ? { label: "Book now", href: c.bookingUrl } : c.email ? { label: "Get in touch", href: `mailto:${c.email}` } : phoneHref ? { label: "Call us", href: phoneHref } : null;
+  return (
+    <section id="contact" className="px-6 py-24" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}>
+      <motion.div
+        initial={{ opacity: 0, y: 18 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 0.6, ease: EASE }}
+        className="mx-auto max-w-2xl rf-card p-10 text-center sm:p-14"
+        style={{ borderRadius: "calc(var(--brand-radius) * 1.4)", boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
+      >
+        <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>
+        {props.subtitle && <p className="mx-auto mt-3 max-w-md" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{props.subtitle}</p>}
+        <div className="mx-auto mt-9 flex max-w-sm flex-col divide-y" style={{ borderColor: HAIRLINE }}>
+          {rows.map((r) => (
+            <div key={r.label} className="flex items-center justify-between gap-4 py-3.5 text-left" style={{ borderColor: HAIRLINE }}>
+              <span className="text-xs font-medium uppercase tracking-wider" style={{ color: "var(--brand-ink)", opacity: 0.45 }}>{r.label}</span>
+              {r.href ? (
+                <a href={r.href} className="text-sm font-medium hover:underline" style={{ color: "var(--brand)" }}>{r.value}</a>
+              ) : (
+                <span className="text-sm" style={{ color: "var(--brand-ink)", opacity: 0.8 }}>{r.value}</span>
+              )}
+            </div>
+          ))}
+        </div>
+        {primary && (
+          <a {...ctaAttrs(primary.href)} className="group mt-9 inline-flex items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" }}>
+            {primary.label}
+            <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          </a>
+        )}
+      </motion.div>
+    </section>
+  );
+}
+
+/** Closing contact band: a full-bleed brand-contrast panel with a big invite and
+ *  the real next steps (email / call / book) as buttons. */
+function ContactBanner({ props }: { props: any }) {
+  const c = props.contact || {};
+  const phoneHref = c.phone ? `tel:${String(c.phone).replace(/\s+/g, "")}` : undefined;
+  return (
+    <section id="contact" className="px-6 py-20">
+      <motion.div
+        initial={{ opacity: 0, y: 18 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 0.6, ease: EASE }}
+        className="relative mx-auto max-w-5xl overflow-hidden px-8 py-16 text-center text-white sm:px-16 sm:py-20"
+        style={{ background: "var(--brand-contrast)", borderRadius: "calc(var(--brand-radius) * 1.6)" }}
+      >
+        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(60% 120% at 50% 0%, color-mix(in srgb, var(--brand-accent) 32%, transparent), transparent 60%)" }} />
+        <div className="relative">
+          <h2 className="rf-fluid-display font-semibold [text-wrap:balance]">{props.title}</h2>
+          {props.subtitle && <p className="mx-auto mt-4 max-w-lg text-white/65 [text-wrap:balance]">{props.subtitle}</p>}
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+            <a {...ctaAttrs(c.bookingUrl || (c.email ? `mailto:${c.email}` : "#contact"))} className="inline-flex items-center gap-1.5 bg-white px-7 py-3.5 text-sm font-medium transition-transform active:scale-[0.98]" style={{ color: "var(--brand-contrast)", borderRadius: "var(--brand-radius)" }}>
+              {c.bookingUrl ? "Book now" : "Email us"}
+            </a>
+            {phoneHref && (
+              <a href={phoneHref} className="inline-flex items-center gap-1.5 px-6 py-3.5 text-sm font-medium text-white ring-1 ring-white/25 transition-colors hover:bg-white/10" style={{ borderRadius: "var(--brand-radius)" }}>
+                {c.phone}
+              </a>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    </section>
+  );
+}
+
+/** Masonry gallery: a real-image columns layout with captions that lift on hover. */
+function GalleryMasonry({ props }: { props: any }) {
+  const items = (props.items || []) as any[];
+  if (!items.length) return null;
+  return (
+    <section className="px-6 py-20 sm:py-24" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}>
+      <div className="mx-auto max-w-6xl">
+        <div className="max-w-2xl">
+          {props.eyebrow && <div className="mb-3 text-xs font-medium uppercase tracking-[0.22em]" style={{ color: "var(--brand-accent)" }}>{props.eyebrow}</div>}
+          {props.title && <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>}
+        </div>
+        <div className="mt-10 [column-gap:1rem] sm:columns-2 lg:columns-3">
+          {items.slice(0, 9).map((it, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.5, ease: EASE, delay: (i % 3) * 0.05 }}
+              className="group relative mb-4 overflow-hidden break-inside-avoid rounded-[1rem]"
+              style={{ boxShadow: `inset 0 0 0 1px ${HAIRLINE}`, aspectRatio: i % 3 === 0 ? "3 / 4" : "4 / 3", background: imageBg(it.image, "linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 18%, transparent), transparent)"), backgroundSize: "cover", backgroundPosition: "center" }}
+            >
+              {it.title && (
+                <div className="absolute inset-x-0 bottom-0 translate-y-2 p-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7), transparent)" }}>
+                  <span className="text-sm font-medium text-white">{it.title}</span>
+                </div>
+              )}
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** Horizontal gallery strip with scroll-snap (no JS): a premium, swipeable rail. */
+function GalleryStrip({ props }: { props: any }) {
+  const items = (props.items || []) as any[];
+  if (!items.length) return null;
+  return (
+    <section className="py-20 sm:py-24" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}>
+      <div className="mx-auto mb-8 max-w-6xl px-6">
+        {props.eyebrow && <div className="mb-3 text-xs font-medium uppercase tracking-[0.22em]" style={{ color: "var(--brand-accent)" }}>{props.eyebrow}</div>}
+        {props.title && <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>}
+      </div>
+      <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {items.slice(0, 10).map((it, i) => (
+          <div
+            key={i}
+            className="relative w-[78%] shrink-0 snap-center overflow-hidden rounded-[1.1rem] sm:w-[42%] lg:w-[30%]"
+            style={{ aspectRatio: "4 / 3", boxShadow: `inset 0 0 0 1px ${HAIRLINE}`, background: imageBg(it.image, "linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 18%, transparent), transparent)"), backgroundSize: "cover", backgroundPosition: "center" }}
+          >
+            {it.title && <div className="absolute inset-x-0 bottom-0 p-4" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.65), transparent)" }}><span className="text-sm font-medium text-white">{it.title}</span></div>}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/** Full-bleed alternating gallery: large image bands with a caption beside each.
+ *  Editorial, image-led; great for hospitality / property / studios. */
+function GalleryFeature({ props }: { props: any }) {
+  const items = (props.items || []) as any[];
+  if (!items.length) return null;
+  return (
+    <section className="px-6 py-20 sm:py-24" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}>
+      <div className="mx-auto flex max-w-6xl flex-col gap-6">
+        {props.title && <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>}
+        {items.slice(0, 5).map((it, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.6, ease: EASE }}
+            className={cn("flex flex-col gap-6 sm:items-center", i % 2 === 1 ? "sm:flex-row-reverse" : "sm:flex-row")}
+          >
+            <div className="w-full overflow-hidden rounded-[1.25rem] sm:w-[62%]" style={{ aspectRatio: "16 / 10", boxShadow: `inset 0 0 0 1px ${HAIRLINE}`, background: imageBg(it.image, "linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 20%, transparent), transparent)"), backgroundSize: "cover", backgroundPosition: "center" }} />
+            <div className="flex-1">
+              {it.tag && <div className="text-xs font-medium uppercase tracking-[0.2em]" style={{ color: "var(--brand-accent)" }}>{it.tag}</div>}
+              <h3 className="mt-2 text-2xl font-semibold" style={{ color: "var(--brand)" }}>{it.title}</h3>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
+  TestimonialsSpotlight,
+  TestimonialsStacked,
+  ContactDetailsCard,
+  ContactBanner,
+  GalleryMasonry,
+  GalleryStrip,
+  GalleryFeature,
   ProductGrid,
   FooterColumns,
   FooterMinimal,

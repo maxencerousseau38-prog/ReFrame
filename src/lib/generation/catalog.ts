@@ -61,6 +61,9 @@ export const BLOCK_CATALOG: BlockMeta[] = [
 
   // Portfolio / visual work (also serves products & gallery)
   { variant: "PortfolioGrid", category: "portfolio", sectors: "all", moods: ["elegant", "warm", "bold"], motion: 2, license: "ReFrame original", when: "Asymmetric 'Selected work' image grid with a monumental lead tile." },
+  { variant: "GalleryMasonry", category: "portfolio", sectors: "all", moods: ["minimal", "bold", "elegant"], motion: 2, license: "ReFrame original", when: "Columns/masonry image gallery with hover captions." },
+  { variant: "GalleryStrip", category: "portfolio", sectors: "all", moods: ["bold", "minimal"], motion: 1, license: "ReFrame original", when: "Horizontal scroll-snap image rail; swipeable, modern." },
+  { variant: "GalleryFeature", category: "portfolio", sectors: ["restaurant", "realestate", "health", "agency", "ecommerce"], moods: ["warm", "elegant", "bold"], motion: 2, license: "ReFrame original", when: "Full-bleed alternating image bands with captions; editorial, image-led." },
   // Menu / price-list collection. sectors:[] => only used explicitly (the engine
   // builds the Menu page), never auto-selected by the scorer.
   { variant: "CollectionGrid", category: "portfolio", sectors: [], motion: 1, license: "ReFrame original", when: "Owner-managed menu / price list: name, price, description rows." },
@@ -76,6 +79,8 @@ export const BLOCK_CATALOG: BlockMeta[] = [
   { variant: "TestimonialsSlider1", category: "testimonials", sectors: "all", moods: ["bold", "minimal"], motion: 1, license: "ReFrame original", when: "Cross-fading single-quote slider on a dark band." },
   { variant: "TestimonialsEditorial", category: "testimonials", sectors: "all", moods: ["elegant", "warm"], motion: 1, license: "ReFrame original", when: "Light press-page layout: serif pull-quote + hairline column." },
   { variant: "TestimonialsGrid", category: "testimonials", sectors: "all", moods: ["warm", "elegant", "minimal"], motion: 1, license: "ReFrame original", when: "Three-card review grid with star ratings + initials avatars; broad credibility." },
+  { variant: "TestimonialsSpotlight", category: "testimonials", sectors: "all", moods: ["bold", "minimal"], motion: 1, license: "ReFrame original", when: "One monumental pull-quote on a glowing dark panel; the single big proof." },
+  { variant: "TestimonialsStacked", category: "testimonials", sectors: "all", moods: ["elegant", "warm", "minimal"], motion: 1, license: "ReFrame original", when: "Editorial stacked pull-quotes, alternating, hairline-separated." },
 
   { variant: "FAQAccordion1", category: "faq", sectors: "all", motion: 1, license: "ReFrame original", when: "Editorial accordion FAQ." },
 
@@ -85,7 +90,9 @@ export const BLOCK_CATALOG: BlockMeta[] = [
   { variant: "CTAAsterisk", category: "cta", sectors: ["agency", "saas", "ecommerce", "generic"], moods: ["bold"], motion: 3, license: "ReFrame original (inspired by Agencia/Framer agency templates)", when: "Colossal condensed sign-off over a hot gradient plate with a rotating asterisk + contact link; bold dark brands." },
   { variant: "CTABanner", category: "cta", sectors: "all", moods: ["minimal", "bold", "warm"], motion: 1, license: "ReFrame original", when: "Compact horizontal CTA band (headline left, button right) on a brand-tinted surface." },
   { variant: "CTAGradient", category: "cta", sectors: ["saas", "agency", "ecommerce", "generic"], moods: ["bold", "minimal"], motion: 1, license: "ReFrame original (Stripe/Vercel-inspired)", when: "Full-bleed accent-gradient closing panel with an ambient glow and a colossal headline." },
-  { variant: "ContactFormPremium1", category: "contact", sectors: "all", motion: 0, license: "ReFrame original", when: "Two-column contact form." },
+  { variant: "ContactFormPremium1", category: "contact", sectors: "all", moods: ["minimal", "bold"], motion: 0, license: "ReFrame original", when: "Two-column contact form." },
+  { variant: "ContactDetailsCard", category: "contact", sectors: "all", moods: ["elegant", "warm", "minimal"], motion: 0, license: "ReFrame original", when: "Centered premium card with real email/phone/address + a primary action; no form." },
+  { variant: "ContactBanner", category: "contact", sectors: ["agency", "saas", "ecommerce", "generic"], moods: ["bold"], motion: 1, license: "ReFrame original", when: "Full-bleed brand-contrast closing band with email/call/book buttons." },
   { variant: "Footer1", category: "footer", sectors: "all", motion: 0, license: "ReFrame original", when: "Editorial footer." },
   { variant: "FooterColumns", category: "footer", sectors: ["saas", "agency", "ecommerce", "generic"], moods: ["minimal", "bold"], motion: 0, license: "ReFrame original", when: "Multi-column site-map footer: brand + pages + real services + real contact." },
   { variant: "FooterMinimal", category: "footer", sectors: "all", moods: ["bold", "elegant"], motion: 0, license: "ReFrame original", when: "Minimal centered footer with a colossal brand wordmark watermark." },
