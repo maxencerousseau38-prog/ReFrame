@@ -728,6 +728,31 @@ function priceFromOffers(offers: unknown): string | undefined {
 
 const PRICE_RE = /[€$£]\s?\d[\d.,]*|\d[\d.,]*\s?[€$£]|\d[\d.,]*\s?(?:EUR|USD|GBP)\b/i;
 
+/** Product/category name from a URL slug (strips a leading numeric id):
+ *  "/gb/12609-snack-cooking" -> "Snack cooking". */
+function nameFromSlug(path: string): string {
+  const seg = decodeURIComponent(path.split("/").filter(Boolean).pop() || "");
+  const words = seg.replace(/^\d+[-_]/, "").replace(/[-_]+/g, " ").replace(/\.\w+$/, "").trim();
+  if (!words) return "";
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+/** True if the element sits inside a nav/header/footer/menu/breadcrumb region -
+ *  used to exclude chrome links from the B2B catalogue pass. */
+function hasNavAncestor(el: HTMLElement): boolean {
+  let p: HTMLElement | null = el.parentNode as HTMLElement | null;
+  let hops = 0;
+  while (p && hops < 14) {
+    const tag = (p.rawTagName || "").toLowerCase();
+    if (tag === "nav" || tag === "header" || tag === "footer") return true;
+    const cls = (typeof p.getAttribute === "function" ? p.getAttribute("class") : "") || "";
+    if (/(^|[\s_-])(nav|navbar|menu|header|footer|breadcrumb|lang|locale|topbar)([\s_-]|$)/i.test(cls)) return true;
+    p = p.parentNode as HTMLElement | null;
+    hops++;
+  }
+  return false;
+}
+
 /**
  * Scrape the page's REAL products - the client's actual catalogue - so the
  * rebuild keeps and modernizes them instead of dropping them. Prefers JSON-LD
@@ -815,6 +840,42 @@ export function extractProducts(root: HTMLElement, base: string): ScrapedProduct
         url: abs(link.getAttribute("href") || "", base),
       });
     }
+  }
+
+  // 3) B2B catalogue mode: image + link tiles with NO price (manufacturer/quote
+  //    catalogues like Casselin). Only image-led tiles in the body (never chrome),
+  //    names from title/alt or the URL slug. Requires a real grid (>=4 tiles) so
+  //    it never fires on a stray content link. Used only when priced extraction
+  //    came up short.
+  if (out.length < 6) {
+    const tiles: ScrapedProduct[] = [];
+    const tileSeen = new Set<string>(out.map((p) => (p.url || p.name).toLowerCase()));
+    for (const a of root.querySelectorAll("a[href]")) {
+      if (tiles.length >= 40) break;
+      const img = a.querySelector("img");
+      if (!img) continue;
+      if (hasNavAncestor(a)) continue;
+      const href = a.getAttribute("href") || "";
+      if (!href || href.startsWith("#") || /^(mailto:|tel:|javascript:|data:)/i.test(href)) continue;
+      const u = abs(href, base);
+      if (!/^https?:/i.test(u) || !sameOrigin(u, base) || PAGE_ASSET_RE.test(u) || PAGE_SKIP_RE.test(u)) continue;
+      const path = pathKey(u, base);
+      if (path === "/" || path === "") continue;
+      let name = clean(a.getAttribute("title") || img.getAttribute("alt") || a.text).slice(0, 80);
+      if (!name || name.length < 3) name = nameFromSlug(path);
+      if (!name || name.length < 3 || /^[a-z]{2}$/i.test(name) || isServiceNoise(name)) continue;
+      const meta = `${img.getAttribute("src") || ""} ${img.getAttribute("alt") || ""} ${href}`;
+      if (/flag|country|locale|\blang\b|language|currency|switcher|sprite|icon|logo/i.test(meta)) continue;
+      const srcset = img.getAttribute("srcset") || img.getAttribute("data-srcset");
+      const src = (srcset ? largestFromSrcset(srcset) : "") || img.getAttribute("src") || img.getAttribute("data-src") || "";
+      if (!src || IMAGE_JUNK_RE.test(src)) continue; // a catalogue tile must have a real image
+      const key = u.toLowerCase();
+      if (tileSeen.has(key) || tileSeen.has(name.toLowerCase())) continue;
+      tileSeen.add(key);
+      tiles.push({ name, image: abs(src, base), url: u.split("#")[0] });
+    }
+    // Only trust it as a catalogue when it's an actual grid of tiles.
+    if (tiles.length >= 4) for (const t of tiles) push(t);
   }
 
   return out;
@@ -1582,10 +1643,11 @@ export function generateSite(
   // Real catalogue: keep ALL the client's scraped products on a dedicated Shop
   // page, modernized into a premium grid (never fabricated). Inserted before
   // Contact so the nav reads Home / ... / Shop / Contact.
-  // A crawl already places products on their own real pages, so only add the
-  // synthetic Shop page in single-page mode.
+  // Surface the home catalogue (e.g. a B2B range of products with no prices) as
+  // a dedicated Shop page - in single-page mode and alongside crawled category
+  // pages, so the catalogue is always reachable.
   const products = analysis.extractedContent.products;
-  if (products?.length && !opts.realPages?.length) {
+  if (products?.length) {
     const footer = buildBlock({ type: "footer", category: "footer" }, analysis, mood);
     const grid = productGridBlock(products);
     const shopBlocks = footer ? [grid, footer] : [grid];

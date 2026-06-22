@@ -40,11 +40,29 @@ describe("extractProducts", () => {
     const card = (n: string, p: string) =>
       `<li class="product"><a href="/p/${n}" title="${n}"><img src="/img/${n}.jpg" alt="${n}"></a><span class="price">${p}</span></li>`;
     const r = parse(`<ul>${card("Whisk", "12,90 €")}${card("Pan", "24,00 €")}${card("Oven", "499 €")}</ul>`,
-      { blockTextElements: { script: false, style: true } });
+      { blockTextElements: { script: true, style: true } });
     const products = extractProducts(r, "https://x.com");
     expect(products.length).toBeGreaterThanOrEqual(3);
     expect(products[0].price).toMatch(/12,90/);
     expect(products[0].url).toBe("https://x.com/p/Whisk");
+  });
+
+  it("catalogue mode: priceless image tiles in the body, names from slug", () => {
+    const tile = (id: number, slug: string) =>
+      `<div class="cat"><a href="/gb/${id}-${slug}"><img src="/media/${slug}.jpg"></a></div>`;
+    const html = `<main>${tile(1, "snack-cooking")}${tile(2, "preparation")}${tile(3, "buffet")}${tile(4, "cold")}${tile(5, "dishwasher")}</main>`;
+    const r = parse(html, { blockTextElements: { script: true, style: true } });
+    const products = extractProducts(r, "https://www.casselin.com");
+    expect(products.length).toBeGreaterThanOrEqual(4);
+    expect(products.map((p) => p.name)).toContain("Snack cooking"); // slug, id stripped
+    expect(products.every((p) => !p.price)).toBe(true);
+  });
+
+  it("catalogue mode ignores nav/header tiles and lone links", () => {
+    const tile = (slug: string) => `<a href="/gb/${slug}"><img src="/m/${slug}.jpg"></a>`;
+    const inNav = `<nav>${tile("home")}${tile("about")}${tile("contact")}${tile("services")}</nav>`;
+    const r = parse(inNav, { blockTextElements: { script: true, style: true } });
+    expect(extractProducts(r, "https://x.com").length).toBe(0);
   });
 });
 
