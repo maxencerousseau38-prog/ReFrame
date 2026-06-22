@@ -291,9 +291,12 @@ async function sitemapUrls(base: string): Promise<string[]> {
 export async function discoverPages(base: string, root: HTMLElement, max = 10): Promise<DiscoveredPage[]> {
   const out: DiscoveredPage[] = [];
   const seen = new Set<string>([pathKey(base, base)]); // exclude home
+  const seenLabel = new Set<string>(["home"]); // collapse same-label pages (one nav item per label)
   const add = (d: DiscoveredPage) => {
-    if (seen.has(d.path) || out.length >= max) return;
+    const labelKey = d.label.trim().toLowerCase();
+    if (seen.has(d.path) || seenLabel.has(labelKey) || out.length >= max) return;
     seen.add(d.path);
+    seenLabel.add(labelKey);
     out.push(d);
   };
   for (const d of navPageLinks(root, base)) add(d);
@@ -323,13 +326,15 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
   // used to slip through and produce a generic rebuild. Without a render service,
   // we proceed with whatever the static fetch gave.
   const weak = (h: string) => !h || clean(h).length < 220 || looksLikeChallenge(h);
+  let rendered = false;
   if ((weak(html) || needsRendering(html)) && (await canRender())) {
-    const rendered = await renderHtml(url);
+    const renderedHtml = await renderHtml(url);
     // Keep the render only if it actually read more of the page than the static
     // fetch (and isn't itself a challenge), so a failed render never makes things
     // worse than the HTML we already have.
-    if (rendered && !looksLikeChallenge(rendered) && clean(rendered).length > clean(html).length) {
-      html = rendered;
+    if (renderedHtml && !looksLikeChallenge(renderedHtml) && clean(renderedHtml).length > clean(html).length) {
+      html = renderedHtml;
+      rendered = true;
     }
   }
 
@@ -416,7 +421,7 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
 
   // Real products (the client's actual catalogue) - kept and modernized, never
   // dropped. Empty unless the page genuinely exposes products.
-  const products = extractProducts(root, url);
+  let products = extractProducts(root, url);
 
   // Navigation labels double as a real list of what the business offers
   const navItems = dedupe(
@@ -437,6 +442,21 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
     (bodyText + " " + navItems.join(" ") + " " + ldHint).toLowerCase()
   );
   const finalProfile = INDUSTRY_PROFILES[industry];
+
+  // Storefronts often load their product cards client-side (Shopify/SPA themes).
+  // If the page is commercial but static product extraction was thin, render it
+  // and re-extract from the post-JS DOM. Best-effort; keeps static on failure.
+  if (products.length < 4 && !rendered && industry === "ecommerce" && (await canRender())) {
+    const rhtml = await renderHtml(url);
+    if (rhtml && !looksLikeChallenge(rhtml)) {
+      try {
+        const rprods = extractProducts(parse(rhtml, { blockTextElements: { script: true, style: true } }), url);
+        if (rprods.length > products.length) products = rprods;
+      } catch {
+        /* keep the static products */
+      }
+    }
+  }
 
   // Real audit signals
   const hasViewport = !!root.querySelector('meta[name="viewport"]');
