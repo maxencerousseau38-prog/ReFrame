@@ -5,7 +5,7 @@ import { isEmailConfigured } from "@/lib/server/email";
 import { isRenderConfigured, canRender } from "@/lib/server/render";
 import { isBlobConfigured } from "@/lib/server/blob";
 import { isVercelDomainsConfigured } from "@/lib/server/vercel-domains";
-import { authSecretSecure } from "@/lib/server/auth";
+import { authReady } from "@/lib/server/auth";
 
 export const runtime = "nodejs";
 
@@ -26,7 +26,7 @@ export async function GET() {
     renderReady: await canRender(),
     blob: isBlobConfigured(),
     customDomains: isVercelDomainsConfigured(),
-    authSecret: authSecretSecure(),
+    auth: authReady(), // Supabase Auth (identity) configured
     rootDomain: process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? null,
     llm: Boolean(process.env.ANTHROPIC_API_KEY),
     time: new Date().toISOString(),

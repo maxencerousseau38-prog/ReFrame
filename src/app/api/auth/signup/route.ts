@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import { createUser, publicUser } from "@/lib/server/users-store";
-import { startSession } from "@/lib/server/auth";
-import { signToken } from "@/lib/server/tokens";
-import { sendEmail, verifyEmailTemplate } from "@/lib/server/email";
+import { createServerSupabase, authConfigured } from "@/lib/supabase/server";
+import { isValidEmail } from "@/lib/server/users-store";
 import { rateLimit, clientKey } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -15,15 +13,13 @@ function originOf(req: Request): string {
   return `${proto}://${host}`;
 }
 
-const MESSAGES: Record<string, string> = {
-  invalid_email: "Enter a valid email address.",
-  weak_password: "Use at least 8 characters.",
-  exists: "An account with that email already exists.",
-  storage_unconfigured:
-    "Account storage isn't set up yet. Connect a KV database (Vercel Storage → Upstash) and redeploy.",
-};
-
-/** POST /api/auth/signup — create an account and start a session. */
+/**
+ * POST /api/auth/signup — create a Supabase Auth account.
+ *
+ * Supabase sends the confirmation email. If the project requires confirmation,
+ * no session is returned yet and we tell the client to check their inbox;
+ * otherwise the session cookies are set and they're signed in.
+ */
 export async function POST(req: Request) {
   const limit = await rateLimit(`signup:${clientKey(req)}`, 10, 60_000);
   if (!limit.ok) {
@@ -32,37 +28,43 @@ export async function POST(req: Request) {
       { status: 429, headers: { "Retry-After": String(limit.retryAfter) } }
     );
   }
+  if (!authConfigured()) {
+    return NextResponse.json(
+      { error: "Accounts aren't set up yet. Configure Supabase Auth and redeploy." },
+      { status: 503 }
+    );
+  }
+
   try {
-    const { email, password } = (await req.json()) as {
-      email?: string;
-      password?: string;
-    };
+    const { email, password } = (await req.json()) as { email?: string; password?: string };
     if (typeof email !== "string" || typeof password !== "string") {
       return NextResponse.json({ error: "Email and password are required." }, { status: 400 });
     }
-    const user = await createUser(email, password);
-    startSession(user.id);
-
-    // Send the verification email (best-effort; never blocks signup).
-    try {
-      const token = signToken("verify-email", user.id, 1000 * 60 * 60 * 24);
-      const link = `${originOf(req)}/api/auth/verify?token=${token}`;
-      const tpl = verifyEmailTemplate(link);
-      await sendEmail({ to: user.email, ...tpl });
-    } catch {
-      /* ignore email failures */
+    if (!isValidEmail(email)) {
+      return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
+    }
+    if (password.length < 8) {
+      return NextResponse.json({ error: "Use at least 8 characters." }, { status: 400 });
     }
 
-    return NextResponse.json({ user: publicUser(user) });
-  } catch (err) {
-    const code = err instanceof Error ? err.message : "error";
-    // KV configured-but-broken (bad URL/token) surfaces as "KV … failed: <n>".
-    const storage = code === "storage_unconfigured" || code.startsWith("KV");
-    if (!MESSAGES[code] && !storage) console.error("[signup] failed:", err);
-    const message = storage
-      ? MESSAGES.storage_unconfigured
-      : MESSAGES[code] ?? "Could not create the account.";
-    const status = code === "exists" ? 409 : storage ? 503 : 400;
-    return NextResponse.json({ error: message }, { status });
+    const supabase = createServerSupabase();
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${originOf(req)}/api/auth/callback` },
+    });
+    if (error) {
+      const exists = /already registered|already exists|User already/i.test(error.message);
+      return NextResponse.json(
+        { error: exists ? "An account with that email already exists." : error.message },
+        { status: exists ? 409 : 400 }
+      );
+    }
+
+    // Session present => signed in immediately. Absent => email confirmation
+    // is required before the first sign-in.
+    return NextResponse.json({ ok: true, needsConfirmation: !data.session });
+  } catch {
+    return NextResponse.json({ error: "Could not create the account." }, { status: 400 });
   }
 }

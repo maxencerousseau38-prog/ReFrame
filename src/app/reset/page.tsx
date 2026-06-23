@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { ArrowRight, CircleNotch, CheckCircle } from "@phosphor-icons/react";
 import { Logo } from "@/components/brand/logo";
 
@@ -16,7 +16,6 @@ export default function ResetPage() {
 
 function ResetForm() {
   const router = useRouter();
-  const token = useSearchParams().get("token") || "";
   const [password, setPassword] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -30,7 +29,7 @@ function ResetForm() {
       const res = await fetch("/api/auth/reset", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, password }),
+        body: JSON.stringify({ password }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -59,12 +58,7 @@ function ResetForm() {
         <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 bezel-core">
           <h1 className="text-xl font-semibold tracking-tight text-white">Choose a new password</h1>
 
-          {!token ? (
-            <p className="mt-3 text-sm text-zinc-400">
-              This reset link is missing its token. Request a new one from the{" "}
-              <Link href="/login" className="text-accent hover:underline">sign in</Link> page.
-            </p>
-          ) : done ? (
+          {done ? (
             <p className="mt-4 flex items-center gap-2 text-sm text-zinc-300">
               <CheckCircle weight="fill" className="h-5 w-5 text-accent" /> Password updated. Signing you in.
             </p>

@@ -58,6 +58,13 @@ function LoginForm() {
         setError(data.error || "Something went wrong.");
         return;
       }
+      // Sign-up may require email confirmation before a session exists.
+      if (mode === "signup" && data.needsConfirmation) {
+        setNotice("Almost there — check your inbox to confirm your email, then sign in.");
+        setMode("login");
+        setPassword("");
+        return;
+      }
       router.push(next);
       router.refresh();
     } catch {

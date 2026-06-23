@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
-import { getUserByEmail, verifyPassword, publicUser } from "@/lib/server/users-store";
-import { startSession } from "@/lib/server/auth";
+import { createServerSupabase, authConfigured } from "@/lib/supabase/server";
 import { rateLimit, clientKey } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
-/** POST /api/auth/login — verify credentials and start a session. */
+/** POST /api/auth/login — verify credentials and start a Supabase session. */
 export async function POST(req: Request) {
   const limit = await rateLimit(`login:${clientKey(req)}`, 10, 60_000);
   if (!limit.ok) {
@@ -14,26 +13,31 @@ export async function POST(req: Request) {
       { status: 429, headers: { "Retry-After": String(limit.retryAfter) } }
     );
   }
+  if (!authConfigured()) {
+    return NextResponse.json({ error: "Accounts aren't set up yet." }, { status: 503 });
+  }
+
   try {
-    const { email, password } = (await req.json()) as {
-      email?: string;
-      password?: string;
-    };
+    const { email, password } = (await req.json()) as { email?: string; password?: string };
     if (typeof email !== "string" || typeof password !== "string") {
       return NextResponse.json({ error: "Email and password are required." }, { status: 400 });
     }
 
-    const user = await getUserByEmail(email);
-    // Verify even when the user is missing to avoid leaking which emails exist.
-    const ok = user
-      ? verifyPassword(password, user.passwordHash)
-      : verifyPassword(password, "00:00");
-    if (!user || !ok) {
+    const supabase = createServerSupabase();
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      // Surface unconfirmed-email distinctly; everything else is a generic 401
+      // to avoid leaking which emails exist.
+      if (/email not confirmed/i.test(error.message)) {
+        return NextResponse.json(
+          { error: "Confirm your email first — check your inbox for the link." },
+          { status: 403 }
+        );
+      }
       return NextResponse.json({ error: "Incorrect email or password." }, { status: 401 });
     }
 
-    startSession(user.id);
-    return NextResponse.json({ user: publicUser(user) });
+    return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "Could not sign in." }, { status: 400 });
   }

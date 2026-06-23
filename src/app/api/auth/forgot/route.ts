@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { getUserByEmail } from "@/lib/server/users-store";
-import { signToken } from "@/lib/server/tokens";
-import { sendEmail, resetPasswordTemplate } from "@/lib/server/email";
+import { createServerSupabase, authConfigured } from "@/lib/supabase/server";
 import { rateLimit, clientKey } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -14,7 +12,11 @@ function originOf(req: Request): string {
   return `${proto}://${host}`;
 }
 
-/** POST /api/auth/forgot — email a reset link. Always 200 (no enumeration). */
+/**
+ * POST /api/auth/forgot — ask Supabase to email a reset link. The link lands on
+ * /api/auth/callback, which exchanges the code for a recovery session and
+ * forwards to /reset. Always 200 (no account enumeration).
+ */
 export async function POST(req: Request) {
   const limit = await rateLimit(`forgot:${clientKey(req)}`, 5, 60_000);
   if (!limit.ok) {
@@ -22,14 +24,9 @@ export async function POST(req: Request) {
   }
   try {
     const { email } = (await req.json()) as { email?: string };
-    if (typeof email === "string") {
-      const user = await getUserByEmail(email);
-      if (user) {
-        const token = signToken("reset-password", user.id, 1000 * 60 * 60);
-        const link = `${originOf(req)}/reset?token=${token}`;
-        const tpl = resetPasswordTemplate(link);
-        await sendEmail({ to: user.email, ...tpl });
-      }
+    if (typeof email === "string" && authConfigured()) {
+      const redirectTo = `${originOf(req)}/api/auth/callback?next=/reset`;
+      await createServerSupabase().auth.resetPasswordForEmail(email, { redirectTo });
     }
   } catch {
     /* swallow; never reveal state */

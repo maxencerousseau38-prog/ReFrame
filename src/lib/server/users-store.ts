@@ -1,39 +1,38 @@
 import { promises as fs } from "fs";
 import path from "path";
-import crypto from "crypto";
 import type { Plan } from "./plans";
 import { isComped } from "./plans";
 import { getSupabase, supabaseConfigured } from "./supabase";
 
 /**
- * Server-side user store for ReFrame accounts.
+ * Server-side PROFILE store for ReFrame accounts.
  *
- * Same env-driven adapter idea as the sites store: Vercel KV / Upstash Redis
- * when its credentials are present, the filesystem otherwise. A user's id is
- * the SHA-256 of their normalized email, so both "find by email" (login) and
- * "get by id" (session resolve) are O(1) reads of the same key, with no
- * separate index. Passwords are scrypt-hashed with a per-user salt.
+ * Identity (credentials, email verification, sessions) is owned by Supabase
+ * Auth (auth.users). This store holds only the app-specific profile that hangs
+ * off a user: their subscription plan and Stripe customer id, keyed by the
+ * Supabase auth user id (a uuid). A DB trigger auto-creates the row on signup;
+ * `upsertProfile` is the app-side safety net.
  *
- * This is a deliberately small, dependency-free foundation. It is the seam
- * where a managed auth provider (Auth.js/NextAuth, Clerk, WorkOS) drops in
- * later: swap these functions, callers stay the same.
+ * Same env-driven adapter idea as the other stores: Supabase (Postgres) when
+ * configured, then Vercel KV / Upstash Redis, then the filesystem.
  */
 
 export interface User {
   id: string;
   email: string;
-  /** `salt:derivedKey`, both hex. */
-  passwordHash: string;
-  createdAt: string;
   /** Subscription tier. Absent means free. Set by billing. */
   plan?: Plan;
   /** Stripe customer id, when billing is wired. */
   stripeCustomerId?: string;
-  /** Whether the email address has been confirmed. */
+  /**
+   * Whether the email is confirmed. Sourced from Supabase Auth at request time
+   * (not persisted here); present so the dashboard can nudge unverified users.
+   */
   emailVerified?: boolean;
+  createdAt: string;
 }
 
-/** Public shape safe to expose to the client (never includes the hash). */
+/** Public shape safe to expose to the client. */
 export type PublicUser = Pick<User, "id" | "email" | "createdAt"> & {
   plan: Plan;
   emailVerified: boolean;
@@ -52,6 +51,33 @@ export function publicUser(u: User): PublicUser {
   };
 }
 
+export function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
+export function isValidEmail(email: string): boolean {
+  return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) && email.length <= 254;
+}
+
+/* --- backend (Supabase, KV or filesystem) ---------------------------------- */
+
+const sbOn = supabaseConfigured();
+
+interface UserRow {
+  id: string;
+  email: string;
+  plan: Plan | null;
+  stripe_customer_id: string | null;
+  created_at: string;
+}
+
+function rowToUser(r: UserRow): User {
+  const u: User = { id: r.id, email: r.email, createdAt: r.created_at };
+  if (r.plan) u.plan = r.plan;
+  if (r.stripe_customer_id) u.stripeCustomerId = r.stripe_customer_id;
+  return u;
+}
+
 const KV_URL = process.env.KV_REST_API_URL;
 const KV_TOKEN = process.env.KV_REST_API_TOKEN;
 const kvOn = Boolean(KV_URL && KV_TOKEN);
@@ -59,74 +85,6 @@ const kvOn = Boolean(KV_URL && KV_TOKEN);
 const DATA_DIR = process.env.REFRAME_DATA_DIR
   ? path.resolve(process.env.REFRAME_DATA_DIR, "../users")
   : path.join(process.cwd(), ".data", "users");
-
-export function normalizeEmail(email: string): string {
-  return email.trim().toLowerCase();
-}
-
-export function userId(email: string): string {
-  return crypto.createHash("sha256").update(normalizeEmail(email)).digest("hex");
-}
-
-export function isValidEmail(email: string): boolean {
-  return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) && email.length <= 254;
-}
-
-/* --- password hashing (scrypt) --------------------------------------------- */
-
-export function hashPassword(password: string): string {
-  const salt = crypto.randomBytes(16);
-  const key = crypto.scryptSync(password, salt, 64);
-  return `${salt.toString("hex")}:${key.toString("hex")}`;
-}
-
-export function verifyPassword(password: string, stored: string): boolean {
-  const [saltHex, keyHex] = stored.split(":");
-  if (!saltHex || !keyHex) return false;
-  const key = Buffer.from(keyHex, "hex");
-  const test = crypto.scryptSync(password, Buffer.from(saltHex, "hex"), 64);
-  return key.length === test.length && crypto.timingSafeEqual(key, test);
-}
-
-/* --- backend (Supabase, KV or filesystem) ---------------------------------- */
-
-const sbOn = supabaseConfigured();
-
-/** DB row (snake_case) <-> User (camelCase). */
-interface UserRow {
-  id: string;
-  email: string;
-  password_hash: string;
-  plan: Plan | null;
-  stripe_customer_id: string | null;
-  email_verified: boolean;
-  created_at: string;
-}
-
-function rowToUser(r: UserRow): User {
-  const u: User = {
-    id: r.id,
-    email: r.email,
-    passwordHash: r.password_hash,
-    createdAt: r.created_at,
-    emailVerified: Boolean(r.email_verified),
-  };
-  if (r.plan) u.plan = r.plan;
-  if (r.stripe_customer_id) u.stripeCustomerId = r.stripe_customer_id;
-  return u;
-}
-
-function userToRow(u: User): UserRow {
-  return {
-    id: u.id,
-    email: u.email,
-    password_hash: u.passwordHash,
-    plan: u.plan ?? null,
-    stripe_customer_id: u.stripeCustomerId ?? null,
-    email_verified: Boolean(u.emailVerified),
-    created_at: u.createdAt,
-  };
-}
 
 async function kv<T = unknown>(command: (string | number)[]): Promise<T> {
   const res = await fetch(KV_URL as string, {
@@ -166,9 +124,14 @@ async function readUser(id: string): Promise<User | null> {
 
 async function writeUser(user: User): Promise<void> {
   if (sbOn) {
-    const { error } = await getSupabase()
-      .from("users")
-      .upsert(userToRow(user), { onConflict: "id" });
+    const row = {
+      id: user.id,
+      email: user.email,
+      plan: user.plan ?? null,
+      stripe_customer_id: user.stripeCustomerId ?? null,
+      created_at: user.createdAt,
+    };
+    const { error } = await getSupabase().from("users").upsert(row, { onConflict: "id" });
     if (error) throw new Error(`supabase users write failed: ${error.message}`);
     return;
   }
@@ -180,9 +143,6 @@ async function writeUser(user: User): Promise<void> {
     await fs.mkdir(DATA_DIR, { recursive: true });
     await fs.writeFile(fileFor(user.id), JSON.stringify(user), "utf8");
   } catch (err) {
-    // Serverless hosts (Vercel) have a read-only filesystem, so the on-disk
-    // fallback can't persist anything: accounts need a KV database. Surface a
-    // specific, actionable code instead of a generic write error.
     if (process.env.VERCEL) throw new Error("storage_unconfigured");
     throw err;
   }
@@ -194,48 +154,27 @@ export async function getUserById(id: string): Promise<User | null> {
   return readUser(id);
 }
 
-export async function getUserByEmail(email: string): Promise<User | null> {
-  return readUser(userId(email));
-}
-
 /**
- * Create a new account. Throws "exists" if the email is already registered,
- * "invalid_email" / "weak_password" on bad input.
+ * Ensure a profile row exists for a Supabase auth user, returning it. Idempotent
+ * — safe to call on every request. The email is refreshed but plan/billing are
+ * preserved across calls.
  */
-export async function createUser(email: string, password: string): Promise<User> {
-  if (!isValidEmail(email)) throw new Error("invalid_email");
-  if (!password || password.length < 8) throw new Error("weak_password");
-
-  const id = userId(email);
-  if (await readUser(id)) throw new Error("exists");
-
+export async function upsertProfile(input: { id: string; email: string }): Promise<User> {
+  const existing = await readUser(input.id);
+  if (existing) {
+    if (input.email && existing.email !== input.email) {
+      existing.email = input.email;
+      await writeUser(existing);
+    }
+    return existing;
+  }
   const user: User = {
-    id,
-    email: normalizeEmail(email),
-    passwordHash: hashPassword(password),
+    id: input.id,
+    email: normalizeEmail(input.email),
     createdAt: new Date().toISOString(),
   };
   await writeUser(user);
   return user;
-}
-
-/** Mark a user's email as verified. */
-export async function setEmailVerified(id: string): Promise<User | null> {
-  const user = await readUser(id);
-  if (!user) return null;
-  user.emailVerified = true;
-  await writeUser(user);
-  return user;
-}
-
-/** Replace a user's password (used by reset). */
-export async function updateUserPassword(id: string, password: string): Promise<boolean> {
-  if (!password || password.length < 8) throw new Error("weak_password");
-  const user = await readUser(id);
-  if (!user) return false;
-  user.passwordHash = hashPassword(password);
-  await writeUser(user);
-  return true;
 }
 
 /** Update a user's subscription tier (and optionally their Stripe customer id). */

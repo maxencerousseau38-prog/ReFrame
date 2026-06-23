@@ -3,8 +3,8 @@ import { endSession } from "@/lib/server/auth";
 
 export const runtime = "nodejs";
 
-/** POST /api/auth/logout — clear the session. */
+/** POST /api/auth/logout — clear the Supabase session. */
 export async function POST() {
-  endSession();
+  await endSession();
   return NextResponse.json({ ok: true });
 }

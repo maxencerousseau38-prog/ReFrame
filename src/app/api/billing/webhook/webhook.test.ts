@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import os from "os";
 import path from "path";
 import fs from "fs";
+import crypto from "crypto";
 
 /**
  * Proves the money path end-to-end without hitting Stripe's network: we sign
@@ -41,10 +42,10 @@ const freshEmail = () => `buyer-${Date.now()}-${i++}@example.com`;
 
 describe("billing webhook → plan sync (money path)", () => {
   it("upgrades the buyer to the purchased plan on checkout.session.completed", async () => {
-    const { createUser, getUserById } = await import("@/lib/server/users-store");
+    const { upsertProfile, getUserById } = await import("@/lib/server/users-store");
     const { POST } = await import("@/app/api/billing/webhook/route");
 
-    const user = await createUser(freshEmail(), "password123");
+    const user = await upsertProfile({ id: crypto.randomUUID(), email: freshEmail() });
     expect(user.plan ?? "free").toBe("free");
 
     const res = await POST(
@@ -68,10 +69,10 @@ describe("billing webhook → plan sync (money path)", () => {
   });
 
   it("downgrades to free on customer.subscription.deleted", async () => {
-    const { createUser, getUserById, setUserPlan } = await import("@/lib/server/users-store");
+    const { upsertProfile, getUserById, setUserPlan } = await import("@/lib/server/users-store");
     const { POST } = await import("@/app/api/billing/webhook/route");
 
-    const user = await createUser(freshEmail(), "password123");
+    const user = await upsertProfile({ id: crypto.randomUUID(), email: freshEmail() });
     await setUserPlan(user.id, "studio");
     expect((await getUserById(user.id))?.plan).toBe("studio");
 
@@ -87,10 +88,10 @@ describe("billing webhook → plan sync (money path)", () => {
   });
 
   it("syncs to free when a subscription becomes inactive (updated/canceled)", async () => {
-    const { createUser, getUserById, setUserPlan } = await import("@/lib/server/users-store");
+    const { upsertProfile, getUserById, setUserPlan } = await import("@/lib/server/users-store");
     const { POST } = await import("@/app/api/billing/webhook/route");
 
-    const user = await createUser(freshEmail(), "password123");
+    const user = await upsertProfile({ id: crypto.randomUUID(), email: freshEmail() });
     await setUserPlan(user.id, "pro");
 
     const res = await POST(
@@ -111,10 +112,10 @@ describe("billing webhook → plan sync (money path)", () => {
   });
 
   it("rejects a forged signature with 400 and does not change the plan", async () => {
-    const { createUser, getUserById } = await import("@/lib/server/users-store");
+    const { upsertProfile, getUserById } = await import("@/lib/server/users-store");
     const { POST } = await import("@/app/api/billing/webhook/route");
 
-    const user = await createUser(freshEmail(), "password123");
+    const user = await upsertProfile({ id: crypto.randomUUID(), email: freshEmail() });
     const res = await POST(
       new Request("http://localhost/api/billing/webhook", {
         method: "POST",

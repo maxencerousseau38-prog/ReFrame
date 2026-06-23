@@ -4,19 +4,22 @@
 --   • Supabase Dashboard → SQL Editor → paste & run, or
 --   • supabase db push   (if you manage this repo as migrations)
 --
--- The app talks to Postgres ONLY from the server, with the service-role key,
--- which bypasses Row Level Security. Every table therefore has RLS enabled with
--- NO policies: the anon / publishable key can read or write nothing, and the
--- only path to the data is the Next.js server. See src/lib/server/supabase.ts.
+-- DATA access is server-only, with the service-role key, which bypasses Row
+-- Level Security. Every table therefore has RLS enabled with NO policies: the
+-- anon / publishable key can read or write nothing, and the only path to the
+-- data is the Next.js server. See src/lib/server/supabase.ts.
+--
+-- IDENTITY is Supabase Auth (auth.users): credentials, email confirmation and
+-- sessions live there. public.users below is a thin PROFILE table keyed on the
+-- auth user id. See src/lib/supabase/server.ts and src/lib/server/auth.ts.
 
--- users: ReFrame accounts. id = sha256(normalized email), matching users-store.
+-- users: app profile for a Supabase auth user (plan + billing). A trigger
+-- (below) auto-creates the row on signup.
 create table if not exists public.users (
-  id                 text primary key,
-  email              text not null unique,
-  password_hash      text not null,
+  id                 uuid primary key references auth.users(id) on delete cascade,
+  email              text not null,
   plan               text,
   stripe_customer_id text,
-  email_verified     boolean not null default false,
   created_at         timestamptz not null default now()
 );
 
@@ -24,7 +27,7 @@ create table if not exists public.users (
 create table if not exists public.sites (
   slug            text primary key,
   schema          jsonb not null,
-  owner_id        text references public.users(id) on delete set null,
+  owner_id        uuid references public.users(id) on delete set null,
   domain          text,
   domain_verified boolean not null default false,
   created_at      timestamptz not null default now(),
@@ -38,7 +41,7 @@ create unique index if not exists sites_domain_verified_idx
 -- projects: a signed-in user's saved generation (schema + analysis).
 create table if not exists public.projects (
   id         text primary key,
-  owner_id   text not null references public.users(id) on delete cascade,
+  owner_id   uuid not null references public.users(id) on delete cascade,
   schema     jsonb not null,
   analysis   jsonb,
   created_at timestamptz not null default now(),
@@ -92,6 +95,26 @@ as $$
   on conflict (slug, day)
   do update set count = public.site_views.count + 1;
 $$;
+
+-- Auto-provision a profile row whenever a Supabase auth user is created.
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  insert into public.users (id, email)
+  values (new.id, new.email)
+  on conflict (id) do update set email = excluded.email;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
 
 -- Lock everything down: RLS on, no policies => only the service role gets in.
 alter table public.users      enable row level security;
