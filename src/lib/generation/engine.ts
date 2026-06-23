@@ -531,6 +531,7 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
     fetched: true,
     confidence,
     notice,
+    sourceDark: detectSourceDark(html, root) || undefined,
     brand: { logoUrl, accentColor },
     detectedSections: detectSections(root),
     ...(integrations.length ? { integrations } : {}),
@@ -1244,6 +1245,55 @@ export function extractTestimonials(
   return out.length ? out.slice(0, 6) : undefined;
 }
 
+/** Relative luminance (0..1) of a CSS hex or rgb()/rgba() colour, else undefined. */
+function colorLuminance(input: string): number | undefined {
+  const s = input.trim().toLowerCase();
+  let r: number, g: number, b: number;
+  const hex = s.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/);
+  if (hex) {
+    const h = hex[1];
+    if (h.length === 3) {
+      r = parseInt(h[0] + h[0], 16);
+      g = parseInt(h[1] + h[1], 16);
+      b = parseInt(h[2] + h[2], 16);
+    } else {
+      r = parseInt(h.slice(0, 2), 16);
+      g = parseInt(h.slice(2, 4), 16);
+      b = parseInt(h.slice(4, 6), 16);
+    }
+  } else {
+    const m = s.match(/rgba?\(\s*(\d{1,3})[,\s]+(\d{1,3})[,\s]+(\d{1,3})/);
+    if (!m) return undefined;
+    [r, g, b] = [+m[1], +m[2], +m[3]];
+  }
+  return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+}
+
+/**
+ * Whether the SOURCE site presents as dark — a dark canvas being part of its
+ * identity. Conservative on purpose (only clear, declarative signals: a
+ * color-scheme preference, or a dark background painted on <html>/<body>), so a
+ * light site is never wrongly darkened. Drives the generated theme's default
+ * mode (a dark site rebuilds dark — "their site, dramatically better").
+ */
+export function detectSourceDark(html: string, root: HTMLElement): boolean {
+  // Declared colour-scheme preference (meta or CSS), dark listed first.
+  const cs =
+    root.querySelector('meta[name="color-scheme"]')?.getAttribute("content")?.toLowerCase() || "";
+  if (/\bdark\b/.test(cs) && !/^\s*light\b/.test(cs)) return true;
+  if (/color-scheme\s*:\s*dark\b/i.test(html)) return true;
+  // A dark background painted on the root/body via an inline style.
+  for (const sel of ["body", "html"]) {
+    const style = root.querySelector(sel)?.getAttribute("style") || "";
+    const bg = style.match(/background(?:-color)?\s*:\s*([^;]+)/i)?.[1];
+    if (bg) {
+      const lum = colorLuminance(bg);
+      if (lum !== undefined && lum < 0.22) return true;
+    }
+  }
+  return false;
+}
+
 function abs(src: string, base: string): string {
   if (!src) return "";
   try {
@@ -1724,6 +1774,10 @@ export function generateSite(
   const aiTheme = opts.theme ?? {};
   let theme: Theme = { ...profile.theme, ...aiTheme };
   if (analysis.brand?.accentColor) theme = { ...theme, accent: analysis.brand.accentColor };
+  // A dark source site rebuilds dark by default (identity preservation), unless
+  // an explicit theme override already decided the mode. The renderer still
+  // honours the visitor's OS preference on top of this default.
+  if (aiTheme.dark === undefined && analysis.sourceDark) theme = { ...theme, dark: true };
   const mood = theme.mood;
 
   // Guarantee a slot for real content the user/extractor supplied (testimonials,

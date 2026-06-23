@@ -164,6 +164,11 @@ export interface SiteAnalysis {
   confidence?: "full" | "partial" | "fallback";
   /** Human-readable note when the read was incomplete, for honest UI. */
   notice?: string;
+  /**
+   * True when the source site presents as dark (declared color-scheme or a dark
+   * canvas). Used to default the rebuilt theme to dark, preserving identity.
+   */
+  sourceDark?: boolean;
   /** Real brand assets pulled from the source page, when available. */
   brand?: {
     logoUrl?: string;

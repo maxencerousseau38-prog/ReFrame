@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { parse } from "node-html-parser";
-import { extractContact, extractStats, extractTestimonials, cleanServiceLabels, extractProse, extractImages, extractProducts, navPageLinks, detectIntegrations, routePath } from "./engine";
+import { extractContact, extractStats, extractTestimonials, detectSourceDark, cleanServiceLabels, extractProse, extractImages, extractProducts, navPageLinks, detectIntegrations, routePath } from "./engine";
 
 describe("routePath (SEO continuity)", () => {
   it("preserves the real nested path, only sanitizing segments", () => {
@@ -46,6 +46,24 @@ describe("extractTestimonials (real proof, never fabricated)", () => {
   it("returns undefined when there is nothing credible (no fabrication)", () => {
     const root = parse(`<section><p>Welcome to our site.</p><blockquote>Sale</blockquote></section>`);
     expect(extractTestimonials(root, {})).toBeUndefined();
+  });
+});
+
+describe("detectSourceDark (option 3: dark source -> dark rebuild)", () => {
+  const dark = (html: string) => detectSourceDark(html, parse(html));
+  it("detects a declared dark color-scheme (meta, dark-first)", () => {
+    expect(dark(`<html><head><meta name="color-scheme" content="dark light"></head><body></body></html>`)).toBe(true);
+  });
+  it("detects color-scheme:dark in CSS", () => {
+    expect(dark(`<html><head><style>:root{color-scheme:dark}</style></head><body></body></html>`)).toBe(true);
+  });
+  it("detects a dark background painted on body", () => {
+    expect(dark(`<html><body style="background:#0b0b0d">hi</body></html>`)).toBe(true);
+  });
+  it("stays false for a light site (no false positives)", () => {
+    expect(dark(`<html><head><meta name="color-scheme" content="light dark"></head><body style="background:#ffffff"></body></html>`)).toBe(false);
+    expect(dark(`<html><body style="background:#fafafa"></body></html>`)).toBe(false);
+    expect(dark(`<html><body></body></html>`)).toBe(false);
   });
 });
 

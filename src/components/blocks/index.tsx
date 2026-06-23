@@ -54,36 +54,57 @@ const fontStacks: Record<Theme["font"], string> = {
   serif: "'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif",
 };
 
-function themeStyle(theme: Theme): React.CSSProperties {
-  const dark = theme.dark === true;
-  // Derive a coherent, brand-tinted scheme (surfaces + complementary accent)
-  // from the single brand colour, for this light/dark mode. Explicit theme
-  // surfaces still win when a brand provides them.
+/**
+ * The brand CSS custom properties for one light/dark mode, as a plain record.
+ * Emitted twice by the renderer (base + a prefers-color-scheme media override)
+ * so a generated site follows the visitor's OS preference with no JS or FOUC.
+ * Explicit theme surfaces only apply to the theme's INTENDED mode — the
+ * auto-flipped mode always uses the derived scheme so it stays coherent.
+ */
+function themeVars(theme: Theme, dark: boolean): Record<string, string> {
   const sc = deriveScheme(theme.accent, dark, theme.mood);
-  const surface = theme.surface ?? sc.surface;
-  const surface2 = theme.surface2 ?? sc.surface2;
-  const ink = theme.ink ?? sc.ink;
+  const intended = dark === (theme.dark === true);
+  const surface = (intended && theme.surface) || sc.surface;
+  const surface2 = (intended && theme.surface2) || sc.surface2;
+  const ink = (intended && theme.ink) || sc.ink;
   // Headings/brand text: the brand primary in light, a near-white (brand-tinted)
   // in dark so they read on the dark surface.
   const brand = dark ? sc.ink : theme.primary;
-  // Inverse "panel" (stats / CTA bands) keeps light text in BOTH schemes: an
-  // elevated brand-tinted dark in dark mode, the brand-dark in light mode.
+  // Inverse "panel" (stats / CTA bands): an elevated brand-tinted dark in dark
+  // mode, the brand-dark in light mode.
   const contrast = dark ? sc.contrast : theme.primary;
   return {
-    // exposed to children as CSS custom properties
-    ["--brand" as string]: brand,
-    ["--brand-accent" as string]: theme.accent,
-    ["--brand-accent-2" as string]: sc.accent2,
-    ["--brand-radius" as string]: radiusMap[theme.radius],
-    ["--brand-surface" as string]: surface,
-    ["--brand-surface-2" as string]: surface2,
-    ["--brand-ink" as string]: ink,
-    ["--brand-contrast" as string]: contrast,
-    ["--brand-contrast-ink" as string]: "#ffffff",
-    ["--brand-card" as string]: dark ? sc.card : "#ffffff",
-    ["--brand-font" as string]: fontStacks[theme.font],
-    ["--brand-mood" as string]: theme.mood,
+    "--brand": brand,
+    "--brand-accent": theme.accent,
+    "--brand-accent-2": sc.accent2,
+    "--brand-radius": radiusMap[theme.radius],
+    "--brand-surface": surface,
+    "--brand-surface-2": surface2,
+    "--brand-ink": ink,
+    "--brand-contrast": contrast,
+    "--brand-contrast-ink": "#ffffff",
+    "--brand-card": dark ? sc.card : "#ffffff",
+    "--brand-font": fontStacks[theme.font],
+    "--brand-mood": theme.mood,
   };
+}
+
+const cssVarsText = (vars: Record<string, string>) =>
+  Object.entries(vars)
+    .map(([k, v]) => `${k}:${v}`)
+    .join(";");
+
+/**
+ * The site's theme CSS: the baseline mode (the source/brand-derived default)
+ * plus a `prefers-color-scheme` override that flips to the opposite mode, so the
+ * rebuild auto-matches the visitor's system setting. Scoped to one site root.
+ */
+function themeCss(theme: Theme, scope: string): string {
+  const baselineDark = theme.dark === true;
+  const sel = `.rf-site[data-rf="${scope}"]`;
+  const base = cssVarsText(themeVars(theme, baselineDark));
+  const alt = cssVarsText(themeVars(theme, !baselineDark));
+  return `${sel}{${base}}@media (prefers-color-scheme:${baselineDark ? "light" : "dark"}){${sel}{${alt}}}`;
 }
 
 // Generated sites pick icons by name; map those names to Phosphor glyphs.
@@ -3153,45 +3174,64 @@ function fixFor(tone: "dark" | "light" | undefined, dark?: boolean): string | un
 
 function BrandLogo({ logo, name, dark }: { logo?: string; name: string; dark?: boolean }) {
   const [failed, setFailed] = React.useState(false);
-  // Seed from the filename hint (works for SVGs); canvas sampling refines it for
-  // raster logos once loaded.
-  const [filter, setFilter] = React.useState<string | undefined>(
-    logo ? fixFor(logoToneFromUrl(logo), dark) : undefined
+  // The logo's intrinsic tone: seeded from the filename hint (works for SVGs),
+  // refined by canvas sampling once a raster logo loads. "color" marks are never
+  // recoloured.
+  const [tone, setTone] = React.useState<"dark" | "light" | "color" | undefined>(
+    logo ? logoToneFromUrl(logo) : undefined
   );
-  const src = logo ? toProxiedUrl(logo) : undefined;
+  // Effective scheme follows the visitor's OS preference (the site auto-flips via
+  // prefers-color-scheme), falling back to the baked default — so the logo stays
+  // legible in whichever mode is actually painted.
+  const [effDark, setEffDark] = React.useState(!!dark);
+  React.useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const d = window.matchMedia("(prefers-color-scheme: dark)");
+    const l = window.matchMedia("(prefers-color-scheme: light)");
+    const update = () => setEffDark(d.matches ? true : l.matches ? false : !!dark);
+    update();
+    d.addEventListener("change", update);
+    l.addEventListener("change", update);
+    return () => {
+      d.removeEventListener("change", update);
+      l.removeEventListener("change", update);
+    };
+  }, [dark]);
 
-  const analyze = React.useCallback(
-    (img: HTMLImageElement) => {
-      try {
-        const w = 24, h = 24;
-        const cv = document.createElement("canvas");
-        cv.width = w;
-        cv.height = h;
-        const ctx = cv.getContext("2d", { willReadFrequently: true });
-        if (!ctx) return;
-        ctx.drawImage(img, 0, 0, w, h);
-        const { data } = ctx.getImageData(0, 0, w, h);
-        let n = 0, lum = 0, sat = 0;
-        for (let i = 0; i < data.length; i += 4) {
-          if (data[i + 3] < 32) continue; // ignore transparent pixels
-          const r = data[i] / 255, g = data[i + 1] / 255, b = data[i + 2] / 255;
-          const max = Math.max(r, g, b), min = Math.min(r, g, b);
-          lum += (max + min) / 2;
-          sat += max === 0 ? 0 : (max - min) / max;
-          n++;
-        }
-        if (!n) return;
-        lum /= n;
-        sat /= n;
-        if (sat >= 0.15) return; // colour logo: never recolour it
-        if (dark && lum < 0.5) setFilter("brightness(0) invert(1)"); // dark logo -> white on dark
-        else if (!dark && lum > 0.6) setFilter("brightness(0)"); // light logo -> black on light
-      } catch {
-        /* cross-origin/tainted: leave the logo as extracted */
+  const src = logo ? toProxiedUrl(logo) : undefined;
+  const filter = tone === "color" ? undefined : fixFor(tone, effDark);
+
+  const analyze = React.useCallback((img: HTMLImageElement) => {
+    try {
+      const w = 24, h = 24;
+      const cv = document.createElement("canvas");
+      cv.width = w;
+      cv.height = h;
+      const ctx = cv.getContext("2d", { willReadFrequently: true });
+      if (!ctx) return;
+      ctx.drawImage(img, 0, 0, w, h);
+      const { data } = ctx.getImageData(0, 0, w, h);
+      let n = 0, lum = 0, sat = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        if (data[i + 3] < 32) continue; // ignore transparent pixels
+        const r = data[i] / 255, g = data[i + 1] / 255, b = data[i + 2] / 255;
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        lum += (max + min) / 2;
+        sat += max === 0 ? 0 : (max - min) / max;
+        n++;
       }
-    },
-    [dark]
-  );
+      if (!n) return;
+      lum /= n;
+      sat /= n;
+      // Record the tone; the filter is derived from it + the effective scheme,
+      // so it re-resolves automatically when the OS preference flips.
+      if (sat >= 0.15) setTone("color");
+      else if (lum < 0.5) setTone("dark");
+      else if (lum > 0.6) setTone("light");
+    } catch {
+      /* cross-origin/tainted: leave the logo as extracted */
+    }
+  }, []);
 
   if (src && !failed) {
     // eslint-disable-next-line @next/next/no-img-element
@@ -3320,13 +3360,15 @@ export function SiteRenderer({
   // animations AND forces framer's inline reveal states (opacity:0) visible.
   const animationsOn = published ? schema.animations === true : schema.animations !== false;
 
+  const themeScope = React.useId().replace(/[^a-zA-Z0-9_-]/g, "");
   return (
     <MotionConfig reducedMotion={animationsOn ? "user" : "always"}>
+      <style dangerouslySetInnerHTML={{ __html: themeCss(schema.theme, themeScope) }} />
       <div
         className="rf-site"
+        data-rf={themeScope}
         data-animate={animationsOn ? "on" : "off"}
         style={{
-          ...themeStyle(schema.theme),
           background: "var(--brand-surface)",
           color: "var(--brand-ink)",
           scrollBehavior: "smooth",
