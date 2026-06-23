@@ -74,6 +74,7 @@ export const BLOCK_CATALOG: BlockMeta[] = [
   // About
   { variant: "AboutSplit", category: "about", sectors: "all", moods: ["elegant", "warm"], motion: 1, license: "ReFrame original", when: "Portrait + serif narrative with inline credibility chips." },
   { variant: "StatementAgencia", category: "about", sectors: ["agency", "saas", "ecommerce", "generic"], moods: ["bold"], motion: 2, license: "ReFrame original (inspired by Agencia/Framer agency templates)", when: "Centred numbered pill over a monumental two-tone mission statement + wide image plate; bold dark brands." },
+  { variant: "StatementEditorial", category: "about", sectors: ["restaurant", "realestate", "health", "agency", "ecommerce"], moods: ["elegant", "warm", "bold"], motion: 1, license: "ReFrame original (inspired by Havenn/Framer editorial templates)", when: "Monumental editorial statement: an oversized section title with a faint ghosted echo, beside a tall asymmetric framed image. Warm/elegant image-led brands." },
 
   // Testimonials — dark slider for bold/tech, light editorial for warm/elegant
   { variant: "TestimonialsSlider1", category: "testimonials", sectors: "all", moods: ["bold", "minimal"], motion: 1, license: "ReFrame original", when: "Cross-fading single-quote slider on a dark band." },

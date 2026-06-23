@@ -1415,6 +1415,114 @@ function AboutSplit({ props }: { props: any }) {
 }
 
 /**
+ * Editorial statement (the Havenn "Timeless Spaces" signature). A light section
+ * built on one bold move: a monumental section title with a faint, offset ghost
+ * of itself behind — the single memorable element — beside a tall, asymmetric
+ * framed image. The client's real About copy carries the column; real stats (if
+ * any) sit on a hairline row. No numbered markers: a statement isn't a sequence.
+ */
+function StatementEditorial({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  const imgRef = React.useRef<HTMLDivElement>(null);
+  useParallax(imgRef);
+  const stats = (props.stats || []) as { value: string; label: string }[];
+  const title = (props.title || "") as string;
+  return (
+    <section className="overflow-hidden px-6 py-24 sm:py-32" style={{ color: "var(--brand-ink)" }}>
+      <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+        {/* statement column */}
+        <div className="lg:pt-10">
+          {props.eyebrow && (
+            <span
+              className="inline-flex items-center gap-3 text-[0.7rem] font-medium uppercase tracking-[0.28em]"
+              style={{ color: "var(--brand-accent)" }}
+            >
+              <span className="h-px w-9" style={{ background: "var(--brand-accent)" }} />
+              {props.eyebrow}
+            </span>
+          )}
+          {/* monumental title with a ghosted echo behind it — the one bold move */}
+          <div className="relative mt-6">
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -left-0.5 -top-[0.16em] hidden select-none text-[clamp(2.4rem,6vw,5rem)] leading-[0.92] tracking-[-0.03em] sm:block"
+              style={{
+                fontFamily: "var(--brand-font)",
+                fontWeight: 590,
+                color: "transparent",
+                WebkitTextStroke: "1px color-mix(in srgb, var(--brand-ink) 14%, transparent)",
+              }}
+            >
+              {title}
+            </span>
+            <motion.h2
+              initial={reduce ? false : { opacity: 0, y: 22 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.7, ease: EASE }}
+              className="relative text-[clamp(2.4rem,6vw,5rem)] leading-[0.92] tracking-[-0.03em] [text-wrap:balance]"
+              style={{ fontFamily: "var(--brand-font)", fontWeight: 590, color: "var(--brand)" }}
+            >
+              {title}
+            </motion.h2>
+          </div>
+          {props.body && (
+            <p className="mt-7 max-w-xl text-lg leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.66 }}>
+              {props.body}
+            </p>
+          )}
+          {props.cta && (
+            <a
+              {...ctaAttrs(props.ctaHref)}
+              className="mt-8 inline-flex items-center gap-2 text-sm font-medium"
+              style={{ color: "var(--brand-accent)" }}
+            >
+              {props.cta}
+              <span aria-hidden>→</span>
+            </a>
+          )}
+          {stats.length > 0 && (
+            <div className="mt-10 flex flex-wrap gap-x-12 gap-y-6 border-t pt-8" style={{ borderColor: HAIRLINE }}>
+              {stats.slice(0, 3).map((s, i) => (
+                <div key={i}>
+                  <div className="text-3xl font-medium tabular-nums" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>
+                    {s.value}
+                  </div>
+                  <div className="mt-1 text-[0.7rem] uppercase tracking-[0.22em]" style={{ opacity: 0.55 }}>
+                    {s.label}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* asymmetric framed image, pushed down to break the grid baseline */}
+        {props.image && (
+          <motion.div
+            initial={reduce ? false : { opacity: 0, scale: 1.04 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.9, ease: EASE }}
+            className="relative aspect-[4/5] overflow-hidden lg:mt-16"
+            style={{
+              borderRadius: "var(--brand-radius)",
+              boxShadow: "0 40px 100px -45px rgba(0,0,0,0.5), 0 0 0 1px color-mix(in srgb, var(--brand-ink) 8%, transparent)",
+            }}
+          >
+            <div
+              ref={imgRef}
+              className="absolute -inset-[15%] bg-cover bg-center"
+              style={{ backgroundImage: imageBg(props.image, "linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))") }}
+            />
+          </motion.div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/**
  * Editorial testimonials (light). A large serif pull-quote beside a hairline-
  * ruled column of supporting quotes — reads like a press page, not an app card
  * row. The calm, warm/elegant counterpart to the dark TestimonialsSlider1.
@@ -2966,6 +3074,7 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   HeroMonumental,
   HeroAgencia,
   StatementAgencia,
+  StatementEditorial,
   CTAAsterisk,
   FeaturesGrid1,
   FeaturesBento,
