@@ -555,6 +555,10 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
       // client's actual contact + credibility (never fabricated).
       contact: extractContact(root, bodyText, ld),
       stats: extractStats(ld),
+      // Real client praise pulled from the page (JSON-LD reviews + DOM quotes),
+      // so credible proof survives the rebuild instead of being dropped. The
+      // engine only renders a testimonials section when this is non-empty.
+      testimonials: extractTestimonials(root, ld),
       ...(products.length ? { products } : {}),
       // Real prose: reuse the client's own About paragraph and service copy.
       ...prose,
@@ -701,6 +705,7 @@ interface JsonLd {
   address?: string;
   ratingValue?: string;
   reviewCount?: string;
+  reviews?: { quote: string; name?: string; role?: string }[];
 }
 
 /** Flatten a schema.org PostalAddress (or string) into one human line. */
@@ -970,6 +975,25 @@ function jsonLd(root: HTMLElement): JsonLd {
         if (!out.ratingValue && (typeof rv === "string" || typeof rv === "number")) out.ratingValue = String(rv);
         if (!out.reviewCount && (typeof rc === "string" || typeof rc === "number")) out.reviewCount = String(rc);
       }
+      // Real customer reviews shipped as structured data — the most reliable
+      // testimonial source. Accept a single Review or an array.
+      const rawReviews = Array.isArray(n.review) ? n.review : n.review ? [n.review] : [];
+      for (const r of rawReviews) {
+        if (!r || typeof r !== "object") continue;
+        const rev = r as Record<string, unknown>;
+        const body = rev.reviewBody ?? rev.description;
+        const quote = typeof body === "string" ? clean(body) : "";
+        if (quote.length < 24) continue;
+        const author = rev.author as Record<string, unknown> | string | undefined;
+        const name =
+          typeof author === "string"
+            ? clean(author)
+            : author && typeof author === "object" && typeof author.name === "string"
+              ? clean(author.name)
+              : undefined;
+        (out.reviews ??= []).push({ quote: quote.slice(0, 280), name: name || undefined });
+        if (out.reviews.length >= 6) break;
+      }
     }
   }
   return out;
@@ -1156,6 +1180,68 @@ export function extractStats(ld: JsonLd): { value: string; label: string }[] | u
     if (!Number.isNaN(n) && n > 0) stats.push({ value: `${n}+`, label: "Reviews" });
   }
   return stats.length ? stats : undefined;
+}
+
+/**
+ * Real testimonials from the page — never fabricated. Prefers JSON-LD Review
+ * data (the most reliable), then the common DOM patterns: <blockquote> and
+ * `.testimonial` / `.review` / `.quote` containers, pulling an attribution from
+ * a <cite>/<figcaption>/`.author`/`.name`. Returns undefined when nothing
+ * credible is found, so the engine omits the section (honesty rule, like stats).
+ */
+export function extractTestimonials(
+  root: HTMLElement,
+  ld: JsonLd
+): { quote: string; name: string; role?: string }[] | undefined {
+  const out: { quote: string; name: string; role?: string }[] = [];
+  const seen = new Set<string>();
+
+  const add = (rawQuote: string, rawName?: string, rawRole?: string) => {
+    if (out.length >= 6) return;
+    const q = clean(rawQuote).replace(/^["“”'«»']+|["“”'«»']+$/g, "").trim();
+    // A real quote is a sentence-ish span, not a label or a paragraph of body.
+    if (q.length < 24 || q.length > 320 || !/[a-zà-ÿ]/i.test(q)) return;
+    // Require a real attribution — a nameless quote is weak proof, and inventing
+    // a name would violate the no-fabrication rule. So we drop it.
+    const name = rawName ? clean(rawName).slice(0, 60) : "";
+    if (name.length < 2) return;
+    const key = q.slice(0, 48).toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    const role = rawRole ? clean(rawRole).slice(0, 60) : undefined;
+    out.push({ quote: q, name, ...(role ? { role } : {}) });
+  };
+
+  // Split a "Name, Title" / "Name — Company" attribution into its two parts.
+  const splitAttr = (full: string): [string | undefined, string | undefined] => {
+    const parts = clean(full).split(/\s*[—–,|·]\s*/).filter(Boolean);
+    return [parts[0], parts[1]];
+  };
+
+  // 1) Structured data first.
+  for (const r of ld.reviews ?? []) add(r.quote, r.name, r.role);
+
+  // 2) Explicit testimonial/review/quote containers.
+  for (const el of root.querySelectorAll(
+    ".testimonial, .testimonials, .review, .reviews, .quote, .quotes, .testimonial-card, [data-testimonial]"
+  )) {
+    if (out.length >= 6) break;
+    const qEl = el.querySelector("blockquote, q, p") ?? el;
+    const nameEl = el.querySelector("cite, figcaption, .author, .name, .author-name, .who, footer");
+    const [name, role] = nameEl ? splitAttr(nameEl.text) : [undefined, undefined];
+    add(qEl.text || "", name, role);
+  }
+
+  // 3) Semantic <blockquote> elements (attribution often in a sibling <cite>).
+  for (const bq of root.querySelectorAll("blockquote")) {
+    if (out.length >= 6) break;
+    const cite = bq.querySelector("cite") ?? bq.nextElementSibling;
+    const citeText = cite && /cite|figcaption/i.test(cite.tagName || "") ? cite.text : cite?.querySelector?.("cite")?.text;
+    const [name, role] = citeText ? splitAttr(citeText) : [undefined, undefined];
+    add(bq.querySelector("p")?.text || bq.text || "", name, role);
+  }
+
+  return out.length ? out.slice(0, 6) : undefined;
 }
 
 function abs(src: string, base: string): string {

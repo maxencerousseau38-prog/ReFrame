@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { parse } from "node-html-parser";
-import { extractContact, extractStats, cleanServiceLabels, extractProse, extractImages, extractProducts, navPageLinks, detectIntegrations, routePath } from "./engine";
+import { extractContact, extractStats, extractTestimonials, cleanServiceLabels, extractProse, extractImages, extractProducts, navPageLinks, detectIntegrations, routePath } from "./engine";
 
 describe("routePath (SEO continuity)", () => {
   it("preserves the real nested path, only sanitizing segments", () => {
@@ -8,6 +8,44 @@ describe("routePath (SEO continuity)", () => {
     expect(routePath("/gb/12609-snack-cuisson/")).toBe("gb/12609-snack-cuisson");
     expect(routePath("/Our Services")).toBe("our-services");
     expect(routePath("/")).toBe("page");
+  });
+});
+
+describe("extractTestimonials (real proof, never fabricated)", () => {
+  it("pulls a blockquote + cite attribution from the DOM", () => {
+    const root = parse(`<section>
+      <blockquote><p>They rebuilt our site in days and it finally looks like the business we actually run.</p><cite>Élise Caron, Owner</cite></blockquote>
+    </section>`);
+    const t = extractTestimonials(root, {});
+    expect(t?.length).toBe(1);
+    expect(t![0].quote).toMatch(/rebuilt our site in days/);
+    expect(t![0].name).toBe("Élise Caron");
+    expect(t![0].role).toBe("Owner");
+  });
+
+  it("reads .testimonial / .review containers with .author", () => {
+    const root = parse(`<div>
+      <div class="testimonial"><p>Every detail was considered and enquiries went up the first month.</p><span class="author">Priya Nair — Director</span></div>
+      <div class="review"><p>The most senior, least precious team we have ever worked with.</p><cite>Marcus Reede</cite></div>
+    </div>`);
+    const t = extractTestimonials(root, {});
+    expect(t?.length).toBe(2);
+    expect(t!.map((x) => x.name)).toContain("Priya Nair");
+    expect(t!.find((x) => x.name === "Priya Nair")?.role).toBe("Director");
+  });
+
+  it("prefers JSON-LD reviews and dedupes against the DOM", () => {
+    const root = parse(`<blockquote><p>Outstanding craftsmanship from start to finish, truly exceptional.</p></blockquote>`);
+    const t = extractTestimonials(root, {
+      reviews: [{ quote: "Outstanding craftsmanship from start to finish, truly exceptional.", name: "Sophie Bennett" }],
+    });
+    expect(t?.length).toBe(1); // not double-counted
+    expect(t![0].name).toBe("Sophie Bennett");
+  });
+
+  it("returns undefined when there is nothing credible (no fabrication)", () => {
+    const root = parse(`<section><p>Welcome to our site.</p><blockquote>Sale</blockquote></section>`);
+    expect(extractTestimonials(root, {})).toBeUndefined();
   });
 });
 
