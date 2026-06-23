@@ -2,6 +2,7 @@ import type { SiteSchema } from "@/lib/generation/types";
 import type { PublishedSite, StoreBackend } from "./types";
 import { fsBackend } from "./fs-backend";
 import { kvBackend, kvConfigured } from "./kv-backend";
+import { supabaseBackend, supabaseConfigured } from "./supabase-backend";
 
 export type { PublishedSite } from "./types";
 
@@ -10,12 +11,15 @@ export type { PublishedSite } from "./types";
  *
  * A published schema is written through the active backend and served back from
  * `/s/<slug>`. The backend is chosen once per process from the environment:
- * Vercel KV / Upstash Redis when its credentials are present, the filesystem
- * otherwise. Callers use the async API below and never see which backend is in
- * play — adding Postgres/Blob/etc. later means one more adapter, no caller
- * changes.
+ * Supabase (Postgres) when its credentials are present, then Vercel KV /
+ * Upstash Redis, then the filesystem. Callers use the async API below and never
+ * see which backend is in play.
  */
-const backend: StoreBackend = kvConfigured() ? kvBackend : fsBackend;
+const backend: StoreBackend = supabaseConfigured()
+  ? supabaseBackend
+  : kvConfigured()
+    ? kvBackend
+    : fsBackend;
 
 /** Which backend is active — handy for a health endpoint or logs. */
 export function storeBackendName(): string {

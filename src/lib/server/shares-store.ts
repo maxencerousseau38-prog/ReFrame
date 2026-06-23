@@ -2,6 +2,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import crypto from "crypto";
 import type { SiteAnalysis, SiteSchema } from "@/lib/generation/types";
+import { getSupabase, supabaseConfigured } from "./supabase";
 
 /**
  * Public, read-by-id snapshots of a redesign — the seam that stops the "wow"
@@ -26,6 +27,8 @@ export interface Share {
 function newId(): string {
   return crypto.randomBytes(9).toString("base64url");
 }
+
+const sbOn = supabaseConfigured();
 
 const KV_URL = process.env.KV_REST_API_URL;
 const KV_TOKEN = process.env.KV_REST_API_TOKEN;
@@ -55,6 +58,17 @@ const fileFor = (id: string) => path.join(FS_DIR, `${id}.json`);
 export async function createShare(schema: SiteSchema, analysis?: SiteAnalysis): Promise<Share> {
   const share: Share = { id: newId(), schema, analysis, createdAt: new Date().toISOString() };
   const json = JSON.stringify(share);
+  if (sbOn) {
+    const { error } = await getSupabase().from("shares").insert({
+      id: share.id,
+      schema: share.schema,
+      analysis: share.analysis ?? null,
+      created_at: share.createdAt,
+      expires_at: new Date(Date.now() + TTL_SECONDS * 1000).toISOString(),
+    });
+    if (error) throw new Error(`supabase shares insert failed: ${error.message}`);
+    return share;
+  }
   if (useKv) {
     await kv(["SET", kvKey(share.id), json, "EX", TTL_SECONDS]);
   } else {
@@ -69,6 +83,11 @@ export async function attachEmail(id: string, email: string): Promise<Share | nu
   const share = await getShare(id);
   if (!share) return null;
   share.email = email;
+  if (sbOn) {
+    const { error } = await getSupabase().from("shares").update({ email }).eq("id", id);
+    if (error) throw new Error(`supabase shares update failed: ${error.message}`);
+    return share;
+  }
   const json = JSON.stringify(share);
   if (useKv) await kv(["SET", kvKey(id), json, "EX", TTL_SECONDS]);
   else {
@@ -81,6 +100,29 @@ export async function attachEmail(id: string, email: string): Promise<Share | nu
 export async function getShare(id: string): Promise<Share | null> {
   // Guard against path traversal / bad ids before any I/O.
   if (!/^[A-Za-z0-9_-]{6,32}$/.test(id)) return null;
+  if (sbOn) {
+    const { data, error } = await getSupabase()
+      .from("shares")
+      .select("*")
+      .eq("id", id)
+      .gt("expires_at", new Date().toISOString())
+      .maybeSingle();
+    if (error || !data) return null;
+    const row = data as {
+      id: string;
+      schema: SiteSchema;
+      analysis: SiteAnalysis | null;
+      email: string | null;
+      created_at: string;
+    };
+    return {
+      id: row.id,
+      schema: row.schema,
+      analysis: row.analysis ?? undefined,
+      email: row.email ?? undefined,
+      createdAt: row.created_at,
+    };
+  }
   if (useKv) {
     const raw = await kv<string | null>(["GET", kvKey(id)]);
     return raw ? (JSON.parse(raw) as Share) : null;

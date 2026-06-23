@@ -1,5 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
+import { getSupabase, supabaseConfigured } from "./supabase";
 
 /**
  * Lightweight pageview analytics for published sites — the "your site is
@@ -7,6 +8,8 @@ import path from "path";
  * plus per-day counters (so we can show a 7-day trend) per slug. KV when
  * configured, filesystem otherwise. No PII, no cookies.
  */
+
+const sbOn = supabaseConfigured();
 
 const KV_URL = process.env.KV_REST_API_URL;
 const KV_TOKEN = process.env.KV_REST_API_TOKEN;
@@ -35,6 +38,11 @@ const fileFor = (slug: string) => path.join(FS_DIR, `${slug}.json`);
 
 export async function trackView(slug: string): Promise<void> {
   if (!/^[a-z0-9-]{1,64}$/.test(slug)) return;
+  if (sbOn) {
+    // Atomic upsert-and-increment of today's per-slug counter.
+    await getSupabase().rpc("increment_site_view", { p_slug: slug });
+    return;
+  }
   if (useKv) {
     await kv(["INCR", `views:${slug}`]);
     const dk = `views:${slug}:${day()}`;
@@ -62,6 +70,19 @@ export interface SiteStats {
 export async function getStats(slug: string): Promise<SiteStats> {
   const days: string[] = [];
   for (let i = 0; i < 7; i++) days.push(day(new Date(Date.now() - i * 86400000)));
+  if (sbOn) {
+    const { data, error } = await getSupabase()
+      .from("site_views")
+      .select("day, count")
+      .eq("slug", slug);
+    if (error || !data) return { total: 0, last7: 0 };
+    const rows = data as { day: string; count: number }[];
+    const total = rows.reduce((s, r) => s + Number(r.count || 0), 0);
+    const last7 = rows
+      .filter((r) => days.includes(r.day))
+      .reduce((s, r) => s + Number(r.count || 0), 0);
+    return { total, last7 };
+  }
   if (useKv) {
     const total = Number((await kv<string | null>(["GET", `views:${slug}`])) || 0);
     const daily = await Promise.all(days.map((d) => kv<string | null>(["GET", `views:${slug}:${d}`])));

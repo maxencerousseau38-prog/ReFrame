@@ -2,6 +2,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import crypto from "crypto";
 import type { SiteAnalysis, SiteSchema } from "@/lib/generation/types";
+import { getSupabase, supabaseConfigured } from "./supabase";
 
 /**
  * Server-side persistence for user *projects* (a saved generation: the schema
@@ -51,6 +52,39 @@ function newId(): string {
 /*  Backends                                                                  */
 /* -------------------------------------------------------------------------- */
 
+const sbOn = supabaseConfigured();
+
+interface ProjectRow {
+  id: string;
+  owner_id: string;
+  schema: SiteSchema;
+  analysis: SiteAnalysis | null;
+  created_at: string;
+  updated_at: string;
+}
+
+function rowToProject(r: ProjectRow): Project {
+  return {
+    id: r.id,
+    ownerId: r.owner_id,
+    schema: r.schema,
+    analysis: r.analysis ?? undefined,
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+  };
+}
+
+function projectToRow(p: Project): ProjectRow {
+  return {
+    id: p.id,
+    owner_id: p.ownerId,
+    schema: p.schema,
+    analysis: p.analysis ?? null,
+    created_at: p.createdAt,
+    updated_at: p.updatedAt,
+  };
+}
+
 const KV_URL = process.env.KV_REST_API_URL;
 const KV_TOKEN = process.env.KV_REST_API_TOKEN;
 const useKv = Boolean(KV_URL && KV_TOKEN);
@@ -77,6 +111,15 @@ const FS_DIR = process.env.REFRAME_DATA_DIR
 const fileFor = (id: string) => path.join(FS_DIR, `${id}.json`);
 
 async function readRaw(id: string): Promise<Project | null> {
+  if (sbOn) {
+    const { data, error } = await getSupabase()
+      .from("projects")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    if (error || !data) return null;
+    return rowToProject(data as ProjectRow);
+  }
   if (useKv) {
     const raw = await kv<string | null>(["GET", kvKey(id)]);
     return raw ? (JSON.parse(raw) as Project) : null;
@@ -89,6 +132,13 @@ async function readRaw(id: string): Promise<Project | null> {
 }
 
 async function writeRaw(p: Project): Promise<void> {
+  if (sbOn) {
+    const { error } = await getSupabase()
+      .from("projects")
+      .upsert(projectToRow(p), { onConflict: "id" });
+    if (error) throw new Error(`supabase projects write failed: ${error.message}`);
+    return;
+  }
   if (useKv) {
     await kv(["SET", kvKey(p.id), JSON.stringify(p)]);
     await kv(["ZADD", kvIndex(p.ownerId), Date.parse(p.updatedAt), p.id]);
@@ -140,7 +190,10 @@ export async function updateProject(
 export async function deleteProject(id: string, ownerId: string): Promise<boolean> {
   const p = await readRaw(id);
   if (!p || p.ownerId !== ownerId) return false;
-  if (useKv) {
+  if (sbOn) {
+    const { error } = await getSupabase().from("projects").delete().eq("id", id);
+    if (error) throw new Error(`supabase projects delete failed: ${error.message}`);
+  } else if (useKv) {
     await kv(["DEL", kvKey(id)]);
     await kv(["ZREM", kvIndex(ownerId), id]);
   } else {
@@ -151,6 +204,15 @@ export async function deleteProject(id: string, ownerId: string): Promise<boolea
 
 /** A single owner's projects, newest first. */
 export async function listProjectsByOwner(ownerId: string): Promise<Project[]> {
+  if (sbOn) {
+    const { data, error } = await getSupabase()
+      .from("projects")
+      .select("*")
+      .eq("owner_id", ownerId)
+      .order("updated_at", { ascending: false });
+    if (error || !data) return [];
+    return (data as ProjectRow[]).map(rowToProject);
+  }
   if (useKv) {
     const ids = await kv<string[]>(["ZRANGE", kvIndex(ownerId), "0", "-1", "REV"]);
     if (!ids?.length) return [];

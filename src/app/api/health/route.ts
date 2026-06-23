@@ -16,7 +16,7 @@ export const runtime = "nodejs";
 export async function GET() {
   return NextResponse.json({
     ok: true,
-    storage: storeBackendName(), // "vercel-kv" or "filesystem"
+    storage: storeBackendName(), // "supabase", "vercel-kv" or "filesystem"
     durable: storeBackendName() !== "filesystem",
     stripe: isStripeConfigured(),
     email: isEmailConfigured(),

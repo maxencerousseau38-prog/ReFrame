@@ -3,6 +3,7 @@ import path from "path";
 import crypto from "crypto";
 import type { Plan } from "./plans";
 import { isComped } from "./plans";
+import { getSupabase, supabaseConfigured } from "./supabase";
 
 /**
  * Server-side user store for ReFrame accounts.
@@ -87,7 +88,45 @@ export function verifyPassword(password: string, stored: string): boolean {
   return key.length === test.length && crypto.timingSafeEqual(key, test);
 }
 
-/* --- backend (KV or filesystem) -------------------------------------------- */
+/* --- backend (Supabase, KV or filesystem) ---------------------------------- */
+
+const sbOn = supabaseConfigured();
+
+/** DB row (snake_case) <-> User (camelCase). */
+interface UserRow {
+  id: string;
+  email: string;
+  password_hash: string;
+  plan: Plan | null;
+  stripe_customer_id: string | null;
+  email_verified: boolean;
+  created_at: string;
+}
+
+function rowToUser(r: UserRow): User {
+  const u: User = {
+    id: r.id,
+    email: r.email,
+    passwordHash: r.password_hash,
+    createdAt: r.created_at,
+    emailVerified: Boolean(r.email_verified),
+  };
+  if (r.plan) u.plan = r.plan;
+  if (r.stripe_customer_id) u.stripeCustomerId = r.stripe_customer_id;
+  return u;
+}
+
+function userToRow(u: User): UserRow {
+  return {
+    id: u.id,
+    email: u.email,
+    password_hash: u.passwordHash,
+    plan: u.plan ?? null,
+    stripe_customer_id: u.stripeCustomerId ?? null,
+    email_verified: Boolean(u.emailVerified),
+    created_at: u.createdAt,
+  };
+}
 
 async function kv<T = unknown>(command: (string | number)[]): Promise<T> {
   const res = await fetch(KV_URL as string, {
@@ -105,6 +144,15 @@ async function kv<T = unknown>(command: (string | number)[]): Promise<T> {
 const fileFor = (id: string) => path.join(DATA_DIR, `${id}.json`);
 
 async function readUser(id: string): Promise<User | null> {
+  if (sbOn) {
+    const { data, error } = await getSupabase()
+      .from("users")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    if (error || !data) return null;
+    return rowToUser(data as UserRow);
+  }
   if (kvOn) {
     const raw = await kv<string | null>(["GET", `user:${id}`]);
     return raw ? (JSON.parse(raw) as User) : null;
@@ -117,6 +165,13 @@ async function readUser(id: string): Promise<User | null> {
 }
 
 async function writeUser(user: User): Promise<void> {
+  if (sbOn) {
+    const { error } = await getSupabase()
+      .from("users")
+      .upsert(userToRow(user), { onConflict: "id" });
+    if (error) throw new Error(`supabase users write failed: ${error.message}`);
+    return;
+  }
   if (kvOn) {
     await kv(["SET", `user:${user.id}`, JSON.stringify(user)]);
     return;

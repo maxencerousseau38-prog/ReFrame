@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import crypto from "crypto";
+import { getSupabase, supabaseConfigured } from "./supabase";
 
 /**
  * Lead capture for published sites. Every contact-form submission is stored here
@@ -22,6 +23,32 @@ export interface Lead {
 
 function newId(): string {
   return crypto.randomBytes(9).toString("base64url");
+}
+
+const sbOn = supabaseConfigured();
+
+interface LeadRow {
+  id: string;
+  owner_id: string;
+  slug: string;
+  brand: string;
+  name: string;
+  email: string;
+  message: string;
+  created_at: string;
+}
+
+function rowToLead(r: LeadRow): Lead {
+  return {
+    id: r.id,
+    ownerId: r.owner_id,
+    slug: r.slug,
+    brand: r.brand,
+    name: r.name,
+    email: r.email,
+    message: r.message,
+    createdAt: r.created_at,
+  };
 }
 
 const KV_URL = process.env.KV_REST_API_URL;
@@ -49,6 +76,20 @@ const FS_DIR = process.env.REFRAME_DATA_DIR
 
 export async function createLead(input: Omit<Lead, "id" | "createdAt">): Promise<Lead> {
   const lead: Lead = { ...input, id: newId(), createdAt: new Date().toISOString() };
+  if (sbOn) {
+    const { error } = await getSupabase().from("leads").insert({
+      id: lead.id,
+      owner_id: lead.ownerId,
+      slug: lead.slug,
+      brand: lead.brand,
+      name: lead.name,
+      email: lead.email,
+      message: lead.message,
+      created_at: lead.createdAt,
+    });
+    if (error) throw new Error(`supabase leads insert failed: ${error.message}`);
+    return lead;
+  }
   if (useKv) {
     await kv(["SET", kvKey(lead.id), JSON.stringify(lead)]);
     await kv(["ZADD", kvIndex(lead.ownerId), Date.parse(lead.createdAt), lead.id]);
@@ -60,6 +101,16 @@ export async function createLead(input: Omit<Lead, "id" | "createdAt">): Promise
 }
 
 export async function listLeadsByOwner(ownerId: string, limit = 200): Promise<Lead[]> {
+  if (sbOn) {
+    const { data, error } = await getSupabase()
+      .from("leads")
+      .select("*")
+      .eq("owner_id", ownerId)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    if (error || !data) return [];
+    return (data as LeadRow[]).map(rowToLead);
+  }
   if (useKv) {
     const ids = await kv<string[]>(["ZRANGE", kvIndex(ownerId), "0", String(limit - 1), "REV"]);
     if (!ids?.length) return [];
