@@ -1589,53 +1589,93 @@ function CollectionGrid({ props }: { props: any }) {
  * under a soft scrim, with bottom-anchored editorial copy. For hospitality,
  * real estate and retail — where the image IS the pitch.
  */
+/**
+ * Full-bleed editorial hero (the Havenn signature). A single characteristic
+ * photograph fills the frame; the brand wordmark + sector label ride a hairline
+ * meta row up top; a monumental display title is anchored bottom-left, with the
+ * real description and a real-service caption sitting on a baseline rule beside
+ * the CTAs. Editorial, image-led, and entirely brand-derived — the eyebrow is
+ * the sector ("Real Estate", "Restaurant"…) and the caption a genuine service,
+ * so every business reads as itself, never a template.
+ */
 function HeroImageFull({ props }: { props: any }) {
   const bgRef = React.useRef<HTMLDivElement>(null);
   useParallax(bgRef);
+  const reduce = useReducedMotion();
+  const brand = (props.brand || "") as string;
   return (
-    <section className="relative flex min-h-[86vh] items-end overflow-hidden px-6 py-20">
+    <section className="relative flex min-h-[92vh] flex-col overflow-hidden px-6 pb-10 pt-7 text-white">
       <div
         ref={bgRef}
         className="absolute -inset-[12%] bg-cover bg-center"
         style={{ backgroundImage: imageBg(props.image, "linear-gradient(135deg, var(--brand), var(--brand-accent))") }}
       />
-      <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.82), rgba(0,0,0,0.15) 60%, rgba(0,0,0,0.38))" }} />
-      <div className="relative mx-auto w-full max-w-6xl text-white">
+      {/* Dual scrim: a whisper up top so the meta row stays legible, a deep well
+          at the base so the editorial title sits on near-solid ink. */}
+      <div
+        className="absolute inset-0"
+        style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.55), rgba(0,0,0,0.04) 26%, rgba(0,0,0,0.12) 52%, rgba(0,0,0,0.86))" }}
+      />
+
+      {/* top meta row — brand wordmark left, sector label right */}
+      <div
+        className="relative mx-auto flex w-full max-w-6xl items-center justify-between gap-6 border-b pb-5"
+        style={{ borderColor: "rgba(255,255,255,0.16)" }}
+      >
+        {brand && <span className="truncate text-sm font-medium tracking-tight">{brand}</span>}
+        {props.eyebrow && (
+          <span className="shrink-0 text-[0.68rem] font-medium uppercase tracking-[0.28em] text-white/75">
+            {props.eyebrow}
+          </span>
+        )}
+      </div>
+
+      {/* editorial title, anchored to the bottom of the frame */}
+      <div className="relative mx-auto mt-auto w-full max-w-6xl">
         {props.eyebrow && (
           <motion.span
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-3 text-[0.7rem] font-medium uppercase tracking-[0.28em]"
-            style={{ color: "var(--brand-accent)" }}
+            initial={reduce ? false : { opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: EASE }}
+            className="inline-flex items-center gap-3 text-[0.7rem] font-medium uppercase tracking-[0.28em] text-white/80"
           >
             <span className="h-px w-9" style={{ background: "var(--brand-accent)" }} />
             {props.eyebrow}
           </motion.span>
         )}
         <motion.h1
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, delay: 0.05 }}
-          className="mt-6 max-w-3xl text-[clamp(2.6rem,6.5vw,5rem)] font-medium leading-[1.02] tracking-[-0.02em]"
-          style={{ fontFamily: "var(--brand-font)" }}
+          initial={reduce ? false : { opacity: 0, y: 26, filter: "blur(8px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ duration: 0.8, ease: EASE, delay: 0.05 }}
+          className="mt-5 max-w-[14ch] text-[clamp(2.9rem,8.2vw,7rem)] leading-[0.95] tracking-[-0.035em] [text-wrap:balance]"
+          style={{ fontFamily: "var(--brand-font)", fontWeight: 590 }}
         >
           {props.title}
         </motion.h1>
-        {props.subtitle && <p className="mt-5 max-w-xl text-lg text-white/80">{props.subtitle}</p>}
-        <div className="mt-8 flex flex-wrap gap-3">
-          {props.primaryCta && (
-            <a {...ctaAttrs(props.primaryHref)} className="px-6 py-3 text-sm font-medium text-white" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}>
-              {props.primaryCta}
-            </a>
-          )}
-          {props.secondaryCta && (
-            <a {...ctaAttrs(props.secondaryHref)} className="border px-6 py-3 text-sm font-medium text-white" style={{ borderColor: "rgba(255,255,255,0.5)", borderRadius: "var(--brand-radius)" }}>
-              {props.secondaryCta}
-            </a>
-          )}
+
+        {/* baseline row: real description + service caption left, CTAs right */}
+        <div
+          className="mt-9 flex flex-col gap-6 border-t pt-6 sm:flex-row sm:items-end sm:justify-between"
+          style={{ borderColor: "rgba(255,255,255,0.16)" }}
+        >
+          <div className="max-w-md">
+            {props.subtitle && <p className="text-[15px] leading-relaxed text-white/80">{props.subtitle}</p>}
+            {props.caption && (
+              <p className="mt-3 text-[0.66rem] uppercase tracking-[0.22em] text-white/55">{props.caption}</p>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {props.primaryCta && (
+              <a {...ctaAttrs(props.primaryHref)} className="px-6 py-3 text-sm font-medium text-white" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}>
+                {props.primaryCta}
+              </a>
+            )}
+            {props.secondaryCta && (
+              <a {...ctaAttrs(props.secondaryHref)} className="border px-6 py-3 text-sm font-medium text-white" style={{ borderColor: "rgba(255,255,255,0.5)", borderRadius: "var(--brand-radius)" }}>
+                {props.secondaryCta}
+              </a>
+            )}
+          </div>
         </div>
       </div>
     </section>
@@ -1850,8 +1890,8 @@ function HeroMonumental({ props }: { props: any }) {
           initial={{ opacity: 0, y: 22 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          className="max-w-2xl text-[clamp(1.9rem,3.6vw,3rem)] font-medium leading-[1.08] tracking-[-0.01em]"
-          style={{ fontFamily: "var(--brand-font)" }}
+          className="max-w-2xl text-[clamp(2.2rem,4.6vw,3.8rem)] leading-[1.04] tracking-[-0.02em]"
+          style={{ fontFamily: "var(--brand-font)", fontWeight: 590 }}
         >
           {props.title}
         </motion.h1>
