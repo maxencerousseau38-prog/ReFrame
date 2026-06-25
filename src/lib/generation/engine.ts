@@ -568,6 +568,8 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
       socialLinks: extractSocialLinks(root),
       // Real menu / price list, when the page exposes one (CollectionGrid block).
       collection: extractCollection(root),
+      // Real team members (premium TeamGrid section), never fabricated.
+      team: extractTeam(root, url),
       ...(products.length ? { products } : {}),
       // Real prose: reuse the client's own About paragraph and service copy.
       ...prose,
@@ -1450,6 +1452,75 @@ export function extractCollection(
   return items.length >= 3 ? { items: items.slice(0, 24) } : undefined;
 }
 
+const TEAM_HEADING_RE =
+  /\b(our team|the team|meet the team|our people|leadership|founders?|our staff|notre [ée]quipe|l['’]?[ée]quipe|qui sommes[- ]nous)\b/i;
+
+/**
+ * Real team / people from a "Team"/"Leadership" section — name, role, photo and
+ * a short bio. Conservative: each member must have a PHOTO (a near-universal
+ * signal that kills false positives), and we need ≥2, so a stray two-word
+ * heading never invents a roster. Renders in the premium TeamGrid section.
+ */
+export function extractTeam(
+  root: HTMLElement,
+  base: string
+): { name: string; role?: string; image?: string; bio?: string }[] | undefined {
+  let container: HTMLElement | null = null;
+  for (const h of root.querySelectorAll("h1, h2, h3")) {
+    if (TEAM_HEADING_RE.test(clean(h.text))) {
+      container = (h.closest("section") as HTMLElement | null) ?? (h.parentNode as HTMLElement | null);
+      break;
+    }
+  }
+  if (!container) return undefined;
+
+  const looksLikeName = (n: string) =>
+    n.length >= 3 && n.length <= 40 && /\s/.test(n) && /^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ.'’ -]+$/.test(n);
+
+  const out: { name: string; role?: string; image?: string; bio?: string }[] = [];
+  const seen = new Set<string>();
+  for (const nameEl of container.querySelectorAll("h3, h4, h5, figcaption, .name, .member-name")) {
+    if (out.length >= 8) break;
+    const name = clean(nameEl.text);
+    if (!looksLikeName(name) || TEAM_HEADING_RE.test(name) || GENERIC_HEADING.test(name)) continue;
+    if (seen.has(name.toLowerCase())) continue;
+    const card =
+      (nameEl.closest("li, article, figure, .member, .team-member, .card") as HTMLElement | null) ??
+      (nameEl.parentNode as HTMLElement | null);
+    const img = card?.querySelector("img");
+    if (!img) continue; // require a photo — the strong anti-false-positive gate
+    seen.add(name.toLowerCase());
+
+    const roleEl = card?.querySelector(".role, .title, .position, .job, .role-title");
+    let role = roleEl ? clean(roleEl.text) : "";
+    if (!role) {
+      const sib = nameEl.nextElementSibling;
+      if (sib && /^(p|span|div|small)$/i.test(sib.tagName || "")) {
+        const t = clean(sib.text);
+        if (t && t.length <= 60 && t.toLowerCase() !== name.toLowerCase()) role = t;
+      }
+    }
+    const src = img.getAttribute("src") || img.getAttribute("data-src") || "";
+    const image = src ? abs(src, base) : "";
+    // Bio: the first substantial paragraph in the card that isn't the role line.
+    let bio = "";
+    for (const p of card?.querySelectorAll("p") || []) {
+      const t = clean(p.text);
+      if (t.length >= 20 && t.toLowerCase() !== role.toLowerCase() && t.toLowerCase() !== name.toLowerCase()) {
+        bio = t;
+        break;
+      }
+    }
+
+    const member: { name: string; role?: string; image?: string; bio?: string } = { name };
+    if (role) member.role = role.slice(0, 60);
+    if (image) member.image = image;
+    if (bio) member.bio = bio.slice(0, 200);
+    out.push(member);
+  }
+  return out.length >= 2 ? out.slice(0, 8) : undefined;
+}
+
 /** Relative luminance (0..1) of a CSS hex or rgb()/rgba() colour, else undefined. */
 function colorLuminance(input: string): number | undefined {
   const s = input.trim().toLowerCase();
@@ -2009,6 +2080,20 @@ export function generateSite(
   const blocks: Block[] = slots
     .map((s) => buildBlock(s, analysis, mood))
     .filter((b): b is Block => b !== null);
+
+  // Real team / people becomes a dedicated premium section on the home, inserted
+  // before the closing CTA/footer. Only when genuine members were extracted.
+  const team = analysis.extractedContent.team;
+  if (team?.length) {
+    const teamBlock: Block = {
+      id: uid("team"),
+      type: "team",
+      variant: "TeamGrid",
+      props: { eyebrow: "Team", title: `The people behind ${analysis.brandName}`, items: team },
+    };
+    const at = blocks.findIndex((b) => b.type === "cta" || b.type === "footer");
+    blocks.splice(at >= 0 ? at : blocks.length, 0, teamBlock);
+  }
 
   // Multi-page: beyond the home overview, build the standard small-business
   // pages (Services, About, Contact). Each is a focused page of real blocks

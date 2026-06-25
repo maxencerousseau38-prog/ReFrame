@@ -56,6 +56,12 @@ function buildAnalysis(industry: Industry, withImages: boolean): SiteAnalysis {
         { platform: "LinkedIn", url: "https://linkedin.com/company/northlight" },
         { platform: "X", url: "https://x.com/northlight" },
       ],
+      team: [
+        { name: "Élise Caron", role: "Founder & Principal", image: SAMPLE_IMAGES[0], bio: "Twenty years shaping spaces across Europe, with a relentless eye for light and proportion." },
+        { name: "Marcus Reede", role: "Creative Director", image: SAMPLE_IMAGES[1], bio: "Leads every project from first sketch to final reveal." },
+        { name: "Priya Nair", role: "Head of Delivery", image: SAMPLE_IMAGES[2], bio: "Keeps complex builds calm, on time and on budget." },
+        { name: "Tomás Vidal", role: "Senior Designer", image: SAMPLE_IMAGES[3], bio: "Detail-obsessed, from joinery to typography." },
+      ],
       collection: {
         items: [
           { name: "Burrata & heirloom tomato", price: "€14", description: "Stracciatella, basil oil, aged balsamic." },

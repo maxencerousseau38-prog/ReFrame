@@ -1564,6 +1564,56 @@ function StatementEditorial({ props }: { props: any }) {
 }
 
 /**
+ * Team / people grid. A premium agency-style roster: portrait cards with the
+ * member's real photo, name, role and an optional short bio. Real members only —
+ * the engine omits the section entirely when none were extracted.
+ */
+function TeamGrid({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  const members = (props.items || []) as { name: string; role?: string; image?: string; bio?: string }[];
+  if (!members.length) return null;
+  return (
+    <section className="px-6 py-24 sm:py-28" style={{ color: "var(--brand-ink)" }}>
+      <div className="mx-auto max-w-6xl">
+        <div className="max-w-2xl">
+          {props.eyebrow && (
+            <span className="inline-flex items-center gap-3 text-[0.7rem] font-medium uppercase tracking-[0.28em]" style={{ color: "var(--brand-accent)" }}>
+              <span className="h-px w-9" style={{ background: "var(--brand-accent)" }} />
+              {props.eyebrow}
+            </span>
+          )}
+          <h2 className="mt-5 rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>
+            {props.title}
+          </h2>
+        </div>
+        <div className="mt-12 grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
+          {members.map((m, i) => (
+            <motion.div
+              key={i}
+              initial={reduce ? false : { opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.5, ease: EASE, delay: (i % 4) * 0.05 }}
+            >
+              <CoverImage
+                image={m.image}
+                gradient="linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))"
+                position="center"
+                className="aspect-[4/5] w-full overflow-hidden"
+                style={{ borderRadius: "var(--brand-radius)", boxShadow: "0 24px 60px -36px rgba(0,0,0,0.5), 0 0 0 1px color-mix(in srgb, var(--brand-ink) 8%, transparent)" }}
+              />
+              <h3 className="mt-4 text-base font-medium tracking-tight" style={{ color: "var(--brand)" }}>{m.name}</h3>
+              {m.role && <p className="mt-0.5 text-sm" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{m.role}</p>}
+              {m.bio && <p className="mt-2 text-[13px] leading-relaxed line-clamp-3" style={{ color: "var(--brand-ink)", opacity: 0.55 }}>{m.bio}</p>}
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
  * Editorial testimonials (light). A large serif pull-quote beside a hairline-
  * ruled column of supporting quotes — reads like a press page, not an app card
  * row. The calm, warm/elegant counterpart to the dark TestimonialsSlider1.
@@ -3138,6 +3188,7 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   HeroAgencia,
   StatementAgencia,
   StatementEditorial,
+  TeamGrid,
   CTAAsterisk,
   FeaturesGrid1,
   FeaturesBento,
@@ -3175,6 +3226,7 @@ const NAV_LABELS: Partial<Record<BlockType, string>> = {
   products: "Shop",
   gallery: "Gallery",
   about: "About",
+  team: "Team",
   testimonials: "Reviews",
   pricing: "Pricing",
   faq: "FAQ",

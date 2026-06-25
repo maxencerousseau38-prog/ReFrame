@@ -34,7 +34,8 @@ export type BlockType =
   | "pricing"
   | "gallery"
   | "logos"
-  | "stats";
+  | "stats"
+  | "team";
 
 /** How the generator decides the output structure. */
 export type GenerationMode = "classic" | "preserve" | "smart";
@@ -212,6 +213,8 @@ export interface SiteAnalysis {
     faqItems?: { question: string; answer: string }[];
     /** Real social profile links pulled from the page, for the footer. */
     socialLinks?: { platform: string; url: string }[];
+    /** Real team members (name + role + photo + bio), when the page lists them. */
+    team?: { name: string; role?: string; image?: string; bio?: string }[];
     stats?: { value: string; label: string }[];
     /**
      * Real business contact details (user-provided via the hybrid flow). Power

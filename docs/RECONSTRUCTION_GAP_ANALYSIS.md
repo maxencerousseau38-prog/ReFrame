@@ -29,7 +29,7 @@ Legend: ✅ done · 🟡 partial · ❌ missing. File refs are the place to chan
 | **Social links** | ✅ (new) | `extractSocialLinks` → wired into all three footers |
 | **Fonts / typography** | ✅ (new) | `extractFonts` — serif-led source → `theme.font="serif"` |
 | **Menu / pricing tables** (`collection`) | ✅ (new) | `extractCollection` → dedicated Menu page via existing CollectionGrid |
-| **Team / people** | ❌ | no extraction (needs a new TeamGrid component) |
+| **Team / people** | ✅ (new) | `extractTeam` (photo-gated) → premium `TeamGrid` section on the home |
 | **Per-page `<title>`/meta on crawl** | ❌ | homepage meta only |
 | **Videos / embeds** | ❌ | not tracked |
 
@@ -108,7 +108,11 @@ Analyze → rebuild → AI-edit → publish (`/api/publish-site`) → connect do
 2. ✅ **Social links** → wired into all footers.
 3. ✅ **Fonts** capture → serif-led source preserved in the theme.
 4. ✅ **Menu / pricing `collection`** extraction (tables / blocks) → Menu page.
-5. ⏳ **Team / people** extraction — needs a new `TeamGrid` component + variant.
+5. ✅ **Team / people** extraction → new premium `TeamGrid` section.
+
+**P0 is complete.** Phase 1 extraction now also captures FAQ, social, fonts,
+menu/pricing and team — a meaningful step toward the 90% target. Next: **P1**
+(measurable premium — WCAG AA contrast checker + 8-category scorecard).
 
 **P1 — make "premium" measurable (Phases 6–7):**
 6. **WCAG AA contrast checker** over the derived scheme + a generation-time a11y

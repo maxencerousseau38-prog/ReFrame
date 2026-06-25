@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { parse } from "node-html-parser";
-import { extractContact, extractStats, extractTestimonials, extractFaq, extractSocialLinks, extractFonts, extractCollection, detectSourceDark, cleanServiceLabels, extractProse, extractImages, extractProducts, navPageLinks, detectIntegrations, routePath } from "./engine";
+import { extractContact, extractStats, extractTestimonials, extractFaq, extractSocialLinks, extractFonts, extractCollection, extractTeam, detectSourceDark, cleanServiceLabels, extractProse, extractImages, extractProducts, navPageLinks, detectIntegrations, routePath } from "./engine";
 
 describe("routePath (SEO continuity)", () => {
   it("preserves the real nested path, only sanitizing segments", () => {
@@ -146,6 +146,34 @@ describe("extractCollection (menu / price list, never fabricated)", () => {
   it("returns undefined with fewer than three priced items", () => {
     const root = parse(`<ul><li>About us</li><li>One item $5</li></ul>`);
     expect(extractCollection(root)).toBeUndefined();
+  });
+});
+
+describe("extractTeam (real people, photo-gated, never fabricated)", () => {
+  const base = "https://northlight.studio";
+  it("reads member cards with name, role, photo and bio", () => {
+    const root = parse(`<section><h2>Our team</h2>
+      <ul>
+        <li class="member"><img src="/team/elise.jpg"><h3>Élise Caron</h3><p class="role">Founder</p><p>Twenty years shaping interiors across Europe and a relentless eye for light.</p></li>
+        <li class="member"><img src="/team/marcus.jpg"><h3>Marcus Reede</h3><p class="role">Creative Director</p><p>Leads every project from first sketch to final reveal.</p></li>
+      </ul>
+    </section>`);
+    const team = extractTeam(root, base);
+    expect(team?.length).toBe(2);
+    expect(team![0]).toMatchObject({ name: "Élise Caron", role: "Founder", image: "https://northlight.studio/team/elise.jpg" });
+    expect(team![0].bio).toMatch(/shaping interiors/);
+  });
+
+  it("ignores a name without a photo (anti-false-positive) and needs two members", () => {
+    const root = parse(`<section><h2>Our team</h2>
+      <div><h3>John Smith</h3><p>No photo here.</p></div>
+      <div class="member"><img src="/p.jpg"><h3>Jane Doe</h3></div>
+    </section>`);
+    expect(extractTeam(root, base)).toBeUndefined(); // only one photographed member
+  });
+
+  it("returns undefined when there is no team section", () => {
+    expect(extractTeam(parse(`<section><h2>Services</h2><img src="/x.jpg"><h3>Web Design</h3></section>`), base)).toBeUndefined();
   });
 });
 
