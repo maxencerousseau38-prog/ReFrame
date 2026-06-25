@@ -25,11 +25,11 @@ Legend: ✅ done · 🟡 partial · ❌ missing. File refs are the place to chan
 | Stats | 🟡 | JSON-LD `aggregateRating` only |
 | **Testimonials** | ✅ (new) | `extractTestimonials` — JSON-LD + DOM |
 | **Dark source detection** | ✅ (new) | `detectSourceDark` → theme default |
-| **FAQ content** | ❌ | structure detected, but Q&A never read → uses generic `defaultFaq` (borderline filler) |
-| **Social links** | ❌ | no `a[href*=instagram/linkedin/…]` collection |
-| **Fonts / typography** | ❌ | source typefaces not captured |
-| **Team / people** | ❌ | no extraction |
-| **Menu / pricing tables** (`collection`) | ❌ | declared in types, never extracted |
+| **FAQ content** | ✅ (new) | `extractFaq` — JSON-LD FAQPage + `<details>`/`<dl>`/question-headings; replaces generic `defaultFaq` |
+| **Social links** | ✅ (new) | `extractSocialLinks` → wired into all three footers |
+| **Fonts / typography** | ✅ (new) | `extractFonts` — serif-led source → `theme.font="serif"` |
+| **Menu / pricing tables** (`collection`) | ✅ (new) | `extractCollection` → dedicated Menu page via existing CollectionGrid |
+| **Team / people** | ❌ | no extraction (needs a new TeamGrid component) |
 | **Per-page `<title>`/meta on crawl** | ❌ | homepage meta only |
 | **Videos / embeds** | ❌ | not tracked |
 
@@ -104,11 +104,11 @@ Analyze → rebuild → AI-edit → publish (`/api/publish-site`) → connect do
 ## Prioritized backlog
 
 **P0 — close the extraction gap (Phase 1), highest fidelity-per-effort, low risk:**
-1. **Real FAQ** extraction → replace generic `defaultFaq` (kills filler).
-2. **Social links** → footer icons (small renderer wire-up).
-3. **Fonts** capture → optionally preserve the source typeface in the theme.
-4. **Menu / pricing `collection`** extraction (tables / `dl`) for restaurants & pricing.
-5. **Team / people** extraction for agencies/health/pro-services.
+1. ✅ **Real FAQ** extraction → replaces generic `defaultFaq` (kills filler).
+2. ✅ **Social links** → wired into all footers.
+3. ✅ **Fonts** capture → serif-led source preserved in the theme.
+4. ✅ **Menu / pricing `collection`** extraction (tables / blocks) → Menu page.
+5. ⏳ **Team / people** extraction — needs a new `TeamGrid` component + variant.
 
 **P1 — make "premium" measurable (Phases 6–7):**
 6. **WCAG AA contrast checker** over the derived scheme + a generation-time a11y
