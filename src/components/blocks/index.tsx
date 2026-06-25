@@ -334,7 +334,7 @@ function HeroPremium2({ props }: { props: any }) {
           >
             {props.title}
           </motion.h1>
-          <p className="mt-5 max-w-md text-lg text-neutral-500">{props.subtitle}</p>
+          <p className="mt-5 max-w-md text-lg" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{props.subtitle}</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a
               {...ctaAttrs(props.primaryHref)}
@@ -971,7 +971,7 @@ function HeroSpotlight({ props }: { props: any }) {
         >
           {props.title}
         </motion.h1>
-        <p className="mx-auto mt-5 max-w-xl rf-fluid-lead text-neutral-500">{props.subtitle}</p>
+        <p className="mx-auto mt-5 max-w-xl rf-fluid-lead" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{props.subtitle}</p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <a
             {...ctaAttrs(props.primaryHref)}

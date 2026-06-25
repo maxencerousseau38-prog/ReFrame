@@ -67,6 +67,7 @@ export const BLOCK_CATALOG: BlockMeta[] = [
   // Menu / price-list collection. sectors:[] => only used explicitly (the engine
   // builds the Menu page), never auto-selected by the scorer.
   { variant: "CollectionGrid", category: "portfolio", sectors: [], motion: 1, license: "ReFrame original", when: "Owner-managed menu / price list: name, price, description rows." },
+  { variant: "ProductGrid", category: "portfolio", sectors: [], motion: 1, license: "ReFrame original", when: "Real product catalogue (name, price, image): the client's scraped products on a dedicated Shop page. Emitted directly when products are extracted, never auto-selected." },
 
   // Stats / credibility
   { variant: "StatsCounter", category: "stats", sectors: "all", moods: ["bold", "minimal"], motion: 2, license: "ReFrame original", when: "Dark band of animated counters; measured credibility." },

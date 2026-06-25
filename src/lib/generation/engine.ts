@@ -2597,7 +2597,12 @@ export function applyAiEdit(schema: SiteSchema, instruction: string): AiEditResu
 
   // 7. SEO
   if (/seo|search|google|ranking/.test(text)) {
-    return { schema: next, message: "Optimized metadata, heading hierarchy and semantic structure for SEO.", changed: false };
+    return {
+      schema: next,
+      message:
+        "SEO is handled automatically: every published page already emits a real title, meta description and Open Graph tags, structured data (JSON-LD), a clean heading hierarchy, and a sitemap + robots.txt — and it preserves your original URLs. There's nothing to change here; it stays in sync as you edit.",
+      changed: false,
+    };
   }
 
   return {
