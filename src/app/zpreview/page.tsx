@@ -56,6 +56,14 @@ function buildAnalysis(industry: Industry, withImages: boolean): SiteAnalysis {
         { platform: "LinkedIn", url: "https://linkedin.com/company/northlight" },
         { platform: "X", url: "https://x.com/northlight" },
       ],
+      collection: {
+        items: [
+          { name: "Burrata & heirloom tomato", price: "€14", description: "Stracciatella, basil oil, aged balsamic." },
+          { name: "Tagliatelle al ragù", price: "€18", description: "Slow-cooked beef, parmigiano, hand-cut pasta." },
+          { name: "Branzino al forno", price: "€26", description: "Whole sea bass, lemon, rosemary potatoes." },
+          { name: "Tiramisù", price: "€9", description: "Mascarpone, espresso, cocoa." },
+        ],
+      },
       testimonials: [
         { quote: "They rebuilt our site in days and it finally looks like the business we actually run.", name: "Élise Caron", role: "Owner" },
         { quote: "The most senior, least precious team we've worked with. They made us look world-class.", name: "Marcus Reede", role: "Founder" },

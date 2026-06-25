@@ -169,6 +169,8 @@ export interface SiteAnalysis {
    * canvas). Used to default the rebuilt theme to dark, preserving identity.
    */
   sourceDark?: boolean;
+  /** "serif" when the source site is serif-led, to preserve its type character. */
+  fontHint?: Theme["font"];
   /** Real brand assets pulled from the source page, when available. */
   brand?: {
     logoUrl?: string;

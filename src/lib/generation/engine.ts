@@ -532,6 +532,7 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
     confidence,
     notice,
     sourceDark: detectSourceDark(html, root) || undefined,
+    fontHint: extractFonts(root, html),
     brand: { logoUrl, accentColor },
     detectedSections: detectSections(root),
     ...(integrations.length ? { integrations } : {}),
@@ -565,6 +566,8 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
       faqItems: extractFaq(root, ld),
       // Real social profiles for the footer (never fabricated).
       socialLinks: extractSocialLinks(root),
+      // Real menu / price list, when the page exposes one (CollectionGrid block).
+      collection: extractCollection(root),
       ...(products.length ? { products } : {}),
       // Real prose: reuse the client's own About paragraph and service copy.
       ...prose,
@@ -1320,6 +1323,38 @@ export function extractFaq(
   return out.length >= (fromLd ? 1 : 2) ? out.slice(0, 6) : undefined;
 }
 
+// Deliberate serif typefaces (display/body), used to detect a serif-led brand.
+// The bare `serif` keyword is intentionally excluded — it is almost always a
+// fallback in a sans stack ("Inter, Georgia, serif"), not the brand's choice.
+const SERIF_RE =
+  /(playfair|merriweather|\blora\b|georgia|times new roman|\btimes\b|pt serif|cormorant|garamond|baskerville|crimson|spectral|noto serif|source serif|dm serif|frank ruhl|\bbitter\b|libre caslon|cardo|domine|recoleta|canela|tiempos|freight|\bserif display\b)/i;
+
+/**
+ * Detect whether the SOURCE site is serif-led, and if so map it to the theme's
+ * serif font so the rebuild keeps that typographic character. Looks at the
+ * deliberately-loaded webfonts (Google Fonts links + @import) and the FIRST
+ * family of each `font-family` declaration (fallbacks ignored). Conservative —
+ * returns undefined for sans sites so their default (Inter/Geist) is kept.
+ */
+export function extractFonts(root: HTMLElement, html: string): Theme["font"] | undefined {
+  const families: string[] = [];
+  const fam = (s: string) => decodeURIComponent(s.replace(/\+/g, " "));
+  // Deliberately loaded Google Fonts (the strongest signal).
+  for (const link of root.querySelectorAll('link[href*="fonts.googleapis.com"]')) {
+    const href = link.getAttribute("href") || "";
+    for (const m of Array.from(href.matchAll(/family=([^&:]+)/gi))) families.push(fam(m[1]));
+  }
+  if (/fonts\.googleapis\.com/i.test(html)) {
+    for (const m of Array.from(html.matchAll(/family=([^&:)'"]+)/gi))) families.push(fam(m[1]));
+  }
+  // First family of each font-family declaration (ignore the fallback chain).
+  for (const m of Array.from(html.matchAll(/font-family\s*:\s*([^;}]+)/gi))) {
+    const first = m[1].split(",")[0].replace(/['"]/g, "").trim();
+    if (first) families.push(first);
+  }
+  return families.some((f) => SERIF_RE.test(f)) ? "serif" : undefined;
+}
+
 const SOCIAL_PATTERNS: [string, RegExp][] = [
   ["Instagram", /instagram\.com/i],
   ["Facebook", /facebook\.com|fb\.com/i],
@@ -1355,6 +1390,64 @@ export function extractSocialLinks(
     }
   }
   return out.length ? out : undefined;
+}
+
+/**
+ * Real menu / price list (`collection`) from the page — restaurants' menus,
+ * pricing tables, catalogues. Two reliable structures: price-bearing table rows,
+ * and repeated price-bearing blocks (menu items / pricing cards). Each item
+ * keeps its name, price and any short description. Conservative: needs ≥3 items,
+ * so a stray price elsewhere never invents a menu. Consumed by the CollectionGrid
+ * block when present.
+ */
+export function extractCollection(
+  root: HTMLElement
+): { items: { name: string; price?: string; description?: string }[] } | undefined {
+  const items: { name: string; price?: string; description?: string }[] = [];
+  const seen = new Set<string>();
+  const add = (rawName: string, rawPrice?: string, rawDesc?: string) => {
+    if (items.length >= 24) return;
+    const name = clean(rawName).slice(0, 80);
+    if (name.length < 2 || GENERIC_HEADING.test(name)) return;
+    const key = name.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    const item: { name: string; price?: string; description?: string } = { name };
+    if (rawPrice) item.price = clean(rawPrice).slice(0, 24);
+    const desc = clean(rawDesc || "");
+    if (desc && desc.toLowerCase() !== key && desc.length >= 8) item.description = desc.slice(0, 200);
+    items.push(item);
+  };
+
+  // A) Price-bearing table rows.
+  for (const table of root.querySelectorAll("table")) {
+    for (const tr of table.querySelectorAll("tr")) {
+      const texts = tr.querySelectorAll("td").map((c) => clean(c.text));
+      if (texts.length < 2) continue;
+      const priceIdx = texts.findIndex((t) => PRICE_RE.test(t));
+      if (priceIdx < 0) continue;
+      const name = texts.find((t, i) => i !== priceIdx && t.length >= 2);
+      if (!name) continue;
+      const desc = texts.filter((t, i) => i !== priceIdx && t !== name).join(" ");
+      add(name, texts[priceIdx], desc);
+    }
+  }
+
+  // B) Repeated price-bearing blocks (menu items / pricing cards).
+  if (items.length < 3) {
+    for (const el of root.querySelectorAll("li, .menu-item, .menu__item, .dish, .pricing-item, .price-item, .plan, .tier, .product")) {
+      if (items.length >= 24) break;
+      const text = clean(el.text);
+      const pm = text.match(PRICE_RE);
+      if (!pm) continue;
+      const nameEl = el.querySelector("h2, h3, h4, h5, strong, b, dt, .name, .title");
+      const name = nameEl ? clean(nameEl.text) : text.slice(0, text.indexOf(pm[0])).trim();
+      const description = (nameEl ? text.replace(clean(nameEl.text), "") : text.slice(text.indexOf(pm[0]) + pm[0].length)).replace(pm[0], "");
+      add(name, pm[0], description);
+    }
+  }
+
+  return items.length >= 3 ? { items: items.slice(0, 24) } : undefined;
 }
 
 /** Relative luminance (0..1) of a CSS hex or rgb()/rgba() colour, else undefined. */
@@ -1890,6 +1983,9 @@ export function generateSite(
   // an explicit theme override already decided the mode. The renderer still
   // honours the visitor's OS preference on top of this default.
   if (aiTheme.dark === undefined && analysis.sourceDark) theme = { ...theme, dark: true };
+  // A serif-led source rebuilds serif (preserve the typographic character),
+  // unless an explicit theme override set the font.
+  if (aiTheme.font === undefined && analysis.fontHint) theme = { ...theme, font: analysis.fontHint };
   const mood = theme.mood;
 
   // Guarantee a slot for real content the user/extractor supplied (testimonials,

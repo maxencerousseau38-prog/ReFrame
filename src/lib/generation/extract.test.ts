@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { parse } from "node-html-parser";
-import { extractContact, extractStats, extractTestimonials, extractFaq, extractSocialLinks, detectSourceDark, cleanServiceLabels, extractProse, extractImages, extractProducts, navPageLinks, detectIntegrations, routePath } from "./engine";
+import { extractContact, extractStats, extractTestimonials, extractFaq, extractSocialLinks, extractFonts, extractCollection, detectSourceDark, cleanServiceLabels, extractProse, extractImages, extractProducts, navPageLinks, detectIntegrations, routePath } from "./engine";
 
 describe("routePath (SEO continuity)", () => {
   it("preserves the real nested path, only sanitizing segments", () => {
@@ -101,6 +101,51 @@ describe("extractSocialLinks (footer profiles, never fabricated)", () => {
   });
   it("returns undefined when there are no social links", () => {
     expect(extractSocialLinks(parse(`<footer><a href="/about">About</a></footer>`))).toBeUndefined();
+  });
+});
+
+describe("extractFonts (preserve a serif-led source)", () => {
+  const f = (html: string) => extractFonts(parse(html), html);
+  it("detects a serif brand from a Google Fonts link", () => {
+    expect(f(`<head><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500&display=swap" rel="stylesheet"></head>`)).toBe("serif");
+  });
+  it("detects a serif first family in a font-family declaration", () => {
+    expect(f(`<style>body{font-family:"Cormorant Garamond",Georgia,serif}</style>`)).toBe("serif");
+  });
+  it("does NOT flag a sans stack that merely lists serif as a fallback", () => {
+    expect(f(`<style>body{font-family:Inter,Georgia,serif}</style>`)).toBeUndefined();
+    expect(f(`<head><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400" rel="stylesheet"></head>`)).toBeUndefined();
+  });
+});
+
+describe("extractCollection (menu / price list, never fabricated)", () => {
+  it("reads a price-bearing menu table", () => {
+    const root = parse(`<table>
+      <tr><th>Dish</th><th>Price</th></tr>
+      <tr><td>Burrata</td><td>€14</td></tr>
+      <tr><td>Tagliatelle al ragù</td><td>€18</td></tr>
+      <tr><td>Tiramisù</td><td>€9</td></tr>
+    </table>`);
+    const c = extractCollection(root);
+    expect(c?.items.length).toBe(3);
+    expect(c!.items[0]).toMatchObject({ name: "Burrata", price: "€14" });
+  });
+
+  it("reads repeated price-bearing blocks with names + descriptions", () => {
+    const root = parse(`<ul>
+      <li class="menu-item"><h3>Margherita</h3><p>San Marzano, fior di latte, basil</p><span>$12</span></li>
+      <li class="menu-item"><h3>Diavola</h3><p>Spicy salami, chili</p><span>$15</span></li>
+      <li class="menu-item"><h3>Quattro Formaggi</h3><p>Four cheeses</p><span>$16</span></li>
+    </ul>`);
+    const c = extractCollection(root);
+    expect(c?.items.length).toBe(3);
+    expect(c!.items[1]).toMatchObject({ name: "Diavola", price: "$15" });
+    expect(c!.items[0].description).toMatch(/San Marzano/);
+  });
+
+  it("returns undefined with fewer than three priced items", () => {
+    const root = parse(`<ul><li>About us</li><li>One item $5</li></ul>`);
+    expect(extractCollection(root)).toBeUndefined();
   });
 });
 
