@@ -525,3 +525,21 @@ Le `#FFFFFF` pur reste parfait pour le logo, les titres display et les CTA.
 | `#0A0A0A` | `--bg-1` panneaux / header                    |
 | `#111111` | `--bg-2` / `--bg-secondary` (cards, inputs)   |
 | `#FFFFFF` | `--brand` (accent/CTA) + `--fg-primary`       |
+
+---
+
+## Doctrine opératoire (voir CLAUDE.md)
+
+Ce document fixe la **grammaire visuelle et les tokens**. La **doctrine de
+reconstruction** (skills obligatoires, pipeline en 10 phases, règles d'or
+anti-template / anti-fabrication, accessibilité) vit dans **`CLAUDE.md`** à la
+racine, et l'état réel moteur-vs-spec dans **`docs/RECONSTRUCTION_GAP_ANALYSIS.md`**.
+
+Rappel des non-négociables design :
+- **Almost-black, jamais noir pur** ; surfaces tintées marque ; profondeur par
+  couches translucides + ombres douces, pas de bordures dures.
+- **Type serré, accent rare** ; titres 510/590 (jamais 700), tracking négatif ;
+  hiérarchie portée par les niveaux de gris, pas la couleur.
+- **Motion court et confiant** : `0.16s cubic-bezier(.25,.46,.45,.94)`,
+  `prefers-reduced-motion` respecté.
+- **Zéro scroll horizontal** de 320px à 4K. **Contraste WCAG AA** minimum.
