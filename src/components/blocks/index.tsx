@@ -161,6 +161,8 @@ function CoverImage({
   position,
   className,
   style,
+  parallaxRef,
+  overscan,
 }: {
   image?: string;
   gradient: string;
@@ -168,6 +170,10 @@ function CoverImage({
   position?: string;
   className?: string;
   style?: React.CSSProperties;
+  /** Attach to drive a scroll parallax on the image (via useParallax). */
+  parallaxRef?: React.RefObject<HTMLImageElement>;
+  /** Over-size the image (so a parallax drift never exposes an edge). */
+  overscan?: boolean;
 }) {
   const src = toProxiedUrl(image);
   return (
@@ -175,13 +181,14 @@ function CoverImage({
       {src ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
+          ref={parallaxRef}
           src={src}
           alt=""
           aria-hidden
           loading={priority ? "eager" : "lazy"}
           decoding="async"
           fetchPriority={priority ? "high" : "auto"}
-          className="absolute inset-0 h-full w-full"
+          className={overscan ? "absolute -inset-[12%] h-[124%] w-[124%] max-w-none" : "absolute inset-0 h-full w-full"}
           style={{ objectFit: "cover", objectPosition: position ?? "center" }}
         />
       ) : null}
@@ -313,7 +320,7 @@ function HeroPremium1({ props }: { props: any }) {
 }
 
 function HeroPremium2({ props }: { props: any }) {
-  const imgRef = React.useRef<HTMLDivElement>(null);
+  const imgRef = React.useRef<HTMLImageElement>(null);
   useParallax(imgRef);
   return (
     <section className="relative overflow-hidden px-6 py-24 sm:py-28">
@@ -361,11 +368,16 @@ function HeroPremium2({ props }: { props: any }) {
           className="relative aspect-[4/3] overflow-hidden"
           style={{ borderRadius: "var(--brand-radius)", boxShadow: "0 40px 100px -45px rgba(0,0,0,0.5), 0 0 0 1px color-mix(in srgb, var(--brand-ink) 8%, transparent)" }}
         >
-          <div
-            ref={imgRef}
-            className="absolute -inset-[15%] bg-cover bg-center"
-            style={{ backgroundImage: imageBg(props.image, "linear-gradient(135deg, var(--brand-accent), var(--brand))") }}
-          />
+          <div className="absolute inset-0">
+            <CoverImage
+              image={props.image}
+              gradient="linear-gradient(135deg, var(--brand-accent), var(--brand))"
+              priority
+              overscan
+              parallaxRef={imgRef}
+              className="h-full w-full"
+            />
+          </div>
           {!props.image && (
             <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_20%_20%,#fff_1px,transparent_1px)] [background-size:24px_24px]" />
           )}
@@ -384,7 +396,7 @@ function HeroPremium2({ props }: { props: any }) {
  */
 function HeroEditorial({ props }: { props: any }) {
   const reduce = useReducedMotion();
-  const imgRef = React.useRef<HTMLDivElement>(null);
+  const imgRef = React.useRef<HTMLImageElement>(null);
   useParallax(imgRef);
   const rise = reduce
     ? { hidden: { opacity: 1, y: 0 }, visible: { opacity: 1, y: 0 } }
@@ -472,11 +484,15 @@ function HeroEditorial({ props }: { props: any }) {
             className="relative aspect-[4/5] overflow-hidden"
             style={{ borderRadius: "var(--brand-radius)", boxShadow: "0 40px 100px -45px rgba(0,0,0,0.5), 0 0 0 1px color-mix(in srgb, var(--brand-ink) 8%, transparent)" }}
           >
-            <div
-              ref={imgRef}
-              className="absolute -inset-[15%] bg-cover bg-center"
-              style={{ backgroundImage: imageBg(props.image, "linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))") }}
-            />
+            <div className="absolute inset-0">
+              <CoverImage
+                image={props.image}
+                gradient="linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))"
+                overscan
+                parallaxRef={imgRef}
+                className="h-full w-full"
+              />
+            </div>
             {!props.image && (
               <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_25%_20%,#fff_1px,transparent_1px)] [background-size:22px_22px]" />
             )}
@@ -1359,7 +1375,7 @@ function PortfolioGrid({ props }: { props: any }) {
  */
 function AboutSplit({ props }: { props: any }) {
   const reduce = useReducedMotion();
-  const imgRef = React.useRef<HTMLDivElement>(null);
+  const imgRef = React.useRef<HTMLImageElement>(null);
   useParallax(imgRef);
   const stats = (props.stats || []) as { value: string; label: string }[];
   const rise = reduce
@@ -1379,11 +1395,15 @@ function AboutSplit({ props }: { props: any }) {
             className="relative aspect-[4/5] overflow-hidden"
             style={{ borderRadius: "var(--brand-radius)", boxShadow: "0 40px 100px -45px rgba(0,0,0,0.5), 0 0 0 1px color-mix(in srgb, var(--brand-ink) 8%, transparent)" }}
           >
-            <div
-              ref={imgRef}
-              className="absolute -inset-[15%] bg-cover bg-center"
-              style={{ backgroundImage: imageBg(props.image, "linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))") }}
-            />
+            <div className="absolute inset-0">
+              <CoverImage
+                image={props.image}
+                gradient="linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))"
+                overscan
+                parallaxRef={imgRef}
+                className="h-full w-full"
+              />
+            </div>
           </motion.div>
         )}
 
@@ -1469,7 +1489,7 @@ function AboutSplit({ props }: { props: any }) {
  */
 function StatementEditorial({ props }: { props: any }) {
   const reduce = useReducedMotion();
-  const imgRef = React.useRef<HTMLDivElement>(null);
+  const imgRef = React.useRef<HTMLImageElement>(null);
   useParallax(imgRef);
   const stats = (props.stats || []) as { value: string; label: string }[];
   const title = (props.title || "") as string;
@@ -1556,11 +1576,15 @@ function StatementEditorial({ props }: { props: any }) {
               boxShadow: "0 40px 100px -45px rgba(0,0,0,0.5), 0 0 0 1px color-mix(in srgb, var(--brand-ink) 8%, transparent)",
             }}
           >
-            <div
-              ref={imgRef}
-              className="absolute -inset-[15%] bg-cover bg-center"
-              style={{ backgroundImage: imageBg(props.image, "linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))") }}
-            />
+            <div className="absolute inset-0">
+              <CoverImage
+                image={props.image}
+                gradient="linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))"
+                overscan
+                parallaxRef={imgRef}
+                className="h-full w-full"
+              />
+            </div>
           </motion.div>
         )}
       </div>
@@ -1804,17 +1828,22 @@ function CollectionGrid({ props }: { props: any }) {
  * so every business reads as itself, never a template.
  */
 function HeroImageFull({ props }: { props: any }) {
-  const bgRef = React.useRef<HTMLDivElement>(null);
+  const bgRef = React.useRef<HTMLImageElement>(null);
   useParallax(bgRef);
   const reduce = useReducedMotion();
   const brand = (props.brand || "") as string;
   return (
     <section className="relative flex min-h-[92vh] flex-col overflow-hidden px-6 pb-10 pt-7 text-white">
-      <div
-        ref={bgRef}
-        className="absolute -inset-[12%] bg-cover bg-center"
-        style={{ backgroundImage: imageBg(props.image, "linear-gradient(135deg, var(--brand), var(--brand-accent))") }}
-      />
+      <div className="absolute inset-0 overflow-hidden">
+        <CoverImage
+          image={props.image}
+          gradient="linear-gradient(135deg, var(--brand), var(--brand-accent))"
+          priority
+          overscan
+          parallaxRef={bgRef}
+          className="h-full w-full"
+        />
+      </div>
       {/* Dual scrim: a whisper up top so the meta row stays legible, a deep well
           at the base so the editorial title sits on near-solid ink. */}
       <div
@@ -2067,16 +2096,21 @@ function TestimonialsGrid({ props }: { props: any }) {
  * slightly clipped. Maximum presence for image-led, confident brands.
  */
 function HeroMonumental({ props }: { props: any }) {
-  const bgRef = React.useRef<HTMLDivElement>(null);
+  const bgRef = React.useRef<HTMLImageElement>(null);
   useParallax(bgRef);
   const word = (props.brand || props.title || "Studio") as string;
   return (
     <section className="relative flex min-h-[92vh] flex-col overflow-hidden px-6 pb-0 pt-28 text-white">
-      <div
-        ref={bgRef}
-        className="absolute -inset-[10%] bg-cover bg-center"
-        style={{ backgroundImage: imageBg(props.image, "linear-gradient(135deg, var(--brand), var(--brand-accent))") }}
-      />
+      <div className="absolute inset-0 overflow-hidden">
+        <CoverImage
+          image={props.image}
+          gradient="linear-gradient(135deg, var(--brand), var(--brand-accent))"
+          priority
+          overscan
+          parallaxRef={bgRef}
+          className="h-full w-full"
+        />
+      </div>
       <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.06) 34%, rgba(0,0,0,0.8))" }} />
 
       {/* top meta row */}
