@@ -20,7 +20,7 @@ import {
   type Icon as PhosphorIcon,
 } from "@phosphor-icons/react";
 import type { Block, BlockType, SiteSchema, Theme } from "@/lib/generation/types";
-import { deriveScheme } from "@/lib/generation/color";
+import { deriveScheme, idealInkOn, ensureReadable } from "@/lib/generation/color";
 import { Aurora, Spotlight, Meteors, BlurFade, BorderBeam } from "./fx";
 import { cn } from "@/lib/utils";
 import { useParallax } from "./use-parallax";
@@ -68,8 +68,9 @@ function themeVars(theme: Theme, dark: boolean): Record<string, string> {
   const surface2 = (intended && theme.surface2) || sc.surface2;
   const ink = (intended && theme.ink) || sc.ink;
   // Headings/brand text: the brand primary in light, a near-white (brand-tinted)
-  // in dark so they read on the dark surface.
-  const brand = dark ? sc.ink : theme.primary;
+  // in dark. Guaranteed to clear WCAG AA for large text (3:1) on the surface so a
+  // pale brand colour never becomes an unreadable heading.
+  const brand = ensureReadable(dark ? sc.ink : theme.primary, surface, 3);
   // Inverse "panel" (stats / CTA bands): an elevated brand-tinted dark in dark
   // mode, the brand-dark in light mode.
   const contrast = dark ? sc.contrast : theme.primary;
@@ -77,12 +78,15 @@ function themeVars(theme: Theme, dark: boolean): Record<string, string> {
     "--brand": brand,
     "--brand-accent": theme.accent,
     "--brand-accent-2": sc.accent2,
+    // Legible label colour ON the accent (CTAs) — white for deep brands,
+    // near-black for light ones (yellow/lime). WCAG-correct by construction.
+    "--brand-accent-ink": sc.accentInk,
     "--brand-radius": radiusMap[theme.radius],
     "--brand-surface": surface,
     "--brand-surface-2": surface2,
     "--brand-ink": ink,
     "--brand-contrast": contrast,
-    "--brand-contrast-ink": "#ffffff",
+    "--brand-contrast-ink": idealInkOn(contrast),
     "--brand-card": dark ? sc.card : "#ffffff",
     "--brand-font": fontStacks[theme.font],
     "--brand-mood": theme.mood,
@@ -264,6 +268,7 @@ function HeroPremium1({ props }: { props: any }) {
             className="group inline-flex items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]"
             style={{
               background: "var(--brand-accent)",
+              color: "var(--brand-accent-ink)",
               borderRadius: "var(--brand-radius)",
               boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)",
             }}
@@ -334,7 +339,7 @@ function HeroPremium2({ props }: { props: any }) {
             <a
               {...ctaAttrs(props.primaryHref)}
               className="px-6 py-3 text-sm font-medium text-white shadow-lg"
-              style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}
+              style={{ background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)" }}
             >
               {props.primaryCta}
             </a>
@@ -440,7 +445,7 @@ function HeroEditorial({ props }: { props: any }) {
             <a
               {...ctaAttrs(props.primaryHref)}
               className="px-7 py-3.5 text-sm font-medium tracking-wide text-white shadow-sm transition-transform active:scale-[0.98]"
-              style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}
+              style={{ background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)" }}
             >
               {props.primaryCta}
             </a>
@@ -854,7 +859,7 @@ function ContactFormPremium1({ props }: { props: any }) {
               type="submit"
               disabled={status === "sending"}
               className="group inline-flex w-full items-center justify-center gap-1.5 px-6 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98] disabled:opacity-70 sm:w-auto"
-              style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" }}
+              style={{ background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" }}
             >
               {status === "sending" ? <CircleNotch weight="bold" className="h-4 w-4 animate-spin" /> : "Send message"}
               {status !== "sending" && <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />}
@@ -971,7 +976,7 @@ function HeroSpotlight({ props }: { props: any }) {
           <a
             {...ctaAttrs(props.primaryHref)}
             className="px-6 py-3 text-sm font-medium text-white shadow-lg transition-transform active:scale-[0.98]"
-            style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}
+            style={{ background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)" }}
           >
             {props.primaryCta}
           </a>
@@ -1710,6 +1715,7 @@ function CTAEditorial({ props }: { props: any }) {
           className="group mt-9 inline-flex items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]"
           style={{
             background: "var(--brand-accent)",
+            color: "var(--brand-accent-ink)",
             borderRadius: "var(--brand-radius)",
             boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)",
           }}
@@ -1865,7 +1871,7 @@ function HeroImageFull({ props }: { props: any }) {
           </div>
           <div className="flex flex-wrap gap-3">
             {props.primaryCta && (
-              <a {...ctaAttrs(props.primaryHref)} className="px-6 py-3 text-sm font-medium text-white" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}>
+              <a {...ctaAttrs(props.primaryHref)} className="px-6 py-3 text-sm font-medium text-white" style={{ background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)" }}>
                 {props.primaryCta}
               </a>
             )}
@@ -2096,7 +2102,7 @@ function HeroMonumental({ props }: { props: any }) {
         </motion.h1>
         <div className="mt-7 flex flex-wrap gap-3">
           {props.primaryCta && (
-            <a {...ctaAttrs(props.primaryHref)} className="px-6 py-3 text-sm font-medium text-white" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}>
+            <a {...ctaAttrs(props.primaryHref)} className="px-6 py-3 text-sm font-medium text-white" style={{ background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)" }}>
               {props.primaryCta}
             </a>
           )}
@@ -2204,7 +2210,7 @@ function HeroAgencia({ props }: { props: any }) {
 
         <div className="mt-8 flex flex-wrap gap-3">
           {props.primaryCta && (
-            <a {...ctaAttrs(props.primaryHref)} className="px-6 py-3 text-sm font-medium text-white" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" }}>
+            <a {...ctaAttrs(props.primaryHref)} className="px-6 py-3 text-sm font-medium text-white" style={{ background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)" }}>
               {props.primaryCta}
             </a>
           )}
@@ -2387,6 +2393,7 @@ function HeroCanvas({ props }: { props: any }) {
               className="group inline-flex items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]"
               style={{
                 background: "var(--brand-accent)",
+                color: "var(--brand-accent-ink)",
                 borderRadius: "var(--brand-radius)",
                 boxShadow: "0 14px 36px -12px color-mix(in srgb, var(--brand-accent) 70%, transparent)",
               }}
@@ -2492,7 +2499,7 @@ function HeroSplitPremium({ props }: { props: any }) {
           <motion.h1 {...rise(0.06)} className="mt-5 rf-fluid-display font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</motion.h1>
           {props.subtitle && <motion.p {...rise(0.12)} className="mt-5 max-w-xl rf-fluid-lead" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{props.subtitle}</motion.p>}
           <motion.div {...rise(0.18)} className="mt-8 flex flex-wrap items-center gap-4">
-            <a {...ctaAttrs(props.primaryHref)} className="group inline-flex items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" }}>
+            <a {...ctaAttrs(props.primaryHref)} className="group inline-flex items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]" style={{ background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" }}>
               {props.primaryCta || "Get started"}
               <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </a>
@@ -2548,7 +2555,7 @@ function HeroBento({ props }: { props: any }) {
           <motion.h1 {...rise(0.06)} className="mt-5 rf-fluid-display font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</motion.h1>
           {props.subtitle && <motion.p {...rise(0.12)} className="mt-5 max-w-xl rf-fluid-lead" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{props.subtitle}</motion.p>}
           <motion.div {...rise(0.18)} className="mt-7 flex flex-wrap items-center gap-4">
-            <a {...ctaAttrs(props.primaryHref)} className="group inline-flex items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" }}>
+            <a {...ctaAttrs(props.primaryHref)} className="group inline-flex items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]" style={{ background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" }}>
               {props.primaryCta || "Get started"}
               <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </a>
@@ -2609,7 +2616,7 @@ function HeroAurora({ props }: { props: any }) {
         )}
         <BlurFade delay={0.24}>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <a {...ctaAttrs(props.primaryHref)} className="group inline-flex items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" }}>
+            <a {...ctaAttrs(props.primaryHref)} className="group inline-flex items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]" style={{ background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" }}>
               {props.primaryCta || "Get started"}
               <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </a>
@@ -2742,7 +2749,7 @@ function CTABanner({ props }: { props: any }) {
           <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>
           {props.subtitle && <p className="mt-2 max-w-md text-sm" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{props.subtitle}</p>}
         </div>
-        <a {...ctaAttrs(props.ctaHref)} className="group inline-flex shrink-0 items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" }}>
+        <a {...ctaAttrs(props.ctaHref)} className="group inline-flex shrink-0 items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]" style={{ background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" }}>
           {props.cta}
           <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </a>
@@ -3023,7 +3030,7 @@ function ContactDetailsCard({ props }: { props: any }) {
           ))}
         </div>
         {primary && (
-          <a {...ctaAttrs(primary.href)} className="group mt-9 inline-flex items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]" style={{ background: "var(--brand-accent)", borderRadius: "var(--brand-radius)", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" }}>
+          <a {...ctaAttrs(primary.href)} className="group mt-9 inline-flex items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]" style={{ background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" }}>
             {primary.label}
             <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </a>
@@ -3358,7 +3365,7 @@ function SiteNav({ brand, items, cta, logoUrl, dark }: { brand: NavItem; items: 
     );
   };
   const ctaCls = "shrink-0 px-4 py-2 text-sm font-medium text-white transition-transform active:scale-[0.98]";
-  const ctaStyle = { background: "var(--brand-accent)", borderRadius: "var(--brand-radius)" } as React.CSSProperties;
+  const ctaStyle = { background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)" } as React.CSSProperties;
 
   return (
     <header

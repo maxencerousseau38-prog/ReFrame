@@ -1,7 +1,37 @@
 import { describe, it, expect } from "vitest";
 import { parse } from "node-html-parser";
 import { findAccent, parseColorToHex } from "./engine";
-import { hexToHsl, hslToHex, deriveScheme } from "./color";
+import { hexToHsl, hslToHex, deriveScheme, contrastRatio, idealInkOn, ensureReadable } from "./color";
+
+describe("WCAG contrast (the AA guarantee)", () => {
+  it("contrastRatio matches the WCAG extremes", () => {
+    expect(contrastRatio("#ffffff", "#000000")).toBeCloseTo(21, 0);
+    expect(contrastRatio("#ffffff", "#ffffff")).toBeCloseTo(1, 1);
+  });
+
+  it("idealInkOn picks dark text for a light accent, white for a deep one", () => {
+    expect(idealInkOn("#ffd400")).toBe("#0a0a0a"); // yellow -> dark label
+    expect(idealInkOn("#84cc16")).toBe("#0a0a0a"); // lime  -> dark label
+    expect(idealInkOn("#5e6ad2")).toBe("#ffffff"); // indigo -> white label
+    expect(contrastRatio(idealInkOn("#ffd400"), "#ffd400")).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("ensureReadable reaches the target while keeping the hue", () => {
+    const fixed = ensureReadable("#9ad1ff", "#ffffff", 4.5); // pale blue on white fails
+    expect(contrastRatio(fixed, "#ffffff")).toBeGreaterThanOrEqual(4.5);
+    expect(hexToHsl(fixed).h).toBeCloseTo(hexToHsl("#9ad1ff").h, -1); // same hue family
+  });
+
+  it("deriveScheme body ink clears AA on the surface for any accent", () => {
+    for (const accent of ["#ffd400", "#84cc16", "#5e6ad2", "#e11d48", "#000000", "#ffffff"]) {
+      for (const dark of [false, true]) {
+        const sc = deriveScheme(accent, dark);
+        expect(contrastRatio(sc.ink, sc.surface)).toBeGreaterThanOrEqual(4.5);
+        expect(contrastRatio(sc.accentInk, accent)).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  });
+});
 
 describe("hexToHsl / hslToHex round-trip", () => {
   it("round-trips a saturated colour within tolerance", () => {
