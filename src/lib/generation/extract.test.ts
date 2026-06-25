@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { parse } from "node-html-parser";
-import { extractContact, extractStats, extractTestimonials, detectSourceDark, cleanServiceLabels, extractProse, extractImages, extractProducts, navPageLinks, detectIntegrations, routePath } from "./engine";
+import { extractContact, extractStats, extractTestimonials, extractFaq, extractSocialLinks, detectSourceDark, cleanServiceLabels, extractProse, extractImages, extractProducts, navPageLinks, detectIntegrations, routePath } from "./engine";
 
 describe("routePath (SEO continuity)", () => {
   it("preserves the real nested path, only sanitizing segments", () => {
@@ -46,6 +46,61 @@ describe("extractTestimonials (real proof, never fabricated)", () => {
   it("returns undefined when there is nothing credible (no fabrication)", () => {
     const root = parse(`<section><p>Welcome to our site.</p><blockquote>Sale</blockquote></section>`);
     expect(extractTestimonials(root, {})).toBeUndefined();
+  });
+});
+
+describe("extractFaq (real Q&A, replaces the generic default)", () => {
+  it("reads native <details>/<summary> accordions", () => {
+    const root = parse(`<section>
+      <details><summary>Do you ship internationally?</summary><p>Yes, we ship worldwide with tracked delivery on every order.</p></details>
+      <details><summary>What is your return policy?</summary><p>Returns are free within 30 days, no questions asked.</p></details>
+    </section>`);
+    const faq = extractFaq(root, {});
+    expect(faq?.length).toBe(2);
+    expect(faq![0].question).toBe("Do you ship internationally?");
+    expect(faq![0].answer).toMatch(/ship worldwide/);
+  });
+
+  it("reads dl/dt/dd and headings phrased as questions", () => {
+    const root = parse(`<div>
+      <dl><dt>How long does setup take?</dt><dd>Most teams are live within a single afternoon.</dd></dl>
+      <h3>Can I cancel anytime?</h3><p>Absolutely — there are no lock-in contracts and you can leave whenever.</p>
+    </div>`);
+    const faq = extractFaq(root, {});
+    expect(faq?.length).toBe(2);
+    expect(faq!.map((f) => f.question)).toContain("Can I cancel anytime?");
+  });
+
+  it("prefers JSON-LD FAQPage and dedupes", () => {
+    const root = parse(`<details><summary>Is support included?</summary><p>Yes, priority support is included on every plan.</p></details>`);
+    const faq = extractFaq(root, { faq: [{ question: "Is support included?", answer: "Yes, priority support is included on every plan." }] });
+    expect(faq?.length).toBe(1);
+  });
+
+  it("returns undefined with fewer than two real pairs", () => {
+    const root = parse(`<section><h2>Our work</h2><p>We build things.</p></section>`);
+    expect(extractFaq(root, {})).toBeUndefined();
+  });
+});
+
+describe("extractSocialLinks (footer profiles, never fabricated)", () => {
+  it("collects known platforms, dedupes, and skips share buttons", () => {
+    const root = parse(`<footer>
+      <a href="https://www.instagram.com/northlight">IG</a>
+      <a href="https://www.linkedin.com/company/northlight">LinkedIn</a>
+      <a href="https://twitter.com/intent/tweet?url=x">Share</a>
+      <a href="https://x.com/northlight">X</a>
+      <a href="/contact">Contact</a>
+    </footer>`);
+    const s = extractSocialLinks(root);
+    const platforms = s?.map((x) => x.platform);
+    expect(platforms).toContain("Instagram");
+    expect(platforms).toContain("LinkedIn");
+    expect(platforms).toContain("X"); // from x.com, not the share intent
+    expect(s!.find((x) => x.platform === "X")?.url).toBe("https://x.com/northlight");
+  });
+  it("returns undefined when there are no social links", () => {
+    expect(extractSocialLinks(parse(`<footer><a href="/about">About</a></footer>`))).toBeUndefined();
   });
 });
 

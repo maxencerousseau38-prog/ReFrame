@@ -560,6 +560,11 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
       // so credible proof survives the rebuild instead of being dropped. The
       // engine only renders a testimonials section when this is non-empty.
       testimonials: extractTestimonials(root, ld),
+      // Real Q&A pulled from the page; the FAQ block uses it instead of the
+      // generic default when present.
+      faqItems: extractFaq(root, ld),
+      // Real social profiles for the footer (never fabricated).
+      socialLinks: extractSocialLinks(root),
       ...(products.length ? { products } : {}),
       // Real prose: reuse the client's own About paragraph and service copy.
       ...prose,
@@ -707,6 +712,7 @@ interface JsonLd {
   ratingValue?: string;
   reviewCount?: string;
   reviews?: { quote: string; name?: string; role?: string }[];
+  faq?: { question: string; answer: string }[];
 }
 
 /** Flatten a schema.org PostalAddress (or string) into one human line. */
@@ -976,6 +982,19 @@ function jsonLd(root: HTMLElement): JsonLd {
         if (!out.ratingValue && (typeof rv === "string" || typeof rv === "number")) out.ratingValue = String(rv);
         if (!out.reviewCount && (typeof rc === "string" || typeof rc === "number")) out.reviewCount = String(rc);
       }
+      // FAQPage structured data: the most reliable Q&A source.
+      if (t === "FAQPage" && Array.isArray(n.mainEntity)) {
+        for (const q of n.mainEntity) {
+          if (!q || typeof q !== "object") continue;
+          const qq = q as Record<string, unknown>;
+          const ans = qq.acceptedAnswer as Record<string, unknown> | undefined;
+          const question = typeof qq.name === "string" ? clean(qq.name) : "";
+          const answerRaw = ans && typeof ans.text === "string" ? ans.text : "";
+          const answer = clean(answerRaw.replace(/<[^>]+>/g, " "));
+          if (question && answer) (out.faq ??= []).push({ question, answer });
+          if ((out.faq?.length ?? 0) >= 6) break;
+        }
+      }
       // Real customer reviews shipped as structured data — the most reliable
       // testimonial source. Accept a single Review or an array.
       const rawReviews = Array.isArray(n.review) ? n.review : n.review ? [n.review] : [];
@@ -1243,6 +1262,99 @@ export function extractTestimonials(
   }
 
   return out.length ? out.slice(0, 6) : undefined;
+}
+
+/**
+ * Real FAQ from the page — replaces the generic default so the rebuild carries
+ * the client's actual Q&A. Sources, most reliable first: JSON-LD FAQPage, native
+ * <details>/<summary> accordions, <dl>/<dt>/<dd>, and headings that end with "?"
+ * followed by their answer. Returns undefined when fewer than two are found
+ * (the caller then falls back to the industry default).
+ */
+export function extractFaq(
+  root: HTMLElement,
+  ld: JsonLd
+): { question: string; answer: string }[] | undefined {
+  const out: { question: string; answer: string }[] = [];
+  const seen = new Set<string>();
+  const add = (rawQ: string, rawA: string) => {
+    if (out.length >= 6) return;
+    const question = clean(rawQ).slice(0, 180);
+    const answer = clean(rawA).slice(0, 400);
+    if (question.length < 8 || answer.length < 15) return;
+    const key = question.toLowerCase().slice(0, 48);
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push({ question, answer });
+  };
+
+  // 1) Structured data (trustworthy enough to keep even a single pair).
+  const fromLd = (ld.faq?.length ?? 0) > 0;
+  for (const f of ld.faq ?? []) add(f.question, f.answer);
+
+  // 2) Native <details>/<summary> accordions.
+  for (const d of root.querySelectorAll("details")) {
+    const sum = d.querySelector("summary");
+    if (!sum) continue;
+    add(sum.text, d.text.replace(sum.text, ""));
+  }
+
+  // 3) Definition lists.
+  for (const dl of root.querySelectorAll("dl")) {
+    for (const dt of dl.querySelectorAll("dt")) {
+      const dd = dt.nextElementSibling;
+      if (dd && /^dd$/i.test(dd.tagName || "")) add(dt.text, dd.text);
+    }
+  }
+
+  // 4) A heading phrased as a question, answered by the body that follows it.
+  for (const h of root.querySelectorAll("h2, h3, h4")) {
+    const t = clean(h.text);
+    if (!t.endsWith("?")) continue;
+    const { body } = sectionAfter(h);
+    if (body) add(t, body);
+  }
+
+  // DOM heuristics need two pairs to avoid false positives; structured data is
+  // trusted from one.
+  return out.length >= (fromLd ? 1 : 2) ? out.slice(0, 6) : undefined;
+}
+
+const SOCIAL_PATTERNS: [string, RegExp][] = [
+  ["Instagram", /instagram\.com/i],
+  ["Facebook", /facebook\.com|fb\.com/i],
+  ["LinkedIn", /linkedin\.com/i],
+  ["X", /twitter\.com|x\.com/i],
+  ["YouTube", /youtube\.com|youtu\.be/i],
+  ["TikTok", /tiktok\.com/i],
+  ["Pinterest", /pinterest\./i],
+  ["GitHub", /github\.com/i],
+];
+
+/**
+ * The client's real social profiles, for the footer. Matches outbound links to
+ * known platforms, skips share/intent buttons (which aren't the brand's own
+ * profile), dedupes by platform. Returns undefined when none are found.
+ */
+export function extractSocialLinks(
+  root: HTMLElement
+): { platform: string; url: string }[] | undefined {
+  const out: { platform: string; url: string }[] = [];
+  const seen = new Set<string>();
+  for (const a of root.querySelectorAll("a[href]")) {
+    if (out.length >= 6) break;
+    const href = (a.getAttribute("href") || "").trim();
+    if (!/^https?:\/\//i.test(href)) continue;
+    if (/[/?](share|sharer|intent|dialog)\b/i.test(href)) continue; // share button, not a profile
+    for (const [platform, re] of SOCIAL_PATTERNS) {
+      if (re.test(href) && !seen.has(platform)) {
+        seen.add(platform);
+        out.push({ platform, url: href });
+        break;
+      }
+    }
+  }
+  return out.length ? out : undefined;
 }
 
 /** Relative luminance (0..1) of a CSS hex or rgb()/rgba() colour, else undefined. */
@@ -1684,7 +1796,7 @@ function buildBlock(
         id: uid("faq"),
         type: "faq",
         variant: "FAQAccordion1",
-        props: { title: "Frequently asked questions", items: defaultFaq(analysis.industry, brand) },
+        props: { title: "Frequently asked questions", items: c.faqItems?.length ? c.faqItems : defaultFaq(analysis.industry, brand) },
       };
     case "cta":
       return {
@@ -1713,7 +1825,7 @@ function buildBlock(
         type: "footer",
         variant: pickVariant("footer", analysis.industry, brand, mood),
         // Real data for the multi-column footer; other footers ignore the extras.
-        props: { brand, services: c.services, contact: c.contact },
+        props: { brand, services: c.services, contact: c.contact, social: c.socialLinks },
       };
     default:
       return buildBlock({ ...slot, category: "features" }, analysis, mood);

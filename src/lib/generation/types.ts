@@ -206,6 +206,10 @@ export interface SiteAnalysis {
      * or stats section is rendered only when real data is present.
      */
     testimonials?: { quote: string; name: string; role?: string }[];
+    /** Real FAQ pulled from the page; the FAQ block uses it over the default. */
+    faqItems?: { question: string; answer: string }[];
+    /** Real social profile links pulled from the page, for the footer. */
+    socialLinks?: { platform: string; url: string }[];
     stats?: { value: string; label: string }[];
     /**
      * Real business contact details (user-provided via the hybrid flow). Power

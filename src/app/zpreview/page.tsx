@@ -46,6 +46,16 @@ function buildAnalysis(industry: Industry, withImages: boolean): SiteAnalysis {
       services: p.defaults.services,
       heroImageUrl: images[0],
       images,
+      faqItems: [
+        { question: "How quickly can you start?", answer: "Most projects begin within a few days of your first message — just reach out." },
+        { question: "How is a project priced?", answer: "Every project is quoted transparently up front, with no hidden fees and no surprises." },
+        { question: "Do you work with our existing brand?", answer: "Yes. We preserve your identity and elevate the design, hierarchy and conversion around it." },
+      ],
+      socialLinks: [
+        { platform: "Instagram", url: "https://instagram.com/northlight" },
+        { platform: "LinkedIn", url: "https://linkedin.com/company/northlight" },
+        { platform: "X", url: "https://x.com/northlight" },
+      ],
       testimonials: [
         { quote: "They rebuilt our site in days and it finally looks like the business we actually run.", name: "Élise Caron", role: "Owner" },
         { quote: "The most senior, least precious team we've worked with. They made us look world-class.", name: "Marcus Reede", role: "Founder" },

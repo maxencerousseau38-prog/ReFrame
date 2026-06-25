@@ -888,13 +888,33 @@ function Footer1({ props }: { props: any }) {
             </div>
             <p className="mt-2 text-sm" style={{ opacity: 0.55 }}>Crafted with care.</p>
           </div>
-          <a
-            href="#top"
-            className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition-colors hover:bg-[var(--brand-surface)]"
-            style={{ borderColor: HAIRLINE, color: "var(--brand)" }}
-          >
-            Back to top <span aria-hidden>&uarr;</span>
-          </a>
+          <div className="flex items-center gap-5">
+            {Array.isArray(props.social) && props.social.length > 0 && (
+              <ul className="flex flex-wrap items-center gap-4">
+                {(props.social as { platform: string; url: string }[]).map((s) => (
+                  <li key={s.platform}>
+                    <a
+                      href={s.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={s.platform}
+                      className="text-xs font-medium transition-opacity hover:opacity-70"
+                      style={{ color: "var(--brand-ink)", opacity: 0.7 }}
+                    >
+                      {s.platform}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <a
+              href="#top"
+              className="inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition-colors hover:bg-[var(--brand-surface)]"
+              style={{ borderColor: HAIRLINE, color: "var(--brand)" }}
+            >
+              Back to top <span aria-hidden>&uarr;</span>
+            </a>
+          </div>
         </div>
         <div
           className="mt-10 flex flex-col gap-2 border-t pt-6 text-xs sm:flex-row sm:items-center sm:justify-between"
@@ -2606,8 +2626,19 @@ function FooterColumns({ props }: { props: any }) {
           </div>
         )}
       </div>
-      <div className="mx-auto mt-12 flex max-w-6xl flex-col gap-2 border-t pt-6 text-xs sm:flex-row sm:items-center sm:justify-between" style={{ borderColor: HAIRLINE, opacity: 0.55 }}>
+      <div className="mx-auto mt-12 flex max-w-6xl flex-col gap-3 border-t pt-6 text-xs sm:flex-row sm:items-center sm:justify-between" style={{ borderColor: HAIRLINE, opacity: 0.55 }}>
         <span>&copy; {new Date().getFullYear()} {props.brand}. All rights reserved.</span>
+        {Array.isArray(props.social) && props.social.length > 0 && (
+          <ul className="flex flex-wrap items-center gap-4">
+            {(props.social as { platform: string; url: string }[]).map((s) => (
+              <li key={s.platform}>
+                <a href={s.url} target="_blank" rel="noopener noreferrer" aria-label={s.platform} className="transition-opacity hover:opacity-100" style={{ opacity: 0.85 }}>
+                  {s.platform}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
         <span>Privacy &middot; Terms</span>
       </div>
     </footer>
@@ -2622,6 +2653,17 @@ function FooterMinimal({ props }: { props: any }) {
       <a href="#top" className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition-colors hover:bg-[var(--brand-surface)]" style={{ borderColor: HAIRLINE, color: "var(--brand)" }}>
         Back to top <span aria-hidden>&uarr;</span>
       </a>
+      {Array.isArray(props.social) && props.social.length > 0 && (
+        <ul className="mt-8 flex flex-wrap items-center justify-center gap-5 text-xs">
+          {(props.social as { platform: string; url: string }[]).map((s) => (
+            <li key={s.platform}>
+              <a href={s.url} target="_blank" rel="noopener noreferrer" aria-label={s.platform} className="transition-opacity hover:opacity-70" style={{ color: "var(--brand-ink)", opacity: 0.7 }}>
+                {s.platform}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
       <div className="mt-10 flex flex-col gap-2 text-xs sm:flex-row sm:items-center sm:justify-between" style={{ opacity: 0.55 }}>
         <span>&copy; {new Date().getFullYear()} {props.brand}. All rights reserved.</span>
         <span>Privacy &middot; Terms</span>
