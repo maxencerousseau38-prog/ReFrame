@@ -105,6 +105,11 @@ export default function PreviewPage({ searchParams }: { searchParams: Record<str
     analysis.brand = { ...analysis.brand, accentColor: `#${searchParams.accent}` };
   }
   const schema = generateSite(analysis, { mode });
+  // QA: force a specific variant for a given block type (e.g. ?bvariant=features:FeaturesSticky).
+  const bv = (searchParams.bvariant || "").split(":");
+  if (bv.length === 2) {
+    for (const b of schema.blocks) if (b.type === bv[0]) b.variant = bv[1];
+  }
   if (searchParams.anim === "0") schema.animations = false; // QA: preview with motion off
   if (searchParams.dark === "1") schema.theme = { ...schema.theme, dark: true }; // QA: dark mode
   return <SiteRenderer schema={schema} />;

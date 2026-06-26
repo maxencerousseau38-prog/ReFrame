@@ -2896,6 +2896,109 @@ function FeaturesColumns({ props }: { props: any }) {
 }
 
 /**
+ * Editorial features — a sticky narrative column (title + lead + CTA) holds
+ * while the capabilities scroll past as hairline-separated rows with an
+ * oversized index. Calm, Linear/Framer editorial; for service-led brands.
+ */
+function FeaturesSticky({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  const items = (props.items || []) as any[];
+  return (
+    <section className="px-6 py-24" style={{ color: "var(--brand-ink)" }}>
+      <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
+        <div className="lg:sticky lg:top-24 lg:self-start">
+          <span className="inline-flex items-center gap-3 text-[0.7rem] font-medium uppercase tracking-[0.28em]" style={{ color: "var(--brand-accent)" }}>
+            <span className="h-px w-9" style={{ background: "var(--brand-accent)" }} />
+            What we do
+          </span>
+          <h2 className="mt-5 rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>
+            {props.title}
+          </h2>
+          {props.subtitle && (
+            <p className="mt-4 max-w-md text-lg leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{props.subtitle}</p>
+          )}
+          {props.primaryCta && (
+            <a {...ctaAttrs(props.primaryHref)} className="mt-7 inline-flex items-center gap-2 text-sm font-medium" style={{ color: "var(--brand-accent)" }}>
+              {props.primaryCta} <span aria-hidden>→</span>
+            </a>
+          )}
+        </div>
+        <div className="border-t" style={{ borderColor: HAIRLINE }}>
+          {items.map((item, i) => (
+            <motion.div
+              key={i}
+              initial={reduce ? false : { opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.5, delay: (i % 6) * 0.04, ease: EASE }}
+              className="grid grid-cols-[auto_1fr] items-start gap-5 border-b py-7"
+              style={{ borderColor: HAIRLINE }}
+            >
+              <span className="text-2xl font-medium tabular-nums" style={{ fontFamily: "var(--brand-font)", color: "color-mix(in srgb, var(--brand-accent) 45%, transparent)" }}>
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <div>
+                <h3 className="text-lg font-semibold tracking-tight" style={{ color: "var(--brand)" }}>{item.title}</h3>
+                {item.description && (
+                  <p className="mt-1.5 max-w-xl text-sm leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{item.description}</p>
+                )}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Image-led features showcase — uniform premium cards, each with a REAL photo
+ * (when the source has enough imagery), title and description; clean icon tiles
+ * otherwise. Apple feature-grid clarity for visual sectors. Real <img> (lazy).
+ */
+function FeaturesShowcase({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  const items = (props.items || []) as any[];
+  return (
+    <section className="px-6 py-24" style={{ color: "var(--brand-ink)" }}>
+      <div className="mx-auto max-w-6xl">
+        <div className="max-w-2xl">
+          <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>{props.title}</h2>
+          {props.subtitle && <p className="mt-3 text-lg" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{props.subtitle}</p>}
+        </div>
+        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((item, i) => (
+            <motion.div
+              key={i}
+              initial={reduce ? false : { opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.5, delay: (i % 3) * 0.06, ease: EASE }}
+              className="group flex flex-col overflow-hidden border"
+              style={{ borderColor: HAIRLINE, borderRadius: "calc(var(--brand-radius) * 1.1)" }}
+            >
+              {item.image ? (
+                <CoverImage image={item.image} gradient="linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))" className="aspect-[4/3] w-full" />
+              ) : (
+                <div className="flex aspect-[4/3] w-full items-center justify-center" style={{ background: "var(--brand-surface-2)" }}>
+                  <span style={{ color: "var(--brand-accent)" }}><BlockIcon name={item.icon} className="h-8 w-8" /></span>
+                </div>
+              )}
+              <div className="flex flex-1 flex-col p-6">
+                <h3 className="text-lg font-semibold tracking-tight" style={{ color: "var(--brand)" }}>{item.title}</h3>
+                {item.description && (
+                  <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{item.description}</p>
+                )}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
  * Product grid - the client's REAL catalogue, kept whole and modernized. A
  * responsive grid of premium product cards (image + name + price), every entry
  * scraped from the source site (never fabricated). Cards link to the real
@@ -3234,6 +3337,8 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   FeaturesGrid1,
   FeaturesBento,
   FeaturesAlternating,
+  FeaturesSticky,
+  FeaturesShowcase,
   ServicesList,
   ServicesCards,
   PortfolioGrid,
