@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { parse } from "node-html-parser";
-import { extractContact, extractStats, extractTestimonials, extractFaq, extractSocialLinks, extractFonts, extractCollection, extractTeam, detectSourceDark, cleanServiceLabels, extractProse, extractImages, extractProducts, navPageLinks, detectIntegrations, routePath } from "./engine";
+import { extractContact, extractStats, extractTestimonials, extractFaq, extractSocialLinks, extractFonts, extractCollection, extractTeam, detectSourceDark, computeAssetConfidence, lowConfidenceAssets, cleanServiceLabels, extractProse, extractImages, extractProducts, navPageLinks, detectIntegrations, routePath } from "./engine";
+import type { SiteAnalysis } from "./types";
 
 describe("routePath (SEO continuity)", () => {
   it("preserves the real nested path, only sanitizing segments", () => {
@@ -174,6 +175,30 @@ describe("extractTeam (real people, photo-gated, never fabricated)", () => {
 
   it("returns undefined when there is no team section", () => {
     expect(extractTeam(parse(`<section><h2>Services</h2><img src="/x.jpg"><h3>Web Design</h3></section>`), base)).toBeUndefined();
+  });
+});
+
+describe("computeAssetConfidence + lowConfidenceAssets (honest recovery)", () => {
+  it("scores a strong read high and a weak read low", () => {
+    const strong = computeAssetConfidence({ logoUrl: "https://x.com/logo.svg", imageCount: 5, accentColor: "#5e6ad2", textConfidence: "full", headlineReal: true, sectionCount: 6 })!;
+    expect(strong.logo).toBeGreaterThanOrEqual(0.9);
+    expect(strong.images).toBeGreaterThanOrEqual(0.9);
+    expect(strong.text).toBeGreaterThanOrEqual(0.9);
+
+    const weak = computeAssetConfidence({ logoUrl: undefined, imageCount: 0, accentColor: undefined, textConfidence: "partial", headlineReal: false, sectionCount: 1 })!;
+    expect(weak.logo).toBe(0);
+    expect(weak.images).toBe(0);
+    expect(weak.colors).toBeLessThan(0.5);
+  });
+
+  it("treats a favicon logo as a weak (fallback) logo", () => {
+    expect(computeAssetConfidence({ logoUrl: "https://x.com/favicon.ico", imageCount: 3, accentColor: "#000", textConfidence: "full", headlineReal: true, sectionCount: 5 })!.logo).toBe(0.5);
+  });
+
+  it("lowConfidenceAssets names exactly the low-confidence pieces", () => {
+    const analysis = { assetConfidence: { logo: 0, images: 0.9, colors: 0.2, text: 0.9, structure: 0.8 } } as unknown as SiteAnalysis;
+    expect(lowConfidenceAssets(analysis)).toEqual(["logo", "brand colours"]);
+    expect(lowConfidenceAssets({ } as SiteAnalysis)).toEqual([]);
   });
 });
 

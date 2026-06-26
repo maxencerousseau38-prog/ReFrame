@@ -209,6 +209,23 @@ export default function ResultPage() {
     );
   }
 
+  // Per-asset extraction confidence → the recovery prompt names ONLY the pieces
+  // we couldn't read with confidence, so we ask the owner for exactly those
+  // (never fabricating them). Inlined to keep the server-only engine out of the
+  // client bundle.
+  const ASSET_LABELS: Record<string, string> = {
+    logo: "logo",
+    images: "images",
+    colors: "brand colours",
+    text: "text content",
+    structure: "page structure",
+  };
+  const lowAssets = analysis?.assetConfidence
+    ? Object.entries(analysis.assetConfidence)
+        .filter(([, v]) => (v as number) < 0.5)
+        .map(([k]) => ASSET_LABELS[k] ?? k)
+    : [];
+
   return (
     <DashboardShell>
       {/* Toolbar */}
@@ -336,13 +353,15 @@ export default function ResultPage() {
       {/* Honest read-quality banner: when we couldn't fully read the source
           (JS-rendered / blocked), say so plainly and route to fixing it, rather
           than passing a partly-templated rebuild off as the client's real site. */}
-      {analysis && analysis.confidence && analysis.confidence !== "full" && (
+      {analysis && (analysis.confidence !== "full" || lowAssets.length > 0) && (
         <div className="border-b border-amber-500/25 bg-amber-500/[0.07] px-6 py-3.5">
           <div className="mx-auto flex max-w-5xl flex-wrap items-start gap-x-3 gap-y-2 text-sm">
             <Warning weight="fill" className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
             <p className="min-w-0 flex-1 text-amber-200/90">
-              {analysis.notice ||
-                "We couldn't fully read this site, so parts were rebuilt from sensible defaults. Add your real details and they'll appear instantly."}
+              {lowAssets.length > 0
+                ? `We couldn't confidently read your ${lowAssets.join(", ")}. Add ${lowAssets.length > 1 ? "them" : "it"} and it'll appear instantly — we never invent your details.`
+                : analysis.notice ||
+                  "We couldn't fully read this site, so parts were rebuilt from sensible defaults. Add your real details and they'll appear instantly."}
             </p>
             <Link
               href={projectId ? `/editor?p=${projectId}` : "/editor"}

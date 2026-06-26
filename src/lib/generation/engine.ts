@@ -533,6 +533,14 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
     notice,
     sourceDark: detectSourceDark(html, root) || undefined,
     fontHint: extractFonts(root, html),
+    assetConfidence: computeAssetConfidence({
+      logoUrl,
+      imageCount: images.length,
+      accentColor,
+      textConfidence: confidence,
+      headlineReal: headline !== finalProfile.defaults.headline,
+      sectionCount: structure.sections.length,
+    }),
     brand: { logoUrl, accentColor },
     detectedSections: detectSections(root),
     ...(integrations.length ? { integrations } : {}),
@@ -1208,6 +1216,51 @@ export function extractStats(ld: JsonLd): { value: string; label: string }[] | u
 }
 
 /**
+ * Per-asset extraction confidence (0–1). Honest by construction — a fallback
+ * logo (favicon), thin imagery, a defaulted accent or a templated headline all
+ * score low, so the recovery flow can ask the owner only for what we couldn't
+ * read. Never hides a weak read behind a confident-looking rebuild.
+ */
+export function computeAssetConfidence(input: {
+  logoUrl?: string;
+  imageCount: number;
+  accentColor?: string;
+  textConfidence: "full" | "partial" | "fallback";
+  headlineReal: boolean;
+  sectionCount: number;
+}): SiteAnalysis["assetConfidence"] {
+  const logo = !input.logoUrl
+    ? 0
+    : /favicon|apple-touch|[/-]icon[-.]|\.ico(\?|$)/i.test(input.logoUrl)
+      ? 0.5
+      : 0.9;
+  const images = input.imageCount <= 0 ? 0 : input.imageCount === 1 ? 0.4 : input.imageCount === 2 ? 0.65 : 0.9;
+  const colors = input.accentColor ? 0.8 : 0.2;
+  const text =
+    input.textConfidence === "full" ? (input.headlineReal ? 0.9 : 0.7) : input.textConfidence === "partial" ? 0.5 : 0.1;
+  const structure = Math.max(0.1, Math.min(1, input.sectionCount / 5));
+  return { logo, images, colors, text, structure };
+}
+
+const ASSET_LABELS: Record<keyof NonNullable<SiteAnalysis["assetConfidence"]>, string> = {
+  logo: "logo",
+  images: "images",
+  colors: "brand colours",
+  text: "text content",
+  structure: "page structure",
+};
+
+/** The human labels of assets we read with low confidence — drives the recovery
+ *  prompt ("add your logo + brand colour"), never a fabrication. */
+export function lowConfidenceAssets(analysis: SiteAnalysis, threshold = 0.5): string[] {
+  const c = analysis.assetConfidence;
+  if (!c) return [];
+  return (Object.keys(ASSET_LABELS) as (keyof typeof ASSET_LABELS)[])
+    .filter((k) => c[k] < threshold)
+    .map((k) => ASSET_LABELS[k]);
+}
+
+/**
  * Real testimonials from the page — never fabricated. Prefers JSON-LD Review
  * data (the most reliable), then the common DOM patterns: <blockquote> and
  * `.testimonial` / `.review` / `.quote` containers, pulling an attribution from
@@ -1749,6 +1802,8 @@ function fallbackAnalysis(url: string, fetched: boolean, noticeOverride?: string
     industryLabel: profile.label,
     fetched,
     confidence: "fallback",
+    // Nothing was read from the real site — be honest: every asset is low.
+    assetConfidence: { logo: 0, images: 0, colors: 0.1, text: 0.1, structure: 0.2 },
     notice:
       noticeOverride ??
       (fetched

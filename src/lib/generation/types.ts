@@ -172,6 +172,18 @@ export interface SiteAnalysis {
   sourceDark?: boolean;
   /** "serif" when the source site is serif-led, to preserve its type character. */
   fontHint?: Theme["font"];
+  /**
+   * Per-asset extraction confidence (0–1) — how sure we are we read each thing
+   * correctly. Surfaced internally (never hidden) so the recovery flow can ask
+   * the owner only for the low-confidence pieces, never fabricating them.
+   */
+  assetConfidence?: {
+    logo: number;
+    images: number;
+    colors: number;
+    text: number;
+    structure: number;
+  };
   /** Real brand assets pulled from the source page, when available. */
   brand?: {
     logoUrl?: string;
