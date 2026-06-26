@@ -2360,6 +2360,104 @@ function CTAAsterisk({ props }: { props: any }) {
  * drifting accent orbs. Entirely token-driven and CSS-only, so it adapts to any
  * brand colour, works in export, and degrades gracefully with reduced motion.
  */
+/**
+ * Beam hero — a Linear/Vercel-grade centered statement: a badge pill, a large
+ * headline whose final word is painted with the brand gradient, a lead, dual
+ * CTA, and one slow conic beam + masked grid behind. Real trust stats only
+ * (never fabricated). Brand-tokened, dark-auto, export-safe, reduced-motion.
+ */
+function HeroBeam({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  const words = String(props.title || "").trim().split(/\s+/).filter(Boolean);
+  const last = words.length > 1 ? words.pop()! : "";
+  const stats = (props.stats || []) as { value: string; label: string }[];
+  return (
+    <section className="relative overflow-hidden px-6 pb-24 pt-32 text-center sm:pt-40" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}>
+      <motion.div
+        aria-hidden
+        initial={reduce ? false : { opacity: 0 }}
+        animate={{ opacity: 0.5, rotate: reduce ? 0 : 360 }}
+        transition={{ opacity: { duration: 1 }, rotate: { duration: 64, repeat: Infinity, ease: "linear" } }}
+        className="pointer-events-none absolute left-1/2 top-[-30%] h-[640px] w-[640px] -translate-x-1/2 rounded-full blur-[90px]"
+        style={{ background: "conic-gradient(from 90deg, transparent, color-mix(in srgb, var(--brand-accent) 40%, transparent), transparent 60%)" }}
+      />
+      <div
+        className="pointer-events-none absolute inset-0 [mask-image:radial-gradient(60%_50%_at_50%_0%,#000,transparent)]"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, color-mix(in srgb, var(--brand-ink) 5%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in srgb, var(--brand-ink) 5%, transparent) 1px, transparent 1px)",
+          backgroundSize: "64px 64px",
+        }}
+      />
+      <div className="relative mx-auto max-w-3xl">
+        {props.eyebrow && (
+          <motion.span
+            initial={reduce ? false : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: EASE }}
+            className="inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-medium"
+            style={{ borderColor: HAIRLINE, background: "var(--brand-surface-2)", color: "var(--brand-ink)" }}
+          >
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--brand-accent)" }} />
+            {props.eyebrow}
+          </motion.span>
+        )}
+        <motion.h1
+          initial={reduce ? false : { opacity: 0, y: 18, filter: "blur(6px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ duration: 0.7, ease: EASE, delay: 0.05 }}
+          className="mt-6 text-[clamp(2.4rem,6vw,4.5rem)] font-semibold leading-[1.02] tracking-[-0.03em] [text-wrap:balance]"
+          style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}
+        >
+          {words.join(" ")}
+          {last && " "}
+          {last && (
+            <span style={{ background: "linear-gradient(120deg, var(--brand-accent), var(--brand-accent-2))", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>{last}</span>
+          )}
+        </motion.h1>
+        {props.subtitle && (
+          <motion.p
+            initial={reduce ? false : { opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: EASE, delay: 0.12 }}
+            className="mx-auto mt-6 max-w-xl rf-fluid-lead"
+            style={{ color: "var(--brand-ink)", opacity: 0.65 }}
+          >
+            {props.subtitle}
+          </motion.p>
+        )}
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: EASE, delay: 0.2 }}
+          className="mt-9 flex flex-wrap items-center justify-center gap-3"
+        >
+          {props.primaryCta && (
+            <a {...ctaAttrs(props.primaryHref)} className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium" style={{ background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)" }}>
+              {props.primaryCta} <ArrowRight weight="bold" className="h-4 w-4" />
+            </a>
+          )}
+          {props.secondaryCta && (
+            <a {...ctaAttrs(props.secondaryHref)} className="inline-flex items-center border px-6 py-3 text-sm font-medium" style={{ borderColor: HAIRLINE, color: "var(--brand)", borderRadius: "var(--brand-radius)" }}>
+              {props.secondaryCta}
+            </a>
+          )}
+        </motion.div>
+        {stats.length > 0 && (
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
+            {stats.slice(0, 3).map((s, i) => (
+              <div key={i} className="text-center">
+                <div className="text-2xl font-semibold tabular-nums" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>{s.value}</div>
+                <div className="mt-0.5 text-[0.7rem] uppercase tracking-[0.18em]" style={{ color: "var(--brand-ink)", opacity: 0.5 }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 function HeroCanvas({ props }: { props: any }) {
   const reduce = useReducedMotion();
   const monogram = (props.brand || props.title || "•").trim().charAt(0).toUpperCase() || "•";
@@ -3330,6 +3428,7 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   HeroImageFull,
   HeroMonumental,
   HeroAgencia,
+  HeroBeam,
   StatementAgencia,
   StatementEditorial,
   TeamGrid,

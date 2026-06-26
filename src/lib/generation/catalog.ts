@@ -46,6 +46,7 @@ export const BLOCK_CATALOG: BlockMeta[] = [
   { variant: "HeroAgencia", category: "hero", sectors: ["agency", "saas", "ecommerce", "generic"], prefer: ["agency"], moods: ["bold"], motion: 3, license: "ReFrame original (inspired by Agencia/Framer agency templates)", when: "Near-black canvas, colossal condensed wordmark, ember accent, two-tone tagline; bold modern studios/agencies." },
   // sectors:[] => only used explicitly (the engine routes here when no usable
   // hero image was extracted), never auto-selected by the scorer.
+  { variant: "HeroBeam", category: "hero", sectors: ["saas", "agency", "generic", "health", "ecommerce"], prefer: ["saas"], moods: ["bold", "minimal"], motion: 3, license: "ReFrame original (Linear/Vercel/Framer premium)", when: "Centered statement hero: badge pill, a brand-gradient keyword in the headline, dual CTA, a slow conic beam + masked grid, real trust stats. Modern SaaS/tech brands." },
   { variant: "HeroCanvas", category: "hero", sectors: [], motion: 2, license: "ReFrame original", when: "Image-free premium hero: a brand canvas (gradient mesh, monogram, drifting accent orbs). Used when the source site has no usable image." },
 
   // Features
