@@ -88,7 +88,8 @@ export const BLOCK_CATALOG: BlockMeta[] = [
   { variant: "TestimonialsSpotlight", category: "testimonials", sectors: "all", moods: ["bold", "minimal"], motion: 1, license: "ReFrame original", when: "One monumental pull-quote on a glowing dark panel; the single big proof." },
   { variant: "TestimonialsStacked", category: "testimonials", sectors: "all", moods: ["elegant", "warm", "minimal"], motion: 1, license: "ReFrame original", when: "Editorial stacked pull-quotes, alternating, hairline-separated." },
 
-  { variant: "FAQAccordion1", category: "faq", sectors: "all", motion: 1, license: "ReFrame original", when: "Editorial accordion FAQ." },
+  { variant: "FAQAccordion1", category: "faq", sectors: "all", moods: ["bold", "minimal"], motion: 1, license: "ReFrame original", when: "Editorial accordion FAQ." },
+  { variant: "FaqGrid", category: "faq", sectors: "all", moods: ["minimal", "elegant", "warm"], motion: 1, license: "ReFrame original", when: "Two-column FAQ, all answers visible; scannable editorial alternative to the accordion." },
 
   // CTA — dark glowing panel for bold/tech, light editorial framing for warm/elegant
   { variant: "CTASection1", category: "cta", sectors: "all", moods: ["bold", "minimal"], motion: 1, license: "ReFrame original", when: "High-contrast dark closing CTA with accent glow." },

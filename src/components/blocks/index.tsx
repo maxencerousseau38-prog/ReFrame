@@ -656,6 +656,40 @@ function TestimonialsSlider1({ props }: { props: any }) {
  * animate open with height + fade, and a toggle chip that fills with the brand
  * accent and rotates to an X when active. Respects reduced motion.
  */
+/**
+ * Two-column FAQ — all answers visible, hairline-separated. An editorial,
+ * scannable counterpart to the accordion; calmer for content-confident brands.
+ */
+function FaqGrid({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  const items = (props.items || []) as { question: string; answer: string }[];
+  return (
+    <section className="px-6 py-24" style={{ color: "var(--brand-ink)" }}>
+      <div className="mx-auto max-w-5xl">
+        <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>
+          {props.title}
+        </h2>
+        <div className="mt-12 grid gap-x-12 gap-y-9 sm:grid-cols-2">
+          {items.map((it, i) => (
+            <motion.div
+              key={i}
+              initial={reduce ? false : { opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.45, delay: (i % 2) * 0.05, ease: EASE }}
+              className="border-t pt-5"
+              style={{ borderColor: HAIRLINE }}
+            >
+              <h3 className="text-base font-semibold tracking-tight" style={{ color: "var(--brand)" }}>{it.question}</h3>
+              <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.62 }}>{it.answer}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function FAQAccordion1({ props }: { props: any }) {
   const reduce = useReducedMotion();
   const items = (props.items || []) as any[];
@@ -3446,6 +3480,7 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   TestimonialsSlider1,
   TestimonialsEditorial,
   TestimonialsGrid,
+  FaqGrid,
   FAQAccordion1,
   CTASection1,
   CTAEditorial,

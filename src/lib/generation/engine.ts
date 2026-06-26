@@ -2014,7 +2014,7 @@ function buildBlock(
       return {
         id: uid("faq"),
         type: "faq",
-        variant: "FAQAccordion1",
+        variant: pickVariant("faq", analysis.industry, brand, mood),
         props: { title: "Frequently asked questions", items: c.faqItems?.length ? c.faqItems : defaultFaq(analysis.industry, brand) },
       };
     case "cta":
