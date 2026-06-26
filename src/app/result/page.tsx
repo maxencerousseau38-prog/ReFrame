@@ -20,6 +20,7 @@ import {
   projectIdFromUrl,
 } from "@/lib/store";
 import type { SiteAnalysis, SiteSchema } from "@/lib/generation/types";
+import { qualityReport } from "@/lib/generation/quality";
 
 export default function ResultPage() {
   const router = useRouter();
@@ -225,6 +226,8 @@ export default function ResultPage() {
         .filter(([, v]) => (v as number) < 0.5)
         .map(([k]) => ASSET_LABELS[k] ?? k)
     : [];
+  // L1 — the rebuilt site's objective quality score (premium floor made measurable).
+  const quality = schema ? qualityReport(schema) : null;
 
   return (
     <DashboardShell>
@@ -445,6 +448,12 @@ export default function ResultPage() {
                 <div className="text-[11px] font-medium uppercase tracking-wide text-accent">
                   Your ReFrame rebuild
                 </div>
+                {quality && (
+                  <div className="mt-1 flex items-baseline gap-1.5">
+                    <span className="text-3xl font-semibold tabular-nums text-accent">{quality.overall}</span>
+                    <span className="text-sm text-muted-foreground">/100 quality</span>
+                  </div>
+                )}
                 <ul className="mt-3 space-y-2 text-[13px]">
                   {[
                     "Modern, responsive layout — flawless on mobile",

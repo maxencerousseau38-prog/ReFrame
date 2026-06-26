@@ -2537,6 +2537,29 @@ export function applyAiEdit(schema: SiteSchema, instruction: string): AiEditResu
     }
   }
 
+  // 1b. Improve / refresh the hero — re-roll to a different premium layout
+  //     (deterministic, brand-seeded). Title changes are handled above.
+  if (/\bhero\b|en[- ]?t[eê]te/.test(text) && /(improve|better|upgrade|redesign|refresh|am[eé]liore|nouveau|different|switch|premium|spice|punch|wow|stronger)/.test(text) && !/title|titre|headline/.test(text)) {
+    const hero = next.blocks.find((b) => b.type === "hero");
+    if (hero) {
+      const hasImg = Boolean((hero.props as Record<string, unknown>)?.image);
+      const pool = hasImg
+        ? ["HeroImageFull", "HeroMonumental", "HeroEditorial", "HeroSplitPremium", "HeroAurora", "HeroBeam"]
+        : ["HeroSplitPremium", "HeroBento", "HeroAurora", "HeroSpotlight", "HeroBeam", "HeroAgencia"];
+      const options = pool.filter((v) => v !== hero.variant);
+      const seed = Math.abs(next.brand.name.split("").reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7));
+      hero.variant = options[seed % options.length];
+      return { schema: next, message: `Refreshed the hero with a more premium layout (${hero.variant.replace(/^Hero/, "")}).`, changed: true };
+    }
+  }
+
+  // 1c. Modernise the design — tighter, cleaner, more premium tokens.
+  if (/moderni|\bmodern\b/.test(text)) {
+    next.theme.mood = "minimal";
+    next.theme.radius = "xl";
+    return { schema: next, message: "Modernised the design — cleaner type, generous spacing and softer radii in a tighter, premium direction.", changed: true };
+  }
+
   // 2. Add FAQ
   if (/add/.test(text) && /faq/.test(text)) {
     if (!next.blocks.some((b) => b.type === "faq")) {
@@ -2563,9 +2586,11 @@ export function applyAiEdit(schema: SiteSchema, instruction: string): AiEditResu
     };
   }
 
-  // 3. Add contact / cta (these are structural, not fabricated content)
-  for (const target of ["contact", "cta"] as const) {
-    if (/add/.test(text) && text.includes(target === "cta" ? "call to action" : target)) {
+  // 3. Add a structural section (never fabricated content — services/about use
+  //    the same industry defaults the initial build uses).
+  for (const target of ["contact", "cta", "services", "about"] as const) {
+    const kw = target === "cta" ? "call to action" : target;
+    if (/add/.test(text) && text.includes(kw)) {
       if (!next.blocks.some((b) => b.type === target)) {
         const stub = generateSite({
           url: next.sourceUrl,
