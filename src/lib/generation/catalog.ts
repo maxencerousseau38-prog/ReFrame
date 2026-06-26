@@ -57,6 +57,7 @@ export const BLOCK_CATALOG: BlockMeta[] = [
   { variant: "FeaturesColumns", category: "features", sectors: "all", moods: ["minimal", "elegant", "warm"], motion: 1, license: "ReFrame original", when: "Tidy numbered columns with a top accent rule; calm, content-dense friendly." },
   { variant: "FeaturesSticky", category: "features", sectors: ["saas", "agency", "health", "realestate", "generic"], moods: ["minimal", "elegant"], motion: 1, license: "ReFrame original (Linear/Framer editorial)", when: "Sticky narrative heading beside hairline-separated, indexed capability rows; calm editorial, service-led brands." },
   { variant: "FeaturesShowcase", category: "features", sectors: ["restaurant", "realestate", "health", "agency", "ecommerce"], moods: ["warm", "elegant", "bold"], motion: 2, license: "ReFrame original (Apple feature-grid)", when: "Uniform image-led feature cards (real photo + title + description); image-rich, visual sectors. Clean icon tiles without imagery." },
+  { variant: "FeaturesBigType", category: "features", sectors: "all", moods: ["minimal", "elegant", "bold"], motion: 1, license: "ReFrame original (Arc/Vercel editorial)", when: "Single editorial column of oversized numbered feature rows; calm statement clarity, content-confident brands." },
 
   // Services
   { variant: "ServicesList", category: "services", sectors: "all", moods: ["elegant", "warm", "minimal"], motion: 1, license: "ReFrame original", when: "Editorial numbered services index; serif titles, hairline rules." },

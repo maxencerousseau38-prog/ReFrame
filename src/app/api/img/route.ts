@@ -70,11 +70,38 @@ export async function GET(req: Request) {
     const buf = Buffer.from(await res.arrayBuffer());
     if (buf.byteLength > MAX_BYTES) return new NextResponse("Too large", { status: 413 });
 
-    return new NextResponse(buf, {
+    // Optimise raster images: cap the width (oversized originals tank mobile
+    // CWV) and serve a modern format the client accepts (AVIF/WebP). SVG/GIF/ICO
+    // stream untouched (vector / animated). Any failure falls back to the
+    // original bytes, so a broken transform never drops the client's image.
+    let outBuf: Uint8Array = buf;
+    let outType = type;
+    if (/^image\/(jpe?g|png|webp|avif|tiff)$/i.test(type)) {
+      const accept = req.headers.get("accept") || "";
+      const fmt = accept.includes("image/avif") ? "avif" : accept.includes("image/webp") ? "webp" : null;
+      try {
+        const sharp = (await import("sharp")).default;
+        let pipe = sharp(buf, { failOn: "none" }).rotate().resize({ width: 1920, withoutEnlargement: true });
+        if (fmt === "avif") {
+          pipe = pipe.avif({ quality: 62 });
+          outType = "image/avif";
+        } else if (fmt === "webp") {
+          pipe = pipe.webp({ quality: 76 });
+          outType = "image/webp";
+        }
+        outBuf = await pipe.toBuffer();
+      } catch {
+        outBuf = buf;
+        outType = type;
+      }
+    }
+
+    return new NextResponse(outBuf as unknown as BodyInit, {
       status: 200,
       headers: {
-        "Content-Type": type,
-        "Content-Length": String(buf.byteLength),
+        "Content-Type": outType,
+        "Content-Length": String(outBuf.byteLength),
+        Vary: "Accept",
         // Cache hard: the proxied image for a given URL never changes.
         "Cache-Control": "public, max-age=86400, s-maxage=604800, immutable",
       },

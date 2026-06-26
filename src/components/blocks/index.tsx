@@ -3032,6 +3032,46 @@ function FeaturesColumns({ props }: { props: any }) {
  * while the capabilities scroll past as hairline-separated rows with an
  * oversized index. Calm, Linear/Framer editorial; for service-led brands.
  */
+/**
+ * Big-type features — a single editorial column of oversized numbered rows
+ * (index + title + description). Arc/Vercel statement clarity; distinct from the
+ * grid/bento layouts. For calm, content-confident brands.
+ */
+function FeaturesBigType({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  const items = (props.items || []) as any[];
+  return (
+    <section className="px-6 py-24" style={{ color: "var(--brand-ink)" }}>
+      <div className="mx-auto max-w-4xl">
+        <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>{props.title}</h2>
+        <div className="mt-12">
+          {items.map((it, i) => (
+            <motion.div
+              key={i}
+              initial={reduce ? false : { opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.5, delay: (i % 6) * 0.04, ease: EASE }}
+              className="flex flex-col gap-3 border-t py-8 sm:flex-row sm:items-baseline sm:gap-10"
+              style={{ borderColor: HAIRLINE }}
+            >
+              <span className="w-[2.5ch] shrink-0 text-[clamp(1.8rem,3.4vw,2.8rem)] font-medium leading-none tabular-nums" style={{ fontFamily: "var(--brand-font)", color: "color-mix(in srgb, var(--brand-accent) 42%, transparent)" }}>
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <div>
+                <h3 className="text-xl font-semibold tracking-tight" style={{ color: "var(--brand)" }}>{it.title}</h3>
+                {it.description && (
+                  <p className="mt-2 max-w-xl leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{it.description}</p>
+                )}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function FeaturesSticky({ props }: { props: any }) {
   const reduce = useReducedMotion();
   const items = (props.items || []) as any[];
@@ -3472,6 +3512,7 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   FeaturesAlternating,
   FeaturesSticky,
   FeaturesShowcase,
+  FeaturesBigType,
   ServicesList,
   ServicesCards,
   PortfolioGrid,
