@@ -1,4 +1,5 @@
 import type { Block, SiteSchema, Theme } from "./generation/types";
+import { buildJsonLd } from "./server/seo";
 
 /**
  * Render a SiteSchema into a single standalone, dependency-free HTML document
@@ -132,12 +133,7 @@ export function schemaToHtml(
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="${esc(schema.brand.name)}" />
 <meta name="twitter:description" content="${esc(schema.brand.tagline)}" />
-<script type="application/ld+json">${JSON.stringify({
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  name: schema.brand.name,
-  description: schema.brand.tagline,
-})}</script>
+<script type="application/ld+json">${JSON.stringify(Object.fromEntries(Object.entries(buildJsonLd(schema)).filter(([k]) => k !== "image")))}</script>
 <style>
   :root{
     --brand:${t.primary};
