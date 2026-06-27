@@ -10,7 +10,7 @@ describe("pickVariant scoring", () => {
 
   it("gives each sector its signature premium hero", () => {
     expect(pickVariant("hero", "restaurant", "X", "warm")).toBe("HeroImageFull"); // immersive food
-    expect(pickVariant("hero", "realestate", "X", "elegant")).toBe("HeroMonumental"); // property showcase
+    expect(["HeroMonumental", "HeroArchform"]).toContain(pickVariant("hero", "realestate", "X", "elegant")); // property showcase
     expect(pickVariant("hero", "agency", "X", "bold")).toBe("HeroAgencia"); // colossal wordmark
     expect(pickVariant("hero", "saas", "X", "minimal")).toBe("HeroBento"); // product + proof
     // bold/agency features = a modern card layout (bento or spotlight), not the plain grid

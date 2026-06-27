@@ -2492,6 +2492,73 @@ function HeroBeam({ props }: { props: any }) {
   );
 }
 
+/**
+ * Archform hero — the full-bleed architectural archetype (after the ARCHFORM
+ * Framer reference): a single characteristic photo, a colossal UPPERCASE display
+ * line anchored bottom-left, the brand wordmark + sector on a top meta row, pill
+ * CTAs and a scroll cue. Brand-adapted (the client's own image, accent, name) —
+ * deliberately heavier/uppercase (weight 800) than the house default for this
+ * bold archetype. Real <img> for LCP, parallax, dark-auto, reduced-motion.
+ */
+function HeroArchform({ props }: { props: any }) {
+  const bgRef = React.useRef<HTMLImageElement>(null);
+  useParallax(bgRef);
+  const reduce = useReducedMotion();
+  const brand = (props.brand || "") as string;
+  return (
+    <section className="relative flex min-h-[94vh] flex-col overflow-hidden px-6 pb-10 pt-7 text-white">
+      <div className="absolute inset-0 overflow-hidden">
+        <CoverImage
+          image={props.image}
+          gradient="linear-gradient(135deg, var(--brand), var(--brand-accent))"
+          priority
+          overscan
+          parallaxRef={bgRef}
+          className="h-full w-full"
+        />
+      </div>
+      <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.04) 30%, rgba(0,0,0,0.1) 55%, rgba(0,0,0,0.88))" }} />
+
+      <div className="relative mx-auto flex w-full max-w-6xl items-center justify-between gap-6">
+        {brand && <span className="truncate text-sm font-semibold uppercase tracking-[0.22em]">{brand}</span>}
+        {props.eyebrow && (
+          <span className="hidden shrink-0 text-[0.66rem] font-medium uppercase tracking-[0.28em] text-white/70 sm:block">{props.eyebrow}</span>
+        )}
+      </div>
+
+      <div className="relative mx-auto mt-auto w-full max-w-6xl">
+        <motion.h1
+          initial={reduce ? false : { opacity: 0, y: 28, filter: "blur(8px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ duration: 0.8, ease: EASE, delay: 0.05 }}
+          className="max-w-[16ch] text-[clamp(2.8rem,9vw,8rem)] uppercase leading-[0.92] tracking-[-0.02em] [text-wrap:balance]"
+          style={{ fontFamily: "var(--brand-font)", fontWeight: 800 }}
+        >
+          {props.title}
+        </motion.h1>
+        <div className="mt-8 flex flex-col gap-6 border-t pt-6 sm:flex-row sm:items-end sm:justify-between" style={{ borderColor: "rgba(255,255,255,0.18)" }}>
+          {props.subtitle && <p className="max-w-md text-[15px] leading-relaxed text-white/80">{props.subtitle}</p>}
+          <div className="flex flex-wrap items-center gap-3">
+            {props.primaryCta && (
+              <a {...ctaAttrs(props.primaryHref)} className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium uppercase tracking-wide" style={{ background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "9999px" }}>
+                {props.primaryCta}
+              </a>
+            )}
+            {props.secondaryCta && (
+              <a {...ctaAttrs(props.secondaryHref)} className="inline-flex items-center border px-6 py-3 text-sm font-medium uppercase tracking-wide text-white" style={{ borderColor: "rgba(255,255,255,0.5)", borderRadius: "9999px" }}>
+                {props.secondaryCta}
+              </a>
+            )}
+            <span className="hidden items-center gap-2 text-[0.6rem] uppercase tracking-[0.28em] text-white/60 lg:inline-flex">
+              Scroll <span aria-hidden>&darr;</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function HeroCanvas({ props }: { props: any }) {
   const reduce = useReducedMotion();
   const monogram = (props.brand || props.title || "•").trim().charAt(0).toUpperCase() || "•";
@@ -3546,6 +3613,7 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   HeroMonumental,
   HeroAgencia,
   HeroBeam,
+  HeroArchform,
   StatementAgencia,
   StatementEditorial,
   TeamGrid,
