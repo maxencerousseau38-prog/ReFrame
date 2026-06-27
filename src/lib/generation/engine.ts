@@ -1383,18 +1383,19 @@ export function extractFaq(
 // fallback in a sans stack ("Inter, Georgia, serif"), not the brand's choice.
 const SERIF_RE =
   /(playfair|merriweather|\blora\b|georgia|times new roman|\btimes\b|pt serif|cormorant|garamond|baskerville|crimson|spectral|noto serif|source serif|dm serif|frank ruhl|\bbitter\b|libre caslon|cardo|domine|recoleta|canela|tiempos|freight|\bserif display\b)/i;
+const MANROPE_RE = /\bmanrope\b/i;
+const SPACE_GROTESK_RE = /\bspace grotesk\b/i;
 
 /**
- * Detect whether the SOURCE site is serif-led, and if so map it to the theme's
- * serif font so the rebuild keeps that typographic character. Looks at the
+ * Detect the SOURCE site's primary font character and map it to a ReFrame
+ * theme font so the rebuild keeps the typographic identity. Prefers the
  * deliberately-loaded webfonts (Google Fonts links + @import) and the FIRST
  * family of each `font-family` declaration (fallbacks ignored). Conservative —
- * returns undefined for sans sites so their default (Inter/Geist) is kept.
+ * returns undefined for generic sans sites so their default (Inter/Geist) is kept.
  */
 export function extractFonts(root: HTMLElement, html: string): Theme["font"] | undefined {
   const families: string[] = [];
   const fam = (s: string) => decodeURIComponent(s.replace(/\+/g, " "));
-  // Deliberately loaded Google Fonts (the strongest signal).
   for (const link of root.querySelectorAll('link[href*="fonts.googleapis.com"]')) {
     const href = link.getAttribute("href") || "";
     for (const m of Array.from(href.matchAll(/family=([^&:]+)/gi))) families.push(fam(m[1]));
@@ -1402,12 +1403,14 @@ export function extractFonts(root: HTMLElement, html: string): Theme["font"] | u
   if (/fonts\.googleapis\.com/i.test(html)) {
     for (const m of Array.from(html.matchAll(/family=([^&:)'"]+)/gi))) families.push(fam(m[1]));
   }
-  // First family of each font-family declaration (ignore the fallback chain).
   for (const m of Array.from(html.matchAll(/font-family\s*:\s*([^;}]+)/gi))) {
     const first = m[1].split(",")[0].replace(/['"]/g, "").trim();
     if (first) families.push(first);
   }
-  return families.some((f) => SERIF_RE.test(f)) ? "serif" : undefined;
+  if (families.some((f) => MANROPE_RE.test(f))) return "manrope";
+  if (families.some((f) => SPACE_GROTESK_RE.test(f))) return "space-grotesk";
+  if (families.some((f) => SERIF_RE.test(f))) return "serif";
+  return undefined;
 }
 
 const SOCIAL_PATTERNS: [string, RegExp][] = [

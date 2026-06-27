@@ -157,7 +157,7 @@ export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
     id: "gym",
     label: "Fitness & Sports",
     keywords: ["gym", "fitness", "workout", "crossfit", "muscle", "training", "salle de sport", "musculation", "cardio", "weightlifting"],
-    theme: { primary: "#0a0a0a", accent: "#dc2626", radius: "md", font: "inter", mood: "bold" },
+    theme: { primary: "#0a0a0a", accent: "#dc2626", radius: "md", font: "manrope", mood: "bold" },
     defaults: {
       headline: "Your strongest chapter starts here",
       description: "State-of-the-art equipment, expert coaches and a community that pushes you further.",
@@ -170,7 +170,7 @@ export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
     id: "coach",
     label: "Coaching & Consulting",
     keywords: ["coach", "coaching", "mentoring", "mindset", "life coach", "business coach", "consulting", "mentor", "personal development", "leadership"],
-    theme: { primary: "#1a1a2e", accent: "#7c3aed", radius: "lg", font: "inter", mood: "minimal" },
+    theme: { primary: "#1a1a2e", accent: "#7c3aed", radius: "lg", font: "space-grotesk", mood: "minimal" },
     defaults: {
       headline: "Unlock your next level",
       description: "Proven coaching frameworks that turn ambition into measurable progress.",
@@ -248,7 +248,7 @@ export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
     id: "automotive",
     label: "Automotive",
     keywords: ["car", "auto", "vehicle", "garage", "mechanic", "dealer", "voiture", "automobile", "concessionnaire", "mécanique"],
-    theme: { primary: "#0a0a0a", accent: "#dc2626", radius: "md", font: "inter", mood: "bold" },
+    theme: { primary: "#0a0a0a", accent: "#dc2626", radius: "md", font: "manrope", mood: "bold" },
     defaults: {
       headline: "Performance you can feel",
       description: "Expert automotive services with transparent pricing and genuine care for your vehicle.",

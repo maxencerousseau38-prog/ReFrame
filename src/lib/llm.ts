@@ -105,7 +105,7 @@ const ALLOWED_SECTIONS: BlockType[] = [
   "hero", "about", "services", "features", "portfolio", "gallery", "stats",
   "testimonials", "pricing", "faq", "cta", "contact", "footer",
 ];
-const ALLOWED_FONTS: Theme["font"][] = ["inter", "geist", "serif"];
+const ALLOWED_FONTS: Theme["font"][] = ["inter", "geist", "serif", "manrope", "space-grotesk"];
 const ALLOWED_MOODS: Theme["mood"][] = ["minimal", "bold", "warm", "elegant"];
 const ALLOWED_RADIUS: Theme["radius"][] = ["sm", "md", "lg", "xl"];
 
@@ -146,7 +146,7 @@ Rules:
 - Choose font, mood, radius and an accent hex that fit the sector and brand.
 
 Respond with ONLY a JSON object of this exact shape:
-{"layout": string[] (6 to 9 section types from the allowed set), "theme": {"font": "inter"|"geist"|"serif", "mood": "minimal"|"bold"|"warm"|"elegant", "radius": "sm"|"md"|"lg"|"xl", "accent": "#rrggbb"}}`;
+{"layout": string[] (6 to 9 section types from the allowed set), "theme": {"font": "inter"|"geist"|"serif"|"manrope"|"space-grotesk", "mood": "minimal"|"bold"|"warm"|"elegant", "radius": "sm"|"md"|"lg"|"xl", "accent": "#rrggbb"}}`;
 
   try {
     const res = await getClient().messages.create({

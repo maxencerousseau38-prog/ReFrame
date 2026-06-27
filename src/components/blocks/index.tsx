@@ -52,7 +52,20 @@ const fontStacks: Record<Theme["font"], string> = {
   inter: "var(--font-geist-sans), Inter, system-ui, -apple-system, sans-serif",
   geist: "var(--font-geist-sans), system-ui, -apple-system, sans-serif",
   serif: "'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif",
+  manrope: "Manrope, var(--font-geist-sans), system-ui, -apple-system, sans-serif",
+  "space-grotesk": "'Space Grotesk', var(--font-geist-sans), system-ui, -apple-system, sans-serif",
 };
+
+function fontGoogleUrl(font: Theme["font"]): string | undefined {
+  switch (font) {
+    case "manrope":
+      return "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap";
+    case "space-grotesk":
+      return "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap";
+    default:
+      return undefined;
+  }
+}
 
 /**
  * The brand CSS custom properties for one light/dark mode, as a plain record.
@@ -3888,8 +3901,10 @@ export function SiteRenderer({
   const animationsOn = published ? schema.animations === true : schema.animations !== false;
 
   const themeScope = React.useId().replace(/[^a-zA-Z0-9_-]/g, "");
+  const fontLink = fontGoogleUrl(schema.theme.font);
   return (
     <MotionConfig reducedMotion={animationsOn ? "user" : "always"}>
+      {fontLink && <link rel="stylesheet" href={fontLink} />}
       <style dangerouslySetInnerHTML={{ __html: themeCss(schema.theme, themeScope) }} />
       <div
         className="rf-site"

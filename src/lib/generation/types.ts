@@ -93,7 +93,7 @@ export interface Theme {
   primary: string; // hex
   accent: string; // hex
   radius: "sm" | "md" | "lg" | "xl";
-  font: "inter" | "geist" | "serif";
+  font: "inter" | "geist" | "serif" | "manrope" | "space-grotesk";
   mood: "minimal" | "bold" | "warm" | "elegant";
   /** Dark colour scheme. Off (light) by default; the AI editor can toggle it. */
   dark?: boolean;
