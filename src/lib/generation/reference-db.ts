@@ -421,6 +421,38 @@ export const REFERENCE_DB: CuratedReference[] = [
       sectionDividers: true,
     },
   },
+  {
+    id: "ref-thehotel",
+    name: "The Hotel — Framer hospitality",
+    inspiration:
+      "Full-bleed viewport hero with 8-layer progressive blur + gradient scrim, " +
+      "word-by-word blur-to-sharp H1 reveal (Inter Display 600), strict monochrome " +
+      "6-value greyscale (zero accent), flat #f8f8f8 cards with zero radius, " +
+      "CSS sticky-parallax sections (image pins, content scrolls over), " +
+      "editorial eyebrow labels (12px uppercase 0.15em tracking), " +
+      "critically damped springs (bounce:0), 128px section gaps",
+    industries: ["hotel"],
+    tier: "premium",
+    moods: ["elegant", "minimal"],
+    dna: {
+      heroStyle: "fullbleed",
+      rhythm: "generous",
+      spacingMultiplier: 1.5,
+      typePairing: "Inter Display + Inter",
+      typeWeight: 600,
+      cardStyle: "flat",
+      cardHover: "lift",
+      ctaStyle: "ghost",
+      motionLevel: 2,
+      entranceType: "blur-fade",
+      galleryStyle: "grid",
+      colorMode: "monochrome",
+      usesGradients: false,
+      prefersDark: false,
+      imageStyle: "fullbleed",
+      sectionDividers: false,
+    },
+  },
 
   // ─── Legal / Finance / Professional ─────────────────────────────
   {
