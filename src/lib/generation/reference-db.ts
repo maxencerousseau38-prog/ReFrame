@@ -532,6 +532,38 @@ export const REFERENCE_DB: CuratedReference[] = [
 
   // ─── Real Estate ────────────────────────────────────────────────
   {
+    id: "ref-nexus",
+    name: "Nexus Realty — Framer real estate",
+    inspiration:
+      "Text-first split hero (72px Clash Grotesk 400 left, tagline+body right), " +
+      "pure monochrome 6-step greyscale (zero accent color), flat zero-decoration " +
+      "cards in 3-col grid, 1px #d1d1d1 hairline section dividers, " +
+      "single cinematic about section with full-bleed image + gradient scrim, " +
+      "pill CTAs with border, Cabinet Grotesk body at 500, stats at 72px, " +
+      "uniform translateY(100px) slide-up entrances, infinite ticker marquee",
+    industries: ["realestate"],
+    tier: "premium",
+    moods: ["minimal", "elegant"],
+    dna: {
+      heroStyle: "split",
+      rhythm: "standard",
+      spacingMultiplier: 1.25,
+      typePairing: "Clash Grotesk + Cabinet Grotesk",
+      typeWeight: 400,
+      cardStyle: "flat",
+      cardHover: "none",
+      ctaStyle: "pill",
+      motionLevel: 1,
+      entranceType: "slide-up",
+      galleryStyle: "grid",
+      colorMode: "monochrome",
+      usesGradients: false,
+      prefersDark: false,
+      imageStyle: "framed",
+      sectionDividers: true,
+    },
+  },
+  {
     id: "ref-realestate-editorial",
     name: "Editorial real estate",
     inspiration: "Monumental hero, property gallery, teal accent, elevated cards",
