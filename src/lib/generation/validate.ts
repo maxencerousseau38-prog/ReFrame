@@ -20,10 +20,13 @@ const VARIANT_CATEGORY = new Map(BLOCK_CATALOG.map((b) => [b.variant, b.category
 
 const BLOCK_TYPES: BlockType[] = [
   "hero", "features", "testimonials", "faq", "cta", "contact", "footer",
-  "about", "services", "portfolio", "products", "pricing", "gallery", "logos", "stats",
+  "about", "services", "portfolio", "products", "pricing", "gallery", "logos", "stats", "team",
+  "emergency", "process", "before-after", "booking", "map", "schedule", "newsletter",
 ];
 const INDUSTRIES: Industry[] = [
-  "restaurant", "artisan", "realestate", "saas", "agency", "ecommerce", "health", "generic",
+  "restaurant", "artisan", "realestate", "saas", "agency", "ecommerce", "health",
+  "hotel", "architect", "lawyer", "gym", "coach", "plumber", "electrician",
+  "construction", "finance", "fashion", "automotive", "medical", "generic",
 ];
 
 const HEX = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;

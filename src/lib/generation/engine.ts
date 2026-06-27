@@ -2448,8 +2448,9 @@ export function qualityPass(blocks: Block[], imagePool: string[]): { blocks: Blo
 
 /** Label + path for the owner-managed collection page, by industry. */
 function collectionMeta(industry: Industry): { label: string; path: string } {
-  if (industry === "restaurant") return { label: "Menu", path: "menu" };
-  if (industry === "ecommerce") return { label: "Catalogue", path: "catalogue" };
+  if (industry === "restaurant" || industry === "hotel") return { label: "Menu", path: "menu" };
+  if (industry === "ecommerce" || industry === "fashion") return { label: "Catalogue", path: "catalogue" };
+  if (industry === "gym") return { label: "Classes", path: "classes" };
   return { label: "Pricing", path: "pricing" };
 }
 

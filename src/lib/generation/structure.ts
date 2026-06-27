@@ -18,6 +18,13 @@ const RULES: { type: BlockType; re: RegExp }[] = [
   { type: "portfolio", re: /\b(portfolio|case stud(y|ies)|our work|projects?|réalisations?|réalisation)\b/i },
   { type: "gallery", re: /\b(gallery|galerie|photos?)\b/i },
   { type: "products", re: /\b(products?|shop|store|menu|collection|boutique)\b/i },
+  { type: "emergency", re: /\b(emergency|urgent|24[/.]?7|dépannage|urgence)\b/i },
+  { type: "process", re: /\b(process|how we work|method|m[ée]thode|[ée]tapes|approach|our approach)\b/i },
+  { type: "before-after", re: /\b(before.?after|avant.?apr[eè]s|transformation|r[ée]sultat)\b/i },
+  { type: "booking", re: /\b(reservation|r[ée]server|book a room|book a table|booking)\b/i },
+  { type: "map", re: /\b(map|location|zone d.intervention|our location|localisation|quartiers?)\b/i },
+  { type: "schedule", re: /\b(schedule|planning|horaires?|hours|opening hours|cours|classes?)\b/i },
+  { type: "newsletter", re: /\b(newsletter|subscribe|inscription|s.inscrire|mailing list)\b/i },
   { type: "services", re: /\b(services?|what we do|solutions?|offerings?|prestations?)\b/i },
   { type: "about", re: /\b(about|our story|who we are|mission|notre histoire|à propos|values?)\b/i },
   { type: "stats", re: /\b(by the numbers|results|stats|impact|chiffres)\b/i },
@@ -96,10 +103,19 @@ export function renderableCategory(type: BlockType): BlockType {
   switch (type) {
     case "products":
     case "gallery":
+    case "before-after":
       return "portfolio"; // visual grids
     case "logos":
     case "pricing":
+    case "process":
+    case "schedule":
       return "features";
+    case "emergency":
+    case "newsletter":
+      return "cta";
+    case "booking":
+    case "map":
+      return "contact";
     default:
       return "features";
   }

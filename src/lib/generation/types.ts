@@ -8,12 +8,24 @@
 
 export type Industry =
   | "restaurant"
-  | "artisan" // trades: plumber, electrician, builder...
+  | "artisan" // general trades not covered by a dedicated sector
   | "realestate"
   | "saas"
   | "agency"
   | "ecommerce"
-  | "health"
+  | "health" // wellness, spa, therapy
+  | "hotel"
+  | "architect"
+  | "lawyer"
+  | "gym"
+  | "coach"
+  | "plumber"
+  | "electrician"
+  | "construction"
+  | "finance"
+  | "fashion"
+  | "automotive"
+  | "medical" // clinics, doctors, dentists
   | "generic";
 
 export type BlockType =
@@ -35,7 +47,14 @@ export type BlockType =
   | "gallery"
   | "logos"
   | "stats"
-  | "team";
+  | "team"
+  | "emergency"
+  | "process"
+  | "before-after"
+  | "booking"
+  | "map"
+  | "schedule"
+  | "newsletter";
 
 /** How the generator decides the output structure. */
 export type GenerationMode = "classic" | "preserve" | "smart";

@@ -85,6 +85,18 @@ const INDUSTRY_FLOW: Record<string, BlockType[]> = {
   saas: ["hero", "features", "stats", "testimonials", "faq", "cta", "contact", "footer"],
   health: ["hero", "features", "about", "testimonials", "faq", "cta", "contact", "footer"],
   ecommerce: ["hero", "gallery", "features", "testimonials", "cta", "contact", "footer"],
+  hotel: ["hero", "gallery", "features", "about", "testimonials", "faq", "cta", "contact", "footer"],
+  architect: ["hero", "portfolio", "features", "about", "stats", "testimonials", "faq", "cta", "contact", "footer"],
+  lawyer: ["hero", "features", "about", "stats", "testimonials", "faq", "cta", "contact", "footer"],
+  gym: ["hero", "features", "pricing", "stats", "testimonials", "faq", "cta", "contact", "footer"],
+  coach: ["hero", "features", "about", "stats", "testimonials", "faq", "cta", "contact", "footer"],
+  plumber: ["hero", "features", "about", "stats", "testimonials", "faq", "cta", "contact", "footer"],
+  electrician: ["hero", "features", "about", "stats", "testimonials", "faq", "cta", "contact", "footer"],
+  construction: ["hero", "portfolio", "features", "about", "stats", "testimonials", "faq", "cta", "contact", "footer"],
+  finance: ["hero", "features", "about", "stats", "testimonials", "faq", "cta", "contact", "footer"],
+  fashion: ["hero", "gallery", "features", "testimonials", "cta", "contact", "footer"],
+  automotive: ["hero", "gallery", "features", "about", "testimonials", "faq", "cta", "contact", "footer"],
+  medical: ["hero", "features", "about", "testimonials", "faq", "cta", "contact", "footer"],
 };
 
 /** Smart: a premium per-trade composition (identity preserved, empty sections
