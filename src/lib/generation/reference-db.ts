@@ -251,7 +251,12 @@ export const REFERENCE_DB: CuratedReference[] = [
   {
     id: "ref-agencia",
     name: "Agencia — Framer agency",
-    inspiration: "Colossal condensed wordmark, near-black, ember accent, rotating asterisk",
+    inspiration:
+      "Sticky cinematic hero with scattered Bebas Neue wordmark (200px), " +
+      "spring-physics word-by-word 3D text reveal (skewX+rotateX), " +
+      "pixel-grid image reveal, blur-to-sharp service names, " +
+      "glass cards with gradient-fade top borders, pill CTAs with icon circle, " +
+      "ember-red accent on near-black #060606 canvas, 18-section maximal portfolio",
     industries: ["agency"],
     tier: "premium",
     moods: ["bold"],
@@ -259,16 +264,16 @@ export const REFERENCE_DB: CuratedReference[] = [
       heroStyle: "cinematic",
       rhythm: "generous",
       spacingMultiplier: 1.75,
-      typePairing: "Manrope condensed",
-      typeWeight: 600,
+      typePairing: "Bebas Neue + Archivo",
+      typeWeight: 400,
       cardStyle: "glass",
-      cardHover: "glow",
-      ctaStyle: "gradient",
+      cardHover: "none",
+      ctaStyle: "pill",
       motionLevel: 3,
       entranceType: "stagger",
-      galleryStyle: "masonry",
-      colorMode: "duotone",
-      usesGradients: true,
+      galleryStyle: "feature",
+      colorMode: "accent-rare",
+      usesGradients: false,
       prefersDark: true,
       imageStyle: "rounded",
       sectionDividers: false,
