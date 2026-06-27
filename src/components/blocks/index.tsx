@@ -20,6 +20,7 @@ import {
   type Icon as PhosphorIcon,
 } from "@phosphor-icons/react";
 import type { Block, BlockType, SiteSchema, Theme } from "@/lib/generation/types";
+import type { DesignDNA } from "@/lib/generation/dna";
 import { deriveScheme, idealInkOn, ensureReadable } from "@/lib/generation/color";
 import { Aurora, Spotlight, Meteors, BlurFade, BorderBeam } from "./fx";
 import { cn } from "@/lib/utils";
@@ -122,6 +123,169 @@ function themeCss(theme: Theme, scope: string): string {
   const base = cssVarsText(themeVars(theme, baselineDark));
   const alt = cssVarsText(themeVars(theme, !baselineDark));
   return `${sel}{${base}}@media (prefers-color-scheme:${baselineDark ? "light" : "dark"}){${sel}{${alt}}}`;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Design DNA context + CSS variables                                        */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Extract the _dna bag injected by the Composer into every block's props.
+ * Returns a typed object that components use for DNA-driven rendering.
+ * Falls back to sensible defaults when a block was built without DNA.
+ */
+interface DNAProps {
+  spacingMultiplier: number;
+  density: "tight" | "standard" | "generous" | "editorial";
+  cardStyle: string;
+  cardRadius: string;
+  cardShadow: string;
+  cardBorder: string;
+  cardHoverEffect: string;
+  entranceType: string;
+  motionLevel: number;
+  staggerDelay: number;
+  duration: number;
+  ctaStyle: string;
+  ctaSize: string;
+}
+
+const DNA_DEFAULTS: DNAProps = {
+  spacingMultiplier: 1,
+  density: "standard",
+  cardStyle: "flat",
+  cardRadius: "12px",
+  cardShadow: "none",
+  cardBorder: "none",
+  cardHoverEffect: "lift",
+  entranceType: "slide-up",
+  motionLevel: 1,
+  staggerDelay: 0.05,
+  duration: 0.3,
+  ctaStyle: "pill",
+  ctaSize: "md",
+};
+
+function useDNA(props: any): DNAProps {
+  if (props?._dna && typeof props._dna === "object") {
+    return { ...DNA_DEFAULTS, ...props._dna };
+  }
+  return DNA_DEFAULTS;
+}
+
+/**
+ * Build a DNA-driven entrance animation config. Components call this instead
+ * of hardcoding their own rise/fade variants, so the DNA controls all motion.
+ */
+function dnaEntrance(dna: DNAProps, delay: number): {
+  initial: false | Record<string, number | string>;
+  whileInView: Record<string, number | string>;
+  viewport: { once: true };
+  transition: { duration: number; ease: typeof EASE; delay: number };
+} {
+  const d = delay * (dna.staggerDelay / 0.05);
+  const dur = dna.duration;
+
+  const variants = {
+    fade: { initial: { opacity: 0 }, whileInView: { opacity: 1 } },
+    "slide-up": { initial: { opacity: 0, y: 20 }, whileInView: { opacity: 1, y: 0 } },
+    "blur-fade": { initial: { opacity: 0, y: 12, filter: "blur(6px)" }, whileInView: { opacity: 1, y: 0, filter: "blur(0px)" } },
+    reveal: { initial: { opacity: 0, y: 32 }, whileInView: { opacity: 1, y: 0 } },
+    stagger: { initial: { opacity: 0, y: 24, scale: 0.97 }, whileInView: { opacity: 1, y: 0, scale: 1 } },
+  } as const;
+
+  type VKey = keyof typeof variants;
+  const key = (dna.entranceType in variants ? dna.entranceType : "slide-up") as VKey;
+  const v = variants[key];
+  return {
+    initial: dna.motionLevel === 0 ? false : { ...v.initial },
+    whileInView: { ...v.whileInView },
+    viewport: { once: true },
+    transition: { duration: dur, ease: EASE, delay: d },
+  };
+}
+
+/**
+ * DNA-derived section padding. Components use this instead of hardcoding
+ * py-20 / py-28, so the DNA's rhythm.spacingMultiplier controls spacing.
+ */
+function dnaSectionPy(dna: DNAProps): string {
+  const base = 80; // px
+  const scaled = Math.round(base * dna.spacingMultiplier);
+  return `${scaled}px`;
+}
+
+/**
+ * DNA-derived card style as inline React CSS.
+ */
+function dnaCardStyle(dna: DNAProps): React.CSSProperties {
+  return {
+    borderRadius: dna.cardRadius,
+    boxShadow: dna.cardShadow !== "none" ? dna.cardShadow : undefined,
+    border: dna.cardBorder !== "none" ? dna.cardBorder : undefined,
+    background: dna.cardStyle === "glass"
+      ? "color-mix(in srgb, var(--brand-card) 80%, transparent)"
+      : "var(--brand-card)",
+    backdropFilter: dna.cardStyle === "glass" ? "blur(12px)" : undefined,
+  };
+}
+
+/**
+ * DNA-derived CTA button classes.
+ */
+function dnaCtaClasses(dna: DNAProps): string {
+  const size = dna.ctaSize === "lg"
+    ? "px-8 py-4 text-base"
+    : dna.ctaSize === "sm"
+    ? "px-5 py-2.5 text-xs"
+    : "px-7 py-3.5 text-sm";
+
+  return `group inline-flex items-center gap-1.5 font-medium transition-transform active:scale-[0.98] ${size}`;
+}
+
+function dnaCtaStyle(dna: DNAProps): React.CSSProperties {
+  const base: React.CSSProperties = {
+    color: "var(--brand-accent-ink)",
+  };
+
+  switch (dna.ctaStyle) {
+    case "pill":
+      return { ...base, background: "var(--brand-accent)", borderRadius: "9999px", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" };
+    case "sharp":
+      return { ...base, background: "var(--brand-accent)", borderRadius: "4px" };
+    case "ghost":
+      return { ...base, background: "transparent", color: "var(--brand)", border: "1px solid color-mix(in srgb, var(--brand-ink) 20%, transparent)", borderRadius: "var(--brand-radius)" };
+    case "text-arrow":
+      return { ...base, background: "transparent", color: "var(--brand)", padding: 0 };
+    case "gradient":
+      return { ...base, background: "linear-gradient(135deg, var(--brand-accent), var(--brand-accent-2))", borderRadius: "var(--brand-radius)" };
+    default:
+      return { ...base, background: "var(--brand-accent)", borderRadius: "var(--brand-radius)", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" };
+  }
+}
+
+function dnaSecondaryCta(dna: DNAProps): React.CSSProperties {
+  switch (dna.ctaStyle) {
+    case "ghost":
+    case "text-arrow":
+      return { color: "var(--brand)", textDecoration: "none" };
+    default:
+      return { color: "var(--brand)", textDecoration: "none", opacity: 0.8 };
+  }
+}
+
+/**
+ * DNA-aware card hover wrapper. Applies the DNA's hover effect.
+ */
+function dnaCardHoverProps(dna: DNAProps) {
+  if (dna.motionLevel === 0) return {};
+  switch (dna.cardHoverEffect) {
+    case "lift": return { whileHover: { y: -4, transition: { duration: 0.2 } } };
+    case "scale": return { whileHover: { scale: 1.02, transition: { duration: 0.2 } } };
+    case "glow": return { whileHover: { boxShadow: `0 0 24px color-mix(in srgb, var(--brand-accent) 30%, transparent)`, transition: { duration: 0.2 } } };
+    case "border": return { whileHover: { borderColor: "var(--brand-accent)", transition: { duration: 0.2 } } };
+    default: return {};
+  }
 }
 
 // Generated sites pick icons by name; map those names to Phosphor glyphs.
@@ -2719,22 +2883,20 @@ function HeroCanvas({ props }: { props: any }) {
  */
 function HeroSplitPremium({ props }: { props: any }) {
   const reduce = useReducedMotion();
+  const dna = useDNA(props);
   const [t, setT] = React.useState({ x: 0, y: 0 });
   const onMove = (e: React.MouseEvent) => {
-    if (reduce) return;
+    if (reduce || dna.motionLevel < 2) return;
     const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
     setT({ x: ((e.clientX - r.left) / r.width - 0.5) * 2, y: ((e.clientY - r.top) / r.height - 0.5) * 2 });
   };
-  const rise = (d: number) => ({
-    initial: reduce ? false : { opacity: 0, y: 16 },
-    whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true },
-    transition: { duration: 0.6, ease: EASE, delay: d },
-  });
+  const rise = (d: number) => dnaEntrance(dna, d);
+  const sectionPy = dnaSectionPy(dna);
+  const heightStyle = props.heightVh ? { minHeight: `${props.heightVh}vh` } : {};
   return (
-    <section className="relative overflow-hidden px-6 py-20 sm:py-28" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}>
+    <section className="relative flex items-center overflow-hidden px-6" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)", paddingTop: sectionPy, paddingBottom: sectionPy, ...heightStyle }}>
       <div aria-hidden className="pointer-events-none absolute -right-32 -top-28 h-[520px] w-[520px] rounded-full blur-3xl" style={{ background: "radial-gradient(closest-side, color-mix(in srgb, var(--brand-accent) 45%, transparent), transparent)", opacity: 0.5 }} />
-      <div className="relative mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_1fr]">
+      <div className="relative mx-auto grid w-full max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_1fr]">
         <div>
           {props.eyebrow && (
             <motion.span {...rise(0)} className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium" style={{ borderColor: "color-mix(in srgb, var(--brand-ink) 12%, transparent)", color: "color-mix(in srgb, var(--brand-ink) 65%, transparent)" }}>
@@ -2742,27 +2904,41 @@ function HeroSplitPremium({ props }: { props: any }) {
               {props.eyebrow}
             </motion.span>
           )}
-          <motion.h1 {...rise(0.06)} className="mt-5 rf-fluid-display font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</motion.h1>
-          {props.subtitle && <motion.p {...rise(0.12)} className="mt-5 max-w-xl rf-fluid-lead" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{props.subtitle}</motion.p>}
-          <motion.div {...rise(0.18)} className="mt-8 flex flex-wrap items-center gap-4">
-            <a {...ctaAttrs(props.primaryHref)} className="group inline-flex items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]" style={{ background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" }}>
-              {props.primaryCta || "Get started"}
+          <motion.h1 {...rise(1)} className="mt-5 rf-fluid-display font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title || props.headline}</motion.h1>
+          {(props.subtitle || props.description) && <motion.p {...rise(2)} className="mt-5 max-w-xl rf-fluid-lead" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{props.subtitle || props.description}</motion.p>}
+          <motion.div {...rise(3)} className="mt-8 flex flex-wrap items-center gap-4">
+            <a {...ctaAttrs(props.primaryHref || props.ctaHref)} className={dnaCtaClasses(dna)} style={dnaCtaStyle(dna)}>
+              {props.primaryCta || props.ctaLabel || "Get started"}
               <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </a>
-            {props.secondaryCta && <a {...ctaAttrs(props.secondaryHref)} className="text-sm font-medium underline-offset-4 transition-opacity hover:opacity-70" style={{ color: "var(--brand)" }}>{props.secondaryCta}</a>}
+            {(props.secondaryCta || props.secondaryCtaLabel) && (
+              <a {...ctaAttrs(props.secondaryHref || props.secondaryCtaHref)} className="text-sm font-medium underline-offset-4 transition-opacity hover:opacity-70" style={dnaSecondaryCta(dna)}>
+                {props.secondaryCta || props.secondaryCtaLabel}
+              </a>
+            )}
           </motion.div>
+          {props.stats && Array.isArray(props.stats) && props.stats.length > 0 && (
+            <motion.div {...rise(4)} className="mt-10 flex flex-wrap gap-8">
+              {(props.stats as { value: string; label: string }[]).slice(0, 3).map((s, i) => (
+                <div key={i}>
+                  <div className="text-2xl font-semibold" style={{ color: "var(--brand)" }}><StatValue value={s.value} /></div>
+                  <div className="text-xs mt-1" style={{ color: "color-mix(in srgb, var(--brand-ink) 55%, transparent)" }}>{s.label}</div>
+                </div>
+              ))}
+            </motion.div>
+          )}
         </div>
-        <motion.div {...rise(0.22)} onMouseMove={onMove} onMouseLeave={() => setT({ x: 0, y: 0 })} style={{ perspective: 1000 }}>
+        <motion.div {...rise(4)} onMouseMove={onMove} onMouseLeave={() => setT({ x: 0, y: 0 })} style={{ perspective: 1000 }}>
           <motion.div
             className="flex flex-col overflow-hidden rounded-[1.25rem]"
             style={{ aspectRatio: "4 / 3", boxShadow: `0 44px 120px -28px color-mix(in srgb, var(--brand-accent) 45%, transparent), inset 0 0 0 1px ${HAIRLINE}`, transformStyle: "preserve-3d" }}
-            animate={reduce ? {} : { rotateY: t.x * 4, rotateX: -t.y * 4, y: [0, -10, 0] }}
+            animate={reduce || dna.motionLevel < 2 ? {} : { rotateY: t.x * 4, rotateX: -t.y * 4, y: [0, -10, 0] }}
             transition={{ rotateY: { duration: 0.3 }, rotateX: { duration: 0.3 }, y: { duration: 6, repeat: Infinity, ease: "easeInOut" } }}
           >
             <div className="flex shrink-0 items-center gap-1.5 px-4 py-3" style={{ background: "color-mix(in srgb, var(--brand-ink) 7%, transparent)" }}>
               {[0, 1, 2].map((i) => <span key={i} className="h-2.5 w-2.5 rounded-full" style={{ background: "color-mix(in srgb, var(--brand-ink) 18%, transparent)" }} />)}
             </div>
-            <CoverImage image={props.image} priority gradient="linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 30%, transparent), transparent)" className="flex-1" />
+            <CoverImage image={props.image || props.heroImageUrl} priority gradient="linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 30%, transparent), transparent)" className="flex-1" />
           </motion.div>
         </motion.div>
       </div>

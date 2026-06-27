@@ -3,20 +3,22 @@ import { analyzeUrl, generateSite, generateSiteCrawled, crawlPages, BlockedUrlEr
 import { isLLMEnabled, rewriteContent, designSite, type SiteDesign } from "@/lib/llm";
 import { rateLimit, clientKey } from "@/lib/rate-limit";
 import type { SiteAnalysis, GenerationMode } from "@/lib/generation/types";
+import { runPipeline } from "@/lib/generation/pipeline";
 
 const MODES: GenerationMode[] = ["classic", "preserve", "smart"];
 
 export const runtime = "nodejs";
-// Room for the LLM rewrite/design plus a bounded multi-page crawl (the home
-// analysis is already done; here we only fetch the other real pages).
 export const maxDuration = 60;
 
 /**
  * POST /api/generate-site — build a SiteSchema.
- * Accepts a pre-computed `analysis` or a raw `url`. By default it CRAWLS the
- * client's other real pages (nav + sitemap) and keeps them, so the rebuild
- * preserves the whole site. Pass `crawl: false` for a fast single-page build.
- * When Claude is configured, the home copy is rewritten on-brand first.
+ *
+ * V5 default: the DNA pipeline (Business Intelligence → Moodboard → Design DNA
+ * → Composer → Quality Gate) is the primary path. The deterministic engine
+ * remains as a fallback (`engine: "legacy"`) and for multi-page crawls.
+ *
+ * When Claude is configured the LLM still sharpens the copy BEFORE the DNA
+ * pipeline runs, so the Composer works with the best possible content.
  */
 export async function POST(req: Request) {
   const limit = await rateLimit(`generate:${clientKey(req)}`, 15, 60_000);
@@ -34,25 +36,68 @@ export async function POST(req: Request) {
       analysis = await analyzeUrl(body.url);
     }
 
-    // Claude as copywriter (sharper on-brand text) AND art director (page
-    // composition + theme). Both run in parallel and degrade to {} on failure.
-    let design: SiteDesign = {};
+    // LLM copywriter: sharpen extracted content before the DNA pipeline reads
+    // it. The art-direction call is skipped in V5 (DNA replaces it), but the
+    // copy rewrite is still valuable.
     if (isLLMEnabled()) {
-      const [improved, designed] = await Promise.all([rewriteContent(analysis), designSite(analysis)]);
+      const improved = await rewriteContent(analysis);
       analysis = { ...analysis, extractedContent: { ...analysis.extractedContent, ...improved } };
-      design = designed;
     }
 
-    // Default to SMART: a premium editorial re-composition ("the site they
-    // should have built"), while identity is preserved — smart reuses the same
-    // extracted brand, services, contact and copy, only re-arranging and
-    // elevating the structure. Callers can still pass preserve/classic.
     const mode: GenerationMode = MODES.includes(body.mode) ? body.mode : "smart";
+    const useLegacy = body.engine === "legacy" || mode === "classic" || mode === "preserve";
 
-    // Multi-page: keep the client's whole site. Crawl the OTHER real pages from
-    // the home URL (the home analysis we already have stays authoritative, so
-    // hybrid-completed edits + the LLM rewrite are preserved). Best-effort: any
-    // failure falls back to a clean single-page build.
+    // ── V5 DNA Pipeline (default) ──────────────────────────────────
+    if (!useLegacy) {
+      const result = runPipeline(analysis);
+      let { schema } = result;
+
+      // Multi-page: crawl other real pages and attach them
+      let crawledPages = 0;
+      if (body.crawl !== false && analysis.url) {
+        try {
+          const pages = await crawlPages(analysis.url, 4);
+          if (pages.length) {
+            crawledPages = pages.length;
+            const multiPage = generateSiteCrawled(
+              { home: analysis, pages },
+              { mode, theme: schema.theme }
+            );
+            // Preserve DNA-composed home blocks + theme, splice in crawled pages
+            multiPage.blocks = schema.blocks;
+            multiPage.theme = schema.theme;
+            multiPage.recommendations = schema.recommendations;
+            multiPage.animations = schema.animations;
+            schema = multiPage;
+          }
+        } catch {
+          /* single-page is fine */
+        }
+      }
+
+      return NextResponse.json({
+        schema,
+        analysis,
+        ai: isLLMEnabled(),
+        mode,
+        crawledPages,
+        // V5 diagnostics: the DNA signature, quality score, and iteration count
+        dna: {
+          signature: result.dna.signature,
+          quality: result.quality.total,
+          iterations: result.iterations,
+          tier: result.profile.tier,
+          direction: result.moodboard.direction,
+        },
+      });
+    }
+
+    // ── Legacy fallback (classic / preserve / explicit) ────────────
+    let design: SiteDesign = {};
+    if (isLLMEnabled()) {
+      design = await designSite(analysis);
+    }
+
     let crawledPages = 0;
     if (body.crawl !== false && analysis.url) {
       try {
@@ -66,7 +111,7 @@ export async function POST(req: Request) {
           return NextResponse.json({ schema, analysis, ai: isLLMEnabled(), mode, crawledPages });
         }
       } catch {
-        /* fall through to single-page generation */
+        /* fall through */
       }
     }
 
