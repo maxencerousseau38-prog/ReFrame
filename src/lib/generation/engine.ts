@@ -2097,7 +2097,7 @@ export function generateSite(
       ? planClassic()
       : mode === "preserve"
         ? planPreserve(analysis.structure)
-        : planSmart(analysis.structure);
+        : planSmart(analysis.structure, analysis.industry);
 
   // Theme: industry default, refined by any AI theme (font/mood/radius/accent),
   // then the real extracted brand colour wins so the rebuild stays recognisable.

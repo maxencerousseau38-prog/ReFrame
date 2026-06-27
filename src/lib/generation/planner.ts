@@ -70,8 +70,39 @@ export function planPreserve(structure?: SiteStructure): Plan {
   return { slots, recommendations: [] };
 }
 
-/** Smart: start from Preserve, then optimize for conversion. */
-export function planSmart(structure?: SiteStructure): Plan {
+/**
+ * Premium per-trade section flows — the "agency template" composition for each
+ * sector. PREFERRED orders, not guarantees: the engine drops any section it has
+ * no real data for (never fabricated), so the page self-prunes to what's genuine
+ * while keeping the high-end rhythm. Only slot-driven, buildable section types
+ * appear here (team/menu are spliced separately by the engine when real).
+ */
+const INDUSTRY_FLOW: Record<string, BlockType[]> = {
+  restaurant: ["hero", "gallery", "features", "about", "testimonials", "cta", "contact", "footer"],
+  artisan: ["hero", "stats", "portfolio", "features", "testimonials", "faq", "cta", "contact", "footer"],
+  agency: ["hero", "portfolio", "features", "stats", "testimonials", "faq", "cta", "contact", "footer"],
+  realestate: ["hero", "portfolio", "features", "about", "testimonials", "cta", "contact", "footer"],
+  saas: ["hero", "features", "stats", "testimonials", "faq", "cta", "contact", "footer"],
+  health: ["hero", "features", "about", "testimonials", "faq", "cta", "contact", "footer"],
+  ecommerce: ["hero", "gallery", "features", "testimonials", "cta", "contact", "footer"],
+};
+
+/** Smart: a premium per-trade composition (identity preserved, empty sections
+ *  dropped); falls back to Preserve + conversion tuning for unknown sectors. */
+export function planSmart(structure?: SiteStructure, industry?: string): Plan {
+  const flow = industry ? INDUSTRY_FLOW[industry] : undefined;
+  if (flow) {
+    return {
+      slots: anchor(flow.map((t) => slot(t))),
+      recommendations: [
+        {
+          action: `Composed a premium ${industry} layout`,
+          reason: "Re-arranged into an agency-grade section flow for the sector; sections without real content are dropped.",
+        },
+      ],
+    };
+  }
+
   const base = planPreserve(structure);
   const recs: Recommendation[] = [];
 
