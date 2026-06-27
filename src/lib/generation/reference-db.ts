@@ -87,6 +87,38 @@ export const REFERENCE_DB: CuratedReference[] = [
     },
   },
   {
+    id: "ref-restroo",
+    name: "Restroo — Framer restaurant",
+    inspiration:
+      "Warm beige #f5ece4 / forest green #1b3c2d alternating sections, " +
+      "Fraunces serif display (cv03/cv04/cv09/cv11) at 600, spring-physics hero " +
+      "(damping:60, stiffness:400), monumental 188px 'Dîner' statement, " +
+      "food parallax translateY(-35px) within cards, hover image reveal at -12deg, " +
+      "rolling character text hover, muted gold #7f7239 sharp CTAs with arrow slide, " +
+      "filterable menu grid + textual list dual presentation, scroll-triggered scale entrances",
+    industries: ["restaurant"],
+    tier: "premium",
+    moods: ["warm", "elegant"],
+    dna: {
+      heroStyle: "fullbleed",
+      rhythm: "editorial",
+      spacingMultiplier: 1.5,
+      typePairing: "Fraunces + Geist",
+      typeWeight: 600,
+      cardStyle: "elevated",
+      cardHover: "scale",
+      ctaStyle: "sharp",
+      motionLevel: 2,
+      entranceType: "stagger",
+      galleryStyle: "grid",
+      colorMode: "duotone",
+      usesGradients: false,
+      prefersDark: false,
+      imageStyle: "editorial",
+      sectionDividers: true,
+    },
+  },
+  {
     id: "ref-noma",
     name: "Noma-inspired fine dining",
     inspiration: "Monumental typography, cinematic imagery, extreme whitespace",
