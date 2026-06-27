@@ -65,15 +65,17 @@ function shape(s: ReturnType<typeof generateSite>) {
 }
 
 describe("generateSite", () => {
-  it("defaults to preserve and keeps the detected structure", () => {
-    const s = generateSite(
-      analysis({
-        structure: structure(["hero", "services", "portfolio", "footer"]),
-        extractedContent: { headline: "H", description: "D", services: ["A", "B", "C"], images: ["https://x/1.jpg", "https://x/2.jpg"] },
-      })
-    );
-    expect(s.mode).toBe("preserve");
-    expect(s.blocks.map((b) => b.type)).toEqual(["hero", "services", "portfolio", "footer"]);
+  it("defaults to smart (premium re-composition) and preserves structure on demand", () => {
+    const a = analysis({
+      structure: structure(["hero", "services", "portfolio", "footer"]),
+      extractedContent: { headline: "H", description: "D", services: ["A", "B", "C"], images: ["https://x/1.jpg", "https://x/2.jpg"] },
+    });
+    // New default: a premium editorial re-composition (identity preserved).
+    expect(generateSite(a).mode).toBe("smart");
+    // Explicit preserve still keeps the client's exact detected structure.
+    const p = generateSite(a, { mode: "preserve" });
+    expect(p.mode).toBe("preserve");
+    expect(p.blocks.map((b) => b.type)).toEqual(["hero", "services", "portfolio", "footer"]);
   });
 
   it("is deterministic (same input, same selection and content)", () => {

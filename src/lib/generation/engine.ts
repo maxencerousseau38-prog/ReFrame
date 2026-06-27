@@ -2088,7 +2088,7 @@ export function generateSite(
   analysis: SiteAnalysis,
   opts: { mode?: GenerationMode; layout?: BlockType[]; theme?: Partial<Theme>; realPages?: SitePage[] } = {}
 ): SiteSchema {
-  const mode: GenerationMode = opts.mode ?? "preserve";
+  const mode: GenerationMode = opts.mode ?? "smart";
   // An explicit (AI-composed) layout takes precedence over the deterministic
   // planner; otherwise the mode decides the structure.
   const plan = opts.layout?.length

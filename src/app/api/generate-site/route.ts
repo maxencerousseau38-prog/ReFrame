@@ -43,7 +43,11 @@ export async function POST(req: Request) {
       design = designed;
     }
 
-    const mode: GenerationMode = MODES.includes(body.mode) ? body.mode : "preserve";
+    // Default to SMART: a premium editorial re-composition ("the site they
+    // should have built"), while identity is preserved — smart reuses the same
+    // extracted brand, services, contact and copy, only re-arranging and
+    // elevating the structure. Callers can still pass preserve/classic.
+    const mode: GenerationMode = MODES.includes(body.mode) ? body.mode : "smart";
 
     // Multi-page: keep the client's whole site. Crawl the OTHER real pages from
     // the home URL (the home analysis we already have stays authoritative, so
