@@ -3033,6 +3033,49 @@ function FeaturesColumns({ props }: { props: any }) {
  * oversized index. Calm, Linear/Framer editorial; for service-led brands.
  */
 /**
+ * Process / storytelling timeline — the client's real services presented as a
+ * connected, numbered journey down a hairline rail (agency "how we work" feel).
+ * Reveals on scroll. Never fabricated: the steps ARE the extracted services.
+ */
+function ProcessTimeline({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  const items = (props.items || []) as any[];
+  return (
+    <section className="px-6 py-24" style={{ color: "var(--brand-ink)" }}>
+      <div className="mx-auto max-w-3xl">
+        <div className="max-w-2xl">
+          <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>{props.title}</h2>
+          {props.subtitle && <p className="mt-3 text-lg" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{props.subtitle}</p>}
+        </div>
+        <ol className="relative mt-12 border-l" style={{ borderColor: HAIRLINE }}>
+          {items.map((it, i) => (
+            <motion.li
+              key={i}
+              initial={reduce ? false : { opacity: 0, x: -12 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.5, delay: (i % 6) * 0.05, ease: EASE }}
+              className="relative ml-8 pb-12 last:pb-0"
+            >
+              <span
+                className="absolute -left-8 top-0 flex h-9 w-9 -translate-x-1/2 items-center justify-center rounded-full text-xs font-semibold tabular-nums"
+                style={{ background: "var(--brand-accent)", color: "var(--brand-accent-ink)" }}
+              >
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3 className="text-lg font-semibold tracking-tight" style={{ color: "var(--brand)" }}>{it.title}</h3>
+              {it.description && (
+                <p className="mt-2 max-w-xl leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.62 }}>{it.description}</p>
+              )}
+            </motion.li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
+
+/**
  * Big-type features — a single editorial column of oversized numbered rows
  * (index + title + description). Arc/Vercel statement clarity; distinct from the
  * grid/bento layouts. For calm, content-confident brands.
@@ -3513,6 +3556,7 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   FeaturesSticky,
   FeaturesShowcase,
   FeaturesBigType,
+  ProcessTimeline,
   ServicesList,
   ServicesCards,
   PortfolioGrid,
