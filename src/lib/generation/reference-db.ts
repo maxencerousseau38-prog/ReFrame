@@ -453,6 +453,40 @@ export const REFERENCE_DB: CuratedReference[] = [
       sectionDividers: false,
     },
   },
+  {
+    id: "ref-bellevoire",
+    name: "Bellevoire — Framer editorial hospitality",
+    inspiration:
+      "Cinematic sticky-pin hero (100vh, image scale 1.2→1.0, cream content scrolls " +
+      "over the dark frame), monumental Instrument Serif display (120px) paired with " +
+      "Inter, signature roman+italic two-line headings, warm paper-cream monochrome " +
+      "(#ede9e4 canvas / #170f0b warm ink / #bdb4af taupe ornament, zero chromatic accent), " +
+      "flat zero-radius cards with hairline-top dividers, underline-swipe ghost links, " +
+      "word-by-word blur reveals + intentional grid-breaks (rotate -3deg/-15deg), " +
+      "3D coverflow gallery, 8-layer progressive blur banners, critically damped springs, " +
+      "200px editorial section gaps",
+    industries: ["hotel"],
+    tier: "luxury",
+    moods: ["warm", "elegant"],
+    dna: {
+      heroStyle: "cinematic",
+      rhythm: "editorial",
+      spacingMultiplier: 1.75,
+      typePairing: "Instrument Serif + Inter",
+      typeWeight: 400,
+      cardStyle: "flat",
+      cardHover: "lift",
+      ctaStyle: "ghost",
+      motionLevel: 3,
+      entranceType: "blur-fade",
+      galleryStyle: "strip",
+      colorMode: "monochrome",
+      usesGradients: false,
+      prefersDark: false,
+      imageStyle: "fullbleed",
+      sectionDividers: true,
+    },
+  },
 
   // ─── Legal / Finance / Professional ─────────────────────────────
   {
