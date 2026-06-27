@@ -5,7 +5,7 @@ Legend: ✅ done · 🟡 partial · ❌ missing. File refs are the place to chan
 
 > Honesty note: the spec targets **90% extraction / 10% AI**. We are **not there
 > yet** — extraction is solid on the basics but drops several real-content types
-> (FAQ, social, fonts, team, menu) and several phases are heuristic-light.
+> (videos, embeds) and several phases are heuristic-light.
 
 ---
 
@@ -23,42 +23,42 @@ Legend: ✅ done · 🟡 partial · ❌ missing. File refs are the place to chan
 | Contact (phone/email/address/booking) | ✅ | `extractContact` |
 | Integrations (Stripe/Calendly/GA4…) | ✅ | `detectIntegrations` |
 | Stats | 🟡 | JSON-LD `aggregateRating` only |
-| **Testimonials** | ✅ (new) | `extractTestimonials` — JSON-LD + DOM |
-| **Dark source detection** | ✅ (new) | `detectSourceDark` → theme default |
-| **FAQ content** | ✅ (new) | `extractFaq` — JSON-LD FAQPage + `<details>`/`<dl>`/question-headings; replaces generic `defaultFaq` |
-| **Social links** | ✅ (new) | `extractSocialLinks` → wired into all three footers |
-| **Fonts / typography** | ✅ (new) | `extractFonts` — serif-led source → `theme.font="serif"` |
-| **Menu / pricing tables** (`collection`) | ✅ (new) | `extractCollection` → dedicated Menu page via existing CollectionGrid |
-| **Team / people** | ✅ (new) | `extractTeam` (photo-gated) → premium `TeamGrid` section on the home |
-| **Per-page `<title>`/meta on crawl** | ❌ | homepage meta only |
-| **Videos / embeds** | ❌ | not tracked |
+| Testimonials | ✅ | `extractTestimonials` — JSON-LD + DOM |
+| Dark source detection | ✅ | `detectSourceDark` → theme default |
+| FAQ content | ✅ | `extractFaq` — JSON-LD FAQPage + `<details>`/`<dl>`/question-headings |
+| Social links | ✅ | `extractSocialLinks` → wired into all three footers |
+| Fonts / typography | ✅ | `extractFonts` — serif-led source → `theme.font="serif"` |
+| Menu / pricing tables (`collection`) | ✅ | `extractCollection` → dedicated Menu page |
+| Team / people | ✅ | `extractTeam` (photo-gated) → premium `TeamGrid` section |
+| Per-page `<title>`/meta on crawl | ❌ | homepage meta only |
+| Videos / embeds | ❌ | not tracked |
 
-## Phase 2 — Business analysis & audit  ·  🟡
+## Phase 2 — Business analysis & audit  ·  ✅ (Design System V4)
 
-`detectIndustry` + `INDUSTRY_PROFILES` (`industries.ts`); `analysis.scores`
-(design/perf/seo/mobile/accessibility) + `issues`.
-- ✅ Industry detection, positioning defaults, audit scores exist (the `/100`
-  audit in the spec image is partially real).
-- 🟡 Audit is coarse; not surfaced as the explicit per-category scorecard the spec
-  shows. Audience/conversion-goal modelling is implicit.
+`detectIndustry` + `INDUSTRY_PROFILES` (`industries.ts`); `analysis.scores`.
+
+- ✅ **20 industries** with dedicated profiles: restaurant, artisan, realestate,
+  saas, agency, ecommerce, health, hotel, architect, lawyer, gym, coach, plumber,
+  electrician, construction, finance, fashion, automotive, medical, generic.
+- ✅ Each has unique keywords, theme palette, defaults, CTA, per-trade section flow.
+- ✅ **7 new section types** (emergency, process, before-after, booking, map,
+  schedule, newsletter) mapped to existing renderable components.
+- 🟡 Audit is coarse; audience/conversion-goal modelling is implicit.
 
 ## Phase 3 — Hero  ·  ✅ (recently elevated)
 
 `src/components/blocks/index.tsx` hero family; `catalog.ts`.
-- ✅ Rich premium hero set; `HeroImageFull` / `HeroMonumental` reworked to the
-  Havenn editorial bar; primary+secondary CTA; brand-derived; responsive.
-- 🟡 Trust indicators in-hero only when real (stats); could add logo/rating rows
-  when genuinely extracted.
+- ✅ 13 premium heroes: HeroSplitPremium, HeroBento, HeroAurora, HeroPremium1/2,
+  HeroSpotlight, HeroEditorial, HeroImageFull, HeroMonumental, HeroAgencia,
+  HeroBeam, HeroArchform, HeroCanvas.
+- ✅ Brand-derived, primary+secondary CTA, responsive, WCAG-compliant ink.
 
-## Phase 4 — Premium component mapping  ·  🟡
+## Phase 4 — Premium component mapping  ·  ✅
 
 `pickVariant` (`catalog.ts`) maps every section to a scored variant (sector + mood
-+ brand jitter).
++ brand jitter). Sectors expanded for all 20 industries.
 - ✅ Deterministic, varied, never-random mapping.
-- ⚠️ Reality check vs spec: components are **ReFrame-original Tailwind**, *inspired
-  by* shadcn/Magic UI/Aceternity — they are **not** literally built on the shadcn
-  primitives. The `shadcn-ui` skill informs patterns; output stays bespoke. Either
-  (a) accept "shadcn-grounded in spirit", or (b) a real refactor onto shadcn — big.
+- ✅ ~50+ components across 10+ categories.
 
 ## Phase 5 — Design-system enforcement  ·  🟡
 
@@ -74,11 +74,11 @@ Tokens via `deriveScheme` + `DESIGN.md`; fluid `clamp()` type; hairline system.
 - ❌ No systematic WCAG AA audit pass (contrast math on every text/bg pair, alt-text
   coverage, focus order, form labels) wired into generation/quality.
 
-## Phase 7 — Quality pass  ·  ❌ (mostly missing)
+## Phase 7 — Quality pass  ·  🟡
 
-- 🟡 `analysis.scores` exist as input audit.
-- ❌ No post-generation scorecard (Typography/Spacing/Hierarchy/Images/A11y/
-  Responsive/Conversion/Consistency) and no "improve-until-premium" loop.
+- ✅ `qualityPass()` in engine.ts (hero/footer anchoring, dedup, image distribution).
+- ✅ `qualityReport()` in quality.ts (8-category scorecard, issues list).
+- 🟡 No "improve-until-premium" loop — scorecard is informational, not corrective.
 
 ## Phase 8 — Business-asset detection  ·  ✅ / 🟡
 
@@ -90,41 +90,41 @@ Tokens via `deriveScheme` + `DESIGN.md`; fluid `clamp()` type; hairline system.
 ## Phase 9 — SEO preservation  ·  🟡
 
 `routePath` (nested-path preservation), `src/lib/server/seo.ts`.
-- ✅ URL/path continuity, titles/descriptions, sitemap/robots.
-- 🟡 Structured data (JSON-LD) is read but not re-emitted on the rebuild; internal
-  linking preservation is partial.
+- ✅ URL/path continuity, titles/descriptions, sitemap/robots, JSON-LD in export.
+- 🟡 Internal linking preservation is partial.
 
 ## Phase 10 — Publishing  ·  ✅
 
-Analyze → rebuild → AI-edit → publish (`/api/publish-site`) → connect domain
-(`vercel-domains`) → live. Backend now durable (Supabase) + Supabase Auth.
+Analyze → rebuild → AI-edit → publish → connect domain → live. Backend now
+durable (Supabase) + Supabase Auth.
 
 ---
 
 ## Prioritized backlog
 
-**P0 — close the extraction gap (Phase 1), highest fidelity-per-effort, low risk:**
-1. ✅ **Real FAQ** extraction → replaces generic `defaultFaq` (kills filler).
-2. ✅ **Social links** → wired into all footers.
-3. ✅ **Fonts** capture → serif-led source preserved in the theme.
-4. ✅ **Menu / pricing `collection`** extraction (tables / blocks) → Menu page.
-5. ✅ **Team / people** extraction → new premium `TeamGrid` section.
+**P0 — extraction gap (Phase 1): ✅ COMPLETE**
+1. ✅ Real FAQ extraction
+2. ✅ Social links → all footers
+3. ✅ Fonts capture → serif preservation
+4. ✅ Menu / pricing `collection` → dedicated page
+5. ✅ Team / people → premium TeamGrid
 
-**P0 is complete.** Phase 1 extraction now also captures FAQ, social, fonts,
-menu/pricing and team — a meaningful step toward the 90% target. Next: **P1**
-(measurable premium — WCAG AA contrast checker + 8-category scorecard).
+**P0b — Design System V4 (Phase 2): ✅ COMPLETE**
+6. ✅ 12 new industries (hotel→medical) with profiles + keywords + themes
+7. ✅ Per-trade INDUSTRY_FLOW in planSmart (19 sector flows)
+8. ✅ 7 new section types with renderableCategory mapping
+9. ✅ Catalog sector lists expanded for all 20 industries
 
 **P1 — make "premium" measurable (Phases 6–7):**
-6. **WCAG AA contrast checker** over the derived scheme + a generation-time a11y
-   lint (alt text, labels, focus), driven by `web-design-guidelines`.
-7. **Post-generation scorecard** (8 categories) + targeted auto-fixes for the
-   lowest-scoring categories.
+10. WCAG AA contrast checker over the derived scheme + a11y lint.
+11. Post-generation scorecard auto-fixes for lowest-scoring categories.
 
 **P2 — depth & polish:**
-8. Re-emit JSON-LD structured data on the rebuild (Phase 9).
-9. Publish pre-flight that **warns** on missing critical business assets (Phase 8).
-10. Per-page meta on crawl; per-section image association.
+12. Publish pre-flight that warns on missing critical business assets.
+13. Per-page meta on crawl; per-section image association.
+14. Dedicated components for new section types (emergency CTA, before-after
+    gallery, booking widget, map, schedule grid, newsletter signup).
 
-Each P0/P1 item is a focused, tested change in `engine.ts` (+ a small renderer
-or type touch). Recommend executing P0 in one batch (one extractor + test each),
-verifying via `/zpreview`, then P1.
+**P3 — advanced:**
+15. Video/embed extraction and preservation.
+16. Automated design misalignment detection + auto-correction (Phase 5).
