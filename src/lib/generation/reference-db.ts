@@ -337,6 +337,40 @@ export const REFERENCE_DB: CuratedReference[] = [
       sectionDividers: false,
     },
   },
+  {
+    id: "ref-porto",
+    name: "Porto — Framer minimal portfolio",
+    inspiration:
+      "Monumental fit-text wordmark hero (~397px Clash Display 600, no CTA — " +
+      "trust = location/availability/role metadata row), all-uppercase tight-tracked " +
+      "(-3px) display, true-black #000 canvas with faint 12.8px dot-grid texture + " +
+      "vertical rule lines, numbered editorial section spine (NN //Label — Subtitle over " +
+      "a hairline #161616), reusable dot-progress indicator motif, outlined #0a0a0a cards, " +
+      "white-pill BG-fill CTA + underline-grow links, word-by-word translateY reveals, " +
+      "3D perspective(1200px) title entrances, sticky-title scrolling-card credibility " +
+      "blocks, 200%-height parallax, edge-masked marquee tickers, spring damp40/stiff200",
+    industries: ["agency", "architect"],
+    tier: "premium",
+    moods: ["minimal", "bold"],
+    dna: {
+      heroStyle: "monumental",
+      rhythm: "editorial",
+      spacingMultiplier: 1.5,
+      typePairing: "Clash Display + Inter",
+      typeWeight: 600,
+      cardStyle: "outlined",
+      cardHover: "scale",
+      ctaStyle: "pill",
+      motionLevel: 3,
+      entranceType: "stagger",
+      galleryStyle: "masonry",
+      colorMode: "monochrome",
+      usesGradients: false,
+      prefersDark: true,
+      imageStyle: "rounded",
+      sectionDividers: true,
+    },
+  },
 
   // ─── E-commerce / Retail ────────────────────────────────────────
   {
