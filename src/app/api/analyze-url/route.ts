@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { analyzeUrl, BlockedUrlError } from "@/lib/generation/engine";
+import { analyzeUrlV2, BlockedUrlError } from "@/lib/extraction/analyze";
 import { rateLimit, clientKey } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     if (!url || typeof url !== "string" || url.length > 2048) {
       return NextResponse.json({ error: "A valid `url` string is required." }, { status: 400 });
     }
-    const analysis = await analyzeUrl(url);
+    const analysis = await analyzeUrlV2(url);
     return NextResponse.json({ analysis });
   } catch (err) {
     if (err instanceof BlockedUrlError) {

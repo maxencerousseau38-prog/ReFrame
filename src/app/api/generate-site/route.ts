@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { analyzeUrl, generateSite, generateSiteCrawled, crawlPages, BlockedUrlError } from "@/lib/generation/engine";
+import { generateSite, generateSiteCrawled, crawlPages, BlockedUrlError } from "@/lib/generation/engine";
+import { analyzeUrlV2 } from "@/lib/extraction/analyze";
 import { isLLMEnabled, rewriteContent, designSite, type SiteDesign } from "@/lib/llm";
 import { rateLimit, clientKey } from "@/lib/rate-limit";
 import type { SiteAnalysis, GenerationMode } from "@/lib/generation/types";
@@ -33,7 +34,7 @@ export async function POST(req: Request) {
       if (!body.url) {
         return NextResponse.json({ error: "Provide `analysis` or `url`." }, { status: 400 });
       }
-      analysis = await analyzeUrl(body.url);
+      analysis = await analyzeUrlV2(body.url);
     }
 
     // LLM copywriter: sharpen extracted content before the DNA pipeline reads

@@ -78,7 +78,7 @@ function uid(prefix = "b") {
   return `${prefix}_${Math.random().toString(36).slice(2, 9)}`;
 }
 
-function normalizeUrl(raw: string): string {
+export function normalizeUrl(raw: string): string {
   const trimmed = raw.trim();
   if (/^https?:\/\//i.test(trimmed)) return trimmed;
   return `https://${trimmed}`;
@@ -120,7 +120,7 @@ function clean(text: string): string {
  * domain so the flow always works.
  */
 /** Plain HTML fetch with a short timeout. Returns "" on any failure. */
-async function fetchStatic(url: string): Promise<string> {
+export async function fetchStatic(url: string): Promise<string> {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 7000);
@@ -1639,7 +1639,7 @@ function dedupe(arr: string[]): string[] {
   return Array.from(new Set(arr));
 }
 
-function findLogo(root: HTMLElement, base: string): string | undefined {
+export function findLogo(root: HTMLElement, base: string): string | undefined {
   // Prefer an explicit logo image, then touch icon / favicon.
   const byImg = root
     .querySelectorAll("img")
