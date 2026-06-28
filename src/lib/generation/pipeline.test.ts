@@ -5,6 +5,9 @@ import { buildMoodboard, applyMoodboard } from "./references";
 import { evaluateQuality } from "./quality-gate";
 import { compose } from "./composer";
 import { runPipeline } from "./pipeline";
+import { artDirect } from "./art-direction";
+import { planSmart } from "./planner";
+import { applyVisualDNA } from "./visual-dna-merge";
 import type { SiteAnalysis, Theme } from "./types";
 import { INDUSTRY_PROFILES } from "./industries";
 
@@ -233,16 +236,16 @@ describe("QualityGate", () => {
     expect(result.quality.total).toBeGreaterThanOrEqual(50);
   });
 
-  it("production readiness scores > 0 when hero exists", () => {
+  it("conversion quality scores > 0 when hero exists", () => {
     const analysis = makeAnalysis();
     const result = runPipeline(analysis);
-    expect(result.quality.productionReadiness.score).toBeGreaterThan(0);
+    expect(result.quality.conversionQuality.score).toBeGreaterThan(0);
   });
 
-  it("content fidelity scores > 0 with content", () => {
+  it("brand fidelity scores > 0 with content", () => {
     const analysis = makeAnalysis();
     const result = runPipeline(analysis);
-    expect(result.quality.contentFidelity.score).toBeGreaterThan(0);
+    expect(result.quality.brandFidelity.score).toBeGreaterThan(0);
   });
 });
 
@@ -321,9 +324,9 @@ describe("Pipeline", () => {
 
   it("returns quality scores for all dimensions", () => {
     const result = runPipeline(makeAnalysis());
-    expect(result.quality.contentFidelity.maxScore).toBe(100);
-    expect(result.quality.typographyFidelity.maxScore).toBe(100);
-    expect(result.quality.layoutFidelity.maxScore).toBe(100);
+    expect(result.quality.editorialQuality.maxScore).toBe(100);
+    expect(result.quality.compositionQuality.maxScore).toBe(100);
+    expect(result.quality.brandFidelity.maxScore).toBe(100);
     expect(result.quality.total).toBeGreaterThanOrEqual(0);
     expect(result.quality.total).toBeLessThanOrEqual(100);
   });
@@ -345,5 +348,149 @@ describe("Pipeline", () => {
     // The pipeline should still produce a valid schema
     expect(result.schema.blocks.length).toBeGreaterThanOrEqual(3);
     expect(result.schema.blocks[0].type).toBe("hero");
+  });
+});
+
+/* -------------------------------------------------------------------------- */
+/*  Art Direction                                                              */
+/* -------------------------------------------------------------------------- */
+
+describe("ArtDirection", () => {
+  function buildArtDirection(overrides: Partial<SiteAnalysis> = {}) {
+    const analysis = makeAnalysis(overrides);
+    const industryProfile = INDUSTRY_PROFILES[analysis.industry];
+    const mood: Theme["mood"] = industryProfile.theme.mood;
+    const profile = analyzeBusinessProfile(analysis, mood);
+    const plan = planSmart(analysis.structure, analysis.industry);
+    const baseDNA = compileDNA({
+      profile,
+      industry: analysis.industry,
+      mood,
+      font: analysis.fontHint || industryProfile.theme.font,
+      hasImages: analysis.extractedContent.images.length > 0,
+      hasTestimonials: (analysis.extractedContent.testimonials?.length || 0) > 0,
+      hasStats: (analysis.extractedContent.stats?.length || 0) > 0,
+      sourceDark: analysis.sourceDark || false,
+    });
+    const visualDNA = applyVisualDNA(baseDNA, analysis.visualDna);
+    const dna = applyMoodboard(visualDNA, buildMoodboard(profile, mood, plan.slots.map(s => s.type)));
+    const moodboard = buildMoodboard(profile, mood, plan.slots.map(s => s.type));
+    return { ad: artDirect(profile, dna, moodboard, analysis, plan), profile, dna, analysis };
+  }
+
+  it("returns identical output for same inputs (determinism)", () => {
+    const a = buildArtDirection();
+    const b = buildArtDirection();
+    expect(a.ad).toEqual(b.ad);
+  });
+
+  it("produces different variantMaps for different brands in same industry", () => {
+    const brand1 = buildArtDirection({
+      url: "https://restaurant-alpha.com",
+      brandName: "Restaurant Alpha",
+      industry: "restaurant",
+      industryLabel: "Restaurant",
+      extractedContent: {
+        ...makeAnalysis().extractedContent,
+        headline: "Fine dining at its best",
+        services: ["French cuisine", "Wine bar", "Private events"],
+      },
+    });
+    const brand2 = buildArtDirection({
+      url: "https://restaurant-beta.com",
+      brandName: "Restaurant Beta",
+      industry: "restaurant",
+      industryLabel: "Restaurant",
+      extractedContent: {
+        ...makeAnalysis().extractedContent,
+        headline: "Casual family dining",
+        services: ["Burgers", "Pizza", "Takeout"],
+      },
+    });
+
+    // Seeds should differ
+    expect(brand1.ad.seed).not.toBe(brand2.ad.seed);
+    // At least some artistic decisions should differ
+    const diffs = [
+      brand1.ad.heroVariant !== brand2.ad.heroVariant,
+      brand1.ad.pageStorytelling !== brand2.ad.pageStorytelling,
+      brand1.ad.featureLayout !== brand2.ad.featureLayout,
+      brand1.ad.emotionalDirection !== brand2.ad.emotionalDirection,
+      brand1.ad.sectionRhythm !== brand2.ad.sectionRhythm,
+    ];
+    expect(diffs.filter(Boolean).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("luxury tier always gets luxuryLevel >= 70", () => {
+    const luxury = buildArtDirection({
+      extractedContent: {
+        ...makeAnalysis().extractedContent,
+        headline: "Exclusive luxury fine dining experience",
+        description: "Bespoke premium cuisine for the discerning palate.",
+      },
+    });
+    expect(luxury.ad.luxuryLevel).toBeGreaterThanOrEqual(70);
+  });
+
+  it("all 20 industries produce valid art direction", () => {
+    const industries = Object.keys(INDUSTRY_PROFILES) as (keyof typeof INDUSTRY_PROFILES)[];
+    for (const industry of industries) {
+      const ip = INDUSTRY_PROFILES[industry];
+      const { ad } = buildArtDirection({ industry, industryLabel: ip.label });
+
+      expect(ad.heroVariant).toBeTruthy();
+      expect(ad.sectionOrder.length).toBeGreaterThanOrEqual(3);
+      expect(ad.sectionOrder[0]).toBe("hero");
+      expect(ad.sectionOrder[ad.sectionOrder.length - 1]).toBe("footer");
+      expect(ad.variantMap).toBeTruthy();
+      expect(ad.seed).toBeTypeOf("number");
+      expect(ad.signature).toBeTruthy();
+      expect(ad.luxuryLevel).toBeGreaterThanOrEqual(0);
+      expect(ad.luxuryLevel).toBeLessThanOrEqual(100);
+      expect(ad.minimalismLevel).toBeGreaterThanOrEqual(0);
+      expect(ad.visualDensity).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  it("section order always starts with hero and ends with footer", () => {
+    const { ad } = buildArtDirection();
+    expect(ad.sectionOrder[0]).toBe("hero");
+    expect(ad.sectionOrder[ad.sectionOrder.length - 1]).toBe("footer");
+  });
+
+  it("art direction is included in pipeline result", () => {
+    const result = runPipeline(makeAnalysis());
+    expect(result.artDirection).toBeTruthy();
+    expect(result.artDirection.heroVariant).toBeTruthy();
+    expect(result.artDirection.variantMap).toBeTruthy();
+    expect(result.artDirection.sectionOrder.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("different plumber brands get different art direction", () => {
+    const plumber1 = buildArtDirection({
+      url: "https://joes-plumbing.com",
+      brandName: "Joe's Plumbing",
+      industry: "plumber",
+      industryLabel: "Plumbing",
+      extractedContent: {
+        ...makeAnalysis().extractedContent,
+        headline: "24/7 Emergency Plumbing",
+        services: ["Drain cleaning", "Pipe repair", "Water heater"],
+      },
+    });
+    const plumber2 = buildArtDirection({
+      url: "https://ace-plumbing.com",
+      brandName: "Ace Plumbing Co",
+      industry: "plumber",
+      industryLabel: "Plumbing",
+      extractedContent: {
+        ...makeAnalysis().extractedContent,
+        headline: "Professional plumbing services",
+        services: ["Bathroom remodel", "Sewer line", "Gas fitting"],
+      },
+    });
+
+    expect(plumber1.ad.seed).not.toBe(plumber2.ad.seed);
+    expect(plumber1.ad.signature).not.toBe(plumber2.ad.signature);
   });
 });

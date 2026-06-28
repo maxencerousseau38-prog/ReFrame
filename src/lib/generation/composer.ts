@@ -29,6 +29,7 @@ import type {
 import type { BusinessProfile } from "./business";
 import type { DesignDNA } from "./dna";
 import type { Moodboard } from "./references";
+import type { ArtDirection } from "./art-direction";
 import { INDUSTRY_PROFILES } from "./industries";
 import { pickVariant, BLOCK_CATALOG } from "./catalog";
 import { planSmart, type Slot, type Plan } from "./planner";
@@ -144,6 +145,7 @@ interface ContentContext {
   analysis: SiteAnalysis;
   profile: BusinessProfile;
   dna: DesignDNA;
+  artDirection?: ArtDirection;
   imageIdx: number;
 }
 
@@ -159,6 +161,7 @@ function buildBlockProps(
   const c = analysis.extractedContent;
   const industryProfile = INDUSTRY_PROFILES[analysis.industry];
 
+  const { artDirection: ad } = ctx;
   // Common DNA props injected into every block
   const dnaProps = {
     _dna: {
@@ -182,6 +185,22 @@ function buildBlockProps(
       hasOverlay: dna.heroDirection.hasOverlay,
       galleryStyle: dna.galleryDirection.style,
       galleryAspectRatio: dna.galleryDirection.aspectRatio,
+      // Art Direction signals
+      ...(ad ? {
+        pageStorytelling: ad.pageStorytelling,
+        sectionRhythm: ad.sectionRhythm,
+        editorialFlow: ad.editorialFlow,
+        whitespaceStrategy: ad.whitespaceStrategy,
+        compositionStyle: ad.compositionStyle,
+        asymmetry: ad.asymmetry,
+        contrastStrategy: ad.contrastStrategy,
+        emotionalDirection: ad.emotionalDirection,
+        luxuryLevel: ad.luxuryLevel,
+        overlapUsage: ad.overlapUsage,
+        isEditorialSection: ad.editorialSections.includes(slot.category),
+        isSplitSection: ad.splitSections.includes(slot.category),
+        imagePlacement: ad.imagePlacements[slot.category],
+      } : {}),
     },
   };
 
@@ -418,6 +437,7 @@ export interface ComposeOptions {
   dna: DesignDNA;
   profile: BusinessProfile;
   moodboard?: Moodboard;
+  artDirection?: ArtDirection;
 }
 
 /**
@@ -427,33 +447,38 @@ export interface ComposeOptions {
  * every spacing choice is dictated by the DNA.
  */
 export function compose(analysis: SiteAnalysis, opts: ComposeOptions): SiteSchema {
-  const { dna, profile, moodboard } = opts;
+  const { dna, profile, moodboard, artDirection } = opts;
   const industry = analysis.industry;
   const mood = INDUSTRY_PROFILES[industry].theme.mood;
-
-  // 1. Plan the section flow (uses existing planSmart)
-  const plan = planSmart(analysis.structure, industry);
 
   // 2. Build theme from DNA + analysis
   const theme = buildTheme(analysis, dna, profile);
 
-  // 3. Build blocks from plan, guided by DNA
-  const ctx: ContentContext = { analysis, profile, dna, imageIdx: 0 };
+  // 3. Build blocks: Art Direction drives variant + section order when present
+  const ctx: ContentContext = { analysis, profile, dna, artDirection, imageIdx: 0 };
   const blocks: Block[] = [];
 
-  for (const slot of plan.slots) {
-    const variant = pickVariantWithDNA(slot.category, industry, analysis.brandName, mood, dna);
-    const props = buildBlockProps(slot, ctx);
-
-    // Respect the doctrine: skip sections with no real data
-    if (props === null) continue;
-
-    blocks.push({
-      id: uid(),
-      type: slot.type,
-      variant,
-      props,
-    });
+  if (artDirection) {
+    // Art Director mode: Composer only executes the creative brief
+    for (const sectionType of artDirection.sectionOrder) {
+      const category = renderableCategory(sectionType);
+      const variant = artDirection.variantMap[sectionType] ||
+        artDirection.variantMap[category] ||
+        pickVariantWithDNA(category, industry, analysis.brandName, mood, dna);
+      const slot: Slot = { type: sectionType, category };
+      const props = buildBlockProps(slot, ctx);
+      if (props === null) continue;
+      blocks.push({ id: uid(), type: sectionType, variant, props });
+    }
+  } else {
+    // Legacy mode: Composer decides variants (backward compatibility)
+    const plan = planSmart(analysis.structure, industry);
+    for (const slot of plan.slots) {
+      const variant = pickVariantWithDNA(slot.category, industry, analysis.brandName, mood, dna);
+      const props = buildBlockProps(slot, ctx);
+      if (props === null) continue;
+      blocks.push({ id: uid(), type: slot.type, variant, props });
+    }
   }
 
   // 4. Quality pass: ensure hero first, footer last, no dupes
@@ -473,7 +498,10 @@ export function compose(analysis: SiteAnalysis, opts: ComposeOptions): SiteSchem
     blocks: finalBlocks,
     mode: "smart",
     recommendations: [
-      ...plan.recommendations,
+      ...(artDirection ? [{
+        action: `Art Direction: ${artDirection.signature}`,
+        reason: `${artDirection.pageStorytelling} storytelling, ${artDirection.heroPhilosophy} hero, ${artDirection.featureLayout} features`,
+      }] : []),
       {
         action: `Design DNA: ${dna.signature}`,
         reason: moodboard?.direction || "Composed from tier + mood + industry signals",

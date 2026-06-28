@@ -20,10 +20,12 @@ import type { BusinessProfile } from "./business";
 import type { DesignDNA } from "./dna";
 import type { Moodboard } from "./references";
 import type { QualityScore } from "./quality-gate";
+import type { ArtDirection } from "./art-direction";
 import { analyzeBusinessProfile } from "./business";
 import { compileDNA } from "./dna";
 import { applyVisualDNA } from "./visual-dna-merge";
 import { buildMoodboard, applyMoodboard } from "./references";
+import { artDirect } from "./art-direction";
 import { compose } from "./composer";
 import { evaluateQuality } from "./quality-gate";
 import { INDUSTRY_PROFILES } from "./industries";
@@ -41,6 +43,8 @@ export interface PipelineResult {
   dna: DesignDNA;
   /** The moodboard of curated references. */
   moodboard: Moodboard;
+  /** The Art Direction creative brief. */
+  artDirection: ArtDirection;
   /** Quality scores from the gate. */
   quality: QualityScore;
   /** Number of quality iterations performed (0 = passed first try). */
@@ -92,18 +96,22 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
   // Merge moodboard refinements into the visual-refined DNA
   const dna = applyMoodboard(visualDNA, moodboard);
 
-  // Phase 5: Compose
-  let schema = compose(analysis, { dna, profile, moodboard });
+  // Phase 4.75: Art Director — produces the creative brief
+  const artDirection = artDirect(profile, dna, moodboard, analysis, plan);
+
+  // Phase 5: Compose (executes the Art Direction)
+  let schema = compose(analysis, { dna, profile, moodboard, artDirection });
 
   // Phase 6: Quality Gate (with iteration loop)
-  let quality = evaluateQuality(schema, dna, profile, analysis);
+  let quality = evaluateQuality(schema, dna, profile, analysis, artDirection);
   let iterations = 0;
 
   while (!quality.passes && iterations < MAX_ITERATIONS) {
     iterations++;
     const adjustedDNA = applyQualityFixes(dna, quality);
-    schema = compose(analysis, { dna: adjustedDNA, profile, moodboard });
-    quality = evaluateQuality(schema, adjustedDNA, profile, analysis);
+    const adjustedAD = artDirect(profile, adjustedDNA, moodboard, analysis, plan);
+    schema = compose(analysis, { dna: adjustedDNA, profile, moodboard, artDirection: adjustedAD });
+    quality = evaluateQuality(schema, adjustedDNA, profile, analysis, adjustedAD);
   }
 
   return {
@@ -111,6 +119,7 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
     profile,
     dna,
     moodboard,
+    artDirection,
     quality,
     iterations,
   };
@@ -128,8 +137,8 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
 function applyQualityFixes(dna: DesignDNA, quality: QualityScore): DesignDNA {
   const adjusted = { ...dna };
 
-  // Production readiness low → upgrade hero direction
-  if (quality.productionReadiness.score < 60) {
+  // Conversion quality low → upgrade hero direction
+  if (quality.conversionQuality.score < 60) {
     adjusted.heroDirection = {
       ...dna.heroDirection,
       heightVh: Math.max(dna.heroDirection.heightVh, 90),
@@ -138,8 +147,8 @@ function applyQualityFixes(dna: DesignDNA, quality: QualityScore): DesignDNA {
     };
   }
 
-  // Layout fidelity low → increase breathing
-  if (quality.layoutFidelity.score < 50) {
+  // Composition quality low → increase breathing
+  if (quality.compositionQuality.score < 50) {
     adjusted.rhythm = {
       ...dna.rhythm,
       spacingMultiplier: Math.max(dna.rhythm.spacingMultiplier, 1.25),
@@ -147,8 +156,8 @@ function applyQualityFixes(dna: DesignDNA, quality: QualityScore): DesignDNA {
     };
   }
 
-  // Design fidelity low → upgrade motion
-  if (quality.designFidelity.score < 50) {
+  // Premium score low → upgrade motion
+  if (quality.premiumScore.score < 50) {
     adjusted.motion = {
       ...dna.motion,
       level: Math.min(dna.motion.level + 1, 3) as 0 | 1 | 2 | 3,
@@ -156,8 +165,8 @@ function applyQualityFixes(dna: DesignDNA, quality: QualityScore): DesignDNA {
     };
   }
 
-  // Typography fidelity low → ensure fluid type
-  if (quality.typographyFidelity.score < 50) {
+  // Editorial quality low → ensure fluid type
+  if (quality.editorialQuality.score < 50) {
     adjusted.typeScale = {
       ...dna.typeScale,
       display: dna.typeScale.display.includes("clamp(")
