@@ -108,33 +108,44 @@ export async function runStructurePass(ctx: PassContext): Promise<PassResult> {
   // 5. Extract section headings from the DOM in document order
   // -----------------------------------------------------------------------
 
-  const headings = root.querySelectorAll("h1, h2, h3");
-  let firstH1Seen = false;
-
   const rawSections: { type: string; heading: string; confidence: number }[] =
     [];
 
-  for (const h of headings) {
-    const text = clean(h.text);
-    if (!text || text.length < 2) continue;
+  // When Framer section identities are available, use them as primary source
+  if (ctx.framerSections && ctx.framerSections.length > 0) {
+    for (const fs of ctx.framerSections) {
+      const heading = fs.element.querySelector("h1, h2, h3");
+      const headingText = heading ? clean(heading.text) : fs.name;
+      rawSections.push({
+        type: fs.type,
+        heading: headingText,
+        confidence: 0.9,
+      });
+    }
+  } else {
+    const headings = root.querySelectorAll("h1, h2, h3");
+    let firstH1Seen = false;
 
-    const tagName = h.tagName?.toLowerCase() || "h3";
-    const isH1 = tagName === "h1";
-    const isFirstH1 = isH1 && !firstH1Seen;
-    if (isH1) firstH1Seen = true;
+    for (const h of headings) {
+      const text = clean(h.text);
+      if (!text || text.length < 2) continue;
 
-    // 6. Classify heading
-    const type = classifyHeading(text, isFirstH1);
+      const tagName = h.tagName?.toLowerCase() || "h3";
+      const isH1 = tagName === "h1";
+      const isFirstH1 = isH1 && !firstH1Seen;
+      if (isH1) firstH1Seen = true;
 
-    // Confidence: h1/h2 with strong keyword match → high, h3 → lower
-    const hasKeywordMatch = SECTION_MATCHERS.some(([re]) => re.test(text));
-    let confidence = 0.5;
-    if (isFirstH1 && type === "hero") confidence = 0.95;
-    else if ((tagName === "h1" || tagName === "h2") && hasKeywordMatch)
-      confidence = 0.85;
-    else if (tagName === "h3" && hasKeywordMatch) confidence = 0.7;
+      const type = classifyHeading(text, isFirstH1);
 
-    rawSections.push({ type, heading: text, confidence });
+      const hasKeywordMatch = SECTION_MATCHERS.some(([re]) => re.test(text));
+      let confidence = 0.5;
+      if (isFirstH1 && type === "hero") confidence = 0.95;
+      else if ((tagName === "h1" || tagName === "h2") && hasKeywordMatch)
+        confidence = 0.85;
+      else if (tagName === "h3" && hasKeywordMatch) confidence = 0.7;
+
+      rawSections.push({ type, heading: text, confidence });
+    }
   }
 
   // Check for contact via form presence

@@ -175,6 +175,13 @@ function buildBlockProps(
       duration: dna.motion.duration,
       ctaStyle: dna.ctaDirection.style,
       ctaSize: dna.ctaDirection.size,
+      // Visual DNA signals
+      heroHeight: dna.heroDirection.heightVh,
+      heroComposition: dna.heroDirection.style,
+      imagePosition: dna.heroDirection.imagePosition,
+      hasOverlay: dna.heroDirection.hasOverlay,
+      galleryStyle: dna.galleryDirection.style,
+      galleryAspectRatio: dna.galleryDirection.aspectRatio,
     },
   };
 

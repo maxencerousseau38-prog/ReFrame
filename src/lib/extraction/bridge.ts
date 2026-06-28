@@ -73,6 +73,7 @@ export function toSiteAnalysis(ext: ExtractionResult): SiteAnalysis {
     },
     scores,
     issues,
+    ...(ext.visualDna ? { visualDna: ext.visualDna } : {}),
   };
 }
 

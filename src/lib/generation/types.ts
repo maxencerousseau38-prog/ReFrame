@@ -168,6 +168,8 @@ export interface DetectedIntegration {
   hint: string;
 }
 
+export type { VisualDNA } from "@/lib/extraction/types";
+
 export interface SiteAnalysis {
   url: string;
   brandName: string;
@@ -273,4 +275,5 @@ export interface SiteAnalysis {
     accessibility: number;
   };
   issues: string[];
+  visualDna?: import("@/lib/extraction/types").VisualDNA;
 }

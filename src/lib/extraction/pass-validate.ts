@@ -19,11 +19,16 @@ export async function runValidationPass(ctx: PassContext): Promise<PassResult> {
 
   // ── Pass 9: Quality Score ─────────────────────────────────────────────
 
-  const qualityDimensions = scoreQuality(validated);
+  // Score the full accumulated result (ctx.result) with validation fixes
+  // applied on top — NOT just the partial `validated` object, which only
+  // contains fields touched by dedup/validation and would miss content
+  // like headline, description, business.name etc.
+  const forScoring = mergeForScoring(r, validated);
+  const qualityDimensions = scoreQuality(forScoring);
 
   // ── Pass 10: Asset Confidence ─────────────────────────────────────────
 
-  const assetConfidence = scoreAssetConfidence(validated);
+  const assetConfidence = scoreAssetConfidence(forScoring);
 
   // Overall weighted average
   const overall = Math.round(
@@ -432,6 +437,27 @@ function scoreAssetConfidence(r: Partial<ExtractionResult>): {
 }
 
 // ── Utility ───────────────────────────────────────────────────────────────
+
+function mergeForScoring(
+  base: Partial<ExtractionResult>,
+  updates: Partial<ExtractionResult>,
+): Partial<ExtractionResult> {
+  const result = { ...base };
+  for (const [key, val] of Object.entries(updates)) {
+    if (val && typeof val === "object" && !Array.isArray(val)) {
+      const baseVal = (base as Record<string, unknown>)[key];
+      if (baseVal && typeof baseVal === "object" && !Array.isArray(baseVal)) {
+        (result as Record<string, unknown>)[key] = {
+          ...(baseVal as Record<string, unknown>),
+          ...(val as Record<string, unknown>),
+        };
+        continue;
+      }
+    }
+    (result as Record<string, unknown>)[key] = val;
+  }
+  return result;
+}
 
 function dedupeByKey<T>(items: T[], keyFn: (item: T) => string): T[] {
   const seen = new Set<string>();

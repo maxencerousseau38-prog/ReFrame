@@ -1,10 +1,12 @@
 import { parse } from "node-html-parser";
 import type { ExtractionResult, PassContext } from "./types";
 import { detectPlatform } from "./platform";
+import { runFramerPass } from "./pass-framer";
 import { runStructurePass } from "./pass-structure";
 import { runContentPass } from "./pass-content";
 import { runMediaPass } from "./pass-media";
 import { runDesignPass } from "./pass-design";
+import { runVisualDNAPass } from "./visual-dna";
 import { runValidationPass } from "./pass-validate";
 
 function clean(s: string): string {
@@ -104,11 +106,13 @@ export async function extractSite(
   ctx.result.source = { url, platform, fetched: true };
 
   const passes = [
-    runStructurePass,
-    runContentPass,
-    runMediaPass,
-    runDesignPass,
-    runValidationPass,
+    runFramerPass,       // Pass 0: Framer variant collapsing (mutates ctx.root)
+    runStructurePass,    // Pass 1: Page structure
+    runContentPass,      // Pass 2: Content extraction
+    runMediaPass,        // Pass 3: Media extraction
+    runDesignPass,       // Pass 4: Design tokens + motion
+    runVisualDNAPass,    // Pass 5: Visual DNA measurement
+    runValidationPass,   // Pass 6: Validation + quality scoring
   ];
 
   let passCount = 0;

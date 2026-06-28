@@ -233,16 +233,16 @@ describe("QualityGate", () => {
     expect(result.quality.total).toBeGreaterThanOrEqual(50);
   });
 
-  it("hero dimension scores > 0 when hero exists", () => {
+  it("production readiness scores > 0 when hero exists", () => {
     const analysis = makeAnalysis();
     const result = runPipeline(analysis);
-    expect(result.quality.hero.score).toBeGreaterThan(0);
+    expect(result.quality.productionReadiness.score).toBeGreaterThan(0);
   });
 
-  it("conversion scores > 0 with CTA and contact", () => {
+  it("content fidelity scores > 0 with content", () => {
     const analysis = makeAnalysis();
     const result = runPipeline(analysis);
-    expect(result.quality.conversion.score).toBeGreaterThan(0);
+    expect(result.quality.contentFidelity.score).toBeGreaterThan(0);
   });
 });
 
@@ -321,9 +321,9 @@ describe("Pipeline", () => {
 
   it("returns quality scores for all dimensions", () => {
     const result = runPipeline(makeAnalysis());
-    expect(result.quality.hero.maxScore).toBe(100);
-    expect(result.quality.typography.maxScore).toBe(100);
-    expect(result.quality.spacing.maxScore).toBe(100);
+    expect(result.quality.contentFidelity.maxScore).toBe(100);
+    expect(result.quality.typographyFidelity.maxScore).toBe(100);
+    expect(result.quality.layoutFidelity.maxScore).toBe(100);
     expect(result.quality.total).toBeGreaterThanOrEqual(0);
     expect(result.quality.total).toBeLessThanOrEqual(100);
   });

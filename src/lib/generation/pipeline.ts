@@ -22,6 +22,7 @@ import type { Moodboard } from "./references";
 import type { QualityScore } from "./quality-gate";
 import { analyzeBusinessProfile } from "./business";
 import { compileDNA } from "./dna";
+import { applyVisualDNA } from "./visual-dna-merge";
 import { buildMoodboard, applyMoodboard } from "./references";
 import { compose } from "./composer";
 import { evaluateQuality } from "./quality-gate";
@@ -84,22 +85,25 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
     sourceDark: analysis.sourceDark || false,
   });
 
-  // Merge moodboard refinements into the base DNA
-  const dna = applyMoodboard(baseDNA, moodboard);
+  // Phase 4.5: Apply Visual DNA measurements (overrides preset-based DNA
+  // with real measurements from the source site's artistic decisions)
+  const visualDNA = applyVisualDNA(baseDNA, analysis.visualDna);
+
+  // Merge moodboard refinements into the visual-refined DNA
+  const dna = applyMoodboard(visualDNA, moodboard);
 
   // Phase 5: Compose
   let schema = compose(analysis, { dna, profile, moodboard });
 
   // Phase 6: Quality Gate (with iteration loop)
-  let quality = evaluateQuality(schema, dna, profile);
+  let quality = evaluateQuality(schema, dna, profile, analysis);
   let iterations = 0;
 
   while (!quality.passes && iterations < MAX_ITERATIONS) {
     iterations++;
-    // Apply the top fixes by re-composing with adjusted DNA
     const adjustedDNA = applyQualityFixes(dna, quality);
     schema = compose(analysis, { dna: adjustedDNA, profile, moodboard });
-    quality = evaluateQuality(schema, adjustedDNA, profile);
+    quality = evaluateQuality(schema, adjustedDNA, profile, analysis);
   }
 
   return {
@@ -124,8 +128,8 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
 function applyQualityFixes(dna: DesignDNA, quality: QualityScore): DesignDNA {
   const adjusted = { ...dna };
 
-  // Hero scored low → upgrade hero direction
-  if (quality.hero.score < 60) {
+  // Production readiness low → upgrade hero direction
+  if (quality.productionReadiness.score < 60) {
     adjusted.heroDirection = {
       ...dna.heroDirection,
       heightVh: Math.max(dna.heroDirection.heightVh, 90),
@@ -134,8 +138,8 @@ function applyQualityFixes(dna: DesignDNA, quality: QualityScore): DesignDNA {
     };
   }
 
-  // Spacing scored low → increase breathing
-  if (quality.spacing.score < 50) {
+  // Layout fidelity low → increase breathing
+  if (quality.layoutFidelity.score < 50) {
     adjusted.rhythm = {
       ...dna.rhythm,
       spacingMultiplier: Math.max(dna.rhythm.spacingMultiplier, 1.25),
@@ -143,8 +147,8 @@ function applyQualityFixes(dna: DesignDNA, quality: QualityScore): DesignDNA {
     };
   }
 
-  // Art direction scored low → upgrade motion
-  if (quality.artDirection.score < 50) {
+  // Design fidelity low → upgrade motion
+  if (quality.designFidelity.score < 50) {
     adjusted.motion = {
       ...dna.motion,
       level: Math.min(dna.motion.level + 1, 3) as 0 | 1 | 2 | 3,
@@ -152,8 +156,8 @@ function applyQualityFixes(dna: DesignDNA, quality: QualityScore): DesignDNA {
     };
   }
 
-  // Typography scored low → ensure fluid type
-  if (quality.typography.score < 50) {
+  // Typography fidelity low → ensure fluid type
+  if (quality.typographyFidelity.score < 50) {
     adjusted.typeScale = {
       ...dna.typeScale,
       display: dna.typeScale.display.includes("clamp(")
