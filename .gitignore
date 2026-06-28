@@ -35,3 +35,6 @@ next-env.d.ts
 
 # Evaluation harness output
 eval/
+
+# Playwright MCP snapshots
+.playwright-mcp/
