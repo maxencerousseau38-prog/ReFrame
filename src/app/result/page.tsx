@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { MagicWand, RocketLaunch, Check, ArrowSquareOut, CircleNotch, ArrowLeft, DownloadSimple, Sparkle, Warning, LinkSimple } from "@phosphor-icons/react";
 import { DashboardShell } from "@/components/dashboard/shell";
 import { IntegrationsNotice } from "@/components/integrations-notice";
+import { LaunchWizard } from "@/components/launch-wizard/launch-wizard";
 import { SiteRenderer } from "@/components/blocks";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -36,6 +37,7 @@ export default function ResultPage() {
   const [copied, setCopied] = React.useState(false);
   const [email, setEmail] = React.useState("");
   const [emailState, setEmailState] = React.useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [wizardOpen, setWizardOpen] = React.useState(false);
 
   async function emailMyRedesign(e: React.FormEvent) {
     e.preventDefault();
@@ -277,7 +279,7 @@ export default function ResultPage() {
               <Button size="sm"><Check weight="bold" className="h-4 w-4" /> Live</Button>
             </a>
           ) : (
-            <Button size="sm" onClick={publish} disabled={publishing}>
+            <Button size="sm" onClick={() => setWizardOpen(true)} disabled={publishing}>
               {publishing ? <CircleNotch weight="bold" className="h-4 w-4 animate-spin" /> : <RocketLaunch weight="bold" className="h-4 w-4" />}
               Publish
             </Button>
@@ -505,6 +507,15 @@ export default function ResultPage() {
           </div>
         </div>
       </div>
+
+      <LaunchWizard
+        schema={schema}
+        analysis={analysis}
+        open={wizardOpen}
+        onOpenChange={setWizardOpen}
+        onPublish={publish}
+        published={published}
+      />
     </DashboardShell>
   );
 }
