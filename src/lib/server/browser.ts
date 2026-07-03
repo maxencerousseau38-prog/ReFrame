@@ -19,14 +19,17 @@ async function launch(): Promise<Browser | null> {
   try {
     const { chromium } = await import("playwright");
     // Honour the environment's egress proxy (Node fetch does automatically;
-    // Chromium needs it explicitly). Local addresses stay direct so fixture
-    // servers and self-hosted tools keep working.
+    // Chromium needs it explicitly). The bypass list mirrors NO_PROXY so the
+    // browser and the process's other HTTP clients take the same network path
+    // (F7); local addresses always stay direct for fixture servers.
     const proxyServer = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
+    const noProxy = process.env.NO_PROXY || process.env.no_proxy || "";
+    const bypass = ["localhost", "127.0.0.1", ...noProxy.split(",").map((s) => s.trim()).filter(Boolean)]
+      .filter((v, i, a) => a.indexOf(v) === i)
+      .join(",");
     return await chromium.launch({
       args: ["--no-sandbox", "--disable-dev-shm-usage"],
-      ...(proxyServer
-        ? { proxy: { server: proxyServer, bypass: "localhost,127.0.0.1" } }
-        : {}),
+      ...(proxyServer ? { proxy: { server: proxyServer, bypass } } : {}),
     });
   } catch {
     return null;
