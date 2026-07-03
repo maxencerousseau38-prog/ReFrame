@@ -38,3 +38,4 @@ eval/
 
 # Playwright MCP snapshots
 .playwright-mcp/
+graphify-out/
