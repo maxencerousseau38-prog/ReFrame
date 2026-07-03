@@ -1,0 +1,52 @@
+@import url("deep.css");
+
+@font-face {
+  font-family: "Fixture Sans";
+  font-weight: 400;
+  font-style: normal;
+  /* local() keeps the fixture self-contained: no binary font file needed. */
+  src: local("Arial"), url("fixture-sans.woff2") format("woff2");
+}
+
+:root {
+  --brand: #b4552d;
+  --brand-ink: #1c1310;
+  --space-section: 96px;
+}
+
+body {
+  margin: 0;
+  font-family: "Fixture Sans", system-ui, sans-serif;
+  color: var(--brand-ink);
+  background: #faf6f2;
+}
+
+section {
+  min-height: 240px;
+  padding: var(--space-section) 24px;
+}
+
+#hero {
+  min-height: 82vh;
+  display: grid;
+  grid-template-columns: 3fr 9fr;
+  gap: 32px;
+  background-color: #f3e9df;
+}
+
+#hero h1 {
+  font-size: clamp(40px, 6vw, 88px);
+  letter-spacing: -0.025em;
+  font-weight: 600;
+  transition: color 0.16s ease-out;
+}
+
+.cta {
+  background: var(--brand);
+  color: #fff;
+  border-radius: 9999px;
+  padding: 12px 28px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+img { max-width: 100%; height: auto; }

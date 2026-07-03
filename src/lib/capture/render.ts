@@ -123,7 +123,18 @@ export async function renderCapture(
         .goto(url, { waitUntil: "domcontentloaded", timeout: 15_000 })
         .then(() => true)
         .catch(() => false);
-      if (!ok) return null;
+      if (!ok) {
+        // Distinct from "no browser": navigation itself failed. Returning an
+        // empty result keeps the downgrade note truthful (no invented cause).
+        return {
+          html: "",
+          viewports: [],
+          cssVariables: {},
+          fonts: [],
+          animations: [],
+          notes: [`navigation failed: ${url}`],
+        };
+      }
 
       await page.waitForLoadState("networkidle", { timeout: 6_000 }).catch(() => {});
 

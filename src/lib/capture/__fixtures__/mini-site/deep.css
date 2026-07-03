@@ -1,0 +1,6 @@
+/* Reached only through @import — proves depth-1 collection over HTTP. */
+footer {
+  padding: 48px 24px;
+  background: #1c1310;
+  color: #f3e9df;
+}
