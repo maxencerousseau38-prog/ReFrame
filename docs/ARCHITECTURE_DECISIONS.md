@@ -29,6 +29,7 @@
 |----|-------------|----------|
 | D1 | `capturedAt` : la spec C1 le disait « injecté par l'appelant » ; implémenté avec défaut interne `new Date().toISOString()` + override (`CaptureInternals.capturedAt`). | Acceptée (2026-07-03) — sans conséquence, documentée dans le code. |
 | D2 | `server/browser.ts` : support `HTTPS_PROXY` non prévu par la spec C1, ajouté pendant le debug de la démo réelle. | Acceptée a posteriori — voir F7 ; tout ajout hors spec doit désormais passer par ce registre AVANT le code. |
+| D3 | Chantier 3 : trois changements **délibérés** du comportement par défaut, mandatés par les objectifs du chantier et la règle d'or no-fabrication : (a) la FAQ n'est plus jamais fabriquée (`defaultFaq` supprimé — section omise sans données réelles, comme testimonials/stats) ; (b) le contenu réel prime (headings de sections, copy CTA, headline du CTA de clôture) ; (c) les libellés générés suivent la langue détectée (en/fr/es/de/it, anglais octet-identique à V5 en fallback). La contrainte « aucun changement du comportement V5 par défaut » est interprétée comme : API/architecture V5 intactes, moteur legacy intact, consommateurs non cassés. | Actée (2026-07-03), tests mis à jour en conséquence. |
 
 ## Limitations d'environnement connues
 

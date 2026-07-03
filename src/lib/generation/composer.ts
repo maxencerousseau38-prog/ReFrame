@@ -34,6 +34,8 @@ import { INDUSTRY_PROFILES } from "./industries";
 import { pickVariant, BLOCK_CATALOG } from "./catalog";
 import { planSmart, type Slot, type Plan } from "./planner";
 import { renderableCategory } from "./structure";
+import { label } from "./labels";
+import { buildContentModel, realHeading, type ContentModel } from "@/lib/understand/content-model";
 
 /* -------------------------------------------------------------------------- */
 /*  Helpers                                                                   */
@@ -147,6 +149,8 @@ interface ContentContext {
   dna: DesignDNA;
   artDirection?: ArtDirection;
   imageIdx: number;
+  /** Real content per scene (V2 Chantier 3) — real headings always win. */
+  model: ContentModel;
 }
 
 /**
@@ -157,9 +161,28 @@ function buildBlockProps(
   slot: Slot,
   ctx: ContentContext
 ): Record<string, unknown> | null {
-  const { analysis, profile, dna } = ctx;
+  const { analysis, profile, dna, model } = ctx;
   const c = analysis.extractedContent;
   const industryProfile = INDUSTRY_PROFILES[analysis.industry];
+  const lang = c.language;
+  // Real heading from the source site first; localized generated label only
+  // as a fallback (V2 Chantier 3 — content is preserved, never replaced).
+  // features/services are one content family: a slot of either category may
+  // be fed by a scene detected as the other, so both headings are consulted.
+  const CATEGORY_ALIASES: Record<string, string[]> = {
+    features: ["features", "services"],
+    services: ["services", "features"],
+    portfolio: ["portfolio", "gallery"],
+    gallery: ["gallery", "portfolio"],
+  };
+  const title = (category: string, key: Parameters<typeof label>[0]): string => {
+    for (const cat of CATEGORY_ALIASES[category] ?? [category]) {
+      const real = cleanText(realHeading(model, cat));
+      if (real) return real;
+    }
+    return label(key, lang);
+  };
+  const primaryCta = cleanText(c.ctaLabel) || industryProfile.cta.primary;
 
   const { artDirection: ad } = ctx;
   // Common DNA props injected into every block
@@ -210,7 +233,7 @@ function buildBlockProps(
         ...dnaProps,
         headline: cleanText(c.headline) || industryProfile.defaults.headline,
         description: cleanText(c.description) || industryProfile.defaults.description,
-        ctaLabel: industryProfile.cta.primary,
+        ctaLabel: primaryCta,
         ctaHref: c.contact?.bookingUrl || "#contact",
         heroImageUrl: c.heroImageUrl || (c.images.length > 0 ? c.images[0] : undefined),
         brandName: analysis.brandName,
@@ -222,7 +245,7 @@ function buildBlockProps(
         imagePosition: dna.heroDirection.imagePosition,
       };
       if (dna.heroDirection.ctaCount >= 2) {
-        props.secondaryCtaLabel = "Learn more";
+        props.secondaryCtaLabel = label("learnMore", lang);
         props.secondaryCtaHref = "#features";
       }
       if (dna.heroDirection.trustIndicators && c.stats?.length) {
@@ -244,7 +267,7 @@ function buildBlockProps(
       if (image) ctx.imageIdx++;
       return {
         ...dnaProps,
-        sectionTitle: "What we offer",
+        sectionTitle: title("features", "features"),
         features: services,
         image,
       };
@@ -254,7 +277,7 @@ function buildBlockProps(
       if (!c.testimonials?.length) return null; // never fabricate
       return {
         ...dnaProps,
-        sectionTitle: "What our clients say",
+        sectionTitle: title("testimonials", "testimonials"),
         testimonials: c.testimonials.slice(0, 6).map((t) => ({
           quote: cleanText(t.quote),
           name: cleanText(t.name),
@@ -278,7 +301,7 @@ function buildBlockProps(
       if (c.images.length < 2) return null; // need real images
       return {
         ...dnaProps,
-        sectionTitle: "Our work",
+        sectionTitle: title("portfolio", "portfolio"),
         images: c.images.slice(0, 8),
         galleryStyle: dna.galleryDirection.style,
         galleryColumns: dna.galleryDirection.columns,
@@ -290,8 +313,9 @@ function buildBlockProps(
     case "about": {
       return {
         ...dnaProps,
-        sectionTitle: "About",
-        headline: cleanText(c.aboutBody ? "Our Story" : analysis.brandName),
+        sectionTitle: title("about", "about"),
+        headline: cleanText(realHeading(model, "about")) ||
+          (c.aboutBody ? label("ourStory", lang) : cleanText(analysis.brandName)),
         description: cleanText(c.aboutBody || c.description || industryProfile.defaults.description),
         image: c.images.length > 1 ? c.images[1] : undefined,
         stats: c.stats,
@@ -299,13 +323,13 @@ function buildBlockProps(
     }
 
     case "faq": {
-      const items = c.faqItems?.length
-        ? c.faqItems.slice(0, 6)
-        : defaultFaq(analysis.industry);
+      // Golden rule (V2 Chantier 3): NEVER fabricate. No real FAQ extracted
+      // → the section is omitted, exactly like testimonials and stats.
+      if (!c.faqItems?.length) return null;
       return {
         ...dnaProps,
-        sectionTitle: "Frequently asked questions",
-        items: items.map((f) => ({
+        sectionTitle: title("faq", "faq"),
+        items: c.faqItems.slice(0, 6).map((f) => ({
           question: cleanText(f.question),
           answer: cleanText(f.answer),
         })),
@@ -320,7 +344,7 @@ function buildBlockProps(
           }));
       return {
         ...dnaProps,
-        sectionTitle: "Our services",
+        sectionTitle: title("services", "services"),
         services: services.map((s) => ({
           title: cleanText("title" in s ? String(s.title) : String(s)),
           description: cleanText("description" in s ? String(s.description) : undefined),
@@ -331,17 +355,21 @@ function buildBlockProps(
     case "cta": {
       return {
         ...dnaProps,
-        headline: cleanText(industryProfile.defaults.headline),
-        ctaLabel: industryProfile.cta.primary,
+        // The client's REAL headline closes the page — never the industry
+        // default when real copy exists (V2 Chantier 3).
+        headline: cleanText(realHeading(model, "cta")) ||
+          cleanText(c.headline) ||
+          cleanText(industryProfile.defaults.headline),
+        ctaLabel: primaryCta,
         ctaHref: c.contact?.bookingUrl || "#contact",
-        secondaryCtaLabel: dna.ctaDirection.hasSecondary ? "Learn more" : undefined,
+        secondaryCtaLabel: dna.ctaDirection.hasSecondary ? label("learnMore", lang) : undefined,
       };
     }
 
     case "contact": {
       return {
         ...dnaProps,
-        sectionTitle: "Get in touch",
+        sectionTitle: title("contact", "contact"),
         email: c.contact?.email,
         phone: c.contact?.phone,
         address: c.contact?.address,
@@ -369,34 +397,9 @@ function buildBlockProps(
   }
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Default FAQ per industry                                                  */
-/* -------------------------------------------------------------------------- */
-
-function defaultFaq(industry: Industry): { question: string; answer: string }[] {
-  const defaults: Partial<Record<Industry, { question: string; answer: string }[]>> = {
-    plumber: [
-      { question: "Do you offer emergency services?", answer: "Yes, we provide 24/7 emergency plumbing services for urgent situations." },
-      { question: "Are you licensed and insured?", answer: "Yes, all our plumbers are fully licensed, insured and certified." },
-      { question: "How quickly can you respond?", answer: "We aim to respond within 1 hour for emergencies and same-day for standard calls." },
-    ],
-    saas: [
-      { question: "Is there a free trial?", answer: "Yes, you can try the platform free for 14 days with no credit card required." },
-      { question: "Can I cancel anytime?", answer: "Absolutely. No long-term contracts, cancel your subscription at any time." },
-      { question: "Do you offer team plans?", answer: "Yes, we offer team and enterprise plans with volume discounts." },
-    ],
-    restaurant: [
-      { question: "Do you take reservations?", answer: "Yes, you can book a table online or by calling us directly." },
-      { question: "Do you cater for dietary requirements?", answer: "Our menu includes vegetarian, vegan and gluten-free options. Please let us know when booking." },
-      { question: "Is there parking available?", answer: "Yes, we have dedicated parking spaces for our guests." },
-    ],
-  };
-  return defaults[industry] || [
-    { question: "How do I get started?", answer: "Simply get in touch through our contact form or give us a call." },
-    { question: "What areas do you serve?", answer: "We serve the local area and surrounding regions. Contact us for specifics." },
-    { question: "Do you offer free consultations?", answer: "Yes, we offer a free initial consultation to understand your needs." },
-  ];
-}
+// defaultFaq was DELETED with V2 Chantier 3: a FAQ section is now omitted
+// when the source site has none, exactly like testimonials and stats
+// (golden rule: never fabricate). See docs/ARCHITECTURE_DECISIONS.md (D3).
 
 /* -------------------------------------------------------------------------- */
 /*  Theme builder                                                             */
@@ -455,7 +458,8 @@ export function compose(analysis: SiteAnalysis, opts: ComposeOptions): SiteSchem
   const theme = buildTheme(analysis, dna, profile);
 
   // 3. Build blocks: Art Direction drives variant + section order when present
-  const ctx: ContentContext = { analysis, profile, dna, artDirection, imageIdx: 0 };
+  const model = buildContentModel(analysis);
+  const ctx: ContentContext = { analysis, profile, dna, artDirection, imageIdx: 0, model };
   const blocks: Block[] = [];
 
   if (artDirection) {
