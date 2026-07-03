@@ -1,13 +1,14 @@
 import { describe, it, expect } from "vitest";
 import { analyzeBusinessProfile } from "./business";
 import { compileDNA } from "./dna";
-import { buildMoodboard, applyMoodboard } from "./references";
+import { buildMoodboard } from "./references";
 import { evaluateQuality } from "./quality-gate";
 import { compose } from "./composer";
 import { runPipeline } from "./pipeline";
 import { artDirect } from "./art-direction";
 import { planSmart } from "./planner";
-import { applyVisualDNA } from "./visual-dna-merge";
+import { resolveTree, type CandidateLayer } from "@/lib/dna/resolver";
+import { measuredLayer, curatedLayer } from "@/lib/dna/candidates";
 import type { SiteAnalysis, Theme } from "./types";
 import { INDUSTRY_PROFILES } from "./industries";
 
@@ -203,7 +204,7 @@ describe("Moodboard", () => {
     expect(moodboard.sections.length).toBe(sections.length);
   });
 
-  it("applies moodboard overrides to DNA", () => {
+  it("applies moodboard overrides to DNA through the resolver (curated layer)", () => {
     const profile = analyzeBusinessProfile(makeAnalysis(), "minimal");
     const moodboard = buildMoodboard(profile, "minimal", ["hero", "features"]);
     const baseDna = compileDNA({
@@ -216,12 +217,23 @@ describe("Moodboard", () => {
       hasStats: true,
       sourceDark: false,
     });
-    const merged = applyMoodboard(baseDna, moodboard);
+    const curated = curatedLayer(moodboard);
+    const resolved = resolveTree(
+      { data: baseDna, source: "preset", origin: "test#compileDNA" },
+      curated ? [curated] : []
+    );
+    const merged = resolved.value;
 
-    // DNA should be modified by the moodboard
     expect(merged.signature).toBe(baseDna.signature); // signature unchanged
-    // Motion should reflect the top reference
-    expect(merged.motion.level).toBeGreaterThanOrEqual(0);
+    // With no measurements, the curated layer wins exactly where it speaks —
+    // value-equivalence with the old applyMoodboard semantics.
+    const o = moodboard.dnaOverrides;
+    if (o.motion) expect(merged.motion).toEqual(o.motion);
+    if (o.heroDirection) expect(merged.heroDirection).toEqual(o.heroDirection);
+    if (o.rhythm) expect(merged.rhythm).toEqual(o.rhythm);
+    // …and stays preset everywhere it doesn't (old applyMoodboard kept these).
+    expect(merged.typeScale).toEqual(baseDna.typeScale);
+    expect(merged.galleryDirection).toEqual(baseDna.galleryDirection);
   });
 });
 
@@ -372,9 +384,13 @@ describe("ArtDirection", () => {
       hasStats: (analysis.extractedContent.stats?.length || 0) > 0,
       sourceDark: analysis.sourceDark || false,
     });
-    const visualDNA = applyVisualDNA(baseDNA, analysis.visualDna);
-    const dna = applyMoodboard(visualDNA, buildMoodboard(profile, mood, plan.slots.map(s => s.type)));
     const moodboard = buildMoodboard(profile, mood, plan.slots.map(s => s.type));
+    const layers = [measuredLayer(analysis.visualDna), curatedLayer(moodboard)]
+      .filter((l): l is CandidateLayer => l !== undefined);
+    const dna = resolveTree(
+      { data: baseDNA, source: "preset", origin: "test#compileDNA" },
+      layers
+    ).value;
     return { ad: artDirect(profile, dna, moodboard, analysis, plan), profile, dna, analysis };
   }
 

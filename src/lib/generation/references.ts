@@ -343,30 +343,7 @@ function explainScore(
   return parts.join(", ") || "general fit";
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Moodboard-aware DNA merging                                               */
-/* -------------------------------------------------------------------------- */
-
-/**
- * Merge moodboard overrides into a base DesignDNA. The moodboard's top
- * reference refines the tier-based DNA with actual design precedent, making
- * the output feel less algorithmic and more curated.
- *
- * Only overrides present in the moodboard are applied — the base DNA
- * (from compileDNA) stays intact for anything the moodboard doesn't specify.
- */
-export function applyMoodboard(base: DesignDNA, moodboard: Moodboard): DesignDNA {
-  const o = moodboard.dnaOverrides;
-  return {
-    ...base,
-    rhythm: o.rhythm ? { ...base.rhythm, ...o.rhythm } : base.rhythm,
-    cardSystem: o.cardSystem ? { ...base.cardSystem, ...o.cardSystem } : base.cardSystem,
-    heroDirection: o.heroDirection ? { ...base.heroDirection, ...o.heroDirection } : base.heroDirection,
-    motion: o.motion ? { ...base.motion, ...o.motion } : base.motion,
-    ctaDirection: o.ctaDirection ? { ...base.ctaDirection, ...o.ctaDirection } : base.ctaDirection,
-    colorStrategy: o.colorStrategy ? { ...base.colorStrategy, ...o.colorStrategy } : base.colorStrategy,
-    // TypeScale and GalleryDirection stay from the base DNA — these are
-    // strongly font/industry-dependent and the tier-based defaults are more
-    // reliable than a reference's opinionated pairing.
-  };
-}
+// applyMoodboard was deleted with V2 Chantier 2: the moodboard's dnaOverrides
+// now feed the single merge point as a CURATED candidate layer
+// (dna/candidates.ts#curatedLayer → dna/resolver.ts#resolveTree), so measured
+// values can never be overwritten by a reference again (invariant I1).

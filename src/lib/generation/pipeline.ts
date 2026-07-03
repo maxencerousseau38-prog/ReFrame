@@ -23,13 +23,16 @@ import type { QualityScore } from "./quality-gate";
 import type { ArtDirection } from "./art-direction";
 import { analyzeBusinessProfile } from "./business";
 import { compileDNA } from "./dna";
-import { applyVisualDNA } from "./visual-dna-merge";
-import { buildMoodboard, applyMoodboard } from "./references";
+import { buildMoodboard } from "./references";
 import { artDirect } from "./art-direction";
 import { compose } from "./composer";
 import { evaluateQuality } from "./quality-gate";
 import { INDUSTRY_PROFILES } from "./industries";
 import { planSmart } from "./planner";
+import { resolveTree } from "@/lib/dna/resolver";
+import { measuredLayer, curatedLayer } from "@/lib/dna/candidates";
+import type { PipelineTrace } from "@/lib/dna/provenance";
+import type { CandidateLayer } from "@/lib/dna/resolver";
 
 /* -------------------------------------------------------------------------- */
 /*  Pipeline result                                                           */
@@ -49,6 +52,8 @@ export interface PipelineResult {
   quality: QualityScore;
   /** Number of quality iterations performed (0 = passed first try). */
   iterations: number;
+  /** Provenance of every DNA field: why this value, what was rejected (V2). */
+  trace: PipelineTrace;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -77,7 +82,7 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
   // Phase 3: Reference Engine
   const moodboard = buildMoodboard(profile, mood, sectionTypes);
 
-  // Phase 4: DNA Compilation
+  // Phase 4: DNA Compilation (preset layer — the shape authority)
   const baseDNA = compileDNA({
     profile,
     industry: analysis.industry,
@@ -89,12 +94,28 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
     sourceDark: analysis.sourceDark || false,
   });
 
-  // Phase 4.5: Apply Visual DNA measurements (overrides preset-based DNA
-  // with real measurements from the source site's artistic decisions)
-  const visualDNA = applyVisualDNA(baseDNA, analysis.visualDna);
+  // Phase 4.5: single merge point (V2 invariant I1). Measured beats curated
+  // beats preset, leaf by leaf — the moodboard can only fill what the source
+  // site's measurements did not provide. Every decision lands in the trace.
+  const layers = [
+    measuredLayer(analysis.visualDna),
+    curatedLayer(moodboard),
+  ].filter((l): l is CandidateLayer => l !== undefined);
 
-  // Merge moodboard refinements into the visual-refined DNA
-  const dna = applyMoodboard(visualDNA, moodboard);
+  const resolved = resolveTree(
+    {
+      data: {
+        ...baseDNA,
+        // Signature semantics preserved from V5: "+vdna" marks a run that had
+        // real measurements available.
+        signature: analysis.visualDna ? `${baseDNA.signature}+vdna` : baseDNA.signature,
+      },
+      source: "preset",
+      origin: "generation/dna.ts#compileDNA",
+    },
+    layers
+  );
+  const dna = resolved.value;
 
   // Phase 4.75: Art Director — produces the creative brief
   const artDirection = artDirect(profile, dna, moodboard, analysis, plan);
@@ -122,6 +143,7 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
     artDirection,
     quality,
     iterations,
+    trace: resolved.trace,
   };
 }
 
