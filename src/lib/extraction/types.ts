@@ -181,6 +181,10 @@ export interface ExtractionResult {
   content: {
     headline: string;
     description: string;
+    /** ISO 639-1 language of the source content (V2 Chantier 3). */
+    language?: string;
+    /** The site's real primary call-to-action copy (V2 Chantier 3). */
+    primaryCtaLabel?: string;
     aboutBody?: string;
     services?: { title: string; description?: string }[];
     projects?: {

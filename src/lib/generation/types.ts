@@ -224,6 +224,11 @@ export interface SiteAnalysis {
   extractedContent: {
     headline: string;
     description: string;
+    /** ISO 639-1 language of the source content — generated labels follow it
+     *  (V2 Chantier 3). Absent when detection was inconclusive. */
+    language?: string;
+    /** The site's REAL primary call-to-action copy (V2 Chantier 3). */
+    ctaLabel?: string;
     services: string[];
     heroImageUrl?: string;
     images: string[];

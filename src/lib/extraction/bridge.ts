@@ -56,6 +56,8 @@ export function toSiteAnalysis(ext: ExtractionResult): SiteAnalysis {
     extractedContent: {
       headline: ext.content.headline || profile.defaults.headline,
       description: ext.content.description || profile.defaults.description,
+      language: ext.content.language,
+      ctaLabel: ext.content.primaryCtaLabel,
       services: ext.content.services?.map((s) => s.title) ?? profile.defaults.services,
       heroImageUrl: ext.images.hero,
       images: ext.images.gallery,

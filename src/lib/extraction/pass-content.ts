@@ -1,5 +1,6 @@
 import type { HTMLElement } from "node-html-parser";
 import type { PassContext, PassResult, ExtractionResult } from "./types";
+import { detectLanguage } from "./language";
 import {
   extractProse,
   extractTestimonials,
@@ -153,6 +154,34 @@ function parseJsonLd(root: HTMLElement): JsonLd {
 // ---------------------------------------------------------------------------
 
 const GENERIC_HEADLINES = /^(home|welcome|untitled|page|index)$/i;
+
+// ---------------------------------------------------------------------------
+// Primary CTA label — the site's REAL call-to-action copy (V2 Chantier 3).
+// Mechanical rule: the first non-generic link/button near the h1, outside nav.
+// ---------------------------------------------------------------------------
+
+const GENERIC_CTA =
+  /^(home|menu|login|log ?in|sign ?in|accueil|connexion|cookies?|accept(er)?|ok|close|fermer|search|rechercher|skip.*)$/i;
+
+function extractPrimaryCtaLabel(root: HTMLElement): string | undefined {
+  const h1 = root.querySelector("h1");
+  if (!h1) return undefined;
+
+  // Widen the scope one ancestor at a time (h1 wrapper → hero section → …)
+  // and take the first plausible action found outside the navigation.
+  let scope: HTMLElement | null = h1.parentNode as HTMLElement | null;
+  for (let depth = 0; scope && depth < 4; depth++) {
+    for (const el of scope.querySelectorAll("a[href], button")) {
+      if (el.closest("nav")) continue;
+      const text = clean(el.text);
+      if (text.length >= 2 && text.length <= 32 && !GENERIC_CTA.test(text)) {
+        return text;
+      }
+    }
+    scope = scope.parentNode as HTMLElement | null;
+  }
+  return undefined;
+}
 
 // ---------------------------------------------------------------------------
 // Pass 2 — Real content extraction
@@ -506,6 +535,13 @@ export async function runContentPass(ctx: PassContext): Promise<PassResult> {
     headline,
     description,
   };
+
+  // V2 Chantier 3 — real language + real CTA copy (absent when not found,
+  // never guessed; downstream fallbacks stay visible in the provenance).
+  const language = detectLanguage(root, bodyText);
+  if (language) content.language = language.lang;
+  const primaryCtaLabel = extractPrimaryCtaLabel(root);
+  if (primaryCtaLabel) content.primaryCtaLabel = primaryCtaLabel;
 
   if (aboutBody) content.aboutBody = aboutBody;
   if (services) content.services = services;
