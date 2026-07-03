@@ -1,0 +1,299 @@
+/**
+ * V2 CAPTURE — the in-page snapshot script (Tier 2).
+ *
+ * `collectSnapshot` is passed to page.evaluate(): it MUST stay fully
+ * self-contained (no imports, no outer-scope closures) so Playwright can
+ * serialize it into the browser context. It only reads the DOM — collection,
+ * never interpretation (charter): node selection is mechanical (tag +
+ * visibility + size), block typing is left to MEASURE (Chantier 6).
+ *
+ * Spec: docs/V2_CHANTIER1_CAPTURE_SPEC.md §6.2
+ */
+
+import type {
+  ComputedNodeStyle,
+  RawBlockGeometry,
+  FontFaceRecord,
+  CssAnimationRecord,
+} from "./types";
+
+/** Fixed subset of computed properties collected per structural node. */
+export const COMPUTED_PROPS = [
+  // colors
+  "color",
+  "backgroundColor",
+  "backgroundImage",
+  "borderColor",
+  // typography
+  "fontFamily",
+  "fontSize",
+  "fontWeight",
+  "lineHeight",
+  "letterSpacing",
+  "textTransform",
+  "textAlign",
+  // box
+  "display",
+  "position",
+  "paddingTop",
+  "paddingBottom",
+  "paddingLeft",
+  "paddingRight",
+  "marginTop",
+  "marginBottom",
+  "gap",
+  "borderRadius",
+  "boxShadow",
+  "opacity",
+  "overflow",
+  "zIndex",
+  // grid / flex / sizing
+  "gridTemplateColumns",
+  "gridTemplateRows",
+  "flexDirection",
+  "justifyContent",
+  "alignItems",
+  "maxWidth",
+  "width",
+  "height",
+  // motion
+  "transitionProperty",
+  "transitionDuration",
+  "transitionTimingFunction",
+  "transitionDelay",
+  "animationName",
+  "animationDuration",
+  "transform",
+  "filter",
+  "backdropFilter",
+] as const;
+
+/** Everything one evaluate() pass returns for a viewport. */
+export interface SnapshotResult {
+  nodes: ComputedNodeStyle[];
+  blocks: RawBlockGeometry[];
+  cssVariables: Record<string, string>;
+  fonts: FontFaceRecord[];
+  animations: CssAnimationRecord[];
+  scrollHeight: number;
+}
+
+/** Caps (spec §6.2) — passed into the page so the script stays data-driven. */
+export const SNAPSHOT_LIMITS = {
+  maxBlocks: 80,
+  maxNodes: 400,
+  maxCssVariables: 200,
+  maxAnimations: 100,
+  minBlockHeight: 40,
+  textSlice: 160,
+} as const;
+
+export type SnapshotLimits = typeof SNAPSHOT_LIMITS;
+
+/**
+ * Runs INSIDE the browser. Self-contained by contract — verified by a unit
+ * test that its source references neither `import` nor `require`.
+ */
+export function collectSnapshot(args: {
+  props: readonly string[];
+  limits: SnapshotLimits;
+}): SnapshotResult {
+  const { props, limits } = args;
+  const doc = document;
+
+  /* ---- helpers (all local: the function must serialize) ---- */
+
+  const cssPath = (el: Element): string => {
+    const parts: string[] = [];
+    let cur: Element | null = el;
+    while (cur && cur !== doc.body && parts.length < 12) {
+      const tag = cur.tagName.toLowerCase();
+      let index = 1;
+      let sib = cur.previousElementSibling;
+      while (sib) {
+        if (sib.tagName === cur.tagName) index++;
+        sib = sib.previousElementSibling;
+      }
+      parts.unshift(`${tag}:nth-of-type(${index})`);
+      cur = cur.parentElement;
+    }
+    return parts.join(" > ") || "body";
+  };
+
+  const rectOf = (el: Element) => {
+    const r = el.getBoundingClientRect();
+    return {
+      x: Math.round(r.x + window.scrollX),
+      y: Math.round(r.y + window.scrollY),
+      width: Math.round(r.width),
+      height: Math.round(r.height),
+    };
+  };
+
+  const visible = (el: Element): boolean => {
+    const r = el.getBoundingClientRect();
+    if (r.width <= 0 || r.height <= 0) return false;
+    const cs = getComputedStyle(el);
+    return cs.display !== "none" && cs.visibility !== "hidden";
+  };
+
+  const pickStyles = (el: Element): Record<string, string> => {
+    const cs = getComputedStyle(el);
+    const out: Record<string, string> = {};
+    for (const p of props) {
+      const v = cs[p as keyof CSSStyleDeclaration];
+      if (typeof v === "string" && v !== "") out[p as string] = v;
+    }
+    return out;
+  };
+
+  const textOf = (el: Element): string =>
+    (el.textContent || "").replace(/\s+/g, " ").trim().slice(0, limits.textSlice);
+
+  /* ---- block candidates: mechanical selection, no semantics ---- */
+
+  const candidateSet = new Set<Element>();
+  const addChildren = (parent: Element | null) => {
+    if (!parent) return;
+    for (const child of Array.from(parent.children)) candidateSet.add(child);
+  };
+  addChildren(doc.body);
+  addChildren(doc.querySelector("main"));
+  for (const el of Array.from(doc.querySelectorAll("section, header, footer, nav"))) {
+    candidateSet.add(el);
+  }
+
+  const blockEls = Array.from(candidateSet)
+    .filter((el) => !["SCRIPT", "STYLE", "LINK", "TEMPLATE", "NOSCRIPT"].includes(el.tagName))
+    .filter(visible)
+    .filter((el) => el.getBoundingClientRect().height >= limits.minBlockHeight)
+    .sort((a, b) => rectOf(a).y - rectOf(b).y)
+    .slice(0, limits.maxBlocks);
+
+  const blocks: RawBlockGeometry[] = blockEls.map((el) => {
+    const cs = getComputedStyle(el);
+    const heading = el.querySelector("h1, h2, h3");
+    return {
+      path: cssPath(el),
+      rect: rectOf(el),
+      backgroundColor: cs.backgroundColor,
+      backgroundImage: cs.backgroundImage,
+      childCount: el.children.length,
+      headingText: heading ? textOf(heading) || null : null,
+    };
+  });
+
+  /* ---- structural nodes inside each block ---- */
+
+  const nodes: ComputedNodeStyle[] = [];
+  const pushNode = (el: Element, role: ComputedNodeStyle["role"], withText: boolean) => {
+    if (nodes.length >= limits.maxNodes) return;
+    nodes.push({
+      path: cssPath(el),
+      tag: el.tagName.toLowerCase(),
+      role,
+      ...(withText ? { text: textOf(el) } : {}),
+      rect: rectOf(el),
+      styles: pickStyles(el),
+    });
+  };
+
+  for (const el of blockEls) {
+    const tag = el.tagName.toLowerCase();
+    pushNode(el, tag === "nav" ? "nav" : "block", false);
+
+    const heading = el.querySelector("h1, h2, h3, h4");
+    if (heading && visible(heading)) pushNode(heading, "heading", true);
+
+    const para = el.querySelector("p");
+    if (para && visible(para)) pushNode(para, "text", true);
+
+    const media = el.querySelector("img, picture, video, svg");
+    if (media && visible(media)) pushNode(media, "media", false);
+
+    const actions = Array.from(el.querySelectorAll("a[href], button"))
+      .filter(visible)
+      .slice(0, 3);
+    for (const a of actions) pushNode(a, "action", true);
+
+    if (nodes.length >= limits.maxNodes) break;
+  }
+
+  /* ---- :root custom properties (design tokens, collected verbatim) ---- */
+
+  const cssVariables: Record<string, string> = {};
+  const rootStyle = getComputedStyle(doc.documentElement);
+  let varCount = 0;
+  for (let i = 0; i < rootStyle.length && varCount < limits.maxCssVariables; i++) {
+    const name = rootStyle[i];
+    if (name && name.indexOf("--") === 0) {
+      cssVariables[name] = rootStyle.getPropertyValue(name).trim();
+      varCount++;
+    }
+  }
+
+  /* ---- loaded fonts ---- */
+
+  const fonts: FontFaceRecord[] = [];
+  try {
+    const seen = new Set<string>();
+    (doc.fonts as unknown as { forEach: (cb: (f: FontFace) => void) => void }).forEach(
+      (f: FontFace) => {
+        if (f.status !== "loaded") return;
+        const family = f.family.replace(/^["']|["']$/g, "");
+        const key = `${family}|${f.weight}|${f.style}`;
+        if (seen.has(key)) return;
+        seen.add(key);
+        fonts.push({ family, weight: f.weight, style: f.style, src: null, status: "loaded" });
+      }
+    );
+  } catch {
+    /* document.fonts unavailable → fonts stays empty; quality reports it */
+  }
+
+  /* ---- animations & transitions ---- */
+
+  const animations: CssAnimationRecord[] = [];
+  try {
+    const anims = doc.getAnimations ? doc.getAnimations() : [];
+    for (const a of anims.slice(0, limits.maxAnimations)) {
+      const effect = a.effect as KeyframeEffect | null;
+      const target = effect && (effect.target as Element | null);
+      if (!target) continue;
+      const timing = effect.getTiming();
+      const duration = typeof timing.duration === "number" ? timing.duration : 0;
+      let kind: CssAnimationRecord["kind"] = "webAnimation";
+      let properties: string[] = [];
+      const ctor = (a as unknown as { constructor: { name: string } }).constructor.name;
+      if (ctor === "CSSTransition") {
+        kind = "transition";
+        properties = [(a as unknown as { transitionProperty: string }).transitionProperty];
+      } else if (ctor === "CSSAnimation") {
+        kind = "animation";
+        properties = [(a as unknown as { animationName: string }).animationName];
+      }
+      animations.push({
+        path: cssPath(target),
+        kind,
+        properties,
+        duration,
+        easing: String(timing.easing || ""),
+        delay: typeof timing.delay === "number" ? timing.delay : 0,
+      });
+    }
+  } catch {
+    /* getAnimations unsupported → empty; quality notes it */
+  }
+
+  return {
+    nodes,
+    blocks,
+    cssVariables,
+    fonts,
+    animations,
+    scrollHeight: Math.max(
+      doc.documentElement.scrollHeight || 0,
+      doc.body ? doc.body.scrollHeight : 0
+    ),
+  };
+}

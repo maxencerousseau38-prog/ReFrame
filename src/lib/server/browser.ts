@@ -52,7 +52,7 @@ export async function localBrowserReady(): Promise<boolean> {
  */
 export async function withPage<T>(
   fn: (page: Page) => Promise<T>,
-  opts: { timeoutMs?: number } = {}
+  opts: { timeoutMs?: number; viewport?: { width: number; height: number } } = {}
 ): Promise<T | null> {
   const browser = await getBrowser();
   if (!browser) return null;
@@ -60,7 +60,7 @@ export async function withPage<T>(
   try {
     context = await browser.newContext({
       userAgent: UA,
-      viewport: { width: 1280, height: 800 },
+      viewport: opts.viewport ?? { width: 1280, height: 800 },
       ignoreHTTPSErrors: true,
     });
     const page = await context.newPage();
