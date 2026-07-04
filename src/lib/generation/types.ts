@@ -227,6 +227,8 @@ export interface SiteAnalysis {
    *  Present only when a Tier 2 capture ran; consumed by the resolver and,
    *  for palette/exact fonts, by the C5 token compiler. */
   measuredTokens?: import("@/lib/measure/tokens").MeasuredTokens;
+  /** Scene-by-scene measurements of the rendered source (V2 Chantier 6). */
+  measuredScenes?: import("@/lib/measure/scenes").SceneMeasurement;
   navItems: string[];
   extractedContent: {
     headline: string;

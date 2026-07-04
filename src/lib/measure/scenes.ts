@@ -423,6 +423,20 @@ function rgbToHex(css: string): string | null {
 
 const round2 = (n: number): number => Math.round(n * 100) / 100;
 
+/** F16: the hero's real primary CTA label, measured from computed "action"
+ *  nodes (geometry + styles) — supersedes the Tier-1 DOM heuristic when a
+ *  rendered capture exists. */
+export function heroCtaLabel(m: SceneMeasurement): MeasuredValue<string> | undefined {
+  const hero = m.scenes.find((s) => s.type === "hero");
+  const label = hero?.ctas[0]?.label?.trim();
+  if (!hero || !label) return undefined;
+  return {
+    value: label,
+    confidence: Math.min(0.9, hero.typeConfidence),
+    origin: `measure/scenes.ts#heroCtaLabel@${m.viewport}`,
+  };
+}
+
 /** Convenience for downstream layers: scenes as MeasuredValue-style entries. */
 export function sceneOrderMeasured(m: SceneMeasurement): MeasuredValue<string[]> | undefined {
   if (m.scenes.length === 0) return undefined;

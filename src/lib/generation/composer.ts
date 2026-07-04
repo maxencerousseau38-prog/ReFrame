@@ -498,7 +498,9 @@ export function compose(analysis: SiteAnalysis, opts: ComposeOptions): SiteSchem
     }
   } else {
     // Legacy mode: Composer decides variants (backward compatibility)
-    const plan = planSmart(analysis.structure, industry);
+    const plan = planSmart(analysis.structure, industry, {
+      hasFaq: (analysis.extractedContent.faqItems?.length ?? 0) > 0,
+    });
     for (const slot of plan.slots) {
       const variant = pickVariantWithDNA(slot.category, industry, analysis.brandName, mood, dna);
       const props = buildBlockProps(slot, ctx);

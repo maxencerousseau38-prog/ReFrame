@@ -31,6 +31,8 @@ import { INDUSTRY_PROFILES } from "./industries";
 import { planSmart } from "./planner";
 import { resolveTree } from "@/lib/dna/resolver";
 import { measuredLayer, curatedLayer, tokensLayer } from "@/lib/dna/candidates";
+import { contentTraceEntries } from "@/lib/dna/content-trace";
+import { buildContentModel } from "@/lib/understand/content-model";
 import type { PipelineTrace } from "@/lib/dna/provenance";
 import type { CandidateLayer } from "@/lib/dna/resolver";
 
@@ -75,8 +77,12 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
   // Phase 1: Business Intelligence
   const profile = analyzeBusinessProfile(analysis, mood);
 
-  // Phase 2: Plan sections (to know what the moodboard needs to cover)
-  const plan = planSmart(analysis.structure, analysis.industry);
+  // Phase 2: Plan sections (to know what the moodboard needs to cover).
+  // F14: the plan knows whether a real FAQ exists — it never plans a section
+  // the composer will refuse to fabricate.
+  const plan = planSmart(analysis.structure, analysis.industry, {
+    hasFaq: (analysis.extractedContent.faqItems?.length ?? 0) > 0,
+  });
   const sectionTypes = plan.slots.map((s) => s.type);
 
   // Phase 3: Reference Engine
@@ -144,7 +150,9 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
     artDirection,
     quality,
     iterations,
-    trace: resolved.trace,
+    // F15: DNA provenance + content provenance (language, headings, CTA) —
+    // "why this heading?" is now answerable from the same trace.
+    trace: [...resolved.trace, ...contentTraceEntries(buildContentModel(analysis), analysis)],
   };
 }
 

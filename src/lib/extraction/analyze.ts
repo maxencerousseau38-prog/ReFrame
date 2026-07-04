@@ -10,6 +10,7 @@ import {
 import { canRender, renderHtml } from "@/lib/server/render";
 import { captureSite, type RenderedSite } from "@/lib/capture";
 import { measureTokens } from "@/lib/measure/tokens";
+import { measureScenes, heroCtaLabel } from "@/lib/measure/scenes";
 import { extractSite } from "./pipeline";
 import { toSiteAnalysis } from "./bridge";
 
@@ -86,5 +87,13 @@ export async function analyzeUrlV2WithCapture(
   // V2 Chantier 4: real tokens measured on the rendered capture, attached
   // additively — the resolver consumes them with per-field confidence.
   analysis.measuredTokens = measureTokens(captured);
+  // V2 Chantier 6: scene-by-scene measurements. The hero CTA measured from
+  // computed styles supersedes the Tier-1 DOM heuristic (F16) — a
+  // higher-fidelity measurement of the same source.
+  analysis.measuredScenes = measureScenes(captured);
+  const measuredCta = heroCtaLabel(analysis.measuredScenes);
+  if (measuredCta && measuredCta.confidence >= 0.4) {
+    analysis.extractedContent.ctaLabel = measuredCta.value;
+  }
   return { analysis, captured };
 }

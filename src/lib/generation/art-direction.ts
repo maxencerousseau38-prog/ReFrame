@@ -884,7 +884,9 @@ export function artDirect(
   const testimonialLayout = directTestimonialLayout(hasTestimonials, mood, seed);
   const galleryStyleVal = directGalleryStyle(analysis, dna, mood, seed);
   const ctaPositioning = directCtaPositioning(pageStorytelling, seed);
-  const faqLayout = directFaqLayout(hasFaq || true, mood, seed); // FAQ always available (defaults exist)
+  // F14: no more "|| true" — a FAQ layout is only directed when a real FAQ
+  // exists (defaults were deleted with the no-fabrication rule, C3).
+  const faqLayout = directFaqLayout(hasFaq, mood, seed);
   const footerComposition = directFooterComposition(mood, profile, seed);
   const splitSections = directSplitSections(sectionOrder, profile, seed);
   const editorialSectionsList = directEditorialSections(sectionOrder, profile, luxuryLevel, seed);

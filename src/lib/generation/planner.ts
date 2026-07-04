@@ -100,12 +100,21 @@ const INDUSTRY_FLOW: Record<string, BlockType[]> = {
 };
 
 /** Smart: a premium per-trade composition (identity preserved, empty sections
- *  dropped); falls back to Preserve + conversion tuning for unknown sectors. */
-export function planSmart(structure?: SiteStructure, industry?: string): Plan {
+ *  dropped); falls back to Preserve + conversion tuning for unknown sectors.
+ *  `opts.hasFaq === false` (V2 Chantier 6d, F14): the source has no real FAQ —
+ *  no FAQ slot is planned and no "Added an FAQ" recommendation is emitted, so
+ *  the plan never describes a section the composer will refuse to fabricate. */
+export function planSmart(
+  structure?: SiteStructure,
+  industry?: string,
+  opts?: { hasFaq?: boolean }
+): Plan {
+  const noFaq = opts?.hasFaq === false;
   const flow = industry ? INDUSTRY_FLOW[industry] : undefined;
   if (flow) {
+    const kept = noFaq ? flow.filter((t) => t !== "faq") : flow;
     return {
-      slots: anchor(flow.map((t) => slot(t))),
+      slots: anchor(kept.map((t) => slot(t))),
       recommendations: [
         {
           action: `Composed a premium ${industry} layout`,
@@ -119,9 +128,13 @@ export function planSmart(structure?: SiteStructure, industry?: string): Plan {
   const recs: Recommendation[] = [];
 
   // Work on the middle only; keep hero first and footer last.
+  // F14: the canonical/preserved base may carry a FAQ slot — drop it too
+  // when the source has no real FAQ.
   const hero = base.slots[0];
   const footer = base.slots[base.slots.length - 1];
-  const middle = base.slots.slice(1, -1);
+  const middle = base.slots
+    .slice(1, -1)
+    .filter((s) => !(noFaq && s.category === "faq"));
 
   const has = (cat: BlockType) => middle.some((s) => s.category === cat);
   const indexOfCat = (cat: BlockType) => middle.findIndex((s) => s.category === cat);
@@ -143,8 +156,9 @@ export function planSmart(structure?: SiteStructure, industry?: string): Plan {
     recs.push({ action: "Moved testimonials below the value sections", reason: "Proof lands harder after the offer is made." });
   }
 
-  // 3. FAQ to handle objections, before contact.
-  if (!has("faq")) {
+  // 3. FAQ to handle objections, before contact — only when the source has a
+  //    REAL one (F14: never plan or claim a section that won't exist).
+  if (!has("faq") && !noFaq) {
     const ci = indexOfCat("contact");
     middle.splice(ci >= 0 ? ci : middle.length, 0, slot("faq"));
     recs.push({ action: "Added an FAQ", reason: "Answering objections before the ask reduces drop-off." });
