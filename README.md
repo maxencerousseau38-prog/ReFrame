@@ -74,3 +74,18 @@ src/
 - Swap `applyAiEdit` for a real LLM call (Claude) behind an API key.
 - Add Auth + persist projects in a database instead of `sessionStorage`.
 - Make `publish-site` a real export / edge deploy with custom domains.
+
+## Graphify (knowledge graph)
+
+The repo maintains a code knowledge graph in `graphify-out/` (gitignored,
+auto-rebuilt by a post-commit hook — see `graphify hook status`).
+
+- **Rebuild from scratch**: `graphify src` (code-only; docs/images need an
+  LLM key — see `.env.example`, no code change required)
+- **Incremental update**: `graphify update .` (AST-only, no API cost)
+- **Query the architecture**: `graphify query "how is the DNA resolved?"`,
+  `graphify explain "resolveTree"`, `graphify path "captureSite" "runPipeline"`
+- **Diagrams**: `graphify export callflow-html` (Mermaid architecture/call-flow)
+
+Agents: the rules in `CLAUDE.md` make Claude Code query the graph before
+reading raw sources, and refresh it after code changes.
