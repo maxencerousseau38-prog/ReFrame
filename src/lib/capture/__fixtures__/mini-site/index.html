@@ -11,35 +11,42 @@
   </style>
 </head>
 <body>
-  <header>
-    <nav>
-      <a href="#atelier">Atelier</a>
-      <a href="#realisations">Réalisations</a>
-      <a href="#contact" class="badge">Devis</a>
-    </nav>
-  </header>
+  <!-- Framer-like structure (F1 proof): the real sections live under TWO
+       full-page wrapper divs; one "section" is a bare div with no semantic
+       tag at all — only the geometric wrapper descent can surface it. -->
+  <div class="fr-root">
+    <div class="fr-stack">
+      <header>
+        <nav>
+          <a href="#atelier">Atelier</a>
+          <a href="#realisations">Réalisations</a>
+          <a href="#contact" class="badge">Devis</a>
+        </nav>
+      </header>
 
-  <section id="hero">
-    <h1>Menuiserie d'art à Grenoble</h1>
-    <p>Pièces uniques en bois massif, dessinées et fabriquées à la main depuis 1987.</p>
-    <a href="#contact" class="cta">Discuter de votre projet</a>
-    <img src="workshop.svg" alt="L'atelier" width="640" height="360">
-  </section>
+      <section id="hero">
+        <h1>Menuiserie d'art à Grenoble</h1>
+        <p>Pièces uniques en bois massif, dessinées et fabriquées à la main depuis 1987.</p>
+        <a href="#contact" class="cta">Discuter de votre projet</a>
+        <img src="workshop.svg" alt="L'atelier" width="640" height="360">
+      </section>
 
-  <section id="realisations">
-    <h2>Réalisations récentes</h2>
-    <img src="workshop.svg" alt="Bibliothèque sur mesure" width="320" height="180" loading="lazy">
-    <img src="workshop.svg" alt="Escalier hélicoïdal" width="320" height="180" loading="lazy">
-  </section>
+      <div data-framer-name="Gallery" id="realisations">
+        <h2>Réalisations récentes</h2>
+        <img src="workshop.svg" alt="Bibliothèque sur mesure" width="320" height="180" loading="lazy">
+        <img src="workshop.svg" alt="Escalier hélicoïdal" width="320" height="180" loading="lazy">
+      </div>
 
-  <section id="contact">
-    <h2>Contact</h2>
-    <p>04 76 00 00 00 — atelier@lumiere.example</p>
-    <button type="button">Demander un devis</button>
-  </section>
+      <div id="contact">
+        <h2>Contact</h2>
+        <p>04 76 00 00 00 — atelier@lumiere.example</p>
+        <button type="button">Demander un devis</button>
+      </div>
 
-  <footer>
-    <p>© Atelier Lumière</p>
-  </footer>
+      <footer>
+        <p>© Atelier Lumière</p>
+      </footer>
+    </div>
+  </div>
 </body>
 </html>

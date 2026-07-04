@@ -80,6 +80,26 @@ describe.skipIf(!AUDIT)("captureSite — Chromium integration (fixture)", () => 
       expect(v.blocks.length).toBeGreaterThanOrEqual(3);
       expect(v.scrollHeight).toBeGreaterThan(0);
     }
+
+    // F1: the real sections live under TWO full-page wrappers, one of them a
+    // bare div — the geometric descent must surface them all the same.
+    const blocks1440 = site.viewports.find((v) => v.viewport === 1440)!.blocks;
+    const headings = blocks1440.map((b) => b.headingText).filter(Boolean);
+    expect(headings.some((h) => h!.includes("Menuiserie"))).toBe(true);      // hero <section>
+    expect(headings.some((h) => h!.includes("Réalisations"))).toBe(true);    // data-framer-name div
+    expect(headings.some((h) => h!.includes("Contact"))).toBe(true);         // bare div — descent only
+    // …and the page-covering wrappers themselves are NOT reported as blocks.
+    const pageTall = blocks1440.filter((b) => b.rect.height >= site.viewports[0].scrollHeight * 0.85);
+    expect(pageTall).toHaveLength(0);
+
+    // F3: paths are unique within each list (blocks ∩ nodes MAY share a path —
+    // that is the join key between geometry and styles of the same element).
+    for (const v of site.viewports) {
+      const blockPaths = v.blocks.map((b) => b.path);
+      expect(new Set(blockPaths).size).toBe(blockPaths.length);
+      const nodePaths = v.nodes.map((n) => n.path);
+      expect(new Set(nodePaths).size).toBe(nodePaths.length);
+    }
     expect(site.quality.screenshots).toHaveLength(3);
     expect(site.quality.geometry).toBe(true);
     expect(site.quality.computedSnapshot).toBe(true);

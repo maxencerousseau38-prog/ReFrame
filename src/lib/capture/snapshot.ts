@@ -110,10 +110,24 @@ export function collectSnapshot(args: {
 
   /* ---- helpers (all local: the function must serialize) ---- */
 
+  // F3: paths are root-anchored up to 16 ancestors; a truncated path is
+  // explicitly marked ("… > ") so it can never be mistaken for a queryable
+  // selector, and a per-snapshot registry guarantees UNIQUENESS (deep DOMs
+  // could collide after truncation). A WeakMap caches the assigned path so
+  // the same element always reports the same identity within one snapshot.
+  const pathCache = new WeakMap<Element, string>();
+  const pathCounts: Record<string, number> = {};
   const cssPath = (el: Element): string => {
+    const cached = pathCache.get(el);
+    if (cached) return cached;
     const parts: string[] = [];
     let cur: Element | null = el;
-    while (cur && cur !== doc.body && parts.length < 12) {
+    let truncated = false;
+    while (cur && cur !== doc.body) {
+      if (parts.length >= 16) {
+        truncated = true;
+        break;
+      }
       const tag = cur.tagName.toLowerCase();
       let index = 1;
       let sib = cur.previousElementSibling;
@@ -124,7 +138,11 @@ export function collectSnapshot(args: {
       parts.unshift(`${tag}:nth-of-type(${index})`);
       cur = cur.parentElement;
     }
-    return parts.join(" > ") || "body";
+    const raw = (truncated ? "… > " : "") + (parts.join(" > ") || "body");
+    const n = (pathCounts[raw] = (pathCounts[raw] ?? 0) + 1);
+    const unique = n === 1 ? raw : `${raw}~${n}`;
+    pathCache.set(el, unique);
+    return unique;
   };
 
   const rectOf = (el: Element) => {
@@ -159,14 +177,53 @@ export function collectSnapshot(args: {
 
   /* ---- block candidates: mechanical selection, no semantics ---- */
 
+  const SKIP_TAGS = ["SCRIPT", "STYLE", "LINK", "TEMPLATE", "NOSCRIPT"];
+  const pageHeight = Math.max(
+    doc.documentElement.scrollHeight || 0,
+    doc.body ? doc.body.scrollHeight : 0
+  );
+
+  // F1: Framer/Webflow pages stack their real sections inside one or two
+  // full-page wrapper divs (no <section> tags). Purely geometric descent:
+  //  - a candidate covering ≥85% of the page with several children is a
+  //    WRAPPER → its children compete instead;
+  //  - single-child chains whose child covers ≥90% of the parent pass through.
+  const expandWrappers = (roots: Element[]): Element[] => {
+    const out: Element[] = [];
+    const visit = (el: Element, depth: number): void => {
+      const kids = Array.from(el.children).filter((k) => !SKIP_TAGS.includes(k.tagName));
+      const h = el.getBoundingClientRect().height;
+      if (depth < 4 && pageHeight > 0 && h >= pageHeight * 0.85 && kids.length >= 2) {
+        for (const k of kids) visit(k, depth + 1);
+        return;
+      }
+      if (depth < 4 && kids.length === 1 && h > 0) {
+        const kh = kids[0].getBoundingClientRect().height;
+        if (kh / h >= 0.9) {
+          visit(kids[0], depth + 1);
+          return;
+        }
+      }
+      out.push(el);
+    };
+    for (const el of roots) visit(el, 0);
+    return out;
+  };
+
   const candidateSet = new Set<Element>();
+  const topLevel: Element[] = [];
   const addChildren = (parent: Element | null) => {
     if (!parent) return;
-    for (const child of Array.from(parent.children)) candidateSet.add(child);
+    for (const child of Array.from(parent.children)) topLevel.push(child);
   };
   addChildren(doc.body);
   addChildren(doc.querySelector("main"));
-  for (const el of Array.from(doc.querySelectorAll("section, header, footer, nav"))) {
+  for (const el of expandWrappers(topLevel)) candidateSet.add(el);
+  // data-framer-name is a mechanical platform hint (still collection: the
+  // attribute exists on the source DOM), not a semantic interpretation.
+  for (const el of Array.from(
+    doc.querySelectorAll("section, header, footer, nav, [data-framer-name]")
+  )) {
     candidateSet.add(el);
   }
 
@@ -193,8 +250,14 @@ export function collectSnapshot(args: {
   /* ---- structural nodes inside each block ---- */
 
   const nodes: ComputedNodeStyle[] = [];
+  // Nested candidates (a <section> inside an expanded wrapper child) may
+  // select the same heading/media element twice — one styles entry per
+  // element keeps paths unique WITHIN the list (F3).
+  const pushed = new WeakSet<Element>();
   const pushNode = (el: Element, role: ComputedNodeStyle["role"], withText: boolean) => {
     if (nodes.length >= limits.maxNodes) return;
+    if (pushed.has(el)) return;
+    pushed.add(el);
     nodes.push({
       path: cssPath(el),
       tag: el.tagName.toLowerCase(),

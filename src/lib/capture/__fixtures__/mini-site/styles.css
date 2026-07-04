@@ -21,7 +21,7 @@ body {
   background: #faf6f2;
 }
 
-section {
+section, [data-framer-name], #contact {
   min-height: 240px;
   padding: var(--space-section) 24px;
 }
