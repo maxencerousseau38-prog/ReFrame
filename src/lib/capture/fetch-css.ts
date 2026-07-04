@@ -13,7 +13,7 @@
  */
 
 import { parse } from "node-html-parser";
-import { assertSafeTarget } from "@/lib/generation/engine";
+import { assertSafeTarget, BROWSER_UA } from "@/lib/generation/engine";
 import type { CapturedStylesheet } from "./types";
 
 /* -------------------------------------------------------------------------- */
@@ -53,24 +53,23 @@ const DEFAULTS = {
   timeoutMs: 5000,
 } as const;
 
-// Same real-browser UA rationale as engine.ts#fetchStatic: unknown bot UAs
-// are widely blocked, which would leave the capture without the site's CSS.
-const BROWSER_UA =
-  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
-
 /* -------------------------------------------------------------------------- */
 /*  LRU cache (shared CSS across multi-page captures of one site)             */
 /* -------------------------------------------------------------------------- */
 
 const CACHE_MAX = 50;
+/** Total-bytes ceiling across all cached entries (F6): oldest evicted first. */
+const CACHE_MAX_BYTES = 8 * 1024 * 1024;
 const CACHE_TTL_MS = 10 * 60 * 1000;
-const cssCache = new Map<string, { content: string; at: number }>();
+const cssCache = new Map<string, { content: string; at: number; bytes: number }>();
+let cssCacheBytes = 0;
 
 function cacheGet(url: string): string | null {
   const hit = cssCache.get(url);
   if (!hit) return null;
   if (Date.now() - hit.at > CACHE_TTL_MS) {
     cssCache.delete(url);
+    cssCacheBytes -= hit.bytes;
     return null;
   }
   // Refresh recency (Map iteration order = insertion order).
@@ -80,11 +79,19 @@ function cacheGet(url: string): string | null {
 }
 
 function cacheSet(url: string, content: string): void {
-  if (cssCache.size >= CACHE_MAX) {
+  const bytes = Buffer.byteLength(content);
+  if (bytes > CACHE_MAX_BYTES) return; // never let one file own the cache
+  const evictOldest = () => {
     const oldest = cssCache.keys().next().value;
-    if (oldest !== undefined) cssCache.delete(oldest);
-  }
-  cssCache.set(url, { content, at: Date.now() });
+    if (oldest === undefined) return false;
+    cssCacheBytes -= cssCache.get(oldest)!.bytes;
+    cssCache.delete(oldest);
+    return true;
+  };
+  while (cssCache.size >= CACHE_MAX && evictOldest()) { /* count cap */ }
+  while (cssCacheBytes + bytes > CACHE_MAX_BYTES && evictOldest()) { /* byte cap (F6) */ }
+  cssCache.set(url, { content, at: Date.now(), bytes });
+  cssCacheBytes += bytes;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -150,6 +157,13 @@ function discoverFromHtml(
 // @import url("a.css") screen;  |  @import "a.css";  |  @import url(a.css);
 const IMPORT_RE =
   /@import\s+(?:url\(\s*(['"]?)([^'")]+)\1\s*\)|(['"])([^'"]+)\3)\s*([^;]*);/g;
+
+/** Comments are stripped BEFORE scanning so a commented-out @import can no
+ *  longer trigger a bogus fetch and a false "partial" (F11). The stored
+ *  stylesheet content itself stays verbatim. */
+function stripCssComments(css: string): string {
+  return css.replace(/\/\*[\s\S]*?\*\//g, "");
+}
 
 export function findImports(
   css: string,
@@ -240,7 +254,7 @@ export async function collectStylesheets(
   // Inline <style> @imports participate too (depth starts at 1).
   const queue: CssRef[] = [...refs];
   for (const s of inline) {
-    for (const imp of findImports(s.content, baseUrl)) {
+    for (const imp of findImports(stripCssComments(s.content), baseUrl)) {
       queue.push({ url: imp.url, media: imp.media, via: "import", depth: 1 });
     }
   }
@@ -296,7 +310,7 @@ export async function collectStylesheets(
       depth: ref.depth,
     });
 
-    for (const imp of findImports(content, ref.url)) {
+    for (const imp of findImports(stripCssComments(content), ref.url)) {
       queue.push({ url: imp.url, media: imp.media, via: "import", depth: ref.depth + 1 });
     }
   }
@@ -307,4 +321,5 @@ export async function collectStylesheets(
 /** Test hook: reset the module-level LRU between cases. */
 export function __clearCssCache(): void {
   cssCache.clear();
+  cssCacheBytes = 0;
 }

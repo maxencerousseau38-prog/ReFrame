@@ -8,7 +8,7 @@
  * Spec: docs/V2_CHANTIER1_CAPTURE_SPEC.md §5
  */
 
-import { fetchStatic, looksLikeChallenge, normalizeUrl } from "@/lib/generation/engine";
+import { BROWSER_UA, fetchStatic, looksLikeChallenge, normalizeUrl } from "@/lib/generation/engine";
 import { collectStylesheets } from "./fetch-css";
 import { renderCapture } from "./render";
 import type {
@@ -100,6 +100,11 @@ export async function captureSite(
   /* ---- quality (explicit, artifact by artifact) ---- */
 
   const externalCount = css.stylesheets.filter((s) => s.url).length;
+  // F12: "none" must not conflate "the page declares no CSS" with "collection
+  // failed" — an explicit note keeps the distinction traceable.
+  if (html && css.stylesheets.length === 0 && css.failed.length === 0) {
+    notes.push("page declares no stylesheets (no <link rel=stylesheet>, no <style>)");
+  }
   const screenshots = (rendered?.viewports ?? [])
     .filter((v) => v.screenshot !== null)
     .map((v) => v.viewport as CaptureViewport);
@@ -145,7 +150,16 @@ async function staticFetchWith(fetchImpl: typeof fetch, url: string): Promise<st
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 7000);
-    const res = await fetchImpl(url, { signal: controller.signal, redirect: "follow" });
+    // Same headers as fetchStatic — the seam must not change what sites serve (F11).
+    const res = await fetchImpl(url, {
+      signal: controller.signal,
+      redirect: "follow",
+      headers: {
+        "User-Agent": BROWSER_UA,
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9,fr;q=0.8",
+      },
+    });
     clearTimeout(timer);
     return res.ok ? await res.text() : "";
   } catch {
@@ -220,19 +234,29 @@ function safeResolve(raw: string, base: string): string | null {
   }
 }
 
-/** Merge browser-loaded fonts with declared ones; declared src enriches loaded. */
+/** True when a declared @font-face weight covers a loaded weight — exact
+ *  value, or a variable-font range like "100 900" containing it (F12). */
+function weightCovers(declared: string, loaded: string): boolean {
+  if (declared === loaded) return true;
+  const range = declared.match(/^(\d+)\s+(\d+)$/);
+  if (!range) return false;
+  const w = parseInt(loaded, 10);
+  return !isNaN(w) && w >= parseInt(range[1], 10) && w <= parseInt(range[2], 10);
+}
+
+/** Merge browser-loaded fonts with declared ones; declared src enriches loaded.
+ *  F12: enrichment requires family + style + a COVERING weight — never the src
+ *  of another weight of the same family. */
 export function mergeFonts(
   loaded: FontFaceRecord[],
   declared: FontFaceRecord[]
 ): FontFaceRecord[] {
-  const bySrcKey = new Map<string, FontFaceRecord>();
-  for (const d of declared) bySrcKey.set(`${d.family}|${d.weight}|${d.style}`, d);
-
   const out: FontFaceRecord[] = loaded.map((f) => {
     if (f.src) return f;
-    const exact = bySrcKey.get(`${f.family}|${f.weight}|${f.style}`);
-    const familyMatch = exact ?? declared.find((d) => d.family === f.family && d.src);
-    return familyMatch?.src ? { ...f, src: familyMatch.src } : f;
+    const match = declared.find(
+      (d) => d.src && d.family === f.family && d.style === f.style && weightCovers(d.weight, f.weight)
+    );
+    return match?.src ? { ...f, src: match.src } : f;
   });
 
   const loadedKeys = new Set(loaded.map((f) => `${f.family}|${f.weight}|${f.style}`));

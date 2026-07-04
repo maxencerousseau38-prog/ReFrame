@@ -146,7 +146,8 @@ export async function fetchStatic(url: string): Promise<string> {
 // Shared real-browser UA. Unknown bot UAs are widely blocked by CDNs/WAFs and
 // hotlink protection, which is exactly what would leave the rebuild with broken
 // images; a browser UA loads far more of the client's real content.
-const BROWSER_UA =
+// Exported as the ONE canonical UA for every engine HTTP client (F11).
+export const BROWSER_UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
 /**

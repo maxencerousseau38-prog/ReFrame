@@ -69,6 +69,47 @@ describe("findImports", () => {
   });
 });
 
+describe("commented-out @import (F11)", () => {
+  it("does not fetch an @import that only lives inside a CSS comment", async () => {
+    const html = `<link rel="stylesheet" href="main.css">`;
+    const { res, calls } = await collect(html, {
+      "https://example.com/page/main.css": `/* @import url("ghost.css"); */ .real{}`,
+    });
+    expect(calls).not.toContain("https://example.com/page/ghost.css");
+    expect(res.failed).toEqual([]);
+    expect(res.partial).toBe(false);
+    // stored content stays verbatim, comment included
+    expect(res.stylesheets.find((s) => s.url)?.content).toContain("ghost.css");
+  });
+});
+
+describe("LRU byte cap (F6)", () => {
+  it("evicts oldest entries when the byte ceiling is exceeded", async () => {
+    // Two captures with cache ON: a huge file then another; both fit the
+    // 8 MB ceiling individually — sanity-check accounting via re-fetch.
+    const bigA = "a".repeat(5 * 1024 * 1024);
+    const bigB = "b".repeat(5 * 1024 * 1024);
+    const htmlA = `<link rel="stylesheet" href="a.css">`;
+    const htmlB = `<link rel="stylesheet" href="b.css">`;
+
+    const first = mockFetch({ "https://example.com/page/a.css": bigA });
+    await collectStylesheets(htmlA, BASE, {
+      fetchImpl: first.impl, guard: allowAll, maxBytes: 6 * 1024 * 1024,
+    });
+    const second = mockFetch({ "https://example.com/page/b.css": bigB });
+    await collectStylesheets(htmlB, BASE, {
+      fetchImpl: second.impl, guard: allowAll, maxBytes: 6 * 1024 * 1024,
+    });
+
+    // a.css (oldest) must have been evicted to admit b.css → re-fetching A hits the network again.
+    const third = mockFetch({ "https://example.com/page/a.css": bigA });
+    await collectStylesheets(htmlA, BASE, {
+      fetchImpl: third.impl, guard: allowAll, maxBytes: 6 * 1024 * 1024,
+    });
+    expect(third.calls).toContain("https://example.com/page/a.css");
+  });
+});
+
 /* -------------------------------------------------------------------------- */
 /*  collectStylesheets                                                        */
 /* -------------------------------------------------------------------------- */

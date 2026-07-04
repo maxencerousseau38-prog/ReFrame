@@ -156,4 +156,18 @@ describe("mergeFonts", () => {
     expect(merged[0]).toMatchObject({ family: "Inter", status: "loaded", src: "https://x/i.woff2" });
     expect(merged[1]).toMatchObject({ family: "Playfair", status: "declared" });
   });
+
+  it("F12: never borrows the src of ANOTHER weight of the same family", () => {
+    const merged = mergeFonts(loaded, [
+      { family: "Inter", weight: "700", style: "normal", src: "https://x/i-bold.woff2", status: "declared" },
+    ]);
+    expect(merged.find((f) => f.status === "loaded")?.src).toBeNull();
+  });
+
+  it("F12: a variable-font weight range covers the loaded weight", () => {
+    const merged = mergeFonts(loaded, [
+      { family: "Inter", weight: "100 900", style: "normal", src: "https://x/i-var.woff2", status: "declared" },
+    ]);
+    expect(merged.find((f) => f.status === "loaded")?.src).toBe("https://x/i-var.woff2");
+  });
 });
