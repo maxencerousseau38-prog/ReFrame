@@ -74,18 +74,12 @@ async function fullScroll(page: Page): Promise<boolean> {
   return capped;
 }
 
-/** Light settle after a resize: top → one screen → top. */
+/** Settle after a resize (F8): a FULL scroll pass so width-specific lazy
+ *  content mounts before measurement — below-the-fold heights at 390/768 were
+ *  unreliable with a one-screen nudge. Costs ~1-2s/viewport, inside budget. */
 async function resettle(page: Page): Promise<void> {
   await page.waitForTimeout(SETTLE_MS);
-  await page
-    .evaluate(async () => {
-      window.scrollTo(0, 0);
-      await new Promise((r) => setTimeout(r, 150));
-      window.scrollTo(0, window.innerHeight);
-      await new Promise((r) => setTimeout(r, 150));
-      window.scrollTo(0, 0);
-    })
-    .catch(() => {});
+  await fullScroll(page);
 }
 
 /** evaluate() has no built-in timeout — race it so a hostile page can't hang us. */

@@ -142,6 +142,42 @@ describe("measureScenes", () => {
     expect(empty.notes[0]).toContain("unavailable");
   });
 
+  it("responsive deltas: joined by path, stacking + hidden scenes measured", () => {
+    const site = makeSite();
+    // 390px capture: hero stacked (1 column, smaller heading, taller), gallery ABSENT.
+    const narrow: ViewportCapture = {
+      viewport: 390,
+      screenshot: null,
+      scrollHeight: 2400,
+      blocks: [
+        b("nav:nth-of-type(1)", rect(0, 0, 390, 64)),
+        b("section:nth-of-type(1)", rect(0, 64, 390, 1180), "rgb(243, 233, 223)", "Menuiserie d'art à Grenoble"),
+        b("footer:nth-of-type(1)", rect(0, 2100, 390, 300), "rgb(28, 19, 16)"),
+      ],
+      nodes: [
+        n("section:nth-of-type(1)", "block", rect(0, 64, 390, 1180), {
+          display: "grid", gridTemplateColumns: "358px",
+        }, "section"),
+        n("section:nth-of-type(1) > h1:nth-of-type(1)", "heading", rect(16, 120, 340, 140), {
+          fontSize: "44px", fontWeight: "600", color: "rgb(28, 19, 16)",
+        }, "h1", "Menuiserie d'art à Grenoble"),
+      ],
+    };
+    const m2 = measureScenes({ ...site, viewports: [...site.viewports, narrow] });
+
+    const hero = m2.scenes.find((s) => s.type === "hero")!;
+    expect(hero.responsive![390]).toMatchObject({
+      present: true,
+      heightPx: 1180,
+      headingSizePx: 44,
+      columnCount: 1,
+      stacked: true,
+    });
+    const gallery = m2.scenes.find((s) => s.type === "gallery")!;
+    expect(gallery.responsive![390]).toEqual({ present: false });
+    expect(m2.notes.some((note) => note.includes("not found at 390px"))).toBe(true);
+  });
+
   it("sceneOrderMeasured exposes the measured order as a MeasuredValue", () => {
     const mv = sceneOrderMeasured(m)!;
     expect(mv.value).toEqual(["nav", "hero", "gallery", "footer"]);

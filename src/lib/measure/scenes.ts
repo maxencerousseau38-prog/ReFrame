@@ -106,6 +106,21 @@ export interface SceneDna {
     mediaPosition?: "behind" | "left" | "right" | "top" | "bottom" | "none";
     ctaCount: number;
   };
+
+  /** Measured deltas at the narrower captured widths (6c). Keyed by viewport.
+   *  Absent when the scene's path was not found at that width. */
+  responsive?: Record<number, SceneDelta>;
+}
+
+/** What actually changes for one scene at a narrower width — measured, never
+ *  inferred from breakpoint conventions. */
+export interface SceneDelta {
+  present: boolean;
+  heightPx?: number;
+  headingSizePx?: number;
+  columnCount?: number;
+  /** Multi-column at the wide width, single column here. */
+  stacked?: boolean;
 }
 
 export interface SceneMeasurement {
@@ -162,7 +177,61 @@ export function measureScenes(site: RenderedSite): SceneMeasurement {
     .map((block, i) => buildScene(block, i, wide, site.animations));
 
   inferHero(scenes);
+  attachResponsiveDeltas(scenes, site, wide, notes);
   return { scenes, viewport: wide.viewport, notes };
+}
+
+/** 6c: join each scene to the narrower captures BY PATH (the F3 stability
+ *  contract) and record what actually changed. A path missing at a narrow
+ *  width is a measurement too (present:false — hidden or remounted DOM). */
+function attachResponsiveDeltas(
+  scenes: SceneDna[],
+  site: RenderedSite,
+  wide: ViewportCapture,
+  notes: string[]
+): void {
+  const narrows = site.viewports.filter((v) => v.viewport !== wide.viewport);
+  if (narrows.length === 0) return;
+
+  for (const narrow of narrows) {
+    const blockByPath = new Map(narrow.blocks.map((b) => [b.path, b]));
+    const nodeByPath = new Map(narrow.nodes.map((n) => [n.path, n]));
+    let missing = 0;
+
+    for (const scene of scenes) {
+      const block = blockByPath.get(scene.path);
+      scene.responsive = scene.responsive ?? {};
+      if (!block) {
+        scene.responsive[narrow.viewport] = { present: false };
+        missing++;
+        continue;
+      }
+      const self = nodeByPath.get(scene.path);
+      const template = self?.styles.gridTemplateColumns;
+      const columnCount =
+        template && template !== "none" ? template.split(" ").filter(Boolean).length : undefined;
+
+      // Largest heading inside the scene at this width, joined geometrically.
+      const heading = narrow.nodes
+        .filter((n) => n.role === "heading" && containedShare(n.rect, block.rect) >= 0.6)
+        .sort((a, b) => (px(b.styles.fontSize) ?? 0) - (px(a.styles.fontSize) ?? 0))[0];
+
+      scene.responsive[narrow.viewport] = {
+        present: true,
+        heightPx: Math.round(block.rect.height),
+        headingSizePx: heading ? px(heading.styles.fontSize) : undefined,
+        columnCount,
+        stacked:
+          (scene.grid?.columnCount ?? 1) > 1 && columnCount !== undefined
+            ? columnCount === 1
+            : undefined,
+      };
+    }
+
+    if (missing > 0) {
+      notes.push(`${missing} scene path(s) not found at ${narrow.viewport}px (hidden or remounted DOM)`);
+    }
+  }
 }
 
 /** Keep the outermost block of each area; nav/footer tags always survive. */
