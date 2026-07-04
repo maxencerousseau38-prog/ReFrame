@@ -45,7 +45,9 @@ export interface CapturedStylesheet {
   /** Raw CSS text — stored verbatim, never parsed here (MEASURE's job). */
   content: string;
   bytes: number;
-  via: "link" | "import" | "inline";
+  /** "runtime" = read from the live CSSOM (document.styleSheets /
+   *  adoptedStyleSheets) — catches constructed and JS-injected styles (F10). */
+  via: "link" | "import" | "inline" | "runtime";
   /** @import depth (0 = referenced directly by the page). */
   depth: number;
 }
@@ -130,6 +132,9 @@ export interface RenderedSite {
   /** Post-JS serialized DOM (Tier 2) or static HTML (Tier 1). */
   html: string;
   stylesheets: CapturedStylesheet[];
+  /** Live-CSSOM stylesheets (via:"runtime") — constructed/adopted/JS-injected
+   *  styles invisible to the HTML scan (F10). Empty in Tier 1. */
+  runtimeCss: CapturedStylesheet[];
   /** :root custom properties, resolved via getComputedStyle — raw collection. */
   cssVariables: Record<string, string>;
   fonts: FontFaceRecord[];

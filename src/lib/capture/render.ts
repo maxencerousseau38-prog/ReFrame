@@ -45,6 +45,8 @@ export interface RenderTierResult {
   cssVariables: Record<string, string>;
   fonts: FontFaceRecord[];
   animations: CssAnimationRecord[];
+  /** Live-CSSOM sheets (F10), via:"runtime". */
+  runtimeCss: { href: string | null; content: string }[];
   notes: string[];
 }
 
@@ -132,6 +134,7 @@ export async function renderCapture(
           cssVariables: {},
           fonts: [],
           animations: [],
+          runtimeCss: [],
           notes: [`navigation failed: ${url}`],
         };
       }
@@ -150,6 +153,7 @@ export async function renderCapture(
       let cssVariables: Record<string, string> = {};
       let fonts: FontFaceRecord[] = [];
       let animations: CssAnimationRecord[] = [];
+      let runtimeCss: { href: string | null; content: string }[] = [];
 
       for (let i = 0; i < widths.length; i++) {
         const width = widths[i];
@@ -162,6 +166,10 @@ export async function renderCapture(
           cssVariables = snap.cssVariables;
           fonts = snap.fonts;
           animations = snap.animations;
+          runtimeCss = snap.runtimeCss;
+          if (snap.runtimeCssSkipped > 0) {
+            notes.push(`${snap.runtimeCssSkipped} cross-origin CSSOM sheet(s) unreadable (fetched over HTTP instead)`);
+          }
         }
 
         let screenshot: Buffer | null = null;
@@ -187,7 +195,7 @@ export async function renderCapture(
       const html = await page.content().catch(() => "");
       if (!html) notes.push("post-JS HTML serialization failed");
 
-      return { html, viewports, cssVariables, fonts, animations, notes };
+      return { html, viewports, cssVariables, fonts, animations, runtimeCss, notes };
     },
     { timeoutMs, viewport: { width: widths[0], height: 900 } }
   );

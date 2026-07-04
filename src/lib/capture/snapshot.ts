@@ -75,6 +75,10 @@ export interface SnapshotResult {
   cssVariables: Record<string, string>;
   fonts: FontFaceRecord[];
   animations: CssAnimationRecord[];
+  /** Live-CSSOM sheets: {href, content} — constructed/adopted styles (F10).
+   *  Cross-origin sheets whose rules cannot be read are counted, not lost. */
+  runtimeCss: { href: string | null; content: string }[];
+  runtimeCssSkipped: number;
   scrollHeight: number;
 }
 
@@ -86,6 +90,9 @@ export const SNAPSHOT_LIMITS = {
   maxAnimations: 100,
   minBlockHeight: 40,
   textSlice: 160,
+  maxRuntimeSheets: 40,
+  maxRuntimeSheetBytes: 262_144, // 256 KB per sheet
+  maxRuntimeTotalBytes: 1_048_576, // 1 MB across all sheets
 } as const;
 
 export type SnapshotLimits = typeof SNAPSHOT_LIMITS;
@@ -285,12 +292,46 @@ export function collectSnapshot(args: {
     /* getAnimations unsupported → empty; quality notes it */
   }
 
+  /* ---- live CSSOM (F10): constructed / adopted / JS-injected styles ---- */
+
+  const runtimeCss: { href: string | null; content: string }[] = [];
+  let runtimeCssSkipped = 0;
+  let runtimeTotal = 0;
+  try {
+    const allSheets: CSSStyleSheet[] = [
+      ...Array.from(doc.styleSheets),
+      ...Array.from(
+        (doc as unknown as { adoptedStyleSheets?: CSSStyleSheet[] }).adoptedStyleSheets ?? []
+      ),
+    ];
+    for (const sheet of allSheets.slice(0, limits.maxRuntimeSheets)) {
+      if (runtimeTotal >= limits.maxRuntimeTotalBytes) break;
+      try {
+        const rules = Array.from(sheet.cssRules)
+          .map((r) => r.cssText)
+          .join("\n");
+        if (!rules) continue;
+        const content = rules.slice(0, limits.maxRuntimeSheetBytes);
+        runtimeCss.push({ href: sheet.href, content });
+        runtimeTotal += content.length;
+      } catch {
+        // Cross-origin CSSOM access denied — counted, never silently lost
+        // (the file itself was fetched by fetch-css over HTTP anyway).
+        runtimeCssSkipped++;
+      }
+    }
+  } catch {
+    /* styleSheets unavailable → empty; quality notes it via counts */
+  }
+
   return {
     nodes,
     blocks,
     cssVariables,
     fonts,
     animations,
+    runtimeCss,
+    runtimeCssSkipped,
     scrollHeight: Math.max(
       doc.documentElement.scrollHeight || 0,
       doc.body ? doc.body.scrollHeight : 0
