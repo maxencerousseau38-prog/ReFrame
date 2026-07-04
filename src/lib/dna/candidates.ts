@@ -16,6 +16,7 @@
 import type { VisualDNA } from "@/lib/extraction/types";
 import type { CardSystem, CtaDirection, DesignDNA, GalleryDirection, HeroDirection, MotionDirection } from "@/lib/generation/dna";
 import type { Moodboard } from "@/lib/generation/references";
+import type { InspirationProfile } from "@/lib/generation/similarity";
 import type { CandidateLayer } from "./resolver";
 
 export type DeepPartial<T> = T extends object
@@ -244,5 +245,72 @@ export function curatedLayer(moodboard: Moodboard): CandidateLayer | undefined {
     data: overrides,
     source: "curated",
     origin: `references.ts#computeDnaOverrides (top: ${refId})`,
+    // Categorical fit (industry/tier/mood). Kept below a measured-similarity
+    // inspiration match so a genuine premium-reference resemblance wins the
+    // curated-vs-curated tiebreak — still above every preset.
+    confidence: 0.5,
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Inspiration layer — the Reference Learning Engine (curated premium DNA)   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Turns the closest premium reference (measured MEASURABLE decisions only —
+ * never markup) into a `curated` candidate layer. It fills only what the
+ * source site's own measurements did not provide (I1: measured always wins),
+ * and sits above the categorical moodboard and every preset. Emitted solely
+ * when the site genuinely resembles a premium reference
+ * (`strongestMatch >= MIN_INSPIRATION_MATCH`), so diversity is preserved and
+ * generic sites are never force-fitted into someone else's design language.
+ */
+export const MIN_INSPIRATION_MATCH = 0.6;
+
+export function inspirationLayer(
+  inspiration: InspirationProfile | undefined
+): CandidateLayer | undefined {
+  if (!inspiration || inspiration.strongestMatch < MIN_INSPIRATION_MATCH) return undefined;
+  const top = inspiration.references[0]?.reference;
+  const dna = top?.richDna;
+  if (!dna) return undefined;
+
+  const data: DeepPartial<DesignDNA> = {
+    heroDirection: {
+      style: dna.hero.compositionType,
+      imagePosition: dna.hero.imagePosition,
+    },
+    rhythm: {
+      spacingMultiplier: dna.layout.spacingMultiplier,
+      density: dna.layout.spacingScale,
+      hasDividers: dna.layout.sectionDividers,
+    },
+    typeScale: {
+      headingWeight: dna.typography.headingWeight,
+    },
+    cardSystem: {
+      style: dna.component.cardStyle,
+    },
+    motion: {
+      level: dna.motion.intensity,
+      entranceType: dna.motion.entranceType,
+    },
+    ctaDirection: {
+      style: dna.component.ctaStyle,
+    },
+    colorStrategy: {
+      mode: dna.brand.colorMode,
+      preferDark: dna.brand.prefersDark,
+    },
+    contentMaxWidth: `${dna.layout.containerWidth}px`,
+  };
+
+  return {
+    data,
+    source: "curated",
+    origin: `reference-learning: ${top!.id} (match ${inspiration.strongestMatch.toFixed(2)})`,
+    // Scale confidence with the measured similarity so a stronger resemblance
+    // beats the categorical moodboard (0.5) more decisively.
+    confidence: inspiration.strongestMatch,
   };
 }

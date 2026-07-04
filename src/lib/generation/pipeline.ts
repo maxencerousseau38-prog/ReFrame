@@ -30,9 +30,11 @@ import { evaluateQuality } from "./quality-gate";
 import { INDUSTRY_PROFILES } from "./industries";
 import { planSmart } from "./planner";
 import { resolveTree } from "@/lib/dna/resolver";
-import { measuredLayer, curatedLayer, tokensLayer } from "@/lib/dna/candidates";
+import { measuredLayer, curatedLayer, tokensLayer, inspirationLayer } from "@/lib/dna/candidates";
 import { contentTraceEntries } from "@/lib/dna/content-trace";
 import { buildContentModel } from "@/lib/understand/content-model";
+import { findClosestReferences, type InspirationProfile } from "./similarity";
+import { ENRICHED_REFERENCE_DB } from "./reference-library";
 import type { PipelineTrace } from "@/lib/dna/provenance";
 import type { CandidateLayer } from "@/lib/dna/resolver";
 
@@ -56,6 +58,8 @@ export interface PipelineResult {
   iterations: number;
   /** Provenance of every DNA field: why this value, what was rejected (V2). */
   trace: PipelineTrace;
+  /** Closest premium references by measured similarity (Reference Learning). */
+  inspiration: InspirationProfile;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -103,9 +107,16 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
   // Phase 4.5: single merge point (V2 invariant I1). Measured beats curated
   // beats preset, leaf by leaf — the moodboard can only fill what the source
   // site's measurements did not provide. Every decision lands in the trace.
+  // Reference Learning Engine: the closest premium reference by MEASURED
+  // visual similarity (never markup). Feeds a curated candidate layer that
+  // lifts weak/generic sites toward premium — only when the resemblance is
+  // genuine — while the source site's own measurements always win (I1).
+  const inspiration = findClosestReferences(analysis.visualDna, ENRICHED_REFERENCE_DB);
+
   const layers = [
     measuredLayer(analysis.visualDna),
     tokensLayer(analysis.measuredTokens),
+    inspirationLayer(inspiration),
     curatedLayer(moodboard),
   ].filter((l): l is CandidateLayer => l !== undefined);
 
@@ -153,6 +164,7 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
     // F15: DNA provenance + content provenance (language, headings, CTA) —
     // "why this heading?" is now answerable from the same trace.
     trace: [...resolved.trace, ...contentTraceEntries(buildContentModel(analysis), analysis)],
+    inspiration,
   };
 }
 
