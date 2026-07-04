@@ -36,6 +36,7 @@ import { planSmart, type Slot, type Plan } from "./planner";
 import { renderableCategory } from "./structure";
 import { label } from "./labels";
 import { buildContentModel, realHeading, type ContentModel } from "@/lib/understand/content-model";
+import { compileTokens, type CompiledTokens } from "@/lib/dna/tokens";
 
 /* -------------------------------------------------------------------------- */
 /*  Helpers                                                                   */
@@ -432,6 +433,22 @@ function buildTheme(
   return theme;
 }
 
+/**
+ * V2 Chantier 5 — fill the Theme with the MEASURED palette roles. themeVars()
+ * prefers explicit theme values, so deriveScheme() only fills what stays
+ * unmeasured. `accent`/`primary` measured on the rendered page outrank the
+ * extraction hint / industry preset (a higher-fidelity measurement of the
+ * same source, per provenance ranks). `dark` is NOT touched here: the DNA's
+ * colorStrategy.preferDark already carries the measured value via the resolver.
+ */
+function applyThemePatch(theme: Theme, patch: CompiledTokens["themePatch"]): void {
+  if (patch.surface) theme.surface = patch.surface;
+  if (patch.surface2) theme.surface2 = patch.surface2;
+  if (patch.ink) theme.ink = patch.ink;
+  if (patch.primary) theme.primary = patch.primary;
+  if (patch.accent) theme.accent = patch.accent;
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Main compose function                                                     */
 /* -------------------------------------------------------------------------- */
@@ -454,8 +471,13 @@ export function compose(analysis: SiteAnalysis, opts: ComposeOptions): SiteSchem
   const industry = analysis.industry;
   const mood = INDUSTRY_PROFILES[industry].theme.mood;
 
-  // 2. Build theme from DNA + analysis
+  // 2. Build theme from DNA + analysis; enrich with measured tokens when the
+  // source was actually measured (Tier 2 capture) — V5 path untouched.
+  const compiled = analysis.measuredTokens
+    ? compileTokens(dna, analysis.measuredTokens)
+    : undefined;
   const theme = buildTheme(analysis, dna, profile);
+  if (compiled) applyThemePatch(theme, compiled.themePatch);
 
   // 3. Build blocks: Art Direction drives variant + section order when present
   const model = buildContentModel(analysis);
@@ -499,6 +521,7 @@ export function compose(analysis: SiteAnalysis, opts: ComposeOptions): SiteSchem
       ...(analysis.brand?.logoUrl ? { logo: analysis.brand.logoUrl } : {}),
     },
     theme,
+    ...(compiled ? { tokens: compiled } : {}),
     blocks: finalBlocks,
     mode: "smart",
     recommendations: [

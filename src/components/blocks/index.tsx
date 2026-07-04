@@ -26,6 +26,7 @@ import { Aurora, Spotlight, Meteors, BlurFade, BorderBeam } from "./fx";
 import { cn } from "@/lib/utils";
 import { useParallax } from "./use-parallax";
 import { toProxiedUrl } from "@/lib/img";
+import { tokenVarOverrides, type CompiledTokens } from "@/lib/dna/tokens";
 
 /**
  * Anchor attributes for a CTA so every button leads somewhere. Defaults to
@@ -117,12 +118,17 @@ const cssVarsText = (vars: Record<string, string>) =>
  * plus a `prefers-color-scheme` override that flips to the opposite mode, so the
  * rebuild auto-matches the visitor's system setting. Scoped to one site root.
  */
-function themeCss(theme: Theme, scope: string): string {
+function themeCss(theme: Theme, scope: string, tokens?: CompiledTokens): string {
   const baselineDark = theme.dark === true;
   const sel = `.rf-site[data-rf="${scope}"]`;
-  const base = cssVarsText(themeVars(theme, baselineDark));
-  const alt = cssVarsText(themeVars(theme, !baselineDark));
-  return `${sel}{${base}}@media (prefers-color-scheme:${baselineDark ? "light" : "dark"}){${sel}{${alt}}}`;
+  // V2 Chantier 5: measured/compiled tokens (--rf-* + the real body family)
+  // are merged over the derived vars — fill-order per charter: the enum font
+  // stack was always a guess, the measured family is the site's truth.
+  const overrides = tokenVarOverrides(tokens);
+  const base = cssVarsText({ ...themeVars(theme, baselineDark), ...overrides });
+  const alt = cssVarsText({ ...themeVars(theme, !baselineDark), ...overrides });
+  const fontFaces = tokens?.fontFaceCss ? `${tokens.fontFaceCss}\n` : "";
+  return `${fontFaces}${sel}{${base}}@media (prefers-color-scheme:${baselineDark ? "light" : "dark"}){${sel}{${alt}}}`;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -4081,7 +4087,7 @@ export function SiteRenderer({
   return (
     <MotionConfig reducedMotion={animationsOn ? "user" : "always"}>
       {fontLink && <link rel="stylesheet" href={fontLink} />}
-      <style dangerouslySetInnerHTML={{ __html: themeCss(schema.theme, themeScope) }} />
+      <style dangerouslySetInnerHTML={{ __html: themeCss(schema.theme, themeScope, schema.tokens) }} />
       <div
         className="rf-site"
         data-rf={themeScope}

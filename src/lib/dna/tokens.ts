@@ -153,3 +153,20 @@ export function compileTokens(
 
   return { themePatch, vars, fontFaceCss, fontFamilies, sources };
 }
+
+/* -------------------------------------------------------------------------- */
+/*  Renderer helpers                                                          */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Variable overrides the renderer merges into its theme vars (fill-order:
+ * derived vars first, measured last — the measured body family replaces the
+ * enum-guessed --brand-font stack, which was always a fallback guess).
+ */
+export function tokenVarOverrides(tokens: CompiledTokens | undefined): Record<string, string> {
+  if (!tokens) return {};
+  return {
+    ...tokens.vars,
+    ...(tokens.fontFamilies.body ? { "--brand-font": tokens.fontFamilies.body } : {}),
+  };
+}

@@ -127,6 +127,9 @@ export interface SiteSchema {
     logo?: string;
   };
   theme: Theme;
+  /** Compiled render tokens (V2 Chantier 5): --rf-* vars, real font families
+   *  and @font-face CSS. Present only when the source was measured (Tier 2). */
+  tokens?: import("@/lib/dna/tokens").CompiledTokens;
   /** The home page's blocks. */
   blocks: Block[];
   /** Additional pages. When present, the site renders as multi-page (Home + these). */
