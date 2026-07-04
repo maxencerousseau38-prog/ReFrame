@@ -220,6 +220,10 @@ export interface SiteAnalysis {
   integrations?: DetectedIntegration[];
   /** Normalized structural model, when the page could be analyzed. */
   structure?: SiteStructure;
+  /** Real design tokens measured on the rendered source (V2 Chantier 4).
+   *  Present only when a Tier 2 capture ran; consumed by the resolver and,
+   *  for palette/exact fonts, by the C5 token compiler. */
+  measuredTokens?: import("@/lib/measure/tokens").MeasuredTokens;
   navItems: string[];
   extractedContent: {
     headline: string;

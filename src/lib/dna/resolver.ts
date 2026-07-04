@@ -38,8 +38,12 @@ export interface CandidateLayer {
   source: Source;
   /** Producer, file-precise — copied onto every leaf candidate. */
   origin: string;
-  /** Uniform layer confidence (per-field confidence arrives with SourceDNA, C4+). */
+  /** Uniform layer confidence (fallback when no per-field value exists). */
   confidence?: number;
+  /** Per-leaf-path confidence (V2 C4 — real measurements carry their own). */
+  fieldConfidence?: Record<string, number>;
+  /** Per-leaf-path origin (method-precise traceability). */
+  fieldOrigin?: Record<string, string>;
 }
 
 export interface TreeResolution<T> {
@@ -141,7 +145,12 @@ export function resolveTree<T extends object>(
       // let a subtree clobber a preset leaf (I1 violation caught by tests).
       return v === undefined || isPlainObject(v)
         ? undefined
-        : sourced(v, layer.source, layer.origin, layer.confidence ?? 1);
+        : sourced(
+            v,
+            layer.source,
+            layer.fieldOrigin?.[path] ?? layer.origin,
+            layer.fieldConfidence?.[path] ?? layer.confidence ?? 1
+          );
     });
 
     const slot = resolveField(path, candidates);

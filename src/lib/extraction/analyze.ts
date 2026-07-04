@@ -9,6 +9,7 @@ import {
 } from "@/lib/generation/engine";
 import { canRender, renderHtml } from "@/lib/server/render";
 import { captureSite, type RenderedSite } from "@/lib/capture";
+import { measureTokens } from "@/lib/measure/tokens";
 import { extractSite } from "./pipeline";
 import { toSiteAnalysis } from "./bridge";
 
@@ -81,5 +82,9 @@ export async function analyzeUrlV2WithCapture(
   }
 
   const ext = await extractSite(url, captured.html);
-  return { analysis: toSiteAnalysis(ext), captured };
+  const analysis = toSiteAnalysis(ext);
+  // V2 Chantier 4: real tokens measured on the rendered capture, attached
+  // additively — the resolver consumes them with per-field confidence.
+  analysis.measuredTokens = measureTokens(captured);
+  return { analysis, captured };
 }

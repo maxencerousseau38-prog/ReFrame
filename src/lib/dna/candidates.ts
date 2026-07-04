@@ -179,6 +179,63 @@ export function measuredLayer(visual: VisualDNA | undefined): CandidateLayer | u
   };
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Measured tokens layer — from MeasuredTokens (V2 Chantier 4)               */
+/* -------------------------------------------------------------------------- */
+
+import type { MeasuredTokens, MeasuredValue } from "@/lib/measure/tokens";
+
+/**
+ * Maps real token measurements onto the DesignDNA fields able to express them
+ * today (palette/exact fonts land at render with the C5 token compiler and
+ * stay on analysis.measuredTokens until then). Each field carries ITS OWN
+ * measured confidence and method-precise origin — the resolver's demotion
+ * rule (A2) now operates per field instead of per layer.
+ */
+export function tokensLayer(tokens: MeasuredTokens | undefined): CandidateLayer | undefined {
+  if (!tokens) return undefined;
+
+  const data: DeepPartial<DesignDNA> = {};
+  const fieldConfidence: Record<string, number> = {};
+  const fieldOrigin: Record<string, string> = {};
+
+  const put = <T>(path: string, mv: MeasuredValue<T> | undefined, map: (v: T) => unknown = (v) => v) => {
+    if (mv === undefined) return;
+    const mapped = map(mv.value);
+    if (mapped === undefined) return; // unmappable measurement → not offered
+    const segs = path.split(".");
+    let cur = data as Record<string, unknown>;
+    for (let i = 0; i < segs.length - 1; i++) {
+      cur[segs[i]] = cur[segs[i]] ?? {};
+      cur = cur[segs[i]] as Record<string, unknown>;
+    }
+    cur[segs[segs.length - 1]] = mapped;
+    fieldConfidence[path] = mv.confidence;
+    fieldOrigin[path] = mv.origin;
+  };
+
+  put("typeScale.display", tokens.typography.displayClamp);
+  put("typeScale.headingWeight", tokens.typography.headingWeight);
+  put("typeScale.tracking", tokens.typography.tracking);
+  put("cardSystem.radius", tokens.surfaces.cardRadius, (v) => `${v}px`);
+  put("cardSystem.shadow", tokens.surfaces.cardShadow);
+  put("ctaDirection.style", tokens.surfaces.buttonRadius, (v) =>
+    v >= 999 ? "pill" : v === 0 ? "sharp" : undefined);
+  put("rhythm.spacingMultiplier", tokens.spacing.spacingMultiplier);
+  put("contentMaxWidth", tokens.spacing.containerWidth, (v) => `${v}px`);
+  put("colorStrategy.preferDark", tokens.prefersDark);
+
+  if (Object.keys(fieldConfidence).length === 0) return undefined;
+
+  return {
+    data,
+    source: "measured",
+    origin: "measure/tokens.ts via dna/candidates.ts#tokensLayer",
+    fieldConfidence,
+    fieldOrigin,
+  };
+}
+
 export function curatedLayer(moodboard: Moodboard): CandidateLayer | undefined {
   const overrides = moodboard.dnaOverrides;
   if (!overrides || Object.keys(overrides).length === 0) return undefined;

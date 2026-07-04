@@ -30,7 +30,7 @@ import { evaluateQuality } from "./quality-gate";
 import { INDUSTRY_PROFILES } from "./industries";
 import { planSmart } from "./planner";
 import { resolveTree } from "@/lib/dna/resolver";
-import { measuredLayer, curatedLayer } from "@/lib/dna/candidates";
+import { measuredLayer, curatedLayer, tokensLayer } from "@/lib/dna/candidates";
 import type { PipelineTrace } from "@/lib/dna/provenance";
 import type { CandidateLayer } from "@/lib/dna/resolver";
 
@@ -99,6 +99,7 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
   // site's measurements did not provide. Every decision lands in the trace.
   const layers = [
     measuredLayer(analysis.visualDna),
+    tokensLayer(analysis.measuredTokens),
     curatedLayer(moodboard),
   ].filter((l): l is CandidateLayer => l !== undefined);
 
