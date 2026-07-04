@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { generateSite, generateSiteCrawled, crawlPages, BlockedUrlError } from "@/lib/generation/engine";
-import { analyzeUrlV2 } from "@/lib/extraction/analyze";
+import { analyzeUrlV2, enrichWithMeasurements } from "@/lib/extraction/analyze";
 import { isLLMEnabled, rewriteContent, designSite, type SiteDesign } from "@/lib/llm";
 import { rateLimit, clientKey } from "@/lib/rate-limit";
 import type { SiteAnalysis, GenerationMode } from "@/lib/generation/types";
@@ -35,6 +35,9 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Provide `analysis` or `url`." }, { status: 400 });
       }
       analysis = await analyzeUrlV2(body.url);
+      // V2 raccordement C4→C6: attach real measured tokens/scenes when a
+      // browser can render the source. Byte-identical to today otherwise.
+      analysis = await enrichWithMeasurements(analysis, body.url);
     }
 
     // LLM copywriter: sharpen extracted content before the DNA pipeline reads

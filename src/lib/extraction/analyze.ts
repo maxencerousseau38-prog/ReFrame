@@ -8,6 +8,7 @@ import {
   needsRendering,
 } from "@/lib/generation/engine";
 import { canRender, renderHtml } from "@/lib/server/render";
+import { localBrowserReady } from "@/lib/server/browser";
 import { captureSite, type RenderedSite } from "@/lib/capture";
 import { measureTokens } from "@/lib/measure/tokens";
 import { measureScenes, heroCtaLabel } from "@/lib/measure/scenes";
@@ -84,16 +85,57 @@ export async function analyzeUrlV2WithCapture(
 
   const ext = await extractSite(url, captured.html);
   const analysis = toSiteAnalysis(ext);
-  // V2 Chantier 4: real tokens measured on the rendered capture, attached
-  // additively — the resolver consumes them with per-field confidence.
+  applyCaptureMeasurements(analysis, captured);
+  return { analysis, captured };
+}
+
+/**
+ * Attach the Chantier 4/6 measurements to an analysis. Extracted so both the
+ * capture entry point and the production wiring share ONE implementation.
+ *  - C4: real design tokens (palette, fonts, spacing…) → the resolver consumes
+ *    them with per-field confidence.
+ *  - C6: scene-by-scene measurements; the hero CTA measured from computed
+ *    styles supersedes the Tier-1 DOM heuristic (F16) when confident.
+ */
+export function applyCaptureMeasurements(
+  analysis: SiteAnalysis,
+  captured: RenderedSite
+): void {
   analysis.measuredTokens = measureTokens(captured);
-  // V2 Chantier 6: scene-by-scene measurements. The hero CTA measured from
-  // computed styles supersedes the Tier-1 DOM heuristic (F16) — a
-  // higher-fidelity measurement of the same source.
   analysis.measuredScenes = measureScenes(captured);
   const measuredCta = heroCtaLabel(analysis.measuredScenes);
   if (measuredCta && measuredCta.confidence >= 0.4) {
     analysis.extractedContent.ctaLabel = measuredCta.value;
   }
-  return { analysis, captured };
+}
+
+/**
+ * Production wiring (raccordement C4→C6): best-effort measurement of an
+ * already-extracted analysis. Reuses the exact capture + measurement code.
+ *
+ * Byte-identical fallback guarantee — the analysis is returned UNTOUCHED when:
+ *  - measurement is disabled (`REFRAME_MEASURE=0`), or
+ *  - no local browser can produce a Tier-2 snapshot, or
+ *  - the capture degrades (challenge, navigation failure) to a non-rendered
+ *    tier without a computed snapshot, or
+ *  - anything throws.
+ * So when Chromium is unavailable the result equals today's V5 output exactly.
+ */
+export async function enrichWithMeasurements(
+  analysis: SiteAnalysis,
+  rawUrl: string
+): Promise<SiteAnalysis> {
+  if (process.env.REFRAME_MEASURE === "0") return analysis;
+  try {
+    if (!(await localBrowserReady())) return analysis;
+    const url = normalizeUrl(rawUrl);
+    const captured = await captureSite(url);
+    if (captured.quality.tier !== "rendered" || !captured.quality.computedSnapshot) {
+      return analysis; // no real measurements available → unchanged
+    }
+    applyCaptureMeasurements(analysis, captured);
+  } catch {
+    /* best-effort: a capture failure must never break generation */
+  }
+  return analysis;
 }
