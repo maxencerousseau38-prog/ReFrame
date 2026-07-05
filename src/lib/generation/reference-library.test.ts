@@ -23,9 +23,14 @@ describe("ENRICHED_REFERENCE_DB", () => {
     expect(archform.richDna!.hero.compositionType).toBe(archform.dna.heroStyle);
   });
 
-  it("leaves references other than Archform without richDna", () => {
-    const others = ENRICHED_REFERENCE_DB.filter((r) => r.id !== "ref-archform");
-    expect(others.every((r) => r.richDna === undefined)).toBe(true);
+  it("enriches a curated subset and leaves the rest without richDna", () => {
+    const enrichedIds = ENRICHED_REFERENCE_DB.filter((r) => r.richDna).map((r) => r.id);
+    // Diverse premium design languages are curated (measured decisions only).
+    for (const id of ["ref-archform", "ref-linear", "ref-stripe", "ref-agencia", "ref-noma", "ref-flavor"]) {
+      expect(enrichedIds).toContain(id);
+    }
+    // Still additive: references without richDna keep working via the moodboard.
+    expect(ENRICHED_REFERENCE_DB.some((r) => r.richDna === undefined)).toBe(true);
   });
 
   it("preserves the original CuratedReference fields untouched", () => {

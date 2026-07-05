@@ -265,8 +265,9 @@ describe("findClosestReferences", () => {
 
   it("skips references without richDna", () => {
     const profile = findClosestReferences(ARCHFORM_VISUAL, ENRICHED_REFERENCE_DB);
-    // Only ref-archform has richDna → at most 1 result
-    expect(profile.references.length).toBeLessThanOrEqual(1);
+    // Returns up to topN (default 3), and every result is an enriched reference.
+    expect(profile.references.length).toBeLessThanOrEqual(3);
+    expect(profile.references.length).toBeGreaterThan(0);
     for (const wr of profile.references) {
       expect(wr.reference.richDna).toBeDefined();
     }
