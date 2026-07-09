@@ -218,7 +218,23 @@ function dnaEntrance(dna: DNAProps, delay: number): {
 function dnaSectionPy(dna: DNAProps): string {
   const base = 80; // px
   const scaled = Math.round(base * dna.spacingMultiplier);
-  return `${scaled}px`;
+  // Prefer the compiled --rf-space-section (carries measured + premium section
+  // rhythm via the resolver); fall back to the DNA-computed value (A1).
+  return `var(--rf-space-section, ${scaled}px)`;
+}
+
+/**
+ * A1 — section vertical rhythm from the compiled tokens. Reads
+ * --rf-space-section (measured + premium) with the component's existing
+ * hardcoded padding as the exact fallback, so V5 output is unchanged until a
+ * real signal exists. Returns an inline style; the component drops its py-*.
+ */
+function rfSectionPad(fallbackPx: number): React.CSSProperties {
+  // Floor at the component's current padding: the section only ever becomes
+  // MORE generous (measured/premium rhythm), never tighter — strictly
+  // non-regressive vs V5. Exact-measured tightening is deferred to SceneShell.
+  const v = `max(var(--rf-space-section, ${fallbackPx}px), ${fallbackPx}px)`;
+  return { paddingTop: v, paddingBottom: v };
 }
 
 /**
@@ -709,7 +725,7 @@ function FeaturesGrid1({ props }: { props: any }) {
   // cell (e.g. 4 items => 2x2, not 3+1). Most sectors ship 4 or 6 items.
   const lgCols = items.length % 3 === 0 ? "lg:grid-cols-3" : items.length % 2 === 0 ? "lg:grid-cols-2" : "lg:grid-cols-3";
   return (
-    <section className="px-6 py-24" style={{ color: "var(--brand-ink)" }}>
+    <section className="px-6" style={{ color: "var(--brand-ink)", ...rfSectionPad(96) }}>
       <div className="mx-auto max-w-5xl">
         <div className="max-w-2xl">
           <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>
@@ -3262,7 +3278,7 @@ function FeaturesSpotlight({ props }: { props: any }) {
 function FeaturesColumns({ props }: { props: any }) {
   const items = (props.items || []) as any[];
   return (
-    <section className="px-6 py-20 sm:py-24" style={{ background: "var(--brand-surface)" }}>
+    <section className="px-6" style={{ background: "var(--brand-surface)", ...rfSectionPad(96) }}>
       <div className="mx-auto max-w-6xl">
         <div className="max-w-2xl">
           <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>
@@ -3437,7 +3453,7 @@ function FeaturesShowcase({ props }: { props: any }) {
   const reduce = useReducedMotion();
   const items = (props.items || []) as any[];
   return (
-    <section className="px-6 py-24" style={{ color: "var(--brand-ink)" }}>
+    <section className="px-6" style={{ color: "var(--brand-ink)", ...rfSectionPad(96) }}>
       <div className="mx-auto max-w-6xl">
         <div className="max-w-2xl">
           <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>{props.title}</h2>

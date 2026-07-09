@@ -471,13 +471,14 @@ export function compose(analysis: SiteAnalysis, opts: ComposeOptions): SiteSchem
   const industry = analysis.industry;
   const mood = INDUSTRY_PROFILES[industry].theme.mood;
 
-  // 2. Build theme from DNA + analysis; enrich with measured tokens when the
-  // source was actually measured (Tier 2 capture) — V5 path untouched.
-  const compiled = analysis.measuredTokens
-    ? compileTokens(dna, analysis.measuredTokens)
-    : undefined;
+  // 2. Build theme from DNA + analysis. compileTokens ALWAYS runs so the DNA's
+  // composition decisions (spacing, container, type scale) reach the renderer
+  // as --rf-* vars for every site — measured AND premium (inspiration) rhythm
+  // that flows through the DNA even without a Tier-2 capture (A1). The measured
+  // PALETTE/fonts patch stays gated on a real capture (fill-only, I1).
+  const compiled = compileTokens(dna, analysis.measuredTokens);
   const theme = buildTheme(analysis, dna, profile);
-  if (compiled) applyThemePatch(theme, compiled.themePatch);
+  if (analysis.measuredTokens) applyThemePatch(theme, compiled.themePatch);
 
   // 3. Build blocks: Art Direction drives variant + section order when present
   const model = buildContentModel(analysis);

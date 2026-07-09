@@ -78,9 +78,15 @@ describe("compose with measured tokens (C5 end to end)", () => {
     expect(overrides["--rf-font-display"]).toContain("Fraunces");
   });
 
-  it("V5 compatibility: no measurements → no tokens on the schema, theme untouched", () => {
-    expect(without.schema.tokens).toBeUndefined();
-    expect(without.schema.theme.surface).toBeUndefined(); // deriveScheme keeps the role
+  it("V5 compatibility: no measurements → tokens carry DNA --rf-* vars, PALETTE untouched", () => {
+    // A1 enabler: --rf-* composition vars are emitted for every site so the
+    // DNA's rhythm/container/type-scale can reach the renderer. But the
+    // measured PALETTE/fonts patch stays gated on a real capture (fill-only).
+    expect(without.schema.tokens).toBeDefined();
+    expect(without.schema.tokens!.vars["--rf-space-section"]).toBeTruthy();
+    expect(without.schema.tokens!.fontFaceCss).toBe(""); // no measured fonts
+    expect(without.schema.theme.surface).toBeUndefined(); // deriveScheme keeps the role (no palette patch)
+    expect(without.schema.theme.ink).toBeUndefined();
     expect(tokenVarOverrides(undefined)).toEqual({});
   });
 });
