@@ -238,6 +238,25 @@ function rfSectionPad(fallbackPx: number): React.CSSProperties {
 }
 
 /**
+ * A2 — data-driven site container. The DNA's contentMaxWidth (measured >
+ * premium reference > preset) drives every section's standard container;
+ * the fallback is the component's V5 width (only used without tokens).
+ */
+function rfContainer(fallbackPx = 1152): React.CSSProperties {
+  return { maxWidth: `var(--rf-container, ${fallbackPx}px)` };
+}
+
+/**
+ * A2 — inner composition width as a RATIO of the site container, so the
+ * width hierarchy (container > featured > reading) scales together when the
+ * container changes. Fallback math preserves the V5 widths exactly
+ * (1152 x 0.89 = 1024 = max-w-5xl, x 0.78 = 896 = max-w-4xl).
+ */
+function rfContainerRatio(ratio: number): React.CSSProperties {
+  return { maxWidth: `calc(var(--rf-container, 1152px) * ${ratio})` };
+}
+
+/**
  * DNA-derived card style as inline React CSS.
  */
 function dnaCardStyle(dna: DNAProps): React.CSSProperties {
@@ -726,7 +745,7 @@ function FeaturesGrid1({ props }: { props: any }) {
   const lgCols = items.length % 3 === 0 ? "lg:grid-cols-3" : items.length % 2 === 0 ? "lg:grid-cols-2" : "lg:grid-cols-3";
   return (
     <section className="px-6" style={{ color: "var(--brand-ink)", ...rfSectionPad(96) }}>
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto" style={rfContainerRatio(0.89)}>
         <div className="max-w-2xl">
           <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>
             {props.title}
@@ -864,7 +883,7 @@ function FaqGrid({ props }: { props: any }) {
   const items = (props.items || []) as { question: string; answer: string }[];
   return (
     <section className="px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto" style={rfContainerRatio(0.89)}>
         <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>
           {props.title}
         </h2>
@@ -963,8 +982,8 @@ function CTASection1({ props }: { props: any }) {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.6, ease: EASE }}
-        className="relative mx-auto max-w-4xl overflow-hidden border px-8 py-16 text-center text-white md:px-16 md:py-20"
-        style={{
+        className="relative mx-auto overflow-hidden border px-8 py-16 text-center text-white md:px-16 md:py-20"
+        style={{ ...rfContainerRatio(0.78),
           background: "var(--brand-contrast)",
           borderRadius: "28px",
           borderColor: HAIRLINE,
@@ -1046,7 +1065,7 @@ function ContactFormPremium1({ props }: { props: any }) {
 
   return (
     <section id="contact" className="px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
-      <div className="mx-auto grid max-w-5xl items-start gap-12 lg:grid-cols-2">
+      <div className="mx-auto grid items-start gap-12 lg:grid-cols-2" style={rfContainerRatio(0.89)}>
         <div>
           <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>
             {props.title}
@@ -1131,7 +1150,7 @@ function ContactFormPremium1({ props }: { props: any }) {
 function Footer1({ props }: { props: any }) {
   return (
     <footer className="border-t px-6" style={{ borderColor: HAIRLINE, color: "var(--brand-ink)" , ...rfSectionPad(64) }}>
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto" style={rfContainer(1152)}>
         <div className="flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <div
@@ -1256,7 +1275,7 @@ function FeaturesBento({ props }: { props: any }) {
   const items = (props.items || []) as any[];
   return (
     <section className="px-6" style={{ background: "var(--brand-surface)" , ...rfSectionPad(96) }}>
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto" style={rfContainer(1152)}>
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>
             {props.title}
@@ -1395,8 +1414,8 @@ function StatsCounter({ props }: { props: any }) {
   return (
     <section className="px-6" style={rfSectionPad(80)}>
       <div
-        className="mx-auto max-w-6xl overflow-hidden px-8 py-14 sm:px-12 sm:py-16"
-        style={{ background: "var(--brand-contrast)", borderRadius: "calc(var(--brand-radius) * 1.5)" }}
+        className="mx-auto overflow-hidden px-8 py-14 sm:px-12 sm:py-16"
+        style={{ ...rfContainer(1152), background: "var(--brand-contrast)", borderRadius: "calc(var(--brand-radius) * 1.5)" }}
       >
         {props.title && (
           <p className="mb-10 text-[0.7rem] font-medium uppercase tracking-[0.28em] text-white/45">
@@ -1441,7 +1460,7 @@ function ServicesList({ props }: { props: any }) {
   const items = (props.items || []) as { title: string; description?: string }[];
   return (
     <section className="px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(112) }}>
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto" style={rfContainer(1152)}>
         <div className="grid gap-3 md:grid-cols-[0.9fr_1.1fr] md:items-end">
           {props.eyebrow && (
             <span
@@ -1511,7 +1530,7 @@ function PortfolioGrid({ props }: { props: any }) {
   const useGallery = withImg.length >= 3;
   return (
     <section className="px-6" style={rfSectionPad(112)}>
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto" style={rfContainer(1152)}>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             {props.eyebrow && (
@@ -1618,7 +1637,10 @@ function AboutSplit({ props }: { props: any }) {
   const hasImage = !!props.image;
   return (
     <section className="px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(112) }}>
-      <div className={hasImage ? "mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[0.95fr_1.05fr]" : "mx-auto max-w-2xl text-center"}>
+      <div
+        className={hasImage ? "mx-auto grid items-center gap-12 lg:grid-cols-[0.95fr_1.05fr]" : "mx-auto max-w-2xl text-center"}
+        style={hasImage ? rfContainer(1152) : undefined}
+      >
         {hasImage && (
           <motion.div
             initial={reduce ? false : { opacity: 0, scale: 1.03 }}
@@ -1728,7 +1750,7 @@ function StatementEditorial({ props }: { props: any }) {
   const title = (props.title || "") as string;
   return (
     <section className="overflow-hidden px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(128) }}>
-      <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+      <div className="mx-auto grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16" style={rfContainer(1152)}>
         {/* statement column */}
         <div className="lg:pt-10">
           {props.eyebrow && (
@@ -1836,7 +1858,7 @@ function TeamGrid({ props }: { props: any }) {
   if (!members.length) return null;
   return (
     <section className="px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(112) }}>
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto" style={rfContainer(1152)}>
         <div className="max-w-2xl">
           {props.eyebrow && (
             <span className="inline-flex items-center gap-3 text-[0.7rem] font-medium uppercase tracking-[0.28em]" style={{ color: "var(--brand-accent)" }}>
@@ -1886,7 +1908,7 @@ function TestimonialsEditorial({ props }: { props: any }) {
   const [lead, ...rest] = items;
   return (
     <section className="px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(112) }}>
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto" style={rfContainer(1152)}>
         {props.title && (
           <p className="text-[0.7rem] font-medium uppercase tracking-[0.28em]" style={{ color: "var(--brand-accent)" }}>
             {props.title}
@@ -1953,8 +1975,8 @@ function CTAEditorial({ props }: { props: any }) {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.6, ease: EASE }}
-        className="mx-auto max-w-4xl border-y px-6 py-20 text-center sm:py-24"
-        style={{ borderColor: HAIRLINE, color: "var(--brand-ink)" }}
+        className="mx-auto border-y px-6 py-20 text-center sm:py-24"
+        style={{ ...rfContainerRatio(0.78), borderColor: HAIRLINE, color: "var(--brand-ink)" }}
       >
         <h2
           className="mx-auto max-w-2xl text-[clamp(2rem,5vw,3.5rem)] font-medium leading-[1.05] tracking-[-0.02em]"
@@ -2158,7 +2180,7 @@ function FeaturesAlternating({ props }: { props: any }) {
   const items = (props.items || []) as any[];
   return (
     <section className="px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto" style={rfContainerRatio(0.89)}>
         <div className="max-w-2xl">
           <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>
             {props.title}
@@ -2216,7 +2238,7 @@ function ServicesCards({ props }: { props: any }) {
   const items = (props.items || []) as { title: string; description?: string }[];
   return (
     <section className="px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto" style={rfContainer(1152)}>
         <div className="max-w-2xl">
           {props.eyebrow && (
             <span className="inline-flex items-center gap-3 text-[0.7rem] font-medium uppercase tracking-[0.28em]" style={{ color: "var(--brand-accent)" }}>
@@ -2278,7 +2300,7 @@ function TestimonialsGrid({ props }: { props: any }) {
       .join("");
   return (
     <section className="px-6" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto" style={rfContainer(1152)}>
         {props.title && (
           <h2
             className="max-w-2xl text-[clamp(2rem,4.5vw,3rem)] font-medium leading-[1.05] tracking-[-0.02em]"
@@ -2518,14 +2540,14 @@ function StatementAgencia({ props }: { props: any }) {
   const [live, muted] = splitTwoTone(statement, 0.45);
   return (
     <section ref={ref} className="px-6 text-white" style={{ background: AGENCIA_BG , ...rfSectionPad(128) }}>
-      <div className="mx-auto max-w-5xl text-center">
+      <div className="mx-auto text-center" style={rfContainerRatio(0.89)}>
         <NumberedPill label={props.eyebrow || "About"} index={props._index} />
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, ease: EASE }}
-          className={cn("mx-auto mt-10 max-w-4xl text-[clamp(1.6rem,4vw,3rem)]", AGENCIA_DISPLAY)}
-          style={{ fontFamily: "var(--brand-font)" }}
+          className={cn("mx-auto mt-10 text-[clamp(1.6rem,4vw,3rem)]", AGENCIA_DISPLAY)}
+          style={{ fontFamily: "var(--brand-font)", ...rfContainerRatio(0.78) }}
         >
           <span>{live} </span>
           {muted && <span className="text-white/35">{muted}</span>}
@@ -2554,7 +2576,7 @@ function CTAAsterisk({ props }: { props: any }) {
   const reduce = useReducedMotion();
   return (
     <section className="overflow-hidden px-6 pt-24 text-white sm:pt-32" style={{ background: AGENCIA_BG }}>
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto" style={rfContainer(1152)}>
         <NumberedPill label={props.eyebrow || "Contact"} index={props._index} />
         {props.subtitle && <p className="mt-6 text-lg text-white/60">{props.subtitle}</p>}
         <h2 className={cn("mt-4 text-[clamp(2.6rem,11vw,8rem)]", AGENCIA_DISPLAY)} style={{ fontFamily: "var(--brand-font)" }}>
@@ -3099,7 +3121,7 @@ function FooterColumns({ props }: { props: any }) {
   const head = "text-xs font-medium uppercase tracking-wider";
   return (
     <footer className="border-t px-6" style={{ borderColor: HAIRLINE, color: "var(--brand-ink)" , ...rfSectionPad(64) }}>
-      <div className="mx-auto grid max-w-6xl gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+      <div className="mx-auto grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]" style={rfContainer(1152)}>
         <div>
           <div className="text-2xl font-medium tracking-tight" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>{props.brand}</div>
           <p className="mt-3 max-w-xs text-sm" style={{ opacity: 0.55 }}>Crafted with care.</p>
@@ -3127,7 +3149,7 @@ function FooterColumns({ props }: { props: any }) {
           </div>
         )}
       </div>
-      <div className="mx-auto mt-12 flex max-w-6xl flex-col gap-3 border-t pt-6 text-xs sm:flex-row sm:items-center sm:justify-between" style={{ borderColor: HAIRLINE, opacity: 0.55 }}>
+      <div className="mx-auto mt-12 flex flex-col gap-3 border-t pt-6 text-xs sm:flex-row sm:items-center sm:justify-between" style={{ borderColor: HAIRLINE, opacity: 0.55 , ...rfContainer(1152) }}>
         <span>&copy; {new Date().getFullYear()} {props.brand}. All rights reserved.</span>
         {Array.isArray(props.social) && props.social.length > 0 && (
           <ul className="flex flex-wrap items-center gap-4">
@@ -3186,8 +3208,8 @@ function CTABanner({ props }: { props: any }) {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.6, ease: EASE }}
-        className="mx-auto flex max-w-5xl flex-col items-start gap-6 rounded-[1.5rem] p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10"
-        style={{ background: "color-mix(in srgb, var(--brand-accent) 10%, var(--brand-surface))", boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
+        className="mx-auto flex flex-col items-start gap-6 rounded-[1.5rem] p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10"
+        style={{ ...rfContainerRatio(0.89), background: "color-mix(in srgb, var(--brand-accent) 10%, var(--brand-surface))", boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
       >
         <div>
           <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>
@@ -3212,8 +3234,8 @@ function CTAGradient({ props }: { props: any }) {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.6, ease: EASE }}
-        className="relative mx-auto max-w-5xl overflow-hidden rounded-[2rem] px-8 py-20 text-center sm:px-16"
-        style={{ background: "linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 90%, black), color-mix(in srgb, var(--brand-accent) 55%, black))" }}
+        className="relative mx-auto overflow-hidden rounded-[2rem] px-8 py-20 text-center sm:px-16"
+        style={{ ...rfContainerRatio(0.89), background: "linear-gradient(135deg, color-mix(in srgb, var(--brand-accent) 90%, black), color-mix(in srgb, var(--brand-accent) 55%, black))" }}
       >
         <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(60% 80% at 50% 0%, rgba(255,255,255,0.25), transparent 60%)" }} />
         <div className="relative">
@@ -3240,7 +3262,7 @@ function FeaturesSpotlight({ props }: { props: any }) {
   };
   return (
     <section className="px-6" style={{ background: "var(--brand-surface)" , ...rfSectionPad(96) }}>
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto" style={rfContainer(1152)}>
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>
           {props.subtitle && <p className="mt-3" style={{ color: "var(--brand-ink)", opacity: 0.55 }}>{props.subtitle}</p>}
@@ -3279,7 +3301,7 @@ function FeaturesColumns({ props }: { props: any }) {
   const items = (props.items || []) as any[];
   return (
     <section className="px-6" style={{ background: "var(--brand-surface)", ...rfSectionPad(96) }}>
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto" style={rfContainer(1152)}>
         <div className="max-w-2xl">
           <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>
           {props.subtitle && <p className="mt-3" style={{ color: "var(--brand-ink)", opacity: 0.55 }}>{props.subtitle}</p>}
@@ -3363,7 +3385,7 @@ function FeaturesBigType({ props }: { props: any }) {
   const items = (props.items || []) as any[];
   return (
     <section className="px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto" style={rfContainerRatio(0.78)}>
         <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>{props.title}</h2>
         <div className="mt-12">
           {items.map((it, i) => (
@@ -3398,7 +3420,7 @@ function FeaturesSticky({ props }: { props: any }) {
   const items = (props.items || []) as any[];
   return (
     <section className="px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
-      <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
+      <div className="mx-auto grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16" style={rfContainer(1152)}>
         <div className="lg:sticky lg:top-24 lg:self-start">
           <span className="inline-flex items-center gap-3 text-[0.7rem] font-medium uppercase tracking-[0.28em]" style={{ color: "var(--brand-accent)" }}>
             <span className="h-px w-9" style={{ background: "var(--brand-accent)" }} />
@@ -3454,7 +3476,7 @@ function FeaturesShowcase({ props }: { props: any }) {
   const items = (props.items || []) as any[];
   return (
     <section className="px-6" style={{ color: "var(--brand-ink)", ...rfSectionPad(96) }}>
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto" style={rfContainer(1152)}>
         <div className="max-w-2xl">
           <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>{props.title}</h2>
           {props.subtitle && <p className="mt-3 text-lg" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{props.subtitle}</p>}
@@ -3501,7 +3523,7 @@ function ProductGrid({ props }: { props: any }) {
   const items = (props.items || []) as { name: string; price?: string; image?: string; url?: string }[];
   return (
     <section className="px-6" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto" style={rfContainer(1152)}>
         <div className="max-w-2xl">
           {props.eyebrow && (
             <div className="mb-3 text-xs font-medium uppercase tracking-[0.2em]" style={{ color: "var(--brand-accent)" }}>{props.eyebrow}</div>
@@ -3554,7 +3576,7 @@ function TestimonialsSpotlight({ props }: { props: any }) {
   const t = items[0];
   return (
     <section className="px-6" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
-      <div className="mx-auto max-w-4xl text-center">
+      <div className="mx-auto text-center" style={rfContainerRatio(0.78)}>
         {props.title && <div className="mb-10 text-xs font-medium uppercase tracking-[0.28em]" style={{ color: "var(--brand-accent)" }}>{props.title}</div>}
         <motion.figure
           initial={{ opacity: 0, y: 20 }}
@@ -3596,7 +3618,7 @@ function TestimonialsStacked({ props }: { props: any }) {
   if (!items.length) return null;
   return (
     <section className="px-6" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto" style={rfContainerRatio(0.78)}>
         {props.title && <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>}
         <div className="mt-12 flex flex-col">
           {items.slice(0, 4).map((t, i) => (
@@ -3682,8 +3704,8 @@ function ContactBanner({ props }: { props: any }) {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.6, ease: EASE }}
-        className="relative mx-auto max-w-5xl overflow-hidden px-8 py-16 text-center text-white sm:px-16 sm:py-20"
-        style={{ background: "var(--brand-contrast)", borderRadius: "calc(var(--brand-radius) * 1.6)" }}
+        className="relative mx-auto overflow-hidden px-8 py-16 text-center text-white sm:px-16 sm:py-20"
+        style={{ ...rfContainerRatio(0.89), background: "var(--brand-contrast)", borderRadius: "calc(var(--brand-radius) * 1.6)" }}
       >
         <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(60% 120% at 50% 0%, color-mix(in srgb, var(--brand-accent) 32%, transparent), transparent 60%)" }} />
         <div className="relative">
@@ -3711,7 +3733,7 @@ function GalleryMasonry({ props }: { props: any }) {
   if (!items.length) return null;
   return (
     <section className="px-6" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto" style={rfContainer(1152)}>
         <div className="max-w-2xl">
           {props.eyebrow && <div className="mb-3 text-xs font-medium uppercase tracking-[0.22em]" style={{ color: "var(--brand-accent)" }}>{props.eyebrow}</div>}
           {props.title && <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>}
@@ -3747,7 +3769,7 @@ function GalleryStrip({ props }: { props: any }) {
   if (!items.length) return null;
   return (
     <section className="" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
-      <div className="mx-auto mb-8 max-w-6xl px-6">
+      <div className="mx-auto mb-8 px-6" style={rfContainer(1152)}>
         {props.eyebrow && <div className="mb-3 text-xs font-medium uppercase tracking-[0.22em]" style={{ color: "var(--brand-accent)" }}>{props.eyebrow}</div>}
         {props.title && <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>}
       </div>
@@ -3774,7 +3796,7 @@ function GalleryFeature({ props }: { props: any }) {
   if (!items.length) return null;
   return (
     <section className="px-6" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
-      <div className="mx-auto flex max-w-6xl flex-col gap-6">
+      <div className="mx-auto flex flex-col gap-6" style={rfContainer(1152)}>
         {props.title && <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>}
         {items.slice(0, 5).map((it, i) => (
           <motion.div
@@ -4014,7 +4036,7 @@ function SiteNav({ brand, items, cta, logoUrl, dark }: { brand: NavItem; items: 
         paddingTop: "env(safe-area-inset-top)",
       }}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-[max(1.5rem,env(safe-area-inset-left))] py-3.5">
+      <div className="mx-auto flex items-center justify-between gap-4 px-[max(1.5rem,env(safe-area-inset-left))] py-3.5" style={rfContainer(1152)}>
         {brand.href ? (
           <a href={brand.href} className="inline-flex items-center" aria-label={brand.label}>
             <BrandLogo logo={logoUrl} name={brand.label} dark={dark} />
