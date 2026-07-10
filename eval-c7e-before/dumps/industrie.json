@@ -1,0 +1,119 @@
+{
+  "sector": "industrie",
+  "url": "https://www.matferbourgeat.com",
+  "source": {
+    "htmlKb": 131,
+    "prices": 0,
+    "addToCart": 5,
+    "checkout": 0,
+    "productCards": 5,
+    "categories": 0,
+    "variants": 0,
+    "booking": 4,
+    "search": 8,
+    "filters": 0,
+    "menuCarte": 398,
+    "rooms": 0,
+    "properties": 2,
+    "team": 0,
+    "expertise": 0,
+    "pricing": 0,
+    "reviews": 3,
+    "hours": 0,
+    "phone": 0
+  },
+  "analysis": {
+    "industry": "realestate",
+    "confidence": "full",
+    "brandName": "Matfer Bourgeat",
+    "logo": true,
+    "accent": "#ff6900",
+    "detectedSections": [
+      "Qui sommes-nous ?",
+      "Blog",
+      "Groupe Matfer Bourgeat"
+    ],
+    "structureSections": [
+      "features@0(50)",
+      "blog@1(85)",
+      "features@2(50)"
+    ],
+    "nav": [
+      "Qui sommes-nous ?",
+      "Notre histoire",
+      "Notre groupe",
+      "Nos missions",
+      "Nos engagements rse",
+      "Nous rejoindre",
+      "Nos produits",
+      "Notre catalogue digital",
+      "Nos catalogues papier",
+      "Acheter en ligne :",
+      "| e-shops",
+      "| Marketplaces",
+      "Vos projets",
+      "Chef’s List",
+      "Le Sur-Mesure",
+      "Innovation",
+      "Matfer Bourgeat International",
+      "Datathèque",
+      "Blog",
+      "Toutes nos réalisations en vidéo",
+      "Youtube",
+      "Instagram",
+      "Pinterest-p",
+      "Linkedin-in",
+      "e-shops",
+      "Marketplaces",
+      "Mentions légales"
+    ],
+    "headline": "Accueil - Matfer Bourgeat",
+    "services": [
+      "Curated listings",
+      "Market valuation",
+      "Buyer matching",
+      "End-to-end support"
+    ],
+    "images": 5,
+    "testimonials": 0,
+    "stats": 0,
+    "faq": 0,
+    "language": "fr",
+    "integrations": [
+      "ga4"
+    ],
+    "measured": {
+      "tokens": false,
+      "scenes": false
+    }
+  },
+  "schema": {
+    "blocks": [
+      "hero:HeroArchform",
+      "features:FeaturesShowcase",
+      "blog:FeaturesShowcase",
+      "features:FeaturesShowcase",
+      "footer:FooterMinimal"
+    ],
+    "pages": [
+      "notre-histoire",
+      "notre-groupe",
+      "nos-missions",
+      "nos-engagements-rse"
+    ],
+    "dark": false,
+    "tokens": false,
+    "heroProps": {
+      "eyebrow": "Real Estate",
+      "title": "Accueil - Matfer Bourgeat",
+      "subtitle": "Qui sommes-nous ? Notre histoire Notre groupe Nos missions Nos engagements RSE Nous rejoin",
+      "primaryCta": "Book a viewing",
+      "primaryHref": "#contact",
+      "secondaryCta": "Learn more",
+      "secondaryHref": "#contact",
+      "image": "https://www.matferbourgeat.com/wp-content/uploads/2021/08/img-home-groupe.jpg",
+      "brand": "Matfer Bourgeat",
+      "caption": "Curated listings"
+    }
+  }
+}

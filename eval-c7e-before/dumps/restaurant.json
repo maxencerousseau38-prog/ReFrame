@@ -1,0 +1,92 @@
+{
+  "sector": "restaurant",
+  "url": "https://www.bouillon-chartier.com",
+  "source": {
+    "htmlKb": 150,
+    "prices": 4,
+    "addToCart": 2,
+    "checkout": 0,
+    "productCards": 2,
+    "categories": 8,
+    "variants": 0,
+    "booking": 4,
+    "search": 0,
+    "filters": 2,
+    "menuCarte": 11,
+    "rooms": 0,
+    "properties": 1,
+    "team": 0,
+    "expertise": 0,
+    "pricing": 0,
+    "reviews": 5,
+    "hours": 1,
+    "phone": 1
+  },
+  "analysis": {
+    "industry": "restaurant",
+    "confidence": "full",
+    "brandName": "Le Bouillon Chartier",
+    "logo": true,
+    "accent": "#c31729",
+    "detectedSections": [
+      "Il n’est de bouillon que Chartier",
+      "❝ Offrir un repas digne à un prix modeste ❞"
+    ],
+    "structureSections": [
+      "hero@0(95)",
+      "features@1(50)"
+    ],
+    "nav": [],
+    "headline": "Il n’est de bouillon que Chartier",
+    "services": [
+      "Seasonal menu",
+      "Private dining",
+      "Wine pairing",
+      "Online reservations"
+    ],
+    "images": 6,
+    "testimonials": 0,
+    "stats": 0,
+    "faq": 4,
+    "language": "fr",
+    "integrations": [
+      "ga4",
+      "gtm"
+    ],
+    "measured": {
+      "tokens": false,
+      "scenes": false
+    }
+  },
+  "schema": {
+    "blocks": [
+      "hero:HeroImageFull",
+      "features:FeaturesShowcase",
+      "faq:FaqGrid",
+      "cta:CTAEditorial",
+      "contact:ContactFormPremium1",
+      "footer:FooterMinimal"
+    ],
+    "pages": [
+      "bouillon-chartier-gare-de-lest",
+      "en/the-concept",
+      "bouillon-chartier-grands-boulevards",
+      "bouillon-chartier-montparnasse",
+      "shop"
+    ],
+    "dark": false,
+    "tokens": false,
+    "heroProps": {
+      "eyebrow": "Restaurant & Hospitality",
+      "title": "Il n’est de bouillon que Chartier",
+      "subtitle": "Un bouillon à Paris ? Alors rendez-vous au Bouillon Chartier, des Bouillons parmi les meil",
+      "primaryCta": "Book a table",
+      "primaryHref": "#contact",
+      "secondaryCta": "Call us",
+      "secondaryHref": "tel:74-48)0147708629",
+      "image": "https://www.bouillon-chartier.com/chartier_medias/2023/11/bouillon-chartier-home-montparna",
+      "brand": "Le Bouillon Chartier",
+      "caption": "Seasonal menu"
+    }
+  }
+}

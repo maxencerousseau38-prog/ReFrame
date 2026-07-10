@@ -1,0 +1,103 @@
+{
+  "sector": "immobilier",
+  "url": "https://www.guy-hoquet.com",
+  "source": {
+    "htmlKb": 58,
+    "prices": 1,
+    "addToCart": 0,
+    "checkout": 3,
+    "productCards": 0,
+    "categories": 0,
+    "variants": 0,
+    "booking": 2,
+    "search": 11,
+    "filters": 10,
+    "menuCarte": 10,
+    "rooms": 0,
+    "properties": 25,
+    "team": 2,
+    "expertise": 7,
+    "pricing": 0,
+    "reviews": 20,
+    "hours": 0,
+    "phone": 0
+  },
+  "analysis": {
+    "industry": "finance",
+    "confidence": "full",
+    "brandName": "Guy Hoquet",
+    "logo": true,
+    "detectedSections": [
+      "Et si vous relanciez votre recherche ?",
+      "L'actualité de l'immobilier",
+      "Nos clients en parlent le mieux !",
+      "Guy Hoquet services",
+      "Les garanties Guy Hoquet",
+      "Contact"
+    ],
+    "structureSections": [
+      "hero@0(95)",
+      "features@1(50)",
+      "testimonials@2(85)",
+      "services@3(85)",
+      "features@4(50)",
+      "contact@5(60)"
+    ],
+    "nav": [
+      "Accueil",
+      "Acheter",
+      "Louer",
+      "Vendre"
+    ],
+    "headline": "Et si vous relanciez votre recherche ?",
+    "ctaLabel": "Acheter",
+    "services": [
+      "Tax planning",
+      "Wealth management",
+      "Business accounting",
+      "Financial consulting"
+    ],
+    "images": 4,
+    "testimonials": 5,
+    "stats": 0,
+    "faq": 0,
+    "language": "fr",
+    "integrations": [
+      "gtm"
+    ],
+    "measured": {
+      "tokens": false,
+      "scenes": false
+    }
+  },
+  "schema": {
+    "blocks": [
+      "hero:HeroBento",
+      "features:FeaturesSticky",
+      "testimonials:TestimonialsGrid",
+      "services:ServicesList",
+      "features:FeaturesSticky",
+      "contact:ContactFormPremium1",
+      "footer:FooterMinimal"
+    ],
+    "pages": [
+      "vendre",
+      "location-immobiliere",
+      "achat-immobilier"
+    ],
+    "dark": false,
+    "tokens": false,
+    "heroProps": {
+      "eyebrow": "Finance & Consulting",
+      "title": "Et si vous relanciez votre recherche ?",
+      "subtitle": "Pour vos projets immobiliers, faites confiance à l'expertise de Guy Hoquet pour vos estima",
+      "primaryCta": "Book a consultation",
+      "primaryHref": "#contact",
+      "secondaryCta": "Learn more",
+      "secondaryHref": "#contact",
+      "image": "https://www.guy-hoquet.com/media/595143/1/0/1/Design+sans+titre-2.png",
+      "brand": "Guy Hoquet",
+      "caption": "Tax planning"
+    }
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "sector": "avocats",
+  "url": "https://www.august-debouzy.com",
+  "source": {
+    "htmlKb": 97,
+    "prices": 0,
+    "addToCart": 0,
+    "checkout": 0,
+    "productCards": 0,
+    "categories": 0,
+    "variants": 0,
+    "booking": 2,
+    "search": 35,
+    "filters": 2,
+    "menuCarte": 47,
+    "rooms": 0,
+    "properties": 0,
+    "team": 22,
+    "expertise": 45,
+    "pricing": 1,
+    "reviews": 0,
+    "hours": 0,
+    "phone": 0
+  },
+  "analysis": {
+    "industry": "lawyer",
+    "confidence": "full",
+    "brandName": "August Debouzy avocats",
+    "logo": true,
+    "accent": "#5bbad5",
+    "detectedSections": [
+      "August Debouzy",
+      "International"
+    ],
+    "structureSections": [
+      "hero@0(95)",
+      "features@1(50)"
+    ],
+    "nav": [
+      "Firm",
+      "Practice Areas",
+      "Sectors",
+      "Team",
+      "International",
+      "News",
+      "Legal notice",
+      "Training",
+      "Personal data protection policy",
+      "Cookies policy",
+      "Contacts",
+      "Consumer & Communications",
+      "M&A",
+      "Go-to-Market",
+      "Securities law - Capital markets",
+      "Private Equity",
+      "Restructuring Operations",
+      "Financing",
+      "Tax Law",
+      "Real Estate and Construction",
+      "IT and Data Protection",
+      "Patent Law",
+      "Compliance",
+      "Dispute Resolution",
+      "Environmental Law",
+      "European Law",
+      "Private Clients",
+      "Aeronautics & Defense",
+      "Banking - Finance",
+      "Cybersecurity",
+      "Energy",
+      "Industry - Industrial projects",
+      "Infrastructure",
+      "Life sciences & Healthcare",
+      "Luxury - Retail",
+      "Media",
+      "Real estate - Construction",
+      "Sports",
+      "Tech & Digital",
+      "Telecoms",
+      "Our team",
+      "Join Us",
+      "Podcasts",
+      "Events",
+      "Highlights",
+      "Insights"
+    ],
+    "headline": "August Debouzy",
+    "ctaLabel": "News",
+    "services": [
+      "Business law",
+      "Real estate law",
+      "Family law",
+      "Litigation"
+    ],
+    "images": 6,
+    "testimonials": 0,
+    "stats": 0,
+    "faq": 0,
+    "language": "en",
+    "integrations": [
+      "hubspot"
+    ],
+    "measured": {
+      "tokens": false,
+      "scenes": false
+    }
+  },
+  "schema": {
+    "blocks": [
+      "hero:HeroEditorial",
+      "features:ProcessTimeline",
+      "faq:FaqGrid",
+      "cta:CTAEditorial",
+      "contact:ContactFormPremium1",
+      "footer:FooterMinimal"
+    ],
+    "pages": [
+      "en/cabinet",
+      "en/training",
+      "en/legale-mentions",
+      "en/international"
+    ],
+    "dark": false,
+    "tokens": false,
+    "heroProps": {
+      "eyebrow": "Legal & Law",
+      "title": "August Debouzy",
+      "subtitle": "August Debouzy law firm",
+      "primaryCta": "Book a consultation",
+      "primaryHref": "#contact",
+      "secondaryCta": "Call us",
+      "secondaryHref": "tel:+33145615180",
+      "image": "https://august-debouzy.s3-eu-west-1.amazonaws.com/CACHE/images/media/1741614490/aerial-vie",
+      "brand": "August Debouzy avocats",
+      "caption": "Business law"
+    }
+  }
+}

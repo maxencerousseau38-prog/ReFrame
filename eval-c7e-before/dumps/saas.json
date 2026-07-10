@@ -1,0 +1,129 @@
+{
+  "sector": "saas",
+  "url": "https://www.payfit.com",
+  "source": {
+    "htmlKb": 376,
+    "prices": 0,
+    "addToCart": 1,
+    "checkout": 0,
+    "productCards": 10,
+    "categories": 0,
+    "variants": 0,
+    "booking": 0,
+    "search": 0,
+    "filters": 34,
+    "menuCarte": 278,
+    "rooms": 0,
+    "properties": 0,
+    "team": 20,
+    "expertise": 2,
+    "pricing": 5,
+    "reviews": 394,
+    "hours": 0,
+    "phone": 0
+  },
+  "analysis": {
+    "industry": "saas",
+    "confidence": "full",
+    "brandName": "PayFit",
+    "logo": true,
+    "accent": "#00b67a",
+    "detectedSections": [
+      "PAYROLL SOFTWARE UK",
+      "UK payroll that’s powerful enough for experts, simple enough for anyone.",
+      "Run payroll and review payments!",
+      "We’ll fit right in with your favourite tools",
+      "Payroll & RTI submissions",
+      "PayFit Copilot",
+      "Performance and people management",
+      "Expense management",
+      "Frequently Asked Questions",
+      "What are the key features of payroll software for small businesses in the UK?",
+      "How can cloud-based payroll software benefit medium-sized businesses?",
+      "What payroll management tools are available for free in the UK?",
+      "How does an employee self-service portal enhance payroll management?",
+      "Join 20,000+ businesses simplifying their payroll"
+    ],
+    "structureSections": [
+      "hero@0(95)",
+      "features@1(50)",
+      "testimonials@2(70)",
+      "features@3(50)",
+      "about@4(70)",
+      "features@5(50)",
+      "team@6(70)",
+      "features@7(50)",
+      "faq@8(85)",
+      "features@9(70)",
+      "process@10(70)",
+      "features@11(50)",
+      "process@12(70)",
+      "features@13(50)"
+    ],
+    "nav": [
+      "Why PayFit?",
+      "Pricing",
+      "Book a demo",
+      "Log in",
+      "Try now"
+    ],
+    "headline": "PAYROLL SOFTWARE UK",
+    "ctaLabel": "Try now",
+    "services": [
+      "Automation",
+      "Integrations",
+      "Analytics",
+      "Team collaboration"
+    ],
+    "images": 7,
+    "testimonials": 0,
+    "stats": 0,
+    "faq": 0,
+    "language": "en",
+    "integrations": [
+      "gtm",
+      "typeform"
+    ],
+    "measured": {
+      "tokens": false,
+      "scenes": false
+    }
+  },
+  "schema": {
+    "blocks": [
+      "hero:HeroBeam",
+      "features:FeaturesAlternating",
+      "about:StatementAgencia",
+      "features:FeaturesAlternating",
+      "team:FeaturesAlternating",
+      "features:FeaturesAlternating",
+      "faq:FAQAccordion1",
+      "features:FeaturesAlternating",
+      "process:FeaturesAlternating",
+      "features:FeaturesAlternating",
+      "process:FeaturesAlternating",
+      "features:FeaturesAlternating",
+      "footer:FooterColumns"
+    ],
+    "pages": [
+      "why-payfit",
+      "integrations",
+      "payroll",
+      "hr-software"
+    ],
+    "dark": false,
+    "tokens": false,
+    "heroProps": {
+      "eyebrow": "Software & SaaS",
+      "title": "PAYROLL SOFTWARE UK",
+      "subtitle": "Simplify payroll with UK payroll software that automates tasks, saving time and reducing s",
+      "primaryCta": "Start free",
+      "primaryHref": "#contact",
+      "secondaryCta": "Call us",
+      "secondaryHref": "tel:464990389021370",
+      "image": "https://www.datocms-assets.com/50397/1768898412-en-cardfeaturemenucopilot.png?w=2496&dpr=1",
+      "brand": "PayFit",
+      "caption": "Automation"
+    }
+  }
+}

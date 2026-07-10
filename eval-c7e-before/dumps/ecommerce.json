@@ -1,0 +1,119 @@
+{
+  "sector": "ecommerce",
+  "url": "https://www.bruneau.fr",
+  "source": {
+    "htmlKb": 383,
+    "prices": 27,
+    "addToCart": 126,
+    "checkout": 8,
+    "productCards": 458,
+    "categories": 365,
+    "variants": 0,
+    "booking": 0,
+    "search": 82,
+    "filters": 6,
+    "menuCarte": 580,
+    "rooms": 0,
+    "properties": 0,
+    "team": 19,
+    "expertise": 6,
+    "pricing": 6,
+    "reviews": 208,
+    "hours": 0,
+    "phone": 8
+  },
+  "analysis": {
+    "industry": "ecommerce",
+    "confidence": "full",
+    "brandName": "Bruneau France",
+    "logo": true,
+    "accent": "#e43117",
+    "detectedSections": [
+      "Découvrez nos catégories",
+      "Contact"
+    ],
+    "structureSections": [
+      "features@0(50)",
+      "contact@1(60)"
+    ],
+    "nav": [
+      "Mon compte",
+      "0,00 € ht",
+      "Promos",
+      "Cartouches & toners",
+      "Gammes mobilier",
+      "Cabines acoustiques",
+      "Outillage",
+      "Manutention",
+      "EPI",
+      "Objets publicitaires",
+      "Devis",
+      "Accord commercial",
+      "Solutions d’aménagement",
+      "Guides d'achat",
+      "Mobilier de bureau",
+      "Équipement & aménagement",
+      "Informatique & téléphonie",
+      "Cartouche & toner",
+      "Papeterie & fournitures",
+      "Classement",
+      "Hygiène & entretien",
+      "Alimentation & vaisselle",
+      "Sécurité & santé",
+      "Outillage & équipement d'atelier",
+      "Emballage & expédition",
+      "Entrepôt & manutention"
+    ],
+    "headline": "Fournitures de bureau, mobilier, informatique",
+    "ctaLabel": "Tous les produits",
+    "services": [
+      "Free shipping",
+      "Easy returns",
+      "Secure checkout",
+      "New drops weekly"
+    ],
+    "images": 7,
+    "testimonials": 0,
+    "stats": 0,
+    "faq": 0,
+    "language": "fr",
+    "integrations": [
+      "gtm"
+    ],
+    "measured": {
+      "tokens": false,
+      "scenes": false
+    }
+  },
+  "schema": {
+    "blocks": [
+      "hero:HeroSplitPremium",
+      "features:FeaturesBento",
+      "faq:FAQAccordion1",
+      "cta:CTAGradient",
+      "contact:ContactFormPremium1",
+      "footer:FooterColumns"
+    ],
+    "pages": [
+      "good-deals",
+      "product-ranges/furniture",
+      "catalog/cabines-acoustiques/196105551o-jmbpr",
+      "catalog/cartouche-toner/5492600o-jmbpr",
+      "shop"
+    ],
+    "dark": false,
+    "tokens": false,
+    "heroProps": {
+      "eyebrow": "E-commerce & Retail",
+      "title": "Fournitures de bureau, mobilier, informatique",
+      "subtitle": "Chaise de bureau, ramette papier A4, cartouche, emballage, écran, clavier, essuie-main, ca",
+      "primaryCta": "Shop now",
+      "primaryHref": "#contact",
+      "secondaryCta": "Call us",
+      "secondaryHref": "tel:3924",
+      "image": "https://prod.isg.bruneau.media/storage/jmbfra/publish-front/web/content/responsive/categor",
+      "brand": "Bruneau France",
+      "caption": "Free shipping"
+    }
+  }
+}

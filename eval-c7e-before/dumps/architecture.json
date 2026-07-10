@@ -1,0 +1,103 @@
+{
+  "sector": "architecture",
+  "url": "https://www.wilmotte.com",
+  "source": {
+    "htmlKb": 119,
+    "prices": 0,
+    "addToCart": 0,
+    "checkout": 0,
+    "productCards": 0,
+    "categories": 0,
+    "variants": 0,
+    "booking": 1,
+    "search": 8,
+    "filters": 1,
+    "menuCarte": 140,
+    "rooms": 1,
+    "properties": 0,
+    "team": 34,
+    "expertise": 4,
+    "pricing": 2,
+    "reviews": 3,
+    "hours": 0,
+    "phone": 0
+  },
+  "analysis": {
+    "industry": "realestate",
+    "confidence": "full",
+    "brandName": "Wilmotte & Associés",
+    "logo": true,
+    "detectedSections": [
+      "être là où on ne nous attend pas",
+      "une équipe internationale",
+      "NOS DERNIÈRES ACTUALITÉS",
+      "PROCESS IN CORSO BY WILMOTTE – STUDIO WILMOTTE MILANO",
+      "Fondation W – Le flou de Venise"
+    ],
+    "structureSections": [
+      "features@0(50)",
+      "team@1(70)",
+      "features@2(50)",
+      "process@3(85)",
+      "features@4(50)"
+    ],
+    "nav": [
+      "Projets",
+      "W&A Architecture",
+      "W&I Design",
+      "Équipes",
+      "Fondation W",
+      "Actualités",
+      "Lieux"
+    ],
+    "headline": "Agence d'architecture française - Wilmotte & Associés",
+    "services": [
+      "Curated listings",
+      "Market valuation",
+      "Buyer matching",
+      "End-to-end support"
+    ],
+    "images": 7,
+    "testimonials": 0,
+    "stats": 0,
+    "faq": 0,
+    "language": "fr",
+    "integrations": [],
+    "measured": {
+      "tokens": false,
+      "scenes": false
+    }
+  },
+  "schema": {
+    "blocks": [
+      "hero:HeroArchform",
+      "features:FeaturesShowcase",
+      "team:FeaturesShowcase",
+      "features:FeaturesShowcase",
+      "process:FeaturesShowcase",
+      "features:FeaturesShowcase",
+      "footer:FooterMinimal"
+    ],
+    "pages": [
+      "projets",
+      "wi-design",
+      "wa-architecture",
+      "equipes",
+      "shop"
+    ],
+    "dark": false,
+    "tokens": false,
+    "heroProps": {
+      "eyebrow": "Real Estate",
+      "title": "Agence d'architecture française - Wilmotte & Associés",
+      "subtitle": "Wilmotte & Associés est une agence internationale d’architecture, d’urbanisme et de design",
+      "primaryCta": "Book a viewing",
+      "primaryHref": "#contact",
+      "secondaryCta": "Learn more",
+      "secondaryHref": "#contact",
+      "image": "https://www.wilmotte.com/wp-content/uploads/2023/06/ARCELOR.00_02_30_05.Image-fixe031-scal",
+      "brand": "Wilmotte & Associés",
+      "caption": "Curated listings"
+    }
+  }
+}

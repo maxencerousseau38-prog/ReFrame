@@ -56,7 +56,7 @@ métier/parcours critiques absents (F18/M5/M12), extraction faible (headline
 `<title>`, nav bruitée, FAQ=cookies F23). C8 = BusinessDna (extraction par
 familles de signaux + classification par signaux + couche `businessLayer` +
 entrée `SceneSpecSources.business` + composants métier). Harnais avant/après :
-`scripts/c7e-audit.mjs` (D8). État « avant P0 » archivé : `eval-c7e-before/`.
+`scripts/c7e-audit.mjs` (D8). État « avant P0 » archivé : `eval-c7e-before/dumps/` (Git ; captures hors dépôt, livrées en conversation).
 
 ## Commandes
 
