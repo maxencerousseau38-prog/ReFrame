@@ -19,14 +19,13 @@
 | A2 Containers | `rfContainer` + hiérarchie ×0.89/×0.78 + SiteNav | |
 | A3 Typo | `rf-fluid-display/h2/h3` → vars DNA (globals.css) | |
 | C7a Composition Engine | `compose/scene-spec.ts` (SceneSpec/compileSceneSpecs/matching B4) + `Block.scene` + SceneShell (`--rf-scene-*`, transparent sans scene) | `ai/MODULES/compose.md` |
+| C7b Hero Engine | 13/13 heroes consomment `--rf-scene-minh/pt/pb` (fallbacks V5 exacts par breakpoint) + `heroMediaPosition` mesuré → flip split via `_scene` | preuve : injection vars consommée sur toutes les familles |
 
 ## En cours / suivant 🔜
 
 | Item | Contenu | Statut |
 |---|---|---|
-| **C7a** | SceneSpec + compileSceneSpecs + SceneShell minimal (B1-B5) | **GO donné — démarrer directement** (`docs/C7_PREPARATION.md`) |
-| C7b | Hero Engine : 13 heroes consomment minHeightVh/mediaPosition/padding | après C7a |
-| C7c | Layout Engine : grilles/gaps/alternances par scène (`--rf-scene-*`) | après C7b |
+| **C7c** | Layout Engine : grilles/gaps/alternances par scène (`--rf-scene-*`) | **suivant** |
 | C7d | A4 : champs composition premium dans la DNA + mapping inspirationLayer + ordre mesuré → plan | après C7c |
 | C7e | Validation visuelle complète + revue PE + registre | clôture C7 |
 

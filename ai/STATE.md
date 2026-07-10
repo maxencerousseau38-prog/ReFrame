@@ -14,21 +14,28 @@
   fallbacks V5) · **C7a — Composition Engine fondé** : `compose/scene-spec.ts`
   (SceneSpec, compileSceneSpecs fill-only + bornes, matching B4), `Block.scene?`,
   `SceneShell` publie `--rf-scene-*`+`data-scene*` (transparent sans scene,
-  prouvé au DOM). Fiche : `ai/MODULES/compose.md`.
-- **Baseline verte** : 493 tests passed | 3 skipped · `npx tsc --noEmit` propre.
+  prouvé au DOM). Fiche : `ai/MODULES/compose.md` · **C7b — Hero Engine** :
+  13/13 heroes consomment `--rf-scene-minh/pt/pb` (inline `rfHeroMinH/rfHeroPadY`
+  pour full-bleed/Split, classes arbitraires par breakpoint pour les bannières
+  responsives — fallbacks V5 exacts vérifiés aux 2 largeurs) ; `heroMediaPosition`
+  mesuré → `_scene` prop (BlockRenderer) → flip `lg:order` (Premium2/SplitPremium).
+- **Baseline verte** : 494 tests passed | 3 skipped · `npx tsc --noEmit` propre.
 - **F17 (ouvert, → C10)** : overflow zpreview restaurant@768 flaky (7↔440px),
   PRÉEXISTANT (reproduit sans C7a) — mesure d'overflow à stabiliser dans le
   harnais C10, pas de fix renderer.
 
 ## Prochaine action
 
-**C7b — Hero Engine.** Les 13 heroes consomment `var(--rf-scene-minh/pt/pb, <V5>)`
-(+ `mediaPosition` via `data-scene-media`/props) par petits groupes de 3-4
-heroes/commit, screenshots avant/après par hero + overflow 4 largeurs
-(`docs/C7_PREPARATION.md` §4). Les vars sont DÉJÀ publiées par le SceneShell —
-il ne reste qu'à faire céder la géométrie figée des skins. Ensuite C7c
-(grilles/gaps/alternances), C7d (A4 premium dans la DNA + trace PipelineTrace),
-C7e (validation). Sprint en cours : C7 complet.
+**C7c — Layout Engine.** Les familles à grilles (Features/Services/Gallery/
+Portfolio/Stats…) consomment `--rf-scene-cols/gap/ratio` + alternance par
+scène (`scene.alternate` via `_scene`, remplace l'alternance par index de
+FeaturesAlternating) — même patron que C7b : var + fallback V5 exact,
+par famille, preuve d'injection + overflow 4 largeurs. Vars DÉJÀ publiées
+par le SceneShell ; `_scene` DÉJÀ passé par BlockRenderer. Ensuite C7d
+(A4 premium dans la DNA + défauts DNA dans compileSceneSpecs + trace
+PipelineTrace + `sceneOrderMeasured`→plan), C7e (validation complète).
+Décision actée C7b : heroes bannière sans minh — l'occupation forte mesurée
+routera vers un skin full-bleed via pickHeroVariant (C7d).
 
 ## Commandes
 

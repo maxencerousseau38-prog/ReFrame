@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-10 — C7b : Hero Engine (13/13 heroes pilotés)
+- 3 commits (b.1 full-bleed ×4, b.2 Premium1/2+SplitPremium+heroMediaPosition bout en bout, b.3 bannières ×6) : min-h/pt/pb figés → `var(--rf-scene-*, <V5 exact>)` (inline ou classes arbitraires par breakpoint pour les paddings responsives).
+- Preuves : fallbacks V5 exacts au computed style aux 2 breakpoints ; injection `--rf-scene-minh/pt/pb` consommée sur TOUTES les familles (16 industries testées) ; 494 tests verts ; overflow=0 24/24.
+- Décision : heroes bannière sans minh (occupation par le rythme) — l'occupation mesurée forte routera vers un skin full-bleed via pickHeroVariant (C7d). Env : graphify 0.9.12 réinstallé par bootstrap, hook post-commit OK.
+- Suivant : C7c Layout Engine (grilles/gaps/alternances par scène — vars et `_scene` déjà en place).
+
 ## 2026-07-10 — C7a : fondations du Composition Engine
 - `compose/scene-spec.ts` (SceneSpec + compileSceneSpecs fill-only avec bornes saines + matching B4) ; `Block.scene?` ; SceneShell publie `--rf-scene-*`/`data-scene*` sans rien peindre — les skins migreront en `var(--rf-scene-*, <V5>)` (C7b/C7c).
 - Transparence V5 prouvée : sans mesures, mêmes références de blocs + wrapper DOM identique (vérifié au DOM sur zpreview). 493 tests verts (477+16), tsc propre, overflow=0 sur 11/12 cellules zpreview.

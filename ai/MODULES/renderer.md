@@ -14,9 +14,16 @@ décisions viennent des vars/props, pas des composants.
   - C7a `SceneShell` (monté sur le wrapper de `SiteRenderer`) : publie
     `--rf-scene-*` + `data-scene*` depuis `Block.scene` ; transparent sans scene
     (wrapper V5 identique) ; ne peint rien (voir `ai/MODULES/compose.md`).
-- **Encore figé (périmètre C7/C9)** : 13 heroes (min-h, imagePosition/overlay non lus),
-  ~40 `grid-cols-*`, ~100 `gap-*`, alternances par index, fonds par `alternateBackgrounds` global
-  → à migrer en `var(--rf-scene-*, <V5>)` (heroes C7b, grilles C7c).
+  - C7b **13/13 heroes pilotés** : `rfHeroMinH`/`rfHeroPadY` (inline, valeurs
+    EXACTES sans plancher) pour les full-bleed + SplitPremium ; classes
+    arbitraires `pt/pb-[var(--rf-scene-pt/pb,<V5>)]` par breakpoint pour les
+    bannières responsives ; `BlockRenderer` passe `_scene` (heroMediaPosition
+    → flip `lg:order` dans Premium2/SplitPremium). Décision : les heroes
+    bannière n'appliquent PAS minh (occupation par le rythme ; l'occupation
+    forte route vers un skin full-bleed via pickHeroVariant, C7d).
+- **Encore figé (périmètre C7c/C9)** : ~40 `grid-cols-*`, ~100 `gap-*`,
+  alternances par index, fonds par `alternateBackgrounds` global
+  → à migrer en `var(--rf-scene-*, <V5>)` (grilles C7c).
 - **Points de montage C7** : SceneShell en place (B2) ; `BlockRenderer` L~3900 ;
   REGISTRY variant→composant.
 - **Invariants** : fallbacks V5 exacts dans chaque `var()` ; aucun nouveau hardcode
