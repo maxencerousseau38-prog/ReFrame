@@ -41,15 +41,19 @@
 
 ## Prochaine action
 
-**C7e — Validation de clôture du Chantier 7.**
-1. Preuve bout-en-bout sur fixtures mesurées : runPipeline avec capture →
-   `Block.scene` measured+premium → rendu (SceneShell publie, skins
-   consomment) — captures multi-sites avant/après vs V5.
-2. zpreview complet ≥5 industries × 320/390/768/1440, overflow=0 (F17 connu).
-3. Revue PE du module compose + budget perf (vars par wrapper) ; MAJ registre
-   (findings éventuels) et fiches modules. Ensuite : **C8 Business
-   Understanding Engine** (D6/D7, F18 e-commerce prioritaire — BusinessDNA
-   = nouvelle entrée de `SceneSpecSources` + couche `CandidateLayer`).
+**P0 — Rebrancher le moteur dans le produit (GO à donner).** L'audit C7e
+(`docs/C8_PREPARATION.md`, M1-M12 + 44 défauts + carte des fuites) a prouvé
+que le parcours produit par défaut passe par le LEGACY (F19 : dashboard
+`preserve` → `generateSite`), que le smart via dashboard n'a jamais de
+mesures (F20 : enrich seulement sur `url` nu), et que des services préséts
+anglais sont FABRIQUÉS (F21 : `bridge.ts:61` + composer L277/356). P0 = ces
+4 corrections → gain de qualité perçue maximal à coût minimal, à prouver
+avant/après avec `scripts/c7e-audit.mjs` (harnais réutilisable, D8 : la
+qualité perçue est désormais LE critère — CONVENTIONS 5bis). Ensuite : **C8
+Business Understanding Engine** sur la base des lacunes prouvées (F18/F22,
+§4 du rapport : BusinessDna, extraction par familles de signaux,
+classification par signaux métier, couche businessLayer + entrée
+`SceneSpecSources.business`).
 
 ## Commandes
 

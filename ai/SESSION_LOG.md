@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-10 — C7e : audit qualité+métier sur 9 sites réels (clôture C7)
+- Harnais `scripts/c7e-audit.mjs` : 9 secteurs reconstruits via le VRAI parcours produit ; dumps+captures+scan source → `docs/C8_PREPARATION.md` (M1-M12, 44 défauts, carte des fuites).
+- SMOKING GUNS : F19 (défaut produit = legacy, tout C1→C7 débranché du parcours client), F20 (dashboard bypasse les mesures même en smart), F21 (services préséts fabriqués — violation règle d'or), F22 (industrie fausse 4/9 : hôpitaux→saas « Start free »).
+- D8 acté : la qualité perçue devient le critère principal (CONVENTIONS 5bis) ; harnais avant/après réutilisable.
+- Suivant : P0 (rebrancher le moteur — 4 fixes, GO à donner) puis C8 BUE sur lacunes prouvées.
+
 ## 2026-07-10 — C7d : couche premium dans le Composition Engine + D7
 - `DesignDNA.composition` (occupation/asymétrie/rythme) mappée par inspirationLayer ; `compileSceneSpecs(SceneSpecSources{measured?, dna?})` = sources nommées fill-only (D7-ready) ; gate « composition présente ⇔ signal réel » (preset seul ne pilote jamais, testé).
 - Occupation premium ≥85 → routage skin full-bleed ; ordre mesuré → varySectionOrder (position galerie) ; sceneTraceEntries → PipelineTrace (fix déterminisme : chemin premium:<type>, pas d'id aléatoire).

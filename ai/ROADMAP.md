@@ -22,12 +22,13 @@
 | C7b Hero Engine | 13/13 heroes consomment `--rf-scene-minh/pt/pb` (fallbacks V5 exacts par breakpoint) + `heroMediaPosition` mesuré → flip split via `_scene` | preuve : injection vars consommée sur toutes les familles |
 | C7c Layout Engine | 13 grilles de cartes (`--rf-scene-cols/gap`), 7 splits (`--rf-scene-ratio`), alternance par scène (FeaturesAlternating via `_scene.alternate`) | 23/29 grilles zpreview consomment (exclusions voulues : footer/hairline/bento) |
 | C7d Couche premium | `DesignDNA.composition` (occupation/asymétrie/rythme, mappée par inspirationLayer) → `compileSceneSpecs(sources nommées)` fill-only ; routage full-bleed ≥85 ; ordre mesuré → plan ; `sceneTraceEntries` dans la PipelineTrace ; D7 acté | trace E2E : scene.hero.minHeightVh premium |
+| C7e Audit réel | 9 sites réels reconstruits via le VRAI parcours produit : M1-M12 + 44 défauts + carte des fuites (`docs/C8_PREPARATION.md`) ; harnais réutilisable `scripts/c7e-audit.mjs` ; D8 acté (qualité perçue = critère) ; F19-F22 ouverts | clôture C7 |
 
 ## En cours / suivant 🔜
 
 | Item | Contenu | Statut |
 |---|---|---|
-| **C7e** | Validation visuelle complète + revue PE + registre | **suivant — clôture C7** |
+| **P0** | **Rebrancher le moteur dans le produit** (pré-C8, gain visible max) : dashboard défaut→smart (F19) ; mesures aussi sur `body.analysis` (F20) ; suppression fabrication services `bridge.ts:61`+composer (F21) ; `defaultFaq` legacy → omission | **GO à donner** (`docs/C8_PREPARATION.md` §4) |
 
 ## Plus tard 📋 (renuméroté 2026-07-10 — D6 : C8 = Business Understanding)
 

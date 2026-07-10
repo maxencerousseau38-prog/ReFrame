@@ -39,6 +39,10 @@
    si `blocks/`/`globals.css` touchés → zpreview ≥3 industries × 320/390/768/1440, overflow=0.
 5. Preuve visuelle avant/après (multi-sites, valeurs RÉELLEMENT émises par runPipeline)
    quand le rendu change — envoyée à l'utilisateur avant validation.
+5bis. **D8 — critère principal : la qualité perçue.** Un sous-lot n'est réussi
+   que s'il démontre une amélioration perceptible sur plusieurs SITES RÉELS
+   (harnais `scripts/c7e-audit.mjs`, avant/après) — tests verts et fallbacks
+   corrects ne suffisent plus.
 6. Message de commit : quoi/pourquoi/preuves/exclusions justifiées + trailers Claude.
 7. Hors périmètre découvert → `docs/ARCHITECTURE_DECISIONS.md` (finding), pas de fix sauvage.
 8. **Fin de session/sous-lot : mettre à jour `ai/STATE.md` (état+prochaine action),
