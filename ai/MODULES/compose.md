@@ -5,7 +5,11 @@
 blocs — l'unique endroit où mesures/premium/défauts se rencontrent pour la
 géométrie. Le renderer reste un exécuteur.
 
-- **Entrées** : `Block[]` (composer) + `analysis.measuredScenes` (`SceneMeasurement`, C6).
+- **Entrées** : `Block[]` (composer) + `SceneSpecSources` = sources NOMMÉES
+  fusionnées fill-only par rang (C7d/D7) : `measured` (SceneMeasurement, C6)
+  > `dna` (DesignDNA résolue — `composition` présente ⇔ signal réel, gate
+  inspiration ≥0.6 ; un preset seul ne pilote jamais). Futures couches (D6/D7 :
+  BusinessDNA, IntentDNA…) = nouvelles entrées, moteur aveugle à l'origine.
 - **Sorties** : `Block[]` avec `Block.scene?: SceneSpec` (nouveau tableau ; sans
   mesures → MÊME tableau, mêmes références = transparence V5).
 - **Fichiers** :
@@ -29,8 +33,11 @@ géométrie. Le renderer reste un exécuteur.
   no-fabrication (bornes : hero viewportRatio [0.35,1.4], padding [0,400],
   gap [0,160], cols [2,4], ratio fr [0.5,2]), A2 par champ, compat V5
   (transparence prouvée au DOM), pur/déterministe/sans DOM.
-- **Tests** : `scene-spec.test.ts` (17) — extraction+bornes, matching,
-  transparence (mêmes références), non-mutation, provenance measured.
-- **À venir** : C7c grilles/alternances ; C7d couche
-  premium (ReferenceDNA) + défauts DNA dans compileSceneSpecs + trace dans la
-  PipelineTrace ; ordre mesuré → plan (`sceneOrderMeasured`).
+- **Tests** : `scene-spec.test.ts` (21) — extraction+bornes, matching,
+  transparence (mêmes références), non-mutation, provenance, premium fill-only
+  (I1), gate preset, trace. + E2E : candidates.test (déterminisme runPipeline).
+- **C7d fait** : premium remplit le hero (occupation→minHeightVh,
+  imagePosition→heroMediaPosition) ; `sceneTraceEntries` → PipelineTrace
+  (`scene.<type>.<champ>`, chemin déterministe `premium:<type>`) ; occupation
+  ≥85 route un skin full-bleed (composer) ; ordre mesuré → varySectionOrder.
+- **À venir** : C7e validation ; C8 BusinessDNA (D6/F18) comme nouvelle source.

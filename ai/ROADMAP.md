@@ -21,13 +21,13 @@
 | C7a Composition Engine | `compose/scene-spec.ts` (SceneSpec/compileSceneSpecs/matching B4) + `Block.scene` + SceneShell (`--rf-scene-*`, transparent sans scene) | `ai/MODULES/compose.md` |
 | C7b Hero Engine | 13/13 heroes consomment `--rf-scene-minh/pt/pb` (fallbacks V5 exacts par breakpoint) + `heroMediaPosition` mesuré → flip split via `_scene` | preuve : injection vars consommée sur toutes les familles |
 | C7c Layout Engine | 13 grilles de cartes (`--rf-scene-cols/gap`), 7 splits (`--rf-scene-ratio`), alternance par scène (FeaturesAlternating via `_scene.alternate`) | 23/29 grilles zpreview consomment (exclusions voulues : footer/hairline/bento) |
+| C7d Couche premium | `DesignDNA.composition` (occupation/asymétrie/rythme, mappée par inspirationLayer) → `compileSceneSpecs(sources nommées)` fill-only ; routage full-bleed ≥85 ; ordre mesuré → plan ; `sceneTraceEntries` dans la PipelineTrace ; D7 acté | trace E2E : scene.hero.minHeightVh premium |
 
 ## En cours / suivant 🔜
 
 | Item | Contenu | Statut |
 |---|---|---|
-| **C7d** | A4 : champs composition premium dans la DNA + mapping inspirationLayer + défauts DNA dans compileSceneSpecs + ordre mesuré → plan + trace | **suivant** |
-| C7e | Validation visuelle complète + revue PE + registre | clôture C7 |
+| **C7e** | Validation visuelle complète + revue PE + registre | **suivant — clôture C7** |
 
 ## Plus tard 📋 (renuméroté 2026-07-10 — D6 : C8 = Business Understanding)
 

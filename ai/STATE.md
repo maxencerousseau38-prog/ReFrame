@@ -25,27 +25,31 @@
   en fallback). Exclusions voulues : footer, hairline gap-px, bento interne,
   gaps verticaux de rythme · **D6 acté** : Business Understanding → Composition
   (jamais l'inverse) ; C8 = Business Understanding Engine (F18 e-commerce
-  vitrine) ; Composition Engine reste générique, BusinessDNA = future couche.
-- **Baseline verte** : 494 tests passed | 3 skipped · `npx tsc --noEmit` propre.
+  vitrine) ; Composition Engine reste générique, BusinessDNA = future couche
+  · **C7d — couche premium** : `DesignDNA.composition` (mappée par
+  inspirationLayer) → `compileSceneSpecs(blocks, SceneSpecSources{measured?,
+  dna?})` fill-only (gate : composition présente ⇔ signal réel ; un preset
+  seul ne pilote jamais) ; occupation ≥85 → skin full-bleed ; ordre mesuré →
+  `varySectionOrder` (position galerie) ; `sceneTraceEntries` → PipelineTrace
+  · **D7 acté** : multi-couches (Brand/Business/Content/Scene/Design/Motion/
+  Responsive/Quality-DNA) + Intent Engine — sources nommées, moteur aveugle
+  à l'origine, zéro logique métier dans compose/renderer.
+- **Baseline verte** : 497 tests passed | 3 skipped · `npx tsc --noEmit` propre.
 - **F17 (ouvert, → C10)** : overflow zpreview restaurant@768 flaky (7↔440px),
   PRÉEXISTANT (reproduit sans C7a) — mesure d'overflow à stabiliser dans le
   harnais C10, pas de fix renderer.
 
 ## Prochaine action
 
-**C7d — A4 : la couche premium/DNA entre dans le Composition Engine.**
-1. `DesignDNA.composition{negativeSpaceRatio?, heroViewportOccupation?,
-   asymmetry?, sectionRhythm?}` (champs additifs, B6) ; mapping
-   `inspirationLayer` depuis `ReferenceDNA.layout/hero/image`
-   (gridPhilosophy, asymmetryIntensity, sectionRhythm, viewportOccupation,
-   imagePosition) et `tokensLayer` si mesurable.
-2. `compileSceneSpecs` accepte la DNA résolue comme 2e source fill-only
-   (measured > dna/premium) — provenance "premium"/"default" enfin émise ;
-   occupation forte → route vers skin full-bleed via `pickHeroVariant`
-   (décision C7b). Signature extensible : sources nommées, la future
-   BusinessDNA (C8, D6) s'ajoutera comme source sans refonte.
-3. `sceneOrderMeasured` → plan (`varySectionOrder`) + trace `scene.*` dans
-   la PipelineTrace. Ensuite C7e (validation complète multi-sites + PE).
+**C7e — Validation de clôture du Chantier 7.**
+1. Preuve bout-en-bout sur fixtures mesurées : runPipeline avec capture →
+   `Block.scene` measured+premium → rendu (SceneShell publie, skins
+   consomment) — captures multi-sites avant/après vs V5.
+2. zpreview complet ≥5 industries × 320/390/768/1440, overflow=0 (F17 connu).
+3. Revue PE du module compose + budget perf (vars par wrapper) ; MAJ registre
+   (findings éventuels) et fiches modules. Ensuite : **C8 Business
+   Understanding Engine** (D6/D7, F18 e-commerce prioritaire — BusinessDNA
+   = nouvelle entrée de `SceneSpecSources` + couche `CandidateLayer`).
 
 ## Commandes
 
