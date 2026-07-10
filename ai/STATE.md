@@ -18,7 +18,14 @@
   13/13 heroes consomment `--rf-scene-minh/pt/pb` (inline `rfHeroMinH/rfHeroPadY`
   pour full-bleed/Split, classes arbitraires par breakpoint pour les bannières
   responsives — fallbacks V5 exacts vérifiés aux 2 largeurs) ; `heroMediaPosition`
-  mesuré → `_scene` prop (BlockRenderer) → flip `lg:order` (Premium2/SplitPremium).
+  mesuré → `_scene` prop (BlockRenderer) → flip `lg:order` (Premium2/SplitPremium)
+  · **C7c — Layout Engine** : 13 grilles de cartes (`--rf-scene-cols/gap` au
+  breakpoint large, stacking mobile V5 intact), 7 splits (`--rf-scene-ratio`),
+  alternance par scène (`FeaturesAlternating` via `_scene.alternate`, parité V5
+  en fallback). Exclusions voulues : footer, hairline gap-px, bento interne,
+  gaps verticaux de rythme · **D6 acté** : Business Understanding → Composition
+  (jamais l'inverse) ; C8 = Business Understanding Engine (F18 e-commerce
+  vitrine) ; Composition Engine reste générique, BusinessDNA = future couche.
 - **Baseline verte** : 494 tests passed | 3 skipped · `npx tsc --noEmit` propre.
 - **F17 (ouvert, → C10)** : overflow zpreview restaurant@768 flaky (7↔440px),
   PRÉEXISTANT (reproduit sans C7a) — mesure d'overflow à stabiliser dans le
@@ -26,16 +33,19 @@
 
 ## Prochaine action
 
-**C7c — Layout Engine.** Les familles à grilles (Features/Services/Gallery/
-Portfolio/Stats…) consomment `--rf-scene-cols/gap/ratio` + alternance par
-scène (`scene.alternate` via `_scene`, remplace l'alternance par index de
-FeaturesAlternating) — même patron que C7b : var + fallback V5 exact,
-par famille, preuve d'injection + overflow 4 largeurs. Vars DÉJÀ publiées
-par le SceneShell ; `_scene` DÉJÀ passé par BlockRenderer. Ensuite C7d
-(A4 premium dans la DNA + défauts DNA dans compileSceneSpecs + trace
-PipelineTrace + `sceneOrderMeasured`→plan), C7e (validation complète).
-Décision actée C7b : heroes bannière sans minh — l'occupation forte mesurée
-routera vers un skin full-bleed via pickHeroVariant (C7d).
+**C7d — A4 : la couche premium/DNA entre dans le Composition Engine.**
+1. `DesignDNA.composition{negativeSpaceRatio?, heroViewportOccupation?,
+   asymmetry?, sectionRhythm?}` (champs additifs, B6) ; mapping
+   `inspirationLayer` depuis `ReferenceDNA.layout/hero/image`
+   (gridPhilosophy, asymmetryIntensity, sectionRhythm, viewportOccupation,
+   imagePosition) et `tokensLayer` si mesurable.
+2. `compileSceneSpecs` accepte la DNA résolue comme 2e source fill-only
+   (measured > dna/premium) — provenance "premium"/"default" enfin émise ;
+   occupation forte → route vers skin full-bleed via `pickHeroVariant`
+   (décision C7b). Signature extensible : sources nommées, la future
+   BusinessDNA (C8, D6) s'ajoutera comme source sans refonte.
+3. `sceneOrderMeasured` → plan (`varySectionOrder`) + trace `scene.*` dans
+   la PipelineTrace. Ensuite C7e (validation complète multi-sites + PE).
 
 ## Commandes
 

@@ -21,9 +21,12 @@ décisions viennent des vars/props, pas des composants.
     → flip `lg:order` dans Premium2/SplitPremium). Décision : les heroes
     bannière n'appliquent PAS minh (occupation par le rythme ; l'occupation
     forte route vers un skin full-bleed via pickHeroVariant, C7d).
-- **Encore figé (périmètre C7c/C9)** : ~40 `grid-cols-*`, ~100 `gap-*`,
-  alternances par index, fonds par `alternateBackgrounds` global
-  → à migrer en `var(--rf-scene-*, <V5>)` (grilles C7c).
+  - C7c **Layout Engine** : 13 grilles de cartes en `--rf-scene-cols/gap`
+    (breakpoint large ; stacking mobile V5 intact), 7 splits en
+    `--rf-scene-ratio`, `FeaturesAlternating` alterné par `_scene.alternate`.
+- **Encore figé (périmètre C10 ex-C9)** : fonds par `alternateBackgrounds`
+  global (→ `background/contrastPair` par scène), gaps verticaux de rythme,
+  cartes ; exclusions voulues C7c : footer, hairline `gap-px`, bento interne.
 - **Points de montage C7** : SceneShell en place (B2) ; `BlockRenderer` L~3900 ;
   REGISTRY variant→composant.
 - **Invariants** : fallbacks V5 exacts dans chaque `var()` ; aucun nouveau hardcode

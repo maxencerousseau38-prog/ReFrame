@@ -20,13 +20,13 @@
 | A3 Typo | `rf-fluid-display/h2/h3` → vars DNA (globals.css) | |
 | C7a Composition Engine | `compose/scene-spec.ts` (SceneSpec/compileSceneSpecs/matching B4) + `Block.scene` + SceneShell (`--rf-scene-*`, transparent sans scene) | `ai/MODULES/compose.md` |
 | C7b Hero Engine | 13/13 heroes consomment `--rf-scene-minh/pt/pb` (fallbacks V5 exacts par breakpoint) + `heroMediaPosition` mesuré → flip split via `_scene` | preuve : injection vars consommée sur toutes les familles |
+| C7c Layout Engine | 13 grilles de cartes (`--rf-scene-cols/gap`), 7 splits (`--rf-scene-ratio`), alternance par scène (FeaturesAlternating via `_scene.alternate`) | 23/29 grilles zpreview consomment (exclusions voulues : footer/hairline/bento) |
 
 ## En cours / suivant 🔜
 
 | Item | Contenu | Statut |
 |---|---|---|
-| **C7c** | Layout Engine : grilles/gaps/alternances par scène (`--rf-scene-*`) | **suivant** |
-| C7d | A4 : champs composition premium dans la DNA + mapping inspirationLayer + ordre mesuré → plan | après C7c |
+| **C7d** | A4 : champs composition premium dans la DNA + mapping inspirationLayer + défauts DNA dans compileSceneSpecs + ordre mesuré → plan + trace | **suivant** |
 | C7e | Validation visuelle complète + revue PE + registre | clôture C7 |
 
 ## Plus tard 📋 (renuméroté 2026-07-10 — D6 : C8 = Business Understanding)

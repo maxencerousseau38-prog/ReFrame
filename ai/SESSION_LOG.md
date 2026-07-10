@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-10 — Vision D6 + C7c : Layout Engine
+- D6 acté (registre + ROADMAP renumérotée) : Business Understanding → Composition, jamais l'inverse ; C8 = Business Understanding Engine ; F18 (e-commerce vitrine) ouvert ; Composition Engine générique, BusinessDNA = future couche CandidateLayer.
+- C7c : 13 grilles de cartes → `--rf-scene-cols/gap` (breakpoint large, mobile V5 intact) ; 7 splits → `--rf-scene-ratio` ; alternance par scène via `_scene.alternate` (parité V5 fallback). Exclusions voulues : footer/hairline/bento/gap-y.
+- Preuves : injection consommée par 23/29 grilles zpreview (6 industries), 494 tests verts, tsc propre, overflow=0 16/16.
+- Suivant : C7d (couche premium/DNA dans compileSceneSpecs — plan détaillé dans STATE), puis C7e.
+
 ## 2026-07-10 — C7b : Hero Engine (13/13 heroes pilotés)
 - 3 commits (b.1 full-bleed ×4, b.2 Premium1/2+SplitPremium+heroMediaPosition bout en bout, b.3 bannières ×6) : min-h/pt/pb figés → `var(--rf-scene-*, <V5 exact>)` (inline ou classes arbitraires par breakpoint pour les paddings responsives).
 - Preuves : fallbacks V5 exacts au computed style aux 2 breakpoints ; injection `--rf-scene-minh/pt/pb` consommée sur TOUTES les familles (16 industries testées) ; 494 tests verts ; overflow=0 24/24.
