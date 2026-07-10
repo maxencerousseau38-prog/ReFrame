@@ -49,6 +49,23 @@ export interface HeroDirection {
   imagePosition: "right" | "left" | "behind" | "below" | "none";
 }
 
+/**
+ * Composition direction (V2 C7d / A4). Premium page-level composition
+ * decisions consumed by the Composition Engine (`compileSceneSpecs`).
+ * ALL optional and never set by presets: they arrive via the resolver layers
+ * (inspirationLayer today, measured/business layers tomorrow), so their mere
+ * presence means "a genuine signal exists" — the gate for premium-driven
+ * composition on sites without their own scene measurements.
+ */
+export interface CompositionDirection {
+  /** 0–100: share of the viewport the hero should occupy. */
+  heroViewportOccupation?: number;
+  /** Layout asymmetry appetite of the design language. */
+  asymmetry?: "none" | "subtle" | "bold" | "editorial";
+  /** How section blocks alternate/progress down the page. */
+  sectionRhythm?: "steady" | "alternating" | "crescendo" | "editorial-pause";
+}
+
 export interface MotionDirection {
   level: 0 | 1 | 2 | 3;
   entranceType: "fade" | "slide-up" | "blur-fade" | "reveal" | "stagger";
@@ -109,6 +126,10 @@ export interface DesignDNA {
 
   /** Hero composition (60% of perceived quality). */
   heroDirection: HeroDirection;
+
+  /** Page-level composition direction (C7d) — absent unless a real signal
+   *  (premium inspiration / measurement) provided it. */
+  composition?: CompositionDirection;
 
   /** Animation system. */
   motion: MotionDirection;

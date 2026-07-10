@@ -1,13 +1,20 @@
 import { describe, it, expect } from "vitest";
 import type { Block } from "@/lib/generation/types";
 import type { SceneDna, SceneMeasurement, SceneType } from "@/lib/measure/scenes";
+import type { DesignDNA } from "@/lib/generation/dna";
 import {
   compileSceneSpecs,
   matchScenesToBlocks,
   sceneSpecFrom,
+  sceneTraceEntries,
   assertRenderable,
   MIN_SCENE_TYPE_CONFIDENCE,
 } from "./scene-spec";
+
+/** Minimal resolved-DNA stand-in: only what compileSceneSpecs reads. */
+function dnaWith(composition?: DesignDNA["composition"], imagePosition = "right"): DesignDNA {
+  return { heroDirection: { imagePosition }, ...(composition ? { composition } : {}) } as DesignDNA;
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Fixtures                                                                  */
@@ -184,10 +191,39 @@ describe("matchScenesToBlocks", () => {
 /* -------------------------------------------------------------------------- */
 
 describe("compileSceneSpecs", () => {
-  it("returns the EXACT same array (same references) without measurements — V5 transparency", () => {
+  it("returns the EXACT same array (same references) without any usable source — V5 transparency", () => {
     const blocks = [block("hero"), block("features"), block("footer")];
-    expect(compileSceneSpecs(blocks, undefined)).toBe(blocks);
-    expect(compileSceneSpecs(blocks, measurement([]))).toBe(blocks);
+    expect(compileSceneSpecs(blocks, {})).toBe(blocks);
+    expect(compileSceneSpecs(blocks, { measured: measurement([]) })).toBe(blocks);
+    // A preset-only DNA (no composition) must NOT drive composition: presets
+    // always set heroDirection.imagePosition, but that is not a real signal.
+    expect(compileSceneSpecs(blocks, { dna: dnaWith(undefined, "left") })).toBe(blocks);
+  });
+
+  it("fills the hero from the premium composition direction when no scene was measured", () => {
+    const blocks = [block("hero", "h"), block("features", "s1")];
+    const out = compileSceneSpecs(blocks, { dna: dnaWith({ heroViewportOccupation: 92 }, "left") });
+    expect(out[0].scene?.minHeightVh).toBe(92);
+    expect(out[0].scene?.provenance.minHeightVh).toBe("premium");
+    expect(out[0].scene?.heroMediaPosition).toBe("left");
+    expect(out[0].scene?.provenance.heroMediaPosition).toBe("premium");
+    expect(out[1]).toBe(blocks[1]); // non-hero untouched (same reference)
+  });
+
+  it("premium NEVER overwrites measured (I1) and out-of-bounds premium is not offered", () => {
+    const blocks = [block("hero", "h")];
+    const scenes = [scene("hero", { order: 0, bounds: { rect: { x: 0, y: 0, width: 1440, height: 810 }, viewportRatio: 0.9, fullBleed: true } })];
+    const out = compileSceneSpecs(blocks, {
+      measured: measurement(scenes),
+      dna: dnaWith({ heroViewportOccupation: 60 }, "left"),
+    });
+    expect(out[0].scene?.minHeightVh).toBe(90); // measured wins
+    expect(out[0].scene?.provenance.minHeightVh).toBe("measured");
+    expect(out[0].scene?.heroMediaPosition).toBe("left"); // premium fills the hole
+    expect(out[0].scene?.provenance.heroMediaPosition).toBe("premium");
+
+    const flat = compileSceneSpecs([block("hero", "h2")], { dna: dnaWith({ heroViewportOccupation: 20 }, "none") });
+    expect(flat[0].scene?.minHeightVh).toBeUndefined();
   });
 
   it("attaches SceneSpecs to matched blocks without mutating the input", () => {
@@ -197,7 +233,7 @@ describe("compileSceneSpecs", () => {
       scene("section", { order: 1, spacing: { paddingTopPx: 128, paddingBottomPx: 128 }, grid: { columnCount: 3, gapPx: 24 } }),
       scene("footer", { order: 2 }),
     ];
-    const out = compileSceneSpecs(blocks, measurement(scenes));
+    const out = compileSceneSpecs(blocks, { measured: measurement(scenes) });
 
     expect(blocks[0].scene).toBeUndefined(); // input untouched
     expect(out[0].scene?.minHeightVh).toBe(90);
@@ -220,7 +256,28 @@ describe("compileSceneSpecs", () => {
       bounds: { rect: { x: 0, y: 0, width: 1440, height: 4000 }, viewportRatio: 4.4, fullBleed: true },
       background: { kind: "none", hasImage: false },
     });
-    const out = compileSceneSpecs(blocks, measurement([bare]));
+    const out = compileSceneSpecs(blocks, { measured: measurement([bare]) });
     expect(out[0]).toBe(blocks[0]);
+  });
+});
+
+/* -------------------------------------------------------------------------- */
+/*  sceneTraceEntries — scene decisions land in the PipelineTrace             */
+/* -------------------------------------------------------------------------- */
+
+describe("sceneTraceEntries", () => {
+  it("mirrors every resolved scene field with its provenance", () => {
+    const blocks = compileSceneSpecs(
+      [block("hero", "h")],
+      {
+        measured: measurement([scene("hero", { order: 0, bounds: { rect: { x: 0, y: 0, width: 1440, height: 810 }, viewportRatio: 0.9, fullBleed: true } })]),
+        dna: dnaWith({ heroViewportOccupation: 70 }, "left"),
+      },
+    );
+    const trace = sceneTraceEntries(blocks);
+    const byField = Object.fromEntries(trace.map((t) => [t.field, t]));
+    expect(byField["scene.hero.minHeightVh"].chosen.source).toBe("measured");
+    expect(byField["scene.hero.heroMediaPosition"].chosen.source).toBe("curated");
+    expect(sceneTraceEntries([block("features")])).toEqual([]);
   });
 });

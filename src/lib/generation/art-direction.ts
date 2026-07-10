@@ -18,6 +18,7 @@ import type { BusinessProfile } from "./business";
 import type { DesignDNA } from "./dna";
 import type { Moodboard } from "./references";
 import type { VisualDNA } from "@/lib/extraction/types";
+import { sceneOrderMeasured } from "@/lib/measure/scenes";
 import { BLOCK_CATALOG } from "./catalog";
 import { INDUSTRY_PROFILES } from "./industries";
 import { planSmart, type Plan } from "./planner";
@@ -697,6 +698,7 @@ function varySectionOrder(
   storytelling: ArtDirection["pageStorytelling"],
   visualDna: VisualDNA | undefined,
   seed: number,
+  measuredOrder?: string[],
 ): BlockType[] {
   const order = basePlan.slots.map((s) => s.type);
 
@@ -749,6 +751,27 @@ function varySectionOrder(
   if (contactIdx >= 0 && contactIdx < middle.length - 2) {
     const [contact] = middle.splice(contactIdx, 1);
     middle.push(contact);
+  }
+
+  // C7d — the source's MEASURED scene order outranks storytelling variation
+  // (I1). Scene types are coarse (hero/gallery/section/footer), so only the
+  // signal they genuinely carry is applied: where the gallery sits on the
+  // page. Nothing measured → nothing changes.
+  if (measuredOrder && measuredOrder.length >= 3) {
+    const flow = measuredOrder.filter((t) => t !== "nav" && t !== "footer");
+    const galleryPos = flow.indexOf("gallery");
+    if (galleryPos >= 0) {
+      const visualIdx = middle.findIndex((t) => t === "portfolio" || t === "gallery" || t === "products");
+      if (visualIdx >= 0) {
+        // Position among the middle sections mirroring the measured page flow
+        // (hero occupies flow[0] → offset by one, clamped to the middle).
+        const target = Math.min(Math.max(galleryPos - 1, 0), middle.length - 1);
+        if (target !== visualIdx) {
+          const [visual] = middle.splice(visualIdx, 1);
+          middle.splice(target, 0, visual);
+        }
+      }
+    }
   }
 
   return [hero, ...middle, footer];
@@ -879,7 +902,10 @@ export function artDirect(
 
   // 12 layout decisions
   const heroVariant = pickHeroVariant(heroPhilosophy, dna, visualDna, industry, hasImages, seed);
-  const sectionOrder = varySectionOrder(plan, pageStorytelling, visualDna, seed);
+  const sectionOrder = varySectionOrder(
+    plan, pageStorytelling, visualDna, seed,
+    analysis.measuredScenes ? sceneOrderMeasured(analysis.measuredScenes)?.value : undefined,
+  );
   const featureLayout = directFeatureLayout(profile, dna, analysis, mood, seed);
   const testimonialLayout = directTestimonialLayout(hasTestimonials, mood, seed);
   const galleryStyleVal = directGalleryStyle(analysis, dna, mood, seed);

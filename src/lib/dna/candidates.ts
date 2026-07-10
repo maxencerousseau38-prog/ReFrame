@@ -280,6 +280,13 @@ export function inspirationLayer(
       style: dna.hero.compositionType,
       imagePosition: dna.hero.imagePosition,
     },
+    // Page-level composition direction (C7d/A4) — feeds the Composition
+    // Engine for sites without their own scene measurements (fill-only there).
+    composition: {
+      heroViewportOccupation: dna.hero.viewportOccupation,
+      asymmetry: dna.layout.asymmetryIntensity,
+      sectionRhythm: dna.layout.sectionRhythm,
+    },
     rhythm: {
       spacingMultiplier: dna.layout.spacingMultiplier,
       density: dna.layout.spacingScale,

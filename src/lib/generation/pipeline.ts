@@ -32,6 +32,7 @@ import { planSmart } from "./planner";
 import { resolveTree } from "@/lib/dna/resolver";
 import { measuredLayer, curatedLayer, tokensLayer, inspirationLayer } from "@/lib/dna/candidates";
 import { contentTraceEntries } from "@/lib/dna/content-trace";
+import { sceneTraceEntries } from "@/lib/compose/scene-spec";
 import { buildContentModel } from "@/lib/understand/content-model";
 import { findClosestReferences, type InspirationProfile } from "./similarity";
 import { ENRICHED_REFERENCE_DB } from "./reference-library";
@@ -162,8 +163,13 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
     quality,
     iterations,
     // F15: DNA provenance + content provenance (language, headings, CTA) —
-    // "why this heading?" is now answerable from the same trace.
-    trace: [...resolved.trace, ...contentTraceEntries(buildContentModel(analysis), analysis)],
+    // "why this heading?" is now answerable from the same trace. C7d adds the
+    // scene decisions (why this hero height / media side / grid).
+    trace: [
+      ...resolved.trace,
+      ...contentTraceEntries(buildContentModel(analysis), analysis),
+      ...sceneTraceEntries(schema.blocks),
+    ],
     inspiration,
   };
 }

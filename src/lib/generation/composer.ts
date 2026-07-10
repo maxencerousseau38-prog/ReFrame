@@ -76,6 +76,18 @@ function pickVariantWithDNA(
 
   // For hero, the DNA's heroDirection.style should strongly influence
   if (category === "hero") {
+    // C7d: a strong premium viewport occupation needs a skin that can honour
+    // it — banner heroes express occupation through rhythm only (C7b), so
+    // route to a full-bleed-capable variant first.
+    const occupation = dna.composition?.heroViewportOccupation;
+    if (occupation !== undefined && occupation >= 85) {
+      for (const v of ["HeroImageFull", "HeroArchform", "HeroMonumental"]) {
+        const meta = BLOCK_CATALOG.find((b) => b.variant === v);
+        if (meta && (meta.sectors === "all" || (meta.sectors as Industry[]).includes(industry))) {
+          return v;
+        }
+      }
+    }
     const styleToVariant: Record<string, string[]> = {
       split: ["HeroSplitPremium", "HeroPremium2"],
       fullbleed: ["HeroImageFull", "HeroArchform"],
@@ -512,8 +524,12 @@ export function compose(analysis: SiteAnalysis, opts: ComposeOptions): SiteSchem
   }
 
   // 4. Quality pass: ensure hero first, footer last, no dupes — then attach
-  // measured composition decisions per scene (C7a; no measures → untouched)
-  const finalBlocks = compileSceneSpecs(qualityPassBlocks(blocks), analysis.measuredScenes);
+  // composition decisions per scene (C7a/C7d): measured scenes first, premium
+  // direction as fill-only. No usable source → untouched (V5 identical).
+  const finalBlocks = compileSceneSpecs(qualityPassBlocks(blocks), {
+    measured: analysis.measuredScenes,
+    dna,
+  });
 
   // 5. Build the schema
   const schema: SiteSchema = {

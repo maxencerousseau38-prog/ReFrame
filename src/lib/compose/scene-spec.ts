@@ -19,8 +19,10 @@
  */
 
 import type { Block } from "@/lib/generation/types";
+import type { DesignDNA } from "@/lib/generation/dna";
 import { renderableCategory } from "@/lib/generation/structure";
 import type { SceneDna, SceneMeasurement, SceneType } from "@/lib/measure/scenes";
+import { resolveField, sourced, traceEntry, type PipelineTrace, type Source } from "@/lib/dna/provenance";
 
 /** Where a resolved scene field came from (per-field provenance/trace). */
 export type SceneFieldSource = "measured" | "premium" | "default";
@@ -227,21 +229,105 @@ export function matchScenesToBlocks(scenes: SceneDna[], blocks: Block[]): Map<st
 /* -------------------------------------------------------------------------- */
 
 /**
- * Attach a resolved SceneSpec to every block that matches a measured scene.
- * Pure: never mutates the input; without measurements it returns the input
+ * Named decision sources for the Composition Engine, merged fill-only in
+ * declaration order (measured > dna/premium). The engine never knows an
+ * origin beyond the provenance label — future understanding layers (D6:
+ * BusinessDNA, IntentDNA, BrandDNA, ContentDNA…) join as new named sources
+ * here, each filling only the holes the higher-ranked sources left.
+ */
+export interface SceneSpecSources {
+  /** Per-scene measured truth (C6). Highest rank, never overwritten (I1). */
+  measured?: SceneMeasurement;
+  /** Resolved DesignDNA. Its `composition` field is only present when a real
+   *  signal produced it (premium inspiration gated by similarity ≥ 0.6) —
+   *  presets alone never drive scene composition. */
+  dna?: DesignDNA;
+}
+
+/** DesignDNA imagePosition → measured-media vocabulary ("none" offers nothing). */
+const PREMIUM_MEDIA_POSITION: Partial<Record<string, NonNullable<SceneSpec["heroMediaPosition"]>>> = {
+  behind: "behind",
+  left: "left",
+  right: "right",
+  below: "bottom",
+};
+
+/** Fill the holes of a hero spec from the premium composition direction. */
+function fillHeroFromDna(spec: SceneSpec, dna: DesignDNA): void {
+  const occ = dna.composition?.heroViewportOccupation;
+  if (spec.minHeightVh === undefined && occ !== undefined && inRange(occ / 100, HERO_VIEWPORT_RATIO_RANGE)) {
+    spec.minHeightVh = Math.round(occ);
+    spec.provenance.minHeightVh = "premium";
+  }
+  const mapped = PREMIUM_MEDIA_POSITION[dna.heroDirection.imagePosition];
+  if (spec.heroMediaPosition === undefined && mapped) {
+    spec.heroMediaPosition = mapped;
+    spec.provenance.heroMediaPosition = "premium";
+  }
+}
+
+/**
+ * Attach a resolved SceneSpec to every block with a usable decision:
+ * measured scene first (I1), then premium composition for the hero when a
+ * genuine inspiration signal exists (`dna.composition` — see gate above).
+ * Pure: never mutates the input; with no usable source it returns the input
  * array UNCHANGED (same references) so the V5 path stays byte-identical.
  */
-export function compileSceneSpecs(blocks: Block[], measured: SceneMeasurement | undefined): Block[] {
-  if (!measured || measured.scenes.length === 0) return blocks;
+export function compileSceneSpecs(blocks: Block[], sources: SceneSpecSources): Block[] {
+  const { measured, dna } = sources;
+  const matched = measured && measured.scenes.length > 0
+    ? matchScenesToBlocks(measured.scenes, blocks)
+    : new Map<string, SceneDna>();
+  // Premium gate: composition present ⇔ a real signal (inspiration ≥ 0.6).
+  const premiumHero = dna?.composition ? dna : undefined;
+  if (matched.size === 0 && !premiumHero) return blocks;
 
-  const matched = matchScenesToBlocks(measured.scenes, blocks);
-  if (matched.size === 0) return blocks;
-
-  return blocks.map((block) => {
+  let changed = false;
+  const out = blocks.map((block) => {
     const scene = matched.get(block.id);
-    if (!scene) return block;
-    const spec = sceneSpecFrom(scene);
+    let spec = scene ? sceneSpecFrom(scene) : undefined;
+    if (block.type === "hero" && premiumHero) {
+      // Deterministic synthetic join key (block ids are random — traces must
+      // stay byte-stable across identical runs).
+      spec ??= { path: `premium:${block.type}`, sceneType: "hero", provenance: {} };
+      fillHeroFromDna(spec, premiumHero);
+    }
     if (!spec || !assertRenderable(spec)) return block;
+    changed = true;
     return { ...block, scene: spec };
   });
+  return changed ? out : blocks;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Trace — scene decisions land in the PipelineTrace like every other one    */
+/* -------------------------------------------------------------------------- */
+
+const TRACE_SOURCE: Record<SceneFieldSource, Source> = {
+  measured: "measured",
+  premium: "curated",
+  default: "preset",
+};
+
+/**
+ * Mirror each resolved scene decision into PipelineTrace entries
+ * (`scene.<blockType>.<field>`), so "why this hero height?" is answerable
+ * from the same trace as every DNA/content decision.
+ */
+export function sceneTraceEntries(blocks: Block[]): PipelineTrace {
+  const trace: PipelineTrace = [];
+  for (const block of blocks) {
+    const spec = block.scene;
+    if (!spec) continue;
+    for (const [field, src] of Object.entries(spec.provenance)) {
+      if (!src) continue;
+      const raw = spec[field as keyof SceneSpec];
+      const value = typeof raw === "object" && raw !== null ? { ...(raw as object) } : raw;
+      const resolved = resolveField(`scene.${block.type}.${field}`, [
+        sourced(value, TRACE_SOURCE[src], `compose/scene-spec.ts (${spec.path})`),
+      ]);
+      if (resolved) trace.push(traceEntry(resolved));
+    }
+  }
+  return trace;
 }
