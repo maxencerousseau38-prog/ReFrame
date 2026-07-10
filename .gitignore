@@ -31,7 +31,11 @@ next-env.d.ts
 .data/
 
 # Local Claude Code integration (settings + skill symlinks, machine-specific)
-.claude/
+.claude/*
+!.claude/settings.json
+!.claude/hooks/
+.claude/hooks/*
+!.claude/hooks/session-start.sh
 
 # Evaluation harness output
 eval/

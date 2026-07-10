@@ -22,8 +22,8 @@ review, activate and use these via the Skill tool:
   covers contrast, semantics, keyboard, focus).
 - Plus the in-repo **reframe-redesign** house grammar.
 
-A SessionStart hook (`.claude/hooks/reframe-skills-reminder.sh`) re-injects this
-rule every session.
+A tracked SessionStart hook (`.claude/hooks/session-start.sh`) re-injects this
+rule every session and loads the session OS (see below).
 
 ## Golden rules (non-negotiable)
 
@@ -81,6 +81,16 @@ rule every session.
 The engine is mature but does **not yet** hit "90% extraction" — see
 `docs/RECONSTRUCTION_GAP_ANALYSIS.md` for what's done / partial / missing and the
 prioritized plan. Don't claim capabilities that aren't implemented.
+
+## Session OS (mémoire permanente — lire ceci d'abord)
+
+Le point d'entrée de CHAQUE session est **`ai/STATE.md`** (injecté par le hook
+SessionStart). Ne jamais rescanner le dépôt : `ai/PIPELINE.md` (carte
+pipeline→fichiers), `ai/MODULES/*.md` (fiches), `ai/ROADMAP.md` (chantiers),
+`ai/CONVENTIONS.md` (protocole de sous-lot + gouvernance des docs),
+`docs/ARCHITECTURE_DECISIONS.md` (décisions actées). En clôture de session :
+mettre à jour STATE + SESSION_LOG + ROADMAP avant le dernier push.
+Conteneur recréé → `bash ai/bootstrap.sh`.
 
 ## graphify
 
