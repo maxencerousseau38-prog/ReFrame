@@ -29,14 +29,26 @@
 | C7d | A4 : champs composition premium dans la DNA + mapping inspirationLayer + ordre mesuré → plan | après C7c |
 | C7e | Validation visuelle complète + revue PE + registre | clôture C7 |
 
-## Plus tard 📋
+## Plus tard 📋 (renuméroté 2026-07-10 — D6 : C8 = Business Understanding)
 
 | Item | Contenu |
 |---|---|
-| C8 | Library par signature : Premium Composition Library réindexée par SceneSignature, sélection par similarité |
-| C9 | Migration complète des skins (grilles/gaps restants, cartes) |
-| C10 | Quality Gate comparatif Playwright (FidelityReport 6 dims, AuditFloor) + F2/F5/F9 + validation Tier 2 en prod réelle |
-| C11 | Unification moteur : suppression legacy engine/scrapling/v7 ; optimisation double-rendu (D4) ; F13 (langues pt/nl) si non traité avant |
+| **C8** | **Business Understanding Engine** (D6/F18) : industrie exacte, sous-catégorie, modèle économique, objectifs, parcours critiques, objets métier, actions, contenus prioritaires, confiance → **BusinessDNA** injectée dans le Composition Engine comme couche (`CandidateLayer`), AVANT la composition. E-commerce prioritaire (F18 : collections/produits/variantes/prix/panier/fiches générées/CTA métier). Absorbe `business.ts`/`buildContentModel`. |
+| C9 (ex-C8) | Library par signature : Premium Composition Library réindexée par SceneSignature, sélection par similarité |
+| C10 (ex-C9) | Migration complète des skins (grilles/gaps restants, cartes) |
+| C11 (ex-C10) | Quality Gate comparatif Playwright (FidelityReport 6 dims, AuditFloor) + F2/F5/F9/F17 + validation Tier 2 en prod réelle |
+| C12 (ex-C11) | Unification moteur : suppression legacy engine/scrapling/v7 ; optimisation double-rendu (D4) ; F13 (langues pt/nl) si non traité avant |
+
+## Vision cible (actée D6 — guide toutes les décisions)
+
+URL → DOM Analysis → Visual Analysis → Capture → Brand Extraction → Content
+Extraction → **Business Understanding** → MeasureTokens → SceneDNA → Reference
+Learning → Similarity → **Composition** → Motion → Responsive → Quality Review
+→ Commercial Readiness → Export. **Business Understanding → Composition,
+jamais l'inverse** : le moteur comprend le métier, puis compose. Un site ne
+doit plus seulement être beau — il doit paraître conçu par un excellent
+designer senior DU secteur (restaurant→excellent restaurant, e-commerce→
+véritable e-commerce premium), qualité fonctionnelle/métier/commerciale incluse.
 
 ## Findings ouverts (voir registre pour le détail)
 
