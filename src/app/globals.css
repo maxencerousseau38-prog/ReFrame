@@ -294,6 +294,12 @@
   opacity: 1 !important;
   transform: none !important;
 }
+/* blur-fade entrances also park a filter:blur() on the initial state — a
+   static/hosted render must paint SHARP text (P0). */
+[data-animate="off"] [style*="filter"],
+[data-animate="off"] [style*="blur"] {
+  filter: none !important;
+}
 
 ::-webkit-scrollbar {
   width: 10px;

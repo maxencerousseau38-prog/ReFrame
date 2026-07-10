@@ -109,8 +109,8 @@ for (const [sector, url] of SITES) {
     };
 
     await page.getByRole("button", { name: /transform my site/i }).first().click();
-    await page.waitForURL(/\/result/, { timeout: 45000 });
-    await page.waitForFunction(() => !!sessionStorage.getItem("sr:schema"), { timeout: 45000 });
+    await page.waitForURL(/\/result/, { timeout: 180000 });
+    await page.waitForFunction(() => !!sessionStorage.getItem("sr:schema"), { timeout: 180000 });
     const schema = await page.evaluate(() => JSON.parse(sessionStorage.getItem("sr:schema")));
     dump.schema = {
       blocks: schema.blocks.map((b) => `${b.type}:${b.variant}${b.scene ? " [scene:" + Object.keys(b.scene.provenance || {}).join("+") + "]" : ""}`),

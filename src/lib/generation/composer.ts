@@ -258,9 +258,19 @@ function buildBlockProps(
         overlayOpacity: dna.heroDirection.overlayOpacity,
         imagePosition: dna.heroDirection.imagePosition,
       };
+      // F24: the skins' canonical prop names — several hero skins read ONLY
+      // title/subtitle/image/primaryCta and rendered EMPTY on the smart path
+      // (never seen before P0 because the product default was the legacy engine).
+      props.title = props.headline;
+      props.subtitle = props.description;
+      props.image = props.heroImageUrl;
+      props.primaryCta = props.ctaLabel;
+      props.primaryHref = props.ctaHref;
       if (dna.heroDirection.ctaCount >= 2) {
         props.secondaryCtaLabel = label("learnMore", lang);
         props.secondaryCtaHref = "#features";
+        props.secondaryCta = props.secondaryCtaLabel;
+        props.secondaryHref = props.secondaryCtaHref;
       }
       if (dna.heroDirection.trustIndicators && c.stats?.length) {
         props.stats = c.stats;
@@ -269,12 +279,15 @@ function buildBlockProps(
     }
 
     case "features": {
+      // P0/F21: real content only — presets fabricated "Tax planning"-style
+      // items on real sites. No real services → the section is omitted.
+      if (!c.serviceItems?.length && c.services.length === 0) return null;
       const services = c.serviceItems?.length
         ? c.serviceItems.slice(0, 6).map((s) => ({
             title: cleanText(s.title),
             description: cleanText(s.description),
           }))
-        : (c.services.length > 0 ? c.services : industryProfile.defaults.services).map((s) => ({
+        : c.services.map((s) => ({
             title: cleanText(s),
           }));
       const image = c.images[ctx.imageIdx % c.images.length];
@@ -282,6 +295,7 @@ function buildBlockProps(
       return {
         ...dnaProps,
         sectionTitle: title("features", "features"),
+        title: title("features", "features"),
         features: services,
         image,
       };
@@ -292,6 +306,7 @@ function buildBlockProps(
       return {
         ...dnaProps,
         sectionTitle: title("testimonials", "testimonials"),
+        title: title("testimonials", "testimonials"),
         testimonials: c.testimonials.slice(0, 6).map((t) => ({
           quote: cleanText(t.quote),
           name: cleanText(t.name),
@@ -316,6 +331,7 @@ function buildBlockProps(
       return {
         ...dnaProps,
         sectionTitle: title("portfolio", "portfolio"),
+        title: title("portfolio", "portfolio"),
         images: c.images.slice(0, 8),
         galleryStyle: dna.galleryDirection.style,
         galleryColumns: dna.galleryDirection.columns,
@@ -328,6 +344,7 @@ function buildBlockProps(
       return {
         ...dnaProps,
         sectionTitle: title("about", "about"),
+        title: title("about", "about"),
         headline: cleanText(realHeading(model, "about")) ||
           (c.aboutBody ? label("ourStory", lang) : cleanText(analysis.brandName)),
         description: cleanText(c.aboutBody || c.description || industryProfile.defaults.description),
@@ -343,6 +360,7 @@ function buildBlockProps(
       return {
         ...dnaProps,
         sectionTitle: title("faq", "faq"),
+        title: title("faq", "faq"),
         items: c.faqItems.slice(0, 6).map((f) => ({
           question: cleanText(f.question),
           answer: cleanText(f.answer),
@@ -351,14 +369,17 @@ function buildBlockProps(
     }
 
     case "services": {
+      // P0/F21: same rule as features — omitted without real services.
+      if (!c.serviceItems?.length && c.services.length === 0) return null;
       const services = c.serviceItems?.length
         ? c.serviceItems.slice(0, 8)
-        : (c.services.length > 0 ? c.services : industryProfile.defaults.services).map((s) => ({
+        : c.services.map((s) => ({
             title: s,
           }));
       return {
         ...dnaProps,
         sectionTitle: title("services", "services"),
+        title: title("services", "services"),
         services: services.map((s) => ({
           title: cleanText("title" in s ? String(s.title) : String(s)),
           description: cleanText("description" in s ? String(s.description) : undefined),
@@ -367,16 +388,23 @@ function buildBlockProps(
     }
 
     case "cta": {
+      const heading = cleanText(realHeading(model, "cta")) ||
+        cleanText(c.headline) ||
+        cleanText(industryProfile.defaults.headline);
       return {
         ...dnaProps,
         // The client's REAL headline closes the page — never the industry
         // default when real copy exists (V2 Chantier 3).
-        headline: cleanText(realHeading(model, "cta")) ||
-          cleanText(c.headline) ||
-          cleanText(industryProfile.defaults.headline),
+        headline: heading,
+        // F24: canonical skin names (CTA skins read title/primaryCta).
+        title: heading,
         ctaLabel: primaryCta,
+        primaryCta,
         ctaHref: c.contact?.bookingUrl || "#contact",
+        primaryHref: c.contact?.bookingUrl || "#contact",
         secondaryCtaLabel: dna.ctaDirection.hasSecondary ? label("learnMore", lang) : undefined,
+        secondaryCta: dna.ctaDirection.hasSecondary ? label("learnMore", lang) : undefined,
+        secondaryHref: dna.ctaDirection.hasSecondary ? "#features" : undefined,
       };
     }
 
@@ -384,6 +412,7 @@ function buildBlockProps(
       return {
         ...dnaProps,
         sectionTitle: title("contact", "contact"),
+        title: title("contact", "contact"),
         email: c.contact?.email,
         phone: c.contact?.phone,
         address: c.contact?.address,

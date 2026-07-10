@@ -37,15 +37,15 @@ interface Extras {
 
 const MODES: { id: GenerationMode; label: string; desc: string; recommended?: boolean }[] = [
   {
-    id: "preserve",
-    label: "Preserve",
-    desc: "Keep your structure and section order. Upgrade the design, typography, spacing, responsive and animations.",
+    id: "smart",
+    label: "Smart",
+    desc: "The full modern engine: your real content, measured design tokens and scene-driven composition, reorganized for conversion. Never invents content.",
     recommended: true,
   },
   {
-    id: "smart",
-    label: "Smart",
-    desc: "Keep the structure, then reorganize for conversion: add an FAQ, CTA or testimonials where it helps.",
+    id: "preserve",
+    label: "Preserve",
+    desc: "Keep your structure and section order. Upgrade the design, typography, spacing, responsive and animations.",
   },
   {
     id: "classic",
@@ -61,7 +61,9 @@ function DashboardInner() {
   const [url, setUrl] = React.useState("");
   const [phase, setPhase] = React.useState<Phase>("idle");
   const [analysis, setAnalysis] = React.useState<SiteAnalysis | null>(null);
-  const [mode, setMode] = React.useState<GenerationMode>("preserve");
+  // P0/F19: the modern DNA pipeline (smart) is the product default — the
+  // legacy engine no longer sits on the main user path.
+  const [mode, setMode] = React.useState<GenerationMode>("smart");
   const [error, setError] = React.useState<string | null>(null);
 
   // Auto-run if the landing page handed us a ?url=

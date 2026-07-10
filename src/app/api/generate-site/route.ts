@@ -38,6 +38,11 @@ export async function POST(req: Request) {
       // V2 raccordement C4→C6: attach real measured tokens/scenes when a
       // browser can render the source. Byte-identical to today otherwise.
       analysis = await enrichWithMeasurements(analysis, body.url);
+    } else if (!analysis.measuredTokens && (body.url || analysis.url)) {
+      // P0/F20: the dashboard posts its own analysis — measure the source
+      // here too, otherwise the C4→C6 chain never runs on the product path.
+      // Best-effort and browser-gated exactly like the url-only branch.
+      analysis = await enrichWithMeasurements(analysis, body.url || analysis.url);
     }
 
     // LLM copywriter: sharpen extracted content before the DNA pipeline reads

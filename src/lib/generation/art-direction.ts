@@ -708,9 +708,13 @@ function varySectionOrder(
   const footer = order[order.length - 1];
   const middle = order.slice(1, -1);
 
-  // If VisualDNA has a section rhythm, prefer it
+  // If VisualDNA has a section rhythm, prefer it — but never DROP planned
+  // slots it doesn't mention: the plan only contains real content (F14), so
+  // a slot lost here is real content lost (P0: a real FAQ vanished this way).
   if (visualDna?.layout.sectionRhythm && visualDna.layout.sectionRhythm.length >= 3) {
-    return [hero, ...visualDna.layout.sectionRhythm.map((s) => s as BlockType), footer];
+    const observed = visualDna.layout.sectionRhythm.map((s) => s as BlockType);
+    const missing = middle.filter((t) => !observed.includes(t));
+    return [hero, ...observed, ...missing, footer];
   }
 
   // Apply storytelling-driven reordering

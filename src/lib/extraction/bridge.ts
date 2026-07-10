@@ -58,7 +58,10 @@ export function toSiteAnalysis(ext: ExtractionResult): SiteAnalysis {
       description: ext.content.description || profile.defaults.description,
       language: ext.content.language,
       ctaLabel: ext.content.primaryCtaLabel,
-      services: ext.content.services?.map((s) => s.title) ?? profile.defaults.services,
+      // P0/F21: real services only — never the industry preset list. Without
+      // real ones the section is OMITTED downstream (golden rule), and the
+      // recovery flow asks the owner instead of fabricating.
+      services: ext.content.services?.map((s) => s.title) ?? [],
       heroImageUrl: ext.images.hero,
       images: ext.images.gallery,
       contactHint: ext.business.contact ? "Contact found" : undefined,

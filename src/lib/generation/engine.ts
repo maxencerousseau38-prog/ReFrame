@@ -558,7 +558,7 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
           ? prose.serviceItems!.map((s) => s.title)
           : cleanServiceLabels(navItems).length >= 3
             ? cleanServiceLabels(navItems)
-            : finalProfile.defaults.services,
+            : [], // P0/F21: never the preset list — omitted sections beat fabricated ones
       heroImageUrl,
       images,
       contactHint: root.querySelector("form") ? "Contact form detected" : undefined,
@@ -1924,6 +1924,8 @@ function buildBlock(
         },
       };
     case "features": {
+      // P0/F21: no real services/features extracted → section omitted.
+      if (!c.serviceItems?.length && c.services.length === 0) return null;
       const base = c.serviceItems?.length
         ? c.serviceItems.map((s) => ({ title: s.title, description: s.description || featureBlurb(s.title, analysis.industry) }))
         : c.services.map((s) => ({ title: s, description: featureBlurb(s, analysis.industry) }));
@@ -1952,6 +1954,8 @@ function buildBlock(
       };
     }
     case "services":
+      // P0/F21: no real services extracted → section omitted.
+      if (!c.serviceItems?.length && c.services.length === 0) return null;
       return {
         id: uid("services"),
         type: slot.type,
@@ -2015,11 +2019,13 @@ function buildBlock(
         props: { title: "What our clients say", items: c.testimonials },
       };
     case "faq":
+      // P0/F21: a FAQ is real questions from the real site — never fabricated.
+      if (!c.faqItems?.length) return null;
       return {
         id: uid("faq"),
         type: "faq",
         variant: pickVariant("faq", analysis.industry, brand, mood),
-        props: { title: "Frequently asked questions", items: c.faqItems?.length ? c.faqItems : defaultFaq(analysis.industry, brand) },
+        props: { title: "Frequently asked questions", items: c.faqItems },
       };
     case "cta":
       return {
@@ -2501,15 +2507,6 @@ function portfolioItems(a: SiteAnalysis): { image?: string; title: string; tag: 
   }));
 }
 
-function defaultFaq(industry: Industry, brand: string) {
-  return [
-    { question: `How quickly can ${brand} get started?`, answer: "Most projects begin within a few days of your first message. Just reach out and we'll find a slot." },
-    { question: "How much does it cost?", answer: "Every project is quoted transparently up front, with no hidden fees and no surprises." },
-    { question: "Do you offer guarantees?", answer: "Yes. We stand behind our work and won't consider it done until you're delighted." },
-    { question: "What areas do you serve?", answer: "We serve the local area and surrounding regions. Ask us about your location." },
-  ];
-}
-
 /* -------------------------------------------------------------------------- */
 /*  3. AI Edit                                                                */
 /* -------------------------------------------------------------------------- */
@@ -2565,20 +2562,16 @@ export function applyAiEdit(schema: SiteSchema, instruction: string): AiEditResu
     return { schema: next, message: "Modernised the design — cleaner type, generous spacing and softer radii in a tighter, premium direction.", changed: true };
   }
 
-  // 2. Add FAQ
+  // 2. FAQ can't be auto-added: we won't invent questions and answers (P0/F21).
   if (/add/.test(text) && /faq/.test(text)) {
-    if (!next.blocks.some((b) => b.type === "faq")) {
-      const footerIdx = next.blocks.findIndex((b) => b.type === "footer");
-      const faq: Block = {
-        id: uid("faq"),
-        type: "faq",
-        variant: "FAQAccordion1",
-        props: { title: "Frequently asked questions", items: defaultFaq(next.industry, next.brand.name) },
-      };
-      next.blocks.splice(footerIdx < 0 ? next.blocks.length : footerIdx, 0, faq);
-      return { schema: next, message: "Added an FAQ section before the footer.", changed: true };
+    if (next.blocks.some((b) => b.type === "faq")) {
+      return { schema: next, message: "There's already an FAQ section on the page.", changed: false };
     }
-    return { schema: next, message: "There's already an FAQ section on the page.", changed: false };
+    return {
+      schema: next,
+      message: "I won't invent FAQ answers. Give me the real questions and answers and I'll place an FAQ section for you.",
+      changed: false,
+    };
   }
 
   // 3a. Testimonials can't be auto-added: we won't invent customer quotes.
@@ -2593,7 +2586,15 @@ export function applyAiEdit(schema: SiteSchema, instruction: string): AiEditResu
 
   // 3. Add a structural section (never fabricated content — services/about use
   //    the same industry defaults the initial build uses).
-  for (const target of ["contact", "cta", "services", "about"] as const) {
+  // "services" is excluded: its stub would inject preset items (P0/F21).
+  if (/add/.test(text) && text.includes("services")) {
+    return {
+      schema: next,
+      message: "I won't invent services. Tell me your real services and I'll add the section with them.",
+      changed: false,
+    };
+  }
+  for (const target of ["contact", "cta", "about"] as const) {
     const kw = target === "cta" ? "call to action" : target;
     if (/add/.test(text) && text.includes(kw)) {
       if (!next.blocks.some((b) => b.type === target)) {
@@ -2608,7 +2609,7 @@ export function applyAiEdit(schema: SiteSchema, instruction: string): AiEditResu
           extractedContent: {
             headline: "",
             description: "",
-            services: INDUSTRY_PROFILES[next.industry].defaults.services,
+            services: [], // P0/F21: structural stubs carry no fabricated items
             images: [],
           },
           scores: { design: 0, performance: 0, seo: 0, mobile: 0, accessibility: 0 },

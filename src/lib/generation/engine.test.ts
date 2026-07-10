@@ -122,8 +122,10 @@ describe("generateSite", () => {
     const s = generateSite(analysis({ structure: structure(["hero", "about", "footer"]) }), {
       mode: "classic",
     });
+    // P0/F21: no real faqItems in the fixture → the canonical faq slot is
+    // omitted instead of being filled with fabricated questions.
     expect(s.blocks.map((b) => b.type)).toEqual([
-      "hero", "features", "faq", "cta", "contact", "footer",
+      "hero", "features", "cta", "contact", "footer",
     ]);
     expect(s.recommendations).toBeUndefined();
   });
@@ -177,7 +179,14 @@ describe("generateSite", () => {
     expect(types[0]).toBe("hero");
     expect(types[types.length - 1]).toBe("footer");
     expect(types).toContain("contact"); // guaranteed even if AI omits it
-    expect(types).toContain("faq");
+    // P0/F21: the faq slot is requested but there are no real faqItems → the
+    // section is OMITTED, never filled with fabricated questions.
+    expect(types).not.toContain("faq");
+    const withFaq = generateSite(
+      analysis({ extractedContent: { headline: "H", description: "D", services: ["A", "B", "C"], images: [], faqItems: [{ question: "Q?", answer: "A." }] } }),
+      { layout: ["hero", "features", "faq", "cta"] },
+    );
+    expect(withFaq.blocks.map((b) => b.type)).toContain("faq");
   });
 
   it("applies an AI theme (font/mood/radius) but lets the real brand colour win", () => {
