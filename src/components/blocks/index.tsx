@@ -564,7 +564,7 @@ function HeroPremium2({ props }: { props: any }) {
   const mediaLeft = props._scene?.heroMediaPosition === "left";
   return (
     <section className="relative overflow-hidden px-6 pt-[var(--rf-scene-pt,6rem)] pb-[var(--rf-scene-pb,6rem)] sm:pt-[var(--rf-scene-pt,7rem)] sm:pb-[var(--rf-scene-pb,7rem)]">
-      <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
+      <div className="mx-auto grid max-w-6xl items-center gap-[var(--rf-scene-gap,3rem)] lg:grid-cols-[var(--rf-scene-ratio,1fr_1fr)]">
         <div className={cn(mediaLeft && "lg:order-2")}>
           {props.eyebrow && (
             <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--brand-accent)" }}>
@@ -764,7 +764,7 @@ function FeaturesGrid1({ props }: { props: any }) {
   const items = (props.items || []) as any[];
   // Pick columns that divide the item count so the grid never shows an empty
   // cell (e.g. 4 items => 2x2, not 3+1). Most sectors ship 4 or 6 items.
-  const lgCols = items.length % 3 === 0 ? "lg:grid-cols-3" : items.length % 2 === 0 ? "lg:grid-cols-2" : "lg:grid-cols-3";
+  const lgCols = items.length % 3 === 0 ? "lg:grid-cols-[repeat(var(--rf-scene-cols,3),minmax(0,1fr))]" : items.length % 2 === 0 ? "lg:grid-cols-[repeat(var(--rf-scene-cols,2),minmax(0,1fr))]" : "lg:grid-cols-[repeat(var(--rf-scene-cols,3),minmax(0,1fr))]";
   return (
     <section className="px-6" style={{ color: "var(--brand-ink)", ...rfSectionPad(96) }}>
       <div className="mx-auto" style={rfContainerRatio(0.89)}>
@@ -1087,7 +1087,7 @@ function ContactFormPremium1({ props }: { props: any }) {
 
   return (
     <section id="contact" className="px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
-      <div className="mx-auto grid items-start gap-12 lg:grid-cols-2" style={rfContainerRatio(0.89)}>
+      <div className="mx-auto grid items-start gap-[var(--rf-scene-gap,3rem)] lg:grid-cols-[var(--rf-scene-ratio,1fr_1fr)]" style={rfContainerRatio(0.89)}>
         <div>
           <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ color:"var(--brand)" }}>
             {props.title}
@@ -1306,7 +1306,7 @@ function FeaturesBento({ props }: { props: any }) {
             <p className="mt-3" style={{ color: "var(--brand-ink)", opacity: 0.55 }}>{props.subtitle}</p>
           )}
         </div>
-        <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:[grid-auto-flow:dense]">
+        <div className="mt-12 grid grid-cols-1 gap-[var(--rf-scene-gap,1rem)] sm:grid-cols-2 lg:grid-cols-[repeat(var(--rf-scene-cols,3),minmax(0,1fr))] lg:[grid-auto-flow:dense]">
           {items.map((item, i) => {
             const lead = i === 0;
             return (
@@ -1444,7 +1444,7 @@ function StatsCounter({ props }: { props: any }) {
             {props.title}
           </p>
         )}
-        <div className="grid gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-y-10 sm:grid-cols-2 lg:grid-cols-[repeat(var(--rf-scene-cols,4),minmax(0,1fr))]">
           {items.map((s, i) => (
             <motion.div
               key={i}
@@ -1576,7 +1576,7 @@ function PortfolioGrid({ props }: { props: any }) {
         {!useGallery ? (
           // Not enough real imagery: a clean editorial card grid instead of big
           // empty image tiles (which read as voids, especially on desktop).
-          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-12 grid gap-[var(--rf-scene-gap,1rem)] sm:grid-cols-2 lg:grid-cols-[repeat(var(--rf-scene-cols,3),minmax(0,1fr))]">
             {items.map((p, i) => (
               <motion.div
                 key={i}
@@ -1602,7 +1602,7 @@ function PortfolioGrid({ props }: { props: any }) {
             ))}
           </div>
         ) : (
-        <div className="mt-12 grid auto-rows-[180px] grid-cols-2 gap-4 [grid-auto-flow:dense] sm:auto-rows-[220px] lg:grid-cols-3">
+        <div className="mt-12 grid auto-rows-[180px] grid-cols-2 gap-[var(--rf-scene-gap,1rem)] [grid-auto-flow:dense] sm:auto-rows-[220px] lg:grid-cols-[repeat(var(--rf-scene-cols,3),minmax(0,1fr))]">
           {withImg.map((p, i) => (
             <motion.figure
               key={i}
@@ -1660,7 +1660,7 @@ function AboutSplit({ props }: { props: any }) {
   return (
     <section className="px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(112) }}>
       <div
-        className={hasImage ? "mx-auto grid items-center gap-12 lg:grid-cols-[0.95fr_1.05fr]" : "mx-auto max-w-2xl text-center"}
+        className={hasImage ? "mx-auto grid items-center gap-[var(--rf-scene-gap,3rem)] lg:grid-cols-[var(--rf-scene-ratio,0.95fr_1.05fr)]" : "mx-auto max-w-2xl text-center"}
         style={hasImage ? rfContainer(1152) : undefined}
       >
         {hasImage && (
@@ -1772,7 +1772,7 @@ function StatementEditorial({ props }: { props: any }) {
   const title = (props.title || "") as string;
   return (
     <section className="overflow-hidden px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(128) }}>
-      <div className="mx-auto grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16" style={rfContainer(1152)}>
+      <div className="mx-auto grid gap-[var(--rf-scene-gap,3rem)] lg:grid-cols-[var(--rf-scene-ratio,1.05fr_0.95fr)] lg:gap-[var(--rf-scene-gap,4rem)]" style={rfContainer(1152)}>
         {/* statement column */}
         <div className="lg:pt-10">
           {props.eyebrow && (
@@ -1892,7 +1892,7 @@ function TeamGrid({ props }: { props: any }) {
             {props.title}
           </h2>
         </div>
-        <div className="mt-12 grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="mt-12 grid grid-cols-2 gap-x-[var(--rf-scene-gap,1.25rem)] gap-y-10 sm:grid-cols-3 lg:grid-cols-[repeat(var(--rf-scene-cols,4),minmax(0,1fr))]">
           {members.map((m, i) => (
             <motion.div
               key={i}
@@ -1936,7 +1936,7 @@ function TestimonialsEditorial({ props }: { props: any }) {
             {props.title}
           </p>
         )}
-        <div className="mt-10 grid gap-12 lg:grid-cols-[1.2fr_0.8fr] lg:gap-16">
+        <div className="mt-10 grid gap-[var(--rf-scene-gap,3rem)] lg:grid-cols-[var(--rf-scene-ratio,1.2fr_0.8fr)] lg:gap-[var(--rf-scene-gap,4rem)]">
           <motion.figure
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -2200,6 +2200,9 @@ function HeroImageFull({ props }: { props: any }) {
  */
 function FeaturesAlternating({ props }: { props: any }) {
   const items = (props.items || []) as any[];
+  // Measured starting side (C7c): the source scene's media sat on the LEFT →
+  // invert the alternation parity. Without a scene, V5 parity (odd rows flip).
+  const flip = props._scene?.alternate === true;
   return (
     <section className="px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
       <div className="mx-auto" style={rfContainerRatio(0.89)}>
@@ -2219,7 +2222,7 @@ function FeaturesAlternating({ props }: { props: any }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.5, ease: EASE, delay: i * 0.04 }}
-              className={`grid items-center gap-8 border-t py-10 sm:grid-cols-[1fr_1.4fr] ${i % 2 ? "sm:[&>*:first-child]:order-last" : ""}`}
+              className={`grid items-center gap-[var(--rf-scene-gap,2rem)] border-t py-10 sm:grid-cols-[var(--rf-scene-ratio,1fr_1.4fr)] ${(i % 2 === 1) !== flip ? "sm:[&>*:first-child]:order-last" : ""}`}
               style={{ borderColor: HAIRLINE }}
             >
               <div className="flex items-center gap-5">
@@ -2275,7 +2278,7 @@ function ServicesCards({ props }: { props: any }) {
             {props.title}
           </h2>
         </div>
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid gap-[var(--rf-scene-gap,1rem)] sm:grid-cols-2 lg:grid-cols-[repeat(var(--rf-scene-cols,3),minmax(0,1fr))]">
           {items.map((item, i) => (
             <motion.div
               key={i}
@@ -2331,7 +2334,7 @@ function TestimonialsGrid({ props }: { props: any }) {
             {props.title}
           </h2>
         )}
-        <div className="mt-12 grid gap-4 md:grid-cols-3">
+        <div className="mt-12 grid gap-[var(--rf-scene-gap,1rem)] md:grid-cols-[repeat(var(--rf-scene-cols,3),minmax(0,1fr))]">
           {items.slice(0, 6).map((t, i) => (
             <motion.figure
               key={i}
@@ -2966,7 +2969,7 @@ function HeroSplitPremium({ props }: { props: any }) {
   return (
     <section className="relative flex items-center overflow-hidden px-6" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)", paddingTop: `var(--rf-scene-pt, ${sectionPy})`, paddingBottom: `var(--rf-scene-pb, ${sectionPy})`, ...heightStyle }}>
       <div aria-hidden className="pointer-events-none absolute -right-32 -top-28 h-[520px] w-[520px] rounded-full blur-3xl" style={{ background: "radial-gradient(closest-side, color-mix(in srgb, var(--brand-accent) 45%, transparent), transparent)", opacity: 0.5 }} />
-      <div className="relative mx-auto grid w-full max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_1fr]">
+      <div className="relative mx-auto grid w-full max-w-6xl items-center gap-[var(--rf-scene-gap,3rem)] lg:grid-cols-[var(--rf-scene-ratio,1.05fr_1fr)]">
         <div className={cn(mediaLeft && "lg:order-2")}>
           {props.eyebrow && (
             <motion.span {...rise(0)} className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium" style={{ borderColor: "color-mix(in srgb, var(--brand-ink) 12%, transparent)", color: "color-mix(in srgb, var(--brand-ink) 65%, transparent)" }}>
@@ -3293,7 +3296,7 @@ function FeaturesSpotlight({ props }: { props: any }) {
           <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ color:"var(--brand)" }}>{props.title}</h2>
           {props.subtitle && <p className="mt-3" style={{ color: "var(--brand-ink)", opacity: 0.55 }}>{props.subtitle}</p>}
         </div>
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid gap-[var(--rf-scene-gap,1rem)] sm:grid-cols-2 lg:grid-cols-[repeat(var(--rf-scene-cols,3),minmax(0,1fr))]">
           {items.map((item, i) => (
             <motion.div
               key={i}
@@ -3332,7 +3335,7 @@ function FeaturesColumns({ props }: { props: any }) {
           <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ color:"var(--brand)" }}>{props.title}</h2>
           {props.subtitle && <p className="mt-3" style={{ color: "var(--brand-ink)", opacity: 0.55 }}>{props.subtitle}</p>}
         </div>
-        <div className="mt-12 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid gap-x-[var(--rf-scene-gap,2rem)] gap-y-10 sm:grid-cols-2 lg:grid-cols-[repeat(var(--rf-scene-cols,3),minmax(0,1fr))]">
           {items.map((item, i) => (
             <motion.div
               key={i}
@@ -3446,7 +3449,7 @@ function FeaturesSticky({ props }: { props: any }) {
   const items = (props.items || []) as any[];
   return (
     <section className="px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
-      <div className="mx-auto grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16" style={rfContainer(1152)}>
+      <div className="mx-auto grid gap-[var(--rf-scene-gap,3rem)] lg:grid-cols-[var(--rf-scene-ratio,0.85fr_1.15fr)] lg:gap-[var(--rf-scene-gap,4rem)]" style={rfContainer(1152)}>
         <div className="lg:sticky lg:top-24 lg:self-start">
           <span className="inline-flex items-center gap-3 text-[0.7rem] font-medium uppercase tracking-[0.28em]" style={{ color: "var(--brand-accent)" }}>
             <span className="h-px w-9" style={{ background: "var(--brand-accent)" }} />
@@ -3507,7 +3510,7 @@ function FeaturesShowcase({ props }: { props: any }) {
           <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ fontFamily:"var(--brand-font)", color:"var(--brand)" }}>{props.title}</h2>
           {props.subtitle && <p className="mt-3 text-lg" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{props.subtitle}</p>}
         </div>
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid gap-[var(--rf-scene-gap,1.5rem)] sm:grid-cols-2 lg:grid-cols-[repeat(var(--rf-scene-cols,3),minmax(0,1fr))]">
           {items.map((item, i) => (
             <motion.div
               key={i}
@@ -3557,7 +3560,7 @@ function ProductGrid({ props }: { props: any }) {
           <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ color:"var(--brand)" }}>{props.title}</h2>
           {props.subtitle && <p className="mt-3" style={{ color: "var(--brand-ink)", opacity: 0.55 }}>{props.subtitle}</p>}
         </div>
-        <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="mt-10 grid grid-cols-2 gap-[var(--rf-scene-gap,1rem)] sm:grid-cols-3 lg:grid-cols-[repeat(var(--rf-scene-cols,4),minmax(0,1fr))]">
           {items.map((it, i) => (
             <motion.a
               key={i}
@@ -3764,7 +3767,7 @@ function GalleryMasonry({ props }: { props: any }) {
           {props.eyebrow && <div className="mb-3 text-xs font-medium uppercase tracking-[0.22em]" style={{ color: "var(--brand-accent)" }}>{props.eyebrow}</div>}
           {props.title && <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ color:"var(--brand)" }}>{props.title}</h2>}
         </div>
-        <div className="mt-10 [column-gap:1rem] sm:columns-2 lg:columns-3">
+        <div className="mt-10 [column-gap:var(--rf-scene-gap,1rem)] sm:columns-2 lg:columns-[var(--rf-scene-cols,3)]">
           {items.slice(0, 9).map((it, i) => (
             <motion.div
               key={i}
