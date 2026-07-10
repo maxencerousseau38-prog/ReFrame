@@ -87,6 +87,9 @@ export interface Block<T = Record<string, unknown>> {
   type: BlockType;
   variant: string;
   props: T;
+  /** Resolved composition decisions for this block's scene (V2 C7a). Absent
+   *  when nothing was measured — the SceneShell then stays fully transparent. */
+  scene?: import("@/lib/compose/scene-spec").SceneSpec;
 }
 
 export interface Theme {

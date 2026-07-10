@@ -3901,6 +3901,56 @@ const NAV_LABELS: Partial<Record<BlockType, string>> = {
 
 const anchorId = (type: BlockType): string => (type === "hero" ? "top" : type);
 
+/* ----------------------------- SceneShell (C7a) --------------------------- */
+
+/** Publish a block's resolved SceneSpec as `--rf-scene-*` CSS variables. Only
+ *  decisions that exist become vars — a skin's `var(--rf-scene-*, <V5>)`
+ *  fallback stays in charge for everything else. */
+function sceneVars(scene: NonNullable<Block["scene"]>): Record<string, string> {
+  const v: Record<string, string> = {};
+  if (scene.minHeightVh !== undefined) v["--rf-scene-minh"] = `${scene.minHeightVh}vh`;
+  if (scene.paddingY) {
+    v["--rf-scene-pt"] = `${scene.paddingY.topPx}px`;
+    v["--rf-scene-pb"] = `${scene.paddingY.bottomPx}px`;
+  }
+  if (scene.background) v["--rf-scene-bg"] = scene.background;
+  if (scene.contrastPair) v["--rf-scene-ink"] = scene.contrastPair.ink;
+  if (scene.cols !== undefined) v["--rf-scene-cols"] = String(scene.cols);
+  if (scene.colsRatio) v["--rf-scene-ratio"] = scene.colsRatio;
+  if (scene.gapPx !== undefined) v["--rf-scene-gap"] = `${scene.gapPx}px`;
+  return v;
+}
+
+/**
+ * Per-block scene wrapper — the renderer-side half of the Composition Engine.
+ * Without a SceneSpec it renders EXACTLY the V5 wrapper (transparent, zero
+ * change). With one, it only PUBLISHES the resolved decisions as CSS variables
+ * + data attributes; it paints nothing itself, so geometry is never applied
+ * twice. Skins opt in family by family via `var(--rf-scene-*, <V5 fallback>)`
+ * (heroes in C7b, grids in C7c) — the exact A1-A3 migration pattern.
+ */
+function SceneShell({ block, children }: { block: Block; children: React.ReactNode }) {
+  const { scene } = block;
+  if (!scene) {
+    return (
+      <div id={anchorId(block.type)} style={{ scrollMarginTop: "76px" }}>
+        {children}
+      </div>
+    );
+  }
+  return (
+    <div
+      id={anchorId(block.type)}
+      data-scene={scene.sceneType}
+      data-scene-media={scene.mediaZone}
+      data-scene-alt={scene.alternate ? "" : undefined}
+      style={{ scrollMarginTop: "76px", ...sceneVars(scene) } as React.CSSProperties}
+    >
+      {children}
+    </div>
+  );
+}
+
 type NavItem = { label: string; href?: string; onClick?: () => void; active?: boolean };
 
 /** Sticky brand navigation. Items can be anchors (single-page) or buttons that
@@ -4138,9 +4188,9 @@ export function SiteRenderer({
       >
         <SiteNav brand={brand} items={items} cta={cta} logoUrl={schema.brand.logo} dark={schema.theme.dark === true} />
         {current.blocks.map((block, i) => (
-          <div key={block.id} id={anchorId(block.type)} style={{ scrollMarginTop: "76px" }}>
+          <SceneShell key={block.id} block={block}>
             <BlockRenderer block={block} index={i + 1} />
-          </div>
+          </SceneShell>
         ))}
       </div>
     </MotionConfig>

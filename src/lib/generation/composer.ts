@@ -37,6 +37,7 @@ import { renderableCategory } from "./structure";
 import { label } from "./labels";
 import { buildContentModel, realHeading, type ContentModel } from "@/lib/understand/content-model";
 import { compileTokens, type CompiledTokens } from "@/lib/dna/tokens";
+import { compileSceneSpecs } from "@/lib/compose/scene-spec";
 
 /* -------------------------------------------------------------------------- */
 /*  Helpers                                                                   */
@@ -510,8 +511,9 @@ export function compose(analysis: SiteAnalysis, opts: ComposeOptions): SiteSchem
     }
   }
 
-  // 4. Quality pass: ensure hero first, footer last, no dupes
-  const finalBlocks = qualityPassBlocks(blocks);
+  // 4. Quality pass: ensure hero first, footer last, no dupes — then attach
+  // measured composition decisions per scene (C7a; no measures → untouched)
+  const finalBlocks = compileSceneSpecs(qualityPassBlocks(blocks), analysis.measuredScenes);
 
   // 5. Build the schema
   const schema: SiteSchema = {
