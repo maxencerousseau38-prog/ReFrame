@@ -11,10 +11,14 @@ décisions viennent des vars/props, pas des composants.
   - A3 `globals.css` : `rf-fluid-display/h2/h3` → `--rf-text-*`/`--rf-heading-weight`/`--rf-tracking`
     (font-semibold concurrents retirés des titres fluides).
   - `useDNA/_dna` (V5) : motion/cards/CTA partiellement.
+  - C7a `SceneShell` (monté sur le wrapper de `SiteRenderer`) : publie
+    `--rf-scene-*` + `data-scene*` depuis `Block.scene` ; transparent sans scene
+    (wrapper V5 identique) ; ne peint rien (voir `ai/MODULES/compose.md`).
 - **Encore figé (périmètre C7/C9)** : 13 heroes (min-h, imagePosition/overlay non lus),
-  ~40 `grid-cols-*`, ~100 `gap-*`, alternances par index, fonds par `alternateBackgrounds` global.
-- **Points de montage C7** : wrapper par bloc dans `SiteRenderer` (→ SceneShell, B2) ;
-  `BlockRenderer` L~3900 ; REGISTRY variant→composant.
+  ~40 `grid-cols-*`, ~100 `gap-*`, alternances par index, fonds par `alternateBackgrounds` global
+  → à migrer en `var(--rf-scene-*, <V5>)` (heroes C7b, grilles C7c).
+- **Points de montage C7** : SceneShell en place (B2) ; `BlockRenderer` L~3900 ;
+  REGISTRY variant→composant.
 - **Invariants** : fallbacks V5 exacts dans chaque `var()` ; aucun nouveau hardcode
   pour un axe déjà tokenisé ; overflow=0 à 320/390/768/1440 (protocole CONVENTIONS).
 - **Exclusions actées** : CTAEditorial py-8 compact ; clamp monumental CTAAsterisk ;

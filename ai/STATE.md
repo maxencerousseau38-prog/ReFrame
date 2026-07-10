@@ -5,25 +5,30 @@
 > `graphify query/explain/path` — jamais de lecture exploratoire du dépôt.
 > Propriétaire : Claude. Mis à jour AVANT le dernier commit de chaque session/sous-lot.
 
-## Où on en est (2026-07-05)
+## Où on en est (2026-07-10)
 
 - **Branche** : `claude/siterevive-ai-saas-a9sxzw` (remote renommé → `maxencerousseau38-prog/ReFrame`, redirect OK).
-- **Fait & mergé** : Chantiers V2 1→6 (capture, resolver monotone, contenu réel/i18n,
-  tokens mesurés, token compiler, SceneDNA) · raccordement production C4→C6
+- **Fait & mergé** : Chantiers V2 1→6 · raccordement prod C4→C6
   (`enrichWithMeasurements`, kill-switch `REFRAME_MEASURE=0`) · Reference Learning
-  Engine branché (6 richDna premium, seuil 0.6) · **A1/A2/A3** : rythme vertical,
-  containers (+hiérarchie ×0.89/×0.78) et typo (via `rf-fluid-*` de globals.css)
-  pilotés par la DesignDNA sur 100 % des sections non-hero (fallbacks V5 exacts).
-- **Baseline verte** : 477 tests passed | 3 skipped · `npx tsc --noEmit` propre.
+  (6 richDna, seuil 0.6) · **A1/A2/A3** (rythme/containers/typo pilotés par la DNA,
+  fallbacks V5) · **C7a — Composition Engine fondé** : `compose/scene-spec.ts`
+  (SceneSpec, compileSceneSpecs fill-only + bornes, matching B4), `Block.scene?`,
+  `SceneShell` publie `--rf-scene-*`+`data-scene*` (transparent sans scene,
+  prouvé au DOM). Fiche : `ai/MODULES/compose.md`.
+- **Baseline verte** : 493 tests passed | 3 skipped · `npx tsc --noEmit` propre.
+- **F17 (ouvert, → C10)** : overflow zpreview restaurant@768 flaky (7↔440px),
+  PRÉEXISTANT (reproduit sans C7a) — mesure d'overflow à stabiliser dans le
+  harnais C10, pas de fix renderer.
 
 ## Prochaine action
 
-**C7a — SceneShell + Composition Engine : GO DONNÉ (2026-07-05).**
-Démarrer DIRECTEMENT, sans nouvel audit : tout est dans `docs/C7_PREPARATION.md`
-(branchements B1-B6, risques, ordre C7a→C7e). Philosophie confirmée :
-Measure → SceneDNA → Reference Learning → Similarity → Composition Engine →
-Renderer-exécuteur. Priorité transverse : MAXIMISER la valeur produite par
-session (sprints cohérents, un seul audit en début de sprint).
+**C7b — Hero Engine.** Les 13 heroes consomment `var(--rf-scene-minh/pt/pb, <V5>)`
+(+ `mediaPosition` via `data-scene-media`/props) par petits groupes de 3-4
+heroes/commit, screenshots avant/après par hero + overflow 4 largeurs
+(`docs/C7_PREPARATION.md` §4). Les vars sont DÉJÀ publiées par le SceneShell —
+il ne reste qu'à faire céder la géométrie figée des skins. Ensuite C7c
+(grilles/gaps/alternances), C7d (A4 premium dans la DNA + trace PipelineTrace),
+C7e (validation). Sprint en cours : C7 complet.
 
 ## Commandes
 

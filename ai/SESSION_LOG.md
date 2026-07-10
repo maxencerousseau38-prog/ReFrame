@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-10 — C7a : fondations du Composition Engine
+- `compose/scene-spec.ts` (SceneSpec + compileSceneSpecs fill-only avec bornes saines + matching B4) ; `Block.scene?` ; SceneShell publie `--rf-scene-*`/`data-scene*` sans rien peindre — les skins migreront en `var(--rf-scene-*, <V5>)` (C7b/C7c).
+- Transparence V5 prouvée : sans mesures, mêmes références de blocs + wrapper DOM identique (vérifié au DOM sur zpreview). 493 tests verts (477+16), tsc propre, overflow=0 sur 11/12 cellules zpreview.
+- F17 ouvert (→ C10) : overflow restaurant@768 flaky (7↔440px), PRÉEXISTANT (reproduit sur la baseline sans C7a).
+- Suivant : C7b Hero Engine — faire consommer `--rf-scene-minh/pt/pb` + mediaPosition aux 13 heroes, par groupes de 3-4 avec screenshots avant/après.
+
 ## 2026-07-05 — Validation du sprint A1-A3 + OS
 - Utilisateur valide : A1/A2/A3, préparation C7, Operating System. Dernier kilomètre DesignDNA→renderer fermé.
 - Nouvelle priorité transverse : maximiser la valeur produite par session (sprints, un audit/début de sprint) — actée dans CONVENTIONS §0.

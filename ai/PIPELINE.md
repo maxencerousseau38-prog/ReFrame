@@ -26,9 +26,11 @@ URL
      ├─ compose                  generation/composer.ts       blocs + props ; contenu réel d'abord
      │    buildContentModel        understand/content-model.ts  contenu par scène (headings réels)
      │    compileTokens            dna/tokens.ts                themePatch + --rf-* + @font-face
+     │    compileSceneSpecs        compose/scene-spec.ts        C7a : SceneDna → SceneSpec par bloc (Block.scene, fill-only)
      ├─ evaluateQuality          generation/quality-gate.ts   8 dimensions, seuil 72, ≤2 itérations
      └─ trace                    dna/content-trace.ts         + provenance contenu (F15)
  └─ SiteRenderer                 components/blocks/index.tsx  themeCss(+tokens) → --brand-* + --rf-* ;
+                                                              SceneShell publie --rf-scene-* + data-scene* par bloc (C7a) ;
                                                               sections consomment rfSectionPad/rfContainer(+Ratio)/rf-fluid-*
 ```
 

@@ -18,6 +18,7 @@
 | A1 Rythme | 37 sections `rfSectionPad` (heroes→C7, CTAEditorial exclu) | |
 | A2 Containers | `rfContainer` + hiérarchie ×0.89/×0.78 + SiteNav | |
 | A3 Typo | `rf-fluid-display/h2/h3` → vars DNA (globals.css) | |
+| C7a Composition Engine | `compose/scene-spec.ts` (SceneSpec/compileSceneSpecs/matching B4) + `Block.scene` + SceneShell (`--rf-scene-*`, transparent sans scene) | `ai/MODULES/compose.md` |
 
 ## En cours / suivant 🔜
 
