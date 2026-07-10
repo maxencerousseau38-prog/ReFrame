@@ -60,6 +60,16 @@ describe("sceneSpecFrom", () => {
     expect(flat?.minHeightVh).toBeUndefined();
   });
 
+  it("offers heroMediaPosition from measured hero media, never 'none'", () => {
+    const withMedia = sceneSpecFrom(scene("hero", { hero: { mediaPosition: "left", ctaCount: 1 } }));
+    expect(withMedia?.heroMediaPosition).toBe("left");
+    expect(withMedia?.provenance.heroMediaPosition).toBe("measured");
+    const noMedia = sceneSpecFrom(scene("hero", { hero: { mediaPosition: "none", ctaCount: 1 } }));
+    expect(noMedia?.heroMediaPosition).toBeUndefined();
+    const notHero = sceneSpecFrom(scene("section", { hero: { mediaPosition: "left", ctaCount: 1 } }));
+    expect(notHero?.heroMediaPosition).toBeUndefined();
+  });
+
   it("does not offer minHeightVh for non-hero scenes", () => {
     const spec = sceneSpecFrom(scene("section", { bounds: { rect: { x: 0, y: 0, width: 1440, height: 810 }, viewportRatio: 0.9, fullBleed: true } }));
     expect(spec?.minHeightVh).toBeUndefined();

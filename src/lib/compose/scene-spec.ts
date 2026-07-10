@@ -37,6 +37,8 @@ export interface SceneSpec {
   sceneType: SceneType;
   /** Hero occupation: measured height as vh of the capture viewport. */
   minHeightVh?: number;
+  /** Measured position of the hero's media relative to its content. */
+  heroMediaPosition?: "behind" | "left" | "right" | "top" | "bottom";
   /** Measured vertical rhythm of the scene (overrides --rf-space-section). */
   paddingY?: { topPx: number; bottomPx: number };
   /** Measured scene background color (CSS color string). */
@@ -129,6 +131,10 @@ export function sceneSpecFrom(scene: SceneDna): SceneSpec | undefined {
 
   if (type === "hero" && inRange(scene.bounds.viewportRatio, HERO_VIEWPORT_RATIO_RANGE)) {
     offer("minHeightVh", Math.round(scene.bounds.viewportRatio * 100));
+  }
+  const mediaPos = scene.hero?.mediaPosition;
+  if (type === "hero" && mediaPos && mediaPos !== "none") {
+    offer("heroMediaPosition", mediaPos);
   }
 
   const { paddingTopPx: pt, paddingBottomPx: pb } = scene.spacing ?? {};

@@ -452,8 +452,8 @@ function HeroPremium1({ props }: { props: any }) {
   });
   return (
     <section
-      className="relative overflow-hidden px-6 pb-28 pt-32"
-      style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}
+      className="relative overflow-hidden px-6"
+      style={{ background: "var(--brand-surface)", color: "var(--brand-ink)", ...rfHeroPadY("8rem", "7rem") }}
     >
       {/* controlled overhead light, tinted from the brand accent */}
       <div
@@ -559,10 +559,13 @@ function HeroPremium1({ props }: { props: any }) {
 function HeroPremium2({ props }: { props: any }) {
   const imgRef = React.useRef<HTMLImageElement>(null);
   useParallax(imgRef);
+  // Measured media side (C7b): source hero had its media on the LEFT → flip
+  // the split at lg. Without a scene the V5 order (text left) is untouched.
+  const mediaLeft = props._scene?.heroMediaPosition === "left";
   return (
-    <section className="relative overflow-hidden px-6 py-24 sm:py-28">
+    <section className="relative overflow-hidden px-6 pt-[var(--rf-scene-pt,6rem)] pb-[var(--rf-scene-pb,6rem)] sm:pt-[var(--rf-scene-pt,7rem)] sm:pb-[var(--rf-scene-pb,7rem)]">
       <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
-        <div>
+        <div className={cn(mediaLeft && "lg:order-2")}>
           {props.eyebrow && (
             <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--brand-accent)" }}>
               {props.eyebrow}
@@ -602,7 +605,7 @@ function HeroPremium2({ props }: { props: any }) {
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7 }}
-          className="relative aspect-[4/3] overflow-hidden"
+          className={cn("relative aspect-[4/3] overflow-hidden", mediaLeft && "lg:order-1")}
           style={{ borderRadius: "var(--brand-radius)", boxShadow: "0 40px 100px -45px rgba(0,0,0,0.5), 0 0 0 1px color-mix(in srgb, var(--brand-ink) 8%, transparent)" }}
         >
           <div className="absolute inset-0">
@@ -2955,12 +2958,16 @@ function HeroSplitPremium({ props }: { props: any }) {
   };
   const rise = (d: number) => dnaEntrance(dna, d);
   const sectionPy = dnaSectionPy(dna);
-  const heightStyle = props.heightVh ? { minHeight: `${props.heightVh}vh` } : {};
+  // Occupation chain (C7b): measured scene (--rf-scene-minh) > heightVh prop
+  // (DNA heroDirection) > auto (V5 without either). Paddings chain the same
+  // way: measured scene > global rhythm (--rf-space-section) > DNA value.
+  const heightStyle = rfHeroMinH(props.heightVh ? `${props.heightVh}vh` : "auto");
+  const mediaLeft = props._scene?.heroMediaPosition === "left";
   return (
-    <section className="relative flex items-center overflow-hidden px-6" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)", paddingTop: sectionPy, paddingBottom: sectionPy, ...heightStyle }}>
+    <section className="relative flex items-center overflow-hidden px-6" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)", paddingTop: `var(--rf-scene-pt, ${sectionPy})`, paddingBottom: `var(--rf-scene-pb, ${sectionPy})`, ...heightStyle }}>
       <div aria-hidden className="pointer-events-none absolute -right-32 -top-28 h-[520px] w-[520px] rounded-full blur-3xl" style={{ background: "radial-gradient(closest-side, color-mix(in srgb, var(--brand-accent) 45%, transparent), transparent)", opacity: 0.5 }} />
       <div className="relative mx-auto grid w-full max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_1fr]">
-        <div>
+        <div className={cn(mediaLeft && "lg:order-2")}>
           {props.eyebrow && (
             <motion.span {...rise(0)} className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium" style={{ borderColor: "color-mix(in srgb, var(--brand-ink) 12%, transparent)", color: "color-mix(in srgb, var(--brand-ink) 65%, transparent)" }}>
               <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--brand-accent)" }} />
@@ -2991,7 +2998,7 @@ function HeroSplitPremium({ props }: { props: any }) {
             </motion.div>
           )}
         </div>
-        <motion.div {...rise(4)} onMouseMove={onMove} onMouseLeave={() => setT({ x: 0, y: 0 })} style={{ perspective: 1000 }}>
+        <motion.div {...rise(4)} onMouseMove={onMove} onMouseLeave={() => setT({ x: 0, y: 0 })} className={cn(mediaLeft && "lg:order-1")} style={{ perspective: 1000 }}>
           <motion.div
             className="flex flex-col overflow-hidden rounded-[1.25rem]"
             style={{ aspectRatio: "4 / 3", boxShadow: `0 44px 120px -28px color-mix(in srgb, var(--brand-accent) 45%, transparent), inset 0 0 0 1px ${HAIRLINE}`, transformStyle: "preserve-3d" }}
@@ -3898,8 +3905,10 @@ function BlockRenderer({ block, index }: { block: Block; index?: number }) {
   const Cmp = REGISTRY[block.variant];
   if (!Cmp) return null;
   // Expose the section's position so numbered-index templates (Agencia-style
-  // pills: "About 01") can label themselves without the engine tracking order.
-  return <Cmp props={{ _index: index, ...block.props }} />;
+  // pills: "About 01") can label themselves without the engine tracking order,
+  // and the resolved SceneSpec (C7b) so skins receive non-CSS composition
+  // decisions (e.g. heroMediaPosition) instead of producing them.
+  return <Cmp props={{ _index: index, _scene: block.scene, ...block.props }} />;
 }
 
 /** Renders a full generated site from its schema, applying the theme. */
