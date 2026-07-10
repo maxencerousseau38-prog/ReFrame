@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-10 — P0 : le moteur moderne devient LE produit
+- F19/F20/F21 clos : smart par défaut, mesures sur le chemin dashboard, zéro fabrication (bridge/composer/legacy/AI-edit, defaultFaq supprimé) ; varySectionOrder ne jette plus les slots réels.
+- **F24 découvert et clos** : le chemin smart rendait des pages VIDES (composer émettait sectionTitle/headline lus par aucun skin — jamais vu car produit=legacy et zpreview=legacy) → alias canoniques. F25 clos : blur-fade non neutralisé en rendu statique (CSS filter:none).
+- Avant/après (même harnais, 9 sites) : fabriqués 9/9→0/9, FAQ fab. 3→0, libellés FR, CTA réels (« Acheter »), DNA+Composition 9/9, scene premium en prod. Classification 4/9 et parcours métier inchangés (périmètre C8, addendum du rapport).
+- Suivant : décision GO C8 par l'utilisateur sur la base de l'addendum.
+
 ## 2026-07-10 — C7e : audit qualité+métier sur 9 sites réels (clôture C7)
 - Harnais `scripts/c7e-audit.mjs` : 9 secteurs reconstruits via le VRAI parcours produit ; dumps+captures+scan source → `docs/C8_PREPARATION.md` (M1-M12, 44 défauts, carte des fuites).
 - SMOKING GUNS : F19 (défaut produit = legacy, tout C1→C7 débranché du parcours client), F20 (dashboard bypasse les mesures même en smart), F21 (services préséts fabriqués — violation règle d'or), F22 (industrie fausse 4/9 : hôpitaux→saas « Start free »).

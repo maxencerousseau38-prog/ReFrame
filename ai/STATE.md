@@ -34,6 +34,14 @@
   · **D7 acté** : multi-couches (Brand/Business/Content/Scene/Design/Motion/
   Responsive/Quality-DNA) + Intent Engine — sources nommées, moteur aveugle
   à l'origine, zéro logique métier dans compose/renderer.
+  · **C7e+P0 (2026-07-10)** : audit 9 sites réels (`docs/C8_PREPARATION.md`,
+  M1-M12 + addendum P0) puis REBRANCHEMENT : smart par défaut (F19 clos),
+  mesures sur le chemin dashboard (F20 clos), zéro fabrication partout (F21
+  clos, defaultFaq supprimé, AI-edit refuse d'inventer), fidélité du plan
+  (slots réels jamais jetés), **F24 clos** (le chemin smart rendait des pages
+  VIDES — alias canoniques title/subtitle/image/primaryCta émis par le
+  composer), **F25 clos** (filter:blur neutralisé en rendu statique).
+  Avant/après : fabriqués 9/9→0/9, libellés FR, CTA réels, DNA 9/9.
 - **Baseline verte** : 497 tests passed | 3 skipped · `npx tsc --noEmit` propre.
 - **F17 (ouvert, → C10)** : overflow zpreview restaurant@768 flaky (7↔440px),
   PRÉEXISTANT (reproduit sans C7a) — mesure d'overflow à stabiliser dans le
@@ -41,19 +49,14 @@
 
 ## Prochaine action
 
-**P0 — Rebrancher le moteur dans le produit (GO à donner).** L'audit C7e
-(`docs/C8_PREPARATION.md`, M1-M12 + 44 défauts + carte des fuites) a prouvé
-que le parcours produit par défaut passe par le LEGACY (F19 : dashboard
-`preserve` → `generateSite`), que le smart via dashboard n'a jamais de
-mesures (F20 : enrich seulement sur `url` nu), et que des services préséts
-anglais sont FABRIQUÉS (F21 : `bridge.ts:61` + composer L277/356). P0 = ces
-4 corrections → gain de qualité perçue maximal à coût minimal, à prouver
-avant/après avec `scripts/c7e-audit.mjs` (harnais réutilisable, D8 : la
-qualité perçue est désormais LE critère — CONVENTIONS 5bis). Ensuite : **C8
-Business Understanding Engine** sur la base des lacunes prouvées (F18/F22,
-§4 du rapport : BusinessDna, extraction par familles de signaux,
-classification par signaux métier, couche businessLayer + entrée
-`SceneSpecSources.business`).
+**Décision utilisateur : GO C8 ?** Lire l'addendum P0 de
+`docs/C8_PREPARATION.md` : le fabriqué a disparu et le moteur moderne tourne
+sur 9/9, mais restent (preuves) : classification 4/9 fausse (F22), objets
+métier/parcours critiques absents (F18/M5/M12), extraction faible (headline
+`<title>`, nav bruitée, FAQ=cookies F23). C8 = BusinessDna (extraction par
+familles de signaux + classification par signaux + couche `businessLayer` +
+entrée `SceneSpecSources.business` + composants métier). Harnais avant/après :
+`scripts/c7e-audit.mjs` (D8). État « avant P0 » archivé : `eval-c7e-before/`.
 
 ## Commandes
 

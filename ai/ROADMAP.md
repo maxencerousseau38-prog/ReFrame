@@ -23,12 +23,13 @@
 | C7c Layout Engine | 13 grilles de cartes (`--rf-scene-cols/gap`), 7 splits (`--rf-scene-ratio`), alternance par scène (FeaturesAlternating via `_scene.alternate`) | 23/29 grilles zpreview consomment (exclusions voulues : footer/hairline/bento) |
 | C7d Couche premium | `DesignDNA.composition` (occupation/asymétrie/rythme, mappée par inspirationLayer) → `compileSceneSpecs(sources nommées)` fill-only ; routage full-bleed ≥85 ; ordre mesuré → plan ; `sceneTraceEntries` dans la PipelineTrace ; D7 acté | trace E2E : scene.hero.minHeightVh premium |
 | C7e Audit réel | 9 sites réels reconstruits via le VRAI parcours produit : M1-M12 + 44 défauts + carte des fuites (`docs/C8_PREPARATION.md`) ; harnais réutilisable `scripts/c7e-audit.mjs` ; D8 acté (qualité perçue = critère) ; F19-F22 ouverts | clôture C7 |
+| **P0 Rebranchement** | smart par défaut (F19) ; mesures sur chemin dashboard (F20) ; zéro fabrication partout (F21, defaultFaq supprimé) ; fidélité du plan ; **F24 clos** (chemin smart rendait des pages vides — clés de props) ; **F25 clos** (blur statique) | avant/après 9 sites : fabriqués 9/9→0/9, FR partout, CTA réels |
 
 ## En cours / suivant 🔜
 
 | Item | Contenu | Statut |
 |---|---|---|
-| **P0** | **Rebrancher le moteur dans le produit** (pré-C8, gain visible max) : dashboard défaut→smart (F19) ; mesures aussi sur `body.analysis` (F20) ; suppression fabrication services `bridge.ts:61`+composer (F21) ; `defaultFaq` legacy → omission | **GO à donner** (`docs/C8_PREPARATION.md` §4) |
+| **C8** | **Business Understanding Engine** — décision de GO après lecture des résultats P0 (une partie des défauts a disparu ; reste : classification 4/9, objets métier, parcours critiques, extraction riche — addendum du rapport) | **en attente de GO** |
 
 ## Plus tard 📋 (renuméroté 2026-07-10 — D6 : C8 = Business Understanding)
 

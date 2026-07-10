@@ -122,3 +122,33 @@ Un sous-lot n'est réussi que si, EN PLUS des tests/tsc/fallbacks, il démontre
 une amélioration perceptible sur plusieurs reconstructions réelles
 (avant/après via `scripts/c7e-audit.mjs` — le harnais est réutilisable tel
 quel). Registre : D8.
+
+---
+
+## Addendum — Résultats P0 (2026-07-10, même harnais, mêmes 9 sites)
+
+**Fait** : smart par défaut (F19) · mesures sur le chemin dashboard (F20) ·
+zéro fabrication (F21 : bridge/composer/legacy/AI-edit) · fidélité du plan
+(F23bis : les slots réels ne sont plus écrasés par le rythme observé) ·
+**F24 découvert et clos** : le chemin smart rendait des pages VIDES de texte
+(clés de props jamais lues par les skins — invisible tant que le produit était
+en legacy) · **F25 clos** : blur-fade non neutralisé en rendu statique.
+
+| Métrique (9 sites réels) | Avant P0 | Après P0 |
+|---|---|---|
+| Moteur exécuté (parcours produit) | legacy 9/9 | **DNA+Composition 9/9** |
+| Services préséts fabriqués | 9/9 | **0/9** |
+| FAQ fabriquées | 3 | **0** |
+| Libellés EN sur sites FR | oui (partout) | **français (i18n C3)** |
+| CTA hero | génériques/email | **réels** (« Acheter », « Tous les produits ») |
+| SceneSpec sur le parcours produit | 0 | premium actif (payfit) ; mesuré gated E1 en sandbox, actif en prod |
+| Témoignages réels | rendus | rendus (préservés) |
+| Blocs/page (moyenne) | 6,6 (gonflée de fabriqué) | 5,1 (honnête) |
+| Classification industrie | 4/9 faux | 4/9 faux (**périmètre C8, inchangé comme prévu**) |
+| Parcours métier (produits/booking/RDV) | absents | absents (**C8**) |
+
+**Lecture honnête** : P0 a supprimé le faux et rebranché le vrai moteur ;
+les pages sont plus courtes mais vraies. Ce qui reste est exactement le
+périmètre C8 : classification par signaux, objets métier, parcours critiques,
+extraction plus riche (headline `<title>`, nav bruitée, FAQ=cookies F23,
+images lazy sans Tier 2 en sandbox).
