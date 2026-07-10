@@ -644,7 +644,7 @@ function HeroEditorial({ props }: { props: any }) {
 
   return (
     <section
-      className="relative overflow-hidden px-6 py-20 sm:py-28"
+      className="relative overflow-hidden px-6 pt-[var(--rf-scene-pt,5rem)] pb-[var(--rf-scene-pb,5rem)] sm:pt-[var(--rf-scene-pt,7rem)] sm:pb-[var(--rf-scene-pb,7rem)]"
       style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}
     >
       {/* faint monumental wordmark, anchored bottom, clipped by the section */}
@@ -1230,7 +1230,7 @@ function Footer1({ props }: { props: any }) {
 /** Tech/SaaS hero with a slowly drifting accent aura. */
 function HeroSpotlight({ props }: { props: any }) {
   return (
-    <section className="relative overflow-hidden px-6 py-28 text-center sm:py-36">
+    <section className="relative overflow-hidden px-6 pt-[var(--rf-scene-pt,7rem)] pb-[var(--rf-scene-pb,7rem)] text-center sm:pt-[var(--rf-scene-pt,9rem)] sm:pb-[var(--rf-scene-pb,9rem)]">
       <motion.div
         aria-hidden
         className="pointer-events-none absolute left-1/2 top-[-4rem] h-[420px] w-[680px] -translate-x-1/2 rounded-full blur-3xl"
@@ -2649,7 +2649,7 @@ function HeroBeam({ props }: { props: any }) {
   const last = words.length > 1 ? words.pop()! : "";
   const stats = (props.stats || []) as { value: string; label: string }[];
   return (
-    <section className="relative overflow-hidden px-6 pb-24 pt-32 text-center sm:pt-40" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}>
+    <section className="relative overflow-hidden px-6 pb-[var(--rf-scene-pb,6rem)] pt-[var(--rf-scene-pt,8rem)] text-center sm:pt-[var(--rf-scene-pt,10rem)]" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}>
       <motion.div
         aria-hidden
         initial={reduce ? false : { opacity: 0 }}
@@ -2815,7 +2815,7 @@ function HeroCanvas({ props }: { props: any }) {
 
   return (
     <section
-      className="relative overflow-hidden px-6 pb-24 pt-32 sm:pb-28"
+      className="relative overflow-hidden px-6 pb-[var(--rf-scene-pb,6rem)] pt-[var(--rf-scene-pt,8rem)] sm:pb-[var(--rf-scene-pb,7rem)]"
       style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}
     >
       {/* overhead accent light + masked grid, for depth */}
@@ -3034,7 +3034,7 @@ function HeroBento({ props }: { props: any }) {
   const tile = "rounded-[1.1rem] p-5";
   const tileStyle = { background: "var(--brand-card)", boxShadow: `inset 0 0 0 1px ${HAIRLINE}` } as React.CSSProperties;
   return (
-    <section className="relative overflow-hidden px-6 py-20 sm:py-24" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}>
+    <section className="relative overflow-hidden px-6 pt-[var(--rf-scene-pt,5rem)] pb-[var(--rf-scene-pb,5rem)] sm:pt-[var(--rf-scene-pt,6rem)] sm:pb-[var(--rf-scene-pb,6rem)]" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}>
       <div aria-hidden className="pointer-events-none absolute left-1/2 top-[-6rem] h-[420px] w-[720px] -translate-x-1/2 rounded-full blur-3xl" style={{ background: "radial-gradient(closest-side, color-mix(in srgb, var(--brand-accent) 35%, transparent), transparent)", opacity: 0.45 }} />
       <div className="relative mx-auto max-w-6xl">
         <div className="max-w-3xl">
@@ -3081,7 +3081,7 @@ function HeroBento({ props }: { props: any }) {
  */
 function HeroAurora({ props }: { props: any }) {
   return (
-    <section className="relative overflow-hidden px-6 py-24 text-center sm:py-32" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}>
+    <section className="relative overflow-hidden px-6 pt-[var(--rf-scene-pt,6rem)] pb-[var(--rf-scene-pb,6rem)] text-center sm:pt-[var(--rf-scene-pt,8rem)] sm:pb-[var(--rf-scene-pb,8rem)]" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}>
       <Aurora className="opacity-70" />
       <Spotlight />
       <Meteors count={12} className="opacity-60" />
