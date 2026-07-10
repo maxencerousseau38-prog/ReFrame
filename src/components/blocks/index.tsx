@@ -471,7 +471,7 @@ function HeroPremium1({ props }: { props: any }) {
 
         <motion.h1
           {...rise(0.05)}
-          className="mt-6 rf-fluid-display font-semibold [text-wrap:balance]"
+          className="mt-6 rf-fluid-display [text-wrap:balance]"
           style={{ color: "var(--brand)" }}
         >
           {props.title}
@@ -554,7 +554,7 @@ function HeroPremium2({ props }: { props: any }) {
             animate="visible"
             variants={fade}
             transition={{ duration: 0.6 }}
-            className="mt-4 rf-fluid-display font-semibold [text-wrap:balance]"
+            className="mt-4 rf-fluid-display [text-wrap:balance]"
             style={{ color: "var(--brand)" }}
           >
             {props.title}
@@ -747,7 +747,7 @@ function FeaturesGrid1({ props }: { props: any }) {
     <section className="px-6" style={{ color: "var(--brand-ink)", ...rfSectionPad(96) }}>
       <div className="mx-auto" style={rfContainerRatio(0.89)}>
         <div className="max-w-2xl">
-          <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>
+          <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ color:"var(--brand)" }}>
             {props.title}
           </h2>
           {props.subtitle && (
@@ -884,7 +884,7 @@ function FaqGrid({ props }: { props: any }) {
   return (
     <section className="px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
       <div className="mx-auto" style={rfContainerRatio(0.89)}>
-        <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>
+        <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ fontFamily:"var(--brand-font)", color:"var(--brand)" }}>
           {props.title}
         </h2>
         <div className="mt-12 grid gap-x-12 gap-y-9 sm:grid-cols-2">
@@ -917,7 +917,7 @@ function FAQAccordion1({ props }: { props: any }) {
   return (
     <section className="px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
       <div className="mx-auto max-w-3xl">
-        <h2 className="text-center rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>
+        <h2 className="text-center rf-fluid-h2 [text-wrap:balance]" style={{ color:"var(--brand)" }}>
           {props.title}
         </h2>
         <div className="mt-12 border-t" style={{ borderColor: HAIRLINE }}>
@@ -998,7 +998,7 @@ function CTASection1({ props }: { props: any }) {
           }}
         />
         <div className="relative">
-          <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]">{props.title}</h2>
+          <h2 className="rf-fluid-h2 [text-wrap:balance]">{props.title}</h2>
           {props.subtitle && (
             <p className="mx-auto mt-4 max-w-lg text-white/60 [text-wrap:balance]">{props.subtitle}</p>
           )}
@@ -1067,7 +1067,7 @@ function ContactFormPremium1({ props }: { props: any }) {
     <section id="contact" className="px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
       <div className="mx-auto grid items-start gap-12 lg:grid-cols-2" style={rfContainerRatio(0.89)}>
         <div>
-          <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>
+          <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ color:"var(--brand)" }}>
             {props.title}
           </h2>
           {props.subtitle && (
@@ -1234,7 +1234,7 @@ function HeroSpotlight({ props }: { props: any }) {
           animate="visible"
           variants={fade}
           transition={{ duration: 0.6 }}
-          className="mt-6 rf-fluid-display font-semibold [text-wrap:balance]"
+          className="mt-6 rf-fluid-display [text-wrap:balance]"
           style={{ color: "var(--brand)" }}
         >
           {props.title}
@@ -1277,7 +1277,7 @@ function FeaturesBento({ props }: { props: any }) {
     <section className="px-6" style={{ background: "var(--brand-surface)" , ...rfSectionPad(96) }}>
       <div className="mx-auto" style={rfContainer(1152)}>
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>
+          <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ color:"var(--brand)" }}>
             {props.title}
           </h2>
           {props.subtitle && (
@@ -1568,7 +1568,7 @@ function PortfolioGrid({ props }: { props: any }) {
                 <div className="text-sm font-medium tabular-nums" style={{ color: "var(--brand-accent)" }}>
                   {String(i + 1).padStart(2, "0")}
                 </div>
-                <h3 className="mt-3 text-lg font-medium" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>
+                <h3 className="mt-3 rf-fluid-h3 font-medium" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>
                   {p.title}
                 </h3>
                 {p.tag && (
@@ -1866,7 +1866,7 @@ function TeamGrid({ props }: { props: any }) {
               {props.eyebrow}
             </span>
           )}
-          <h2 className="mt-5 rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>
+          <h2 className="mt-5 rf-fluid-h2 [text-wrap:balance]" style={{ fontFamily:"var(--brand-font)", color:"var(--brand)" }}>
             {props.title}
           </h2>
         </div>
@@ -2042,7 +2042,7 @@ function CollectionGrid({ props }: { props: any }) {
               style={{ borderColor: HAIRLINE }}
             >
               <div className="flex items-baseline justify-between gap-4">
-                <h3 className="text-lg font-medium" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>
+                <h3 className="rf-fluid-h3 font-medium" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>
                   {it.name}
                 </h3>
                 {it.price && (
@@ -2182,7 +2182,7 @@ function FeaturesAlternating({ props }: { props: any }) {
     <section className="px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
       <div className="mx-auto" style={rfContainerRatio(0.89)}>
         <div className="max-w-2xl">
-          <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>
+          <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ color:"var(--brand)" }}>
             {props.title}
           </h2>
           {props.subtitle && (
@@ -2215,7 +2215,7 @@ function FeaturesAlternating({ props }: { props: any }) {
                 </div>
               </div>
               <div>
-                <h3 className="text-xl font-medium" style={{ color: "var(--brand)" }}>{item.title}</h3>
+                <h3 className="rf-fluid-h3 font-medium" style={{ color: "var(--brand)" }}>{item.title}</h3>
                 {item.description && (
                   <p className="mt-2 max-w-md text-sm leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>
                     {item.description}
@@ -2267,7 +2267,7 @@ function ServicesCards({ props }: { props: any }) {
               <span className="text-sm font-medium tabular-nums" style={{ color: "var(--brand-accent)" }}>
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <h3 className="mt-4 text-xl font-medium tracking-tight" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>
+              <h3 className="mt-4 rf-fluid-h3 font-medium tracking-tight" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>
                 {item.title}
               </h3>
               {item.description && (
@@ -2827,7 +2827,7 @@ function HeroCanvas({ props }: { props: any }) {
           )}
           <motion.h1
             {...rise(0.05)}
-            className="mt-6 rf-fluid-display font-semibold [text-wrap:balance]"
+            className="mt-6 rf-fluid-display [text-wrap:balance]"
             style={{ color: "var(--brand)", fontFamily: "var(--brand-font)" }}
           >
             {props.title}
@@ -2948,7 +2948,7 @@ function HeroSplitPremium({ props }: { props: any }) {
               {props.eyebrow}
             </motion.span>
           )}
-          <motion.h1 {...rise(1)} className="mt-5 rf-fluid-display font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title || props.headline}</motion.h1>
+          <motion.h1 {...rise(1)} className="mt-5 rf-fluid-display [text-wrap:balance]" style={{ color:"var(--brand)" }}>{props.title || props.headline}</motion.h1>
           {(props.subtitle || props.description) && <motion.p {...rise(2)} className="mt-5 max-w-xl rf-fluid-lead" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{props.subtitle || props.description}</motion.p>}
           <motion.div {...rise(3)} className="mt-8 flex flex-wrap items-center gap-4">
             <a {...ctaAttrs(props.primaryHref || props.ctaHref)} className={dnaCtaClasses(dna)} style={dnaCtaStyle(dna)}>
@@ -3018,7 +3018,7 @@ function HeroBento({ props }: { props: any }) {
               {props.eyebrow}
             </motion.span>
           )}
-          <motion.h1 {...rise(0.06)} className="mt-5 rf-fluid-display font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</motion.h1>
+          <motion.h1 {...rise(0.06)} className="mt-5 rf-fluid-display [text-wrap:balance]" style={{ color:"var(--brand)" }}>{props.title}</motion.h1>
           {props.subtitle && <motion.p {...rise(0.12)} className="mt-5 max-w-xl rf-fluid-lead" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{props.subtitle}</motion.p>}
           <motion.div {...rise(0.18)} className="mt-7 flex flex-wrap items-center gap-4">
             <a {...ctaAttrs(props.primaryHref)} className="group inline-flex items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]" style={{ background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" }}>
@@ -3073,7 +3073,7 @@ function HeroAurora({ props }: { props: any }) {
           </BlurFade>
         )}
         <BlurFade delay={0.08}>
-          <h1 className="mt-6 rf-fluid-display font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h1>
+          <h1 className="mt-6 rf-fluid-display [text-wrap:balance]" style={{ color:"var(--brand)" }}>{props.title}</h1>
         </BlurFade>
         {props.subtitle && (
           <BlurFade delay={0.16}>
@@ -3212,7 +3212,7 @@ function CTABanner({ props }: { props: any }) {
         style={{ ...rfContainerRatio(0.89), background: "color-mix(in srgb, var(--brand-accent) 10%, var(--brand-surface))", boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
       >
         <div>
-          <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>
+          <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ color:"var(--brand)" }}>{props.title}</h2>
           {props.subtitle && <p className="mt-2 max-w-md text-sm" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{props.subtitle}</p>}
         </div>
         <a {...ctaAttrs(props.ctaHref)} className="group inline-flex shrink-0 items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]" style={{ background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" }}>
@@ -3239,7 +3239,7 @@ function CTAGradient({ props }: { props: any }) {
       >
         <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(60% 80% at 50% 0%, rgba(255,255,255,0.25), transparent 60%)" }} />
         <div className="relative">
-          <h2 className="rf-fluid-display font-semibold text-white [text-wrap:balance]">{props.title}</h2>
+          <h2 className="rf-fluid-display text-white [text-wrap:balance]">{props.title}</h2>
           {props.subtitle && <p className="mx-auto mt-4 max-w-lg text-white/80 [text-wrap:balance]">{props.subtitle}</p>}
           <a {...ctaAttrs(props.ctaHref)} className="group mt-8 inline-flex items-center gap-1.5 bg-white px-8 py-4 text-sm font-medium text-neutral-900 shadow-xl transition-transform active:scale-[0.98]" style={{ borderRadius: "var(--brand-radius)" }}>
             {props.cta}
@@ -3264,7 +3264,7 @@ function FeaturesSpotlight({ props }: { props: any }) {
     <section className="px-6" style={{ background: "var(--brand-surface)" , ...rfSectionPad(96) }}>
       <div className="mx-auto" style={rfContainer(1152)}>
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>
+          <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ color:"var(--brand)" }}>{props.title}</h2>
           {props.subtitle && <p className="mt-3" style={{ color: "var(--brand-ink)", opacity: 0.55 }}>{props.subtitle}</p>}
         </div>
         <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -3303,7 +3303,7 @@ function FeaturesColumns({ props }: { props: any }) {
     <section className="px-6" style={{ background: "var(--brand-surface)", ...rfSectionPad(96) }}>
       <div className="mx-auto" style={rfContainer(1152)}>
         <div className="max-w-2xl">
-          <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>
+          <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ color:"var(--brand)" }}>{props.title}</h2>
           {props.subtitle && <p className="mt-3" style={{ color: "var(--brand-ink)", opacity: 0.55 }}>{props.subtitle}</p>}
         </div>
         <div className="mt-12 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
@@ -3317,7 +3317,7 @@ function FeaturesColumns({ props }: { props: any }) {
             >
               <div className="h-px w-10" style={{ background: "var(--brand-accent)" }} />
               <div className="mt-4 text-xs font-medium tabular-nums" style={{ color: "var(--brand-ink)", opacity: 0.4 }}>{String(i + 1).padStart(2, "0")}</div>
-              <h3 className="mt-2 text-lg font-semibold" style={{ color: "var(--brand)" }}>{item.title}</h3>
+              <h3 className="mt-2 rf-fluid-h3" style={{ color: "var(--brand)" }}>{item.title}</h3>
               {item.description && <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{item.description}</p>}
             </motion.div>
           ))}
@@ -3344,7 +3344,7 @@ function ProcessTimeline({ props }: { props: any }) {
     <section className="px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
       <div className="mx-auto max-w-3xl">
         <div className="max-w-2xl">
-          <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>{props.title}</h2>
+          <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ fontFamily:"var(--brand-font)", color:"var(--brand)" }}>{props.title}</h2>
           {props.subtitle && <p className="mt-3 text-lg" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{props.subtitle}</p>}
         </div>
         <ol className="relative mt-12 border-l" style={{ borderColor: HAIRLINE }}>
@@ -3363,7 +3363,7 @@ function ProcessTimeline({ props }: { props: any }) {
               >
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <h3 className="text-lg font-semibold tracking-tight" style={{ color: "var(--brand)" }}>{it.title}</h3>
+              <h3 className="rf-fluid-h3 tracking-tight" style={{ color: "var(--brand)" }}>{it.title}</h3>
               {it.description && (
                 <p className="mt-2 max-w-xl leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.62 }}>{it.description}</p>
               )}
@@ -3386,7 +3386,7 @@ function FeaturesBigType({ props }: { props: any }) {
   return (
     <section className="px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
       <div className="mx-auto" style={rfContainerRatio(0.78)}>
-        <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>{props.title}</h2>
+        <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ fontFamily:"var(--brand-font)", color:"var(--brand)" }}>{props.title}</h2>
         <div className="mt-12">
           {items.map((it, i) => (
             <motion.div
@@ -3402,7 +3402,7 @@ function FeaturesBigType({ props }: { props: any }) {
                 {String(i + 1).padStart(2, "0")}
               </span>
               <div>
-                <h3 className="text-xl font-semibold tracking-tight" style={{ color: "var(--brand)" }}>{it.title}</h3>
+                <h3 className="rf-fluid-h3 tracking-tight" style={{ color: "var(--brand)" }}>{it.title}</h3>
                 {it.description && (
                   <p className="mt-2 max-w-xl leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{it.description}</p>
                 )}
@@ -3426,7 +3426,7 @@ function FeaturesSticky({ props }: { props: any }) {
             <span className="h-px w-9" style={{ background: "var(--brand-accent)" }} />
             What we do
           </span>
-          <h2 className="mt-5 rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>
+          <h2 className="mt-5 rf-fluid-h2 [text-wrap:balance]" style={{ fontFamily:"var(--brand-font)", color:"var(--brand)" }}>
             {props.title}
           </h2>
           {props.subtitle && (
@@ -3453,7 +3453,7 @@ function FeaturesSticky({ props }: { props: any }) {
                 {String(i + 1).padStart(2, "0")}
               </span>
               <div>
-                <h3 className="text-lg font-semibold tracking-tight" style={{ color: "var(--brand)" }}>{item.title}</h3>
+                <h3 className="rf-fluid-h3 tracking-tight" style={{ color: "var(--brand)" }}>{item.title}</h3>
                 {item.description && (
                   <p className="mt-1.5 max-w-xl text-sm leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{item.description}</p>
                 )}
@@ -3478,7 +3478,7 @@ function FeaturesShowcase({ props }: { props: any }) {
     <section className="px-6" style={{ color: "var(--brand-ink)", ...rfSectionPad(96) }}>
       <div className="mx-auto" style={rfContainer(1152)}>
         <div className="max-w-2xl">
-          <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>{props.title}</h2>
+          <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ fontFamily:"var(--brand-font)", color:"var(--brand)" }}>{props.title}</h2>
           {props.subtitle && <p className="mt-3 text-lg" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{props.subtitle}</p>}
         </div>
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -3500,7 +3500,7 @@ function FeaturesShowcase({ props }: { props: any }) {
                 </div>
               )}
               <div className="flex flex-1 flex-col p-6">
-                <h3 className="text-lg font-semibold tracking-tight" style={{ color: "var(--brand)" }}>{item.title}</h3>
+                <h3 className="rf-fluid-h3 tracking-tight" style={{ color: "var(--brand)" }}>{item.title}</h3>
                 {item.description && (
                   <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{item.description}</p>
                 )}
@@ -3528,7 +3528,7 @@ function ProductGrid({ props }: { props: any }) {
           {props.eyebrow && (
             <div className="mb-3 text-xs font-medium uppercase tracking-[0.2em]" style={{ color: "var(--brand-accent)" }}>{props.eyebrow}</div>
           )}
-          <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>
+          <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ color:"var(--brand)" }}>{props.title}</h2>
           {props.subtitle && <p className="mt-3" style={{ color: "var(--brand-ink)", opacity: 0.55 }}>{props.subtitle}</p>}
         </div>
         <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
@@ -3619,7 +3619,7 @@ function TestimonialsStacked({ props }: { props: any }) {
   return (
     <section className="px-6" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
       <div className="mx-auto" style={rfContainerRatio(0.78)}>
-        {props.title && <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>}
+        {props.title && <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ color:"var(--brand)" }}>{props.title}</h2>}
         <div className="mt-12 flex flex-col">
           {items.slice(0, 4).map((t, i) => (
             <motion.figure
@@ -3667,7 +3667,7 @@ function ContactDetailsCard({ props }: { props: any }) {
         className="mx-auto max-w-2xl rf-card p-10 text-center sm:p-14"
         style={{ borderRadius: "calc(var(--brand-radius) * 1.4)", boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
       >
-        <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>
+        <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ color:"var(--brand)" }}>{props.title}</h2>
         {props.subtitle && <p className="mx-auto mt-3 max-w-md" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{props.subtitle}</p>}
         <div className="mx-auto mt-9 flex max-w-sm flex-col divide-y" style={{ borderColor: HAIRLINE }}>
           {rows.map((r) => (
@@ -3709,7 +3709,7 @@ function ContactBanner({ props }: { props: any }) {
       >
         <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(60% 120% at 50% 0%, color-mix(in srgb, var(--brand-accent) 32%, transparent), transparent 60%)" }} />
         <div className="relative">
-          <h2 className="rf-fluid-display font-semibold [text-wrap:balance]">{props.title}</h2>
+          <h2 className="rf-fluid-display [text-wrap:balance]">{props.title}</h2>
           {props.subtitle && <p className="mx-auto mt-4 max-w-lg text-white/65 [text-wrap:balance]">{props.subtitle}</p>}
           <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
             <a {...ctaAttrs(c.bookingUrl || (c.email ? `mailto:${c.email}` : "#contact"))} className="inline-flex items-center gap-1.5 bg-white px-7 py-3.5 text-sm font-medium transition-transform active:scale-[0.98]" style={{ color: "var(--brand-contrast)", borderRadius: "var(--brand-radius)" }}>
@@ -3736,7 +3736,7 @@ function GalleryMasonry({ props }: { props: any }) {
       <div className="mx-auto" style={rfContainer(1152)}>
         <div className="max-w-2xl">
           {props.eyebrow && <div className="mb-3 text-xs font-medium uppercase tracking-[0.22em]" style={{ color: "var(--brand-accent)" }}>{props.eyebrow}</div>}
-          {props.title && <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>}
+          {props.title && <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ color:"var(--brand)" }}>{props.title}</h2>}
         </div>
         <div className="mt-10 [column-gap:1rem] sm:columns-2 lg:columns-3">
           {items.slice(0, 9).map((it, i) => (
@@ -3771,7 +3771,7 @@ function GalleryStrip({ props }: { props: any }) {
     <section className="" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
       <div className="mx-auto mb-8 px-6" style={rfContainer(1152)}>
         {props.eyebrow && <div className="mb-3 text-xs font-medium uppercase tracking-[0.22em]" style={{ color: "var(--brand-accent)" }}>{props.eyebrow}</div>}
-        {props.title && <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>}
+        {props.title && <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ color:"var(--brand)" }}>{props.title}</h2>}
       </div>
       <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {items.slice(0, 10).map((it, i) => (
@@ -3797,7 +3797,7 @@ function GalleryFeature({ props }: { props: any }) {
   return (
     <section className="px-6" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" , ...rfSectionPad(96) }}>
       <div className="mx-auto flex flex-col gap-6" style={rfContainer(1152)}>
-        {props.title && <h2 className="rf-fluid-h2 font-semibold [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>}
+        {props.title && <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ color:"var(--brand)" }}>{props.title}</h2>}
         {items.slice(0, 5).map((it, i) => (
           <motion.div
             key={i}

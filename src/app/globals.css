@@ -190,15 +190,26 @@
    (clamp), so the site "follows" the viewport instead of jumping at breakpoints.
    Min keeps phones tidy; max caps it on large displays; the vw term scales the
    middle. Applied to hero/section titles in the block renderer. */
+/* A3 — the type hierarchy is DesignDNA-driven: measured/premium scale,
+   weight and tracking flow through --rf-* vars; fallbacks are the exact V5
+   values (used only without engine tokens). */
 .rf-fluid-display {
-  font-size: clamp(2.25rem, 1.4rem + 4.2vw, 4rem);
+  font-size: var(--rf-text-display, clamp(2.25rem, 1.4rem + 4.2vw, 4rem));
   line-height: 1.04;
-  letter-spacing: -0.022em;
+  letter-spacing: var(--rf-tracking, -0.022em);
+  font-weight: var(--rf-heading-weight, 600);
 }
 .rf-fluid-h2 {
-  font-size: clamp(1.75rem, 1.2rem + 2.6vw, 3rem);
+  font-size: var(--rf-text-h2, clamp(1.75rem, 1.2rem + 2.6vw, 3rem));
   line-height: 1.1;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--rf-tracking, -0.02em);
+  font-weight: var(--rf-heading-weight, 600);
+}
+.rf-fluid-h3 {
+  font-size: var(--rf-text-h3, 1.125rem);
+  line-height: 1.35;
+  letter-spacing: var(--rf-tracking, -0.01em);
+  font-weight: var(--rf-heading-weight, 600);
 }
 .rf-fluid-lead {
   font-size: clamp(1.0625rem, 1rem + 0.5vw, 1.25rem);

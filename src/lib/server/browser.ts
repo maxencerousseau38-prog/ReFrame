@@ -27,10 +27,25 @@ async function launch(): Promise<Browser | null> {
     const bypass = ["localhost", "127.0.0.1", ...noProxy.split(",").map((s) => s.trim()).filter(Boolean)]
       .filter((v, i, a) => a.indexOf(v) === i)
       .join(",");
-    return await chromium.launch({
+    const opts = {
       args: ["--no-sandbox", "--disable-dev-shm-usage"],
       ...(proxyServer ? { proxy: { server: proxyServer, bypass } } : {}),
-    });
+    };
+    try {
+      return await chromium.launch(opts);
+    } catch (err) {
+      // Managed environments preinstall a full Chromium at a stable path
+      // while the resolved playwright version may expect a different
+      // browser revision. Retry with the documented executable before
+      // giving up (graceful degradation stays: null when neither works).
+      const { existsSync } = await import("node:fs");
+      const preinstalled =
+        process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || "/opt/pw-browsers/chromium";
+      if (existsSync(preinstalled)) {
+        return await chromium.launch({ ...opts, executablePath: preinstalled });
+      }
+      throw err;
+    }
   } catch {
     return null;
   }
