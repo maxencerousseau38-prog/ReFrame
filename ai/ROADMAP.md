@@ -23,7 +23,7 @@
 
 | Item | Contenu | Statut |
 |---|---|---|
-| **C7a** | SceneSpec + compileSceneSpecs + SceneShell minimal (B1-B5) | **prêt — attendre GO** (`docs/C7_PREPARATION.md`) |
+| **C7a** | SceneSpec + compileSceneSpecs + SceneShell minimal (B1-B5) | **GO donné — démarrer directement** (`docs/C7_PREPARATION.md`) |
 | C7b | Hero Engine : 13 heroes consomment minHeightVh/mediaPosition/padding | après C7a |
 | C7c | Layout Engine : grilles/gaps/alternances par scène (`--rf-scene-*`) | après C7b |
 | C7d | A4 : champs composition premium dans la DNA + mapping inspirationLayer + ordre mesuré → plan | après C7c |

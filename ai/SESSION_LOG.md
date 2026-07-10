@@ -1,5 +1,10 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-05 — Validation du sprint A1-A3 + OS
+- Utilisateur valide : A1/A2/A3, préparation C7, Operating System. Dernier kilomètre DesignDNA→renderer fermé.
+- Nouvelle priorité transverse : maximiser la valeur produite par session (sprints, un audit/début de sprint) — actée dans CONVENTIONS §0.
+- Suivant : C7a directement en début de prochaine session (GO donné), philosophie Composition Engine confirmée.
+
 ## 2026-07-05 — OS de développement IA
 - Créé le système de mémoire permanente `ai/` (STATE, ROADMAP, PIPELINE, CONVENTIONS, MODULES×6, ce journal) + bootstrap + hook SessionStart tracké.
 - Cause validée : le reset de conteneur avait effacé `.claude/`, node_modules et la révision Chromium — la mémoire vit désormais dans Git.

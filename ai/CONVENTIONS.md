@@ -28,6 +28,10 @@
 
 ## Protocole de sous-lot (obligatoire)
 
+0. **Économie de session** : travailler en SPRINTS cohérents — un seul audit
+   d'orientation en début de sprint, puis enchaîner les sous-lots ; le budget
+   va au code, pas à la redécouverte (c'est le rôle de l'OS `ai/`).
+
 1. Graphify d'abord (`query/explain/path`) ; lecture ciblée ensuite (jamais le dépôt entier).
 2. Vérif de non-régression rapide si le doute existe (`npm test` baseline).
 3. Modifs minimales/additives ; petits commits, un objectif par commit.

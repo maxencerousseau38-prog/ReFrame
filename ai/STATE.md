@@ -18,9 +18,12 @@
 
 ## Prochaine action
 
-**C7a — SceneShell + Composition Engine** : plan complet validable dans
-`docs/C7_PREPARATION.md` (points de branchement B1-B6, risques, ordre C7a→C7e).
-Attendre le GO utilisateur si non donné.
+**C7a — SceneShell + Composition Engine : GO DONNÉ (2026-07-05).**
+Démarrer DIRECTEMENT, sans nouvel audit : tout est dans `docs/C7_PREPARATION.md`
+(branchements B1-B6, risques, ordre C7a→C7e). Philosophie confirmée :
+Measure → SceneDNA → Reference Learning → Similarity → Composition Engine →
+Renderer-exécuteur. Priorité transverse : MAXIMISER la valeur produite par
+session (sprints cohérents, un seul audit en début de sprint).
 
 ## Commandes
 
