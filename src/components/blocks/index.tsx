@@ -257,6 +257,25 @@ function rfContainerRatio(ratio: number): React.CSSProperties {
 }
 
 /**
+ * C7b — hero geometry ceded to the Composition Engine. The SceneShell
+ * publishes the matched scene's measured decisions as --rf-scene-*; the
+ * hero's V5 constant stays as the exact var() fallback, so output is
+ * unchanged without a scene. EXACT values, no floor: unlike the global
+ * rhythm (--rf-space-section, A1), a per-scene measurement is the source
+ * site's truth and may legitimately be tighter than the V5 default.
+ */
+function rfHeroMinH(fallback: string): React.CSSProperties {
+  return { minHeight: `var(--rf-scene-minh, ${fallback})` };
+}
+
+function rfHeroPadY(fallbackTop: string, fallbackBottom: string): React.CSSProperties {
+  return {
+    paddingTop: `var(--rf-scene-pt, ${fallbackTop})`,
+    paddingBottom: `var(--rf-scene-pb, ${fallbackBottom})`,
+  };
+}
+
+/**
  * DNA-derived card style as inline React CSS.
  */
 function dnaCardStyle(dna: DNAProps): React.CSSProperties {
@@ -2088,7 +2107,7 @@ function HeroImageFull({ props }: { props: any }) {
   const reduce = useReducedMotion();
   const brand = (props.brand || "") as string;
   return (
-    <section className="relative flex min-h-[92vh] flex-col overflow-hidden px-6 pb-10 pt-7 text-white">
+    <section className="relative flex flex-col overflow-hidden px-6 text-white" style={{ ...rfHeroMinH("92vh"), ...rfHeroPadY("1.75rem", "2.5rem") }}>
       <div className="absolute inset-0 overflow-hidden">
         <CoverImage
           image={props.image}
@@ -2355,7 +2374,7 @@ function HeroMonumental({ props }: { props: any }) {
   useParallax(bgRef);
   const word = (props.brand || props.title || "Studio") as string;
   return (
-    <section className="relative flex min-h-[92vh] flex-col overflow-hidden px-6 pb-0 pt-28 text-white">
+    <section className="relative flex flex-col overflow-hidden px-6 text-white" style={{ ...rfHeroMinH("92vh"), ...rfHeroPadY("7rem", "0px") }}>
       <div className="absolute inset-0 overflow-hidden">
         <CoverImage
           image={props.image}
@@ -2467,7 +2486,7 @@ function HeroAgencia({ props }: { props: any }) {
   const word = (props.brand || props.title || "Studio") as string;
   const [live, muted] = splitTwoTone(props.subtitle || props.title || "", 0.5);
   return (
-    <section className="relative flex min-h-[94vh] flex-col overflow-hidden px-6 pb-0 pt-28 text-white" style={{ background: AGENCIA_BG }}>
+    <section className="relative flex flex-col overflow-hidden px-6 text-white" style={{ background: AGENCIA_BG, ...rfHeroMinH("94vh"), ...rfHeroPadY("7rem", "0px") }}>
       {/* ember: the lone splash of brand colour, drifting at the top */}
       <motion.div
         aria-hidden
@@ -2727,7 +2746,7 @@ function HeroArchform({ props }: { props: any }) {
   const reduce = useReducedMotion();
   const brand = (props.brand || "") as string;
   return (
-    <section className="relative flex min-h-[94vh] flex-col overflow-hidden px-6 pb-10 pt-7 text-white">
+    <section className="relative flex flex-col overflow-hidden px-6 text-white" style={{ ...rfHeroMinH("94vh"), ...rfHeroPadY("1.75rem", "2.5rem") }}>
       <div className="absolute inset-0 overflow-hidden">
         <CoverImage
           image={props.image}
