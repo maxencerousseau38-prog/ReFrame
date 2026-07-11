@@ -1,6 +1,7 @@
 # C8 — Spécification BusinessDNA & Intent Engine (conception, zéro code)
 
-> Statut : **proposition à valider** (2026-07-10). Guidera les prochains mois.
+> Statut : **v2 — enrichie après retour utilisateur** (2026-07-10) : systèmes,
+> Capability, chaîne des buts, règle R0. Guidera les prochains mois.
 > Ancrage : preuves de l'audit C7e/P0 (`docs/C8_PREPARATION.md`, dumps
 > `eval-c7e*/dumps/`). Contraintes héritées : charte I1/G1-G4/A2,
 > no-fabrication, D6 (Understanding → Composition, jamais l'inverse),
@@ -32,11 +33,28 @@ effort, dans cet ordre approximatif :
 7. **Le contexte pratique** — où, quand (horaires), comment contacter,
    plusieurs établissements ou un seul.
 
-La BusinessDNA est la formalisation de ces 7 compréhensions. Tout ce qui suit
+Et surtout — un humain ne perçoit pas des « sections » : il perçoit un
+**SYSTÈME** qui lui permet d'atteindre son but. Un e-commerce n'est pas une
+liste de produits : c'est catalogue + collections + variantes + prix +
+promotions + filtres + recherche + panier + checkout + avis + recommandations
++ livraison + retours — un parcours d'achat complet. Un hôtel n'est pas des
+chambres : c'est disponibilités + dates + tarifs + réservation + services +
+localisation. La page n'est que la **projection visible du système**.
+
+La BusinessDNA est la formalisation de ces compréhensions. L'unité de
+reconstruction de ReFrame devient le système, pas la page. Tout ce qui suit
 en découle.
 
-## 2. Principes d'architecture (non négociables, hérités)
+## 2. Principes d'architecture (non négociables)
 
+- **R0 — Le Composition Engine ne compose jamais des sections : il compose
+  des EXPÉRIENCES.** Les sections sont une conséquence. L'entrée du
+  Composition Engine est « voici les buts, les objets, les capacités et le
+  parcours à servir » ; sa sortie est la meilleure mise en scène de cette
+  expérience — dont les blocs/sections ne sont que la matérialisation.
+  Concrètement : un slot ne demande plus « une section features » mais
+  « de quoi servir browse-catalog sur 458 Product avec filtres ». (Règle
+  fondatrice ajoutée en v2 sur décision utilisateur.)
 - **P1 — Des données, jamais des branches.** Aucun moteur (extraction mise à
   part) ne contient de logique « si hôtel alors… ». Le savoir sectoriel vit
   dans des **ontologies déclaratives** (des données versionnées), consommées
@@ -64,25 +82,26 @@ en découle.
 
 ## 3. Les couches de compréhension (découverte et justification)
 
-Sept couches, chacune avec responsabilité unique. Trois existent déjà à
+Huit couches, chacune avec responsabilité unique. Trois existent déjà à
 l'état d'embryon (à absorber, pas à dupliquer).
 
 ```
                     ┌─ IdentityDNA (qui)
-                    ├─ OfferDNA (quoi — LE cœur : entités + relations)
+                    ├─ OfferDNA (quoi — les objets : entités + relations)
  EXTRACTION ───────▶├─ BusinessModelDNA (comment l'argent circule)
- (Tier 1 + Tier 2)  ├─ TrustDNA (pourquoi croire)
+ (Tier 1 + Tier 2)  ├─ CapabilityDNA (ce que le site PERMET — le cœur fonctionnel)
+                    ├─ TrustDNA (pourquoi croire)
                     ├─ NavigationDNA (l'architecture d'information réelle)
                     └─ ContentDNA (le verbatim : copy, langue, ton)
                               │
                               ▼
-                    IntentDNA (pourquoi — Intent Engine, § 5)
-                              │  consomme les 6 couches + SceneDNA
+                    IntentDNA (les buts et le parcours — Intent Engine, § 5)
+                              │  consomme les 7 couches + SceneDNA
                               ▼
               businessLayer/intentLayer (CandidateLayer)
               + SceneSpecSources.business/.intent
                               ▼
-                    Composition Engine → Renderer
+        Composition Engine (compose l'EXPÉRIENCE — R0) → Renderer
 ```
 
 ### 3.1 IdentityDNA — « qui c'est »
@@ -152,7 +171,45 @@ l'état d'embryon (à absorber, pas à dupliquer).
 - **Exemple réel** : Matfer Bourgeat = catalog-to-contact (catalogue riche,
   pas de checkout) — ni « realestate », ni vitrine générique.
 
-### 3.4 TrustDNA — « pourquoi croire »
+### 3.4 CapabilityDNA — « ce que le site PERMET » (le cœur fonctionnel)
+- **Responsabilité** : l'inventaire des **capacités réelles** du site — ni du
+  design, ni du contenu : ce que le visiteur peut FAIRE. C'est la notion
+  pivot de la reconstruction en systèmes : le moteur doit pouvoir dire
+  « ce site possède ces capacités » → « cette reconstruction doit les
+  préserver » → et seulement ensuite « voici la meilleure mise en scène ».
+- **Données** : `capabilities: [{kind, evidence, surfaces, preservation}]`.
+  `kind` par ontologie (e-commerce : acheter/filtrer/comparer/ajouter-au-
+  panier/payer/suivre-commande ; immobilier : rechercher/filtrer/visiter/
+  contacter-agent/estimer ; hôtel : vérifier-disponibilités/réserver/
+  comparer-chambres ; restaurant : consulter-menu/réserver/commander ;
+  santé : trouver-praticien/prendre-RDV ; SaaS : essayer/comparer-offres/
+  créer-compte/connecter-service…). `surfaces` = où elle vit (recherche,
+  date-picker, formulaire typé, panier, portail). `evidence` = Sourced.
+- **`preservation` — les 4 niveaux (décision d'ingénierie honnête)** : une
+  reconstruction statique ne peut pas re-implémenter un checkout. Chaque
+  capacité déclare COMMENT elle survit :
+  `native` (re-rendue par nos blocs : consulter-menu, parcourir-catalogue) ·
+  `reconnected` (l'intégration réelle réinjectée : Calendly, moteur de
+  résa, chat — étend le business-asset detection existant) ·
+  `delegated` (lien profond vers le flux source encore vivant : « Réserver »
+  → booking engine du client) ·
+  `lost` (aucun des trois → **warning bloquant avant publication**).
+  Interdit : un CTA qui SIMULE une capacité morte (bouton « Ajouter au
+  panier » sans panier = mensonge commercial, pire que l'omission).
+- **Producteurs** : détection de surfaces (formulaires typés, paniers,
+  date-pickers, portails de recherche) + intégrations détectées (existant) +
+  OfferDNA (des entités sans surface d'accès = capacité absente) + plateforme.
+- **Consommateurs** : le Composition Engine (R0 : il met en scène des
+  capacités), la hiérarchie des CTA (un CTA EST l'entrée d'une capacité),
+  le Commercial Readiness Engine (la matrice capacité×préservation est SA
+  check-list), le publishing (reconnexion).
+- **Priorité : P0 de C8, avec OfferDNA** — c'est la moitié « verbe » du
+  système dont OfferDNA est la moitié « nom ».
+- **Exemple réel** : Lutetia = {vérifier-disponibilités, réserver} portées
+  par le booking engine (306 signaux) → `reconnected` ou `delegated` ; la
+  reconstruction actuelle les a simplement PERDUES sans le dire.
+
+### 3.5 TrustDNA — « pourquoi croire »
 - **Responsabilité** : l'inventaire des preuves RÉELLES, avec leur force.
 - **Données** : avis {volume, note, source (Google/Trustpilot/interne)},
   certifications/labels, presse, récompenses, chiffres d'autorité (« 20 000+
@@ -167,7 +224,7 @@ l'état d'embryon (à absorber, pas à dupliquer).
 - **Exemple réel** : PayFit « Join 20,000+ businesses » + 394 signaux d'avis
   → aujourd'hui 0 rendu.
 
-### 3.5 NavigationDNA — « l'architecture d'information réelle »
+### 3.6 NavigationDNA — « l'architecture d'information réelle »
 - **Responsabilité** : l'IA du site source : pages, hiérarchie, libellés
   EXACTS, et le rôle de chaque entrée (navigation d'objets ? institutionnelle ?
   action ?). Corrige la nav bruitée (« AccueilAccueil », « Shop » fabriqué).
@@ -182,7 +239,7 @@ l'état d'embryon (à absorber, pas à dupliquer).
 - **Priorité : P1** (la nav est la première chose visible — et aujourd'hui
   corrompue sur les sites complexes).
 
-### 3.6 ContentDNA — « le verbatim »
+### 3.7 ContentDNA — « le verbatim »
 - **Responsabilité** : formaliser l'existant `buildContentModel` (C3) en
   couche à part entière : headings réels par scène, copy, langue(s), ton
   (sobre/lyrique/technique — mesurable : longueur de phrases, vocabulaire),
@@ -193,9 +250,10 @@ l'état d'embryon (à absorber, pas à dupliquer).
   moodboard.
 - **Priorité : P1 (assainissement), architecture déjà en place.**
 
-### 3.7 IntentDNA — « pourquoi » (produit par l'Intent Engine, § 5)
-- La seule couche de SYNTHÈSE : elle consomme les six autres + la SceneDNA
-  et produit l'intention du site, de chaque page et de chaque section.
+### 3.8 IntentDNA — « pourquoi » (produit par l'Intent Engine, § 5)
+- La seule couche de SYNTHÈSE : elle consomme les sept autres + la SceneDNA
+  et produit la chaîne des buts (§ 5.0), les intents de page et de section,
+  et les parcours (`journeys`).
 
 **Couches écartées (et pourquoi)** : AudienceDNA (B2B/B2C, personas) →
 attribut de BusinessModelDNA, pas de producteurs fiables pour plus ;
@@ -224,9 +282,13 @@ Entity {
 
 ### 4.2 Les ontologies sectorielles (des données, pas du code)
 
-Chaque ontologie déclare : types d'entités + attributs attendus + signaux
-d'extraction (sélecteurs schema.org, motifs d'URL, vocabulaire multilingue)
-+ intents typiques + slots de composition cibles + CTA canoniques (i18n).
+Chaque ontologie déclare le **système complet** attendu pour son modèle :
+types d'entités + attributs + signaux d'extraction (schema.org, motifs
+d'URL, vocabulaire multilingue) + **capacités attendues** (avec leurs
+surfaces typiques et leur niveau de préservation par défaut) + intents
+typiques + journeys canoniques + slots de composition cibles + CTA
+canoniques (i18n). La colonne « actions critiques » ci-dessous EST la liste
+de capacités de l'ontologie.
 
 | Secteur | Entités (relations) | Actions critiques | CTA canoniques (fr) |
 |---|---|---|---|
@@ -255,6 +317,36 @@ L'industrie actuelle (mots-clés) devient un simple candidat `inferred` de
 faible confiance dans le resolver — jamais le juge.
 
 ## 5. L'Intent Engine
+
+### 5.0 La chaîne des buts (v2 — l'ordre causal de toute composition)
+
+L'Intent Engine ne répond plus seulement à « pourquoi le visiteur est-il
+ici ? ». Il établit la chaîne complète, dans cet ordre et jamais l'inverse :
+
+```
+Business Goal   ce que le propriétaire veut obtenir (vendre, remplir les
+    │           chambres, générer des leads qualifiés, remplir l'agenda)
+    ▼
+User Goal       ce que le visiteur veut accomplir (trouver le bon produit
+    │           au bon prix, dormir à Paris ces dates, un avocat compétent)
+    ▼
+Business        les objets qui permettent cette rencontre (OfferDNA :
+Objects         Product, Room, Practitioner…)
+    ▼
+Capabilities    ce que le site permet de faire avec ces objets
+    │           (CapabilityDNA : filtrer, réserver, estimer…)
+    ▼
+User Journey    le parcours optimal entre ces objets via ces capacités
+    │           (chercher → filtrer → fiche → panier → payer)
+    ▼
+Composition     la mise en scène de ce parcours (R0 : une expérience)
+    ▼
+Interface       les sections/blocs — la CONSÉQUENCE, jamais le point de départ
+```
+
+`IntentDNA.goals = {business: [...], user: [...]}` — pondérés, avec evidence
+(le business goal se lit dans les CTA dominants et le modèle ; le user goal
+dans les surfaces offertes et les requêtes servies).
 
 ### 5.1 Taxonomie des intents visiteur (page-level)
 
@@ -285,9 +377,11 @@ chaque bloc composé DÉCLARE l'intent qu'il sert.
 1. **Le plan** : l'ordre des sections suit la hiérarchie d'intents du source
    (mesurée) puis du modèle (les parcours critiques d'abord), plus le
    storytelling générique actuel en simple fallback.
-2. **La sélection de blocs** : chaque slot demande « un bloc qui sert
-   convert/present-offer pour des entités Room » — le catalogue de blocs
-   (C9, réindexation) répond par capacité, pas par nom de secteur.
+2. **La sélection de blocs** (R0) : chaque slot demande « de quoi servir
+   {intent} pour {entités} avec {capacités} » — p.ex. « browse-catalog sur
+   458 Product avec filtrer+ajouter-au-panier » — et le catalogue de blocs
+   (C9, réindexation) répond par capacité servie, pas par nom de secteur.
+   Une capacité `lost` ne reçoit JAMAIS de bloc qui la simule.
 3. **La hiérarchie des CTA** : l'action primaire de CHAQUE section vient des
    CTA canoniques de l'ontologie × l'intent de la section (fini le
    « Contact » universel — « Réserver » sur l'hôtel, partout où l'intent est
@@ -315,13 +409,15 @@ chaque bloc composé DÉCLARE l'intent qu'il sert.
 | IdentityDNA | JSON-LD Organization, footer/contact, OG, owner | nav/footer/contact/hero, SEO, Readiness, i18n |
 | OfferDNA | JSON-LD objets, cartes répétées, URL/sitemap, plateforme, Tier 2 | blocs métier, planner, pages fiches, Readiness |
 | BusinessModelDNA | inférence signaux (Offer + intégrations + surfaces) | Intent Engine, CTA, slots, Readiness |
+| CapabilityDNA | surfaces (formulaires typés, panier, date-picker, recherche) + intégrations + plateforme + Offer | Composition (R0), CTA, Readiness (matrice préservation), publishing/reconnexion |
 | TrustDNA | widgets avis, AggregateRating, sections preuve | sections preuve, hero trust, Intent |
 | NavigationDNA | nav/sitemap/crawl typés + croisement Offer | SiteNav, multi-pages, journeys |
 | ContentDNA | extraction contenu + anti-bruit (F23) | composer, CTA copy, ton |
-| IntentDNA | Intent Engine (synthèse des 6 + SceneDNA) | plan, sélection de blocs, CTA, journeys, Readiness |
+| IntentDNA | Intent Engine (synthèse des 7 + SceneDNA) | chaîne des buts, plan, sélection de blocs, CTA, journeys, Readiness |
 
 Ordre de production : Identity/Content/Navigation/Trust/Offer (parallèles,
-même passe d'extraction) → BusinessModel → Intent → composition.
+même passe d'extraction) → BusinessModel → Capability → Intent (chaîne des
+buts) → composition (R0).
 
 ## 7. Preuve par les 9 sites de l'audit (ce que C8 aurait compris)
 
@@ -347,18 +443,22 @@ même passe d'extraction) → BusinessModel → Intent → composition.
 | Extraction JS-heavy sans navigateur | Tier 2 en prod (P0/F20 branché) ; JSON-LD souvent server-rendered même sur sites JS |
 | Explosion du coût d'extraction | passes par famille de signaux, budget par site, JSON-LD d'abord (quasi gratuit) |
 | Blocs métier inexistants côté renderer | phasage : chaque tranche C8 livre l'entité ET son bloc consommateur (D8 : gain visible par sous-lot, harnais avant/après) |
+| Capacité simulée (CTA vers une capacité morte) | interdit par CapabilityDNA : un CTA n'existe que si sa capacité est native/reconnected/delegated ; `lost` ⇒ warning bloquant, jamais un bouton factice |
+| Inflation de capacités | même règle que P6 : une capacité n'existe que si une SURFACE réelle la prouve (evidence Sourced) |
 
 ## 9. Phasage indicatif (après validation de cette spec)
 
-- **C8a — Fondations** : types Sourced des 7 couches + ontologie générique +
+- **C8a — Fondations** : types Sourced des 8 couches + ontologie générique +
   lecteur JSON-LD/microdata (le gisement gratuit) + trace. Gain visible :
   Identity/Trust réels (headline, téléphone, avis) sur le harnais.
 - **C8b — E-commerce d'abord (F18)** : ontologie e-commerce + extraction
   produits/collections/prix + blocs ProductGrid/ProductCard réels + CTA
   métier. Harnais : bruneau avant/après.
-- **C8c — BusinessModel + Intent Engine v1** : modèles pondérés, intents de
-  page, CTA hierarchy. Harnais : ELSAN (« Prendre rendez-vous »), Lutetia
-  (« Réserver »).
+- **C8c — Capabilities + BusinessModel + Intent Engine v1** : détection des
+  capacités par surfaces, niveaux de préservation + warnings Readiness,
+  modèles pondérés, chaîne des buts, intents de page, CTA hierarchy.
+  Harnais : ELSAN (« Prendre rendez-vous »), Lutetia (« Réserver »,
+  delegated vers le booking engine réel).
 - **C8d — Reservation/appointment** (hôtel, restaurant, santé) : ontologies +
   blocs booking-aware.
 - **C8e — Intents de section + journeys + Readiness warnings.**

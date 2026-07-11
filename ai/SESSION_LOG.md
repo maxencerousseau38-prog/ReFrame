@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-10 — Spec BusinessDNA v2 (systèmes, Capability, chaîne des buts, R0)
+- Philosophie v1 validée par l'utilisateur (ontologies=données, moteurs aveugles, zéro if-industry) ; enrichissements demandés intégrés.
+- R0 actée dans la spec : composer des EXPÉRIENCES, jamais des sections ; unité de reconstruction = le SYSTÈME métier complet, la page = projection.
+- CapabilityDNA (8e couche, cœur fonctionnel) : capacités réelles avec 4 niveaux de préservation (native/reconnected/delegated/lost→warning) — jamais de CTA simulant une capacité morte ; chaîne des buts Business Goal→User Goal→Objects→Capabilities→Journey→Composition→Interface.
+- Suivant : GO C8a (fondations 8 couches + ontologie générique + lecteur JSON-LD), preuve harnais par sous-lot (D8).
+
 ## 2026-07-10 — Conception BusinessDNA & Intent Engine (C8-spec, zéro code)
 - `docs/C8_BUSINESSDNA_SPEC.md` : partir de « ce qu'un humain comprend en 10 s » → 7 couches (Identity/Offer/BusinessModel/Trust/Navigation/Content/Intent) ; les *DNA sectorielles deviennent des ONTOLOGIES déclaratives (P2), pas des couches ; entité générique Sourced ; 12 ontologies esquissées.
 - Classification refondée : inférence descendante depuis entités+modèle (458 cartes-prix ⇒ e-commerce) — l'industrie mots-clés devient candidat faible du resolver (fix F22 by design).

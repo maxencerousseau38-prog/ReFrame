@@ -49,19 +49,23 @@
 
 ## Prochaine action
 
-**Validation utilisateur de `docs/C8_BUSINESSDNA_SPEC.md`** (conception pure,
-zéro code, demandée avant toute ligne de C8). Décisions clés à valider :
-(1) 7 couches de compréhension — pas une par secteur ; (2) les *DNA
-sectorielles (Product/Room/Healthcare…) = ONTOLOGIES déclaratives (données)
-d'une couche unique OfferDNA.entities ; (3) classification d'industrie
-refondée en inférence descendante depuis les entités/modèle (fix F22 by
-design) ; (4) Intent Engine : intents pondérés de page ET de section →
-pilotent plan, sélection de blocs par capacité, hiérarchie des CTA,
-journeys à préserver (Commercial Readiness) ; (5) garde-fous P1-P6
-(no-fabrication d'objets, pas d'entité sans consommateur, aucune branche
-métier dans les moteurs). Après validation : C8a (fondations + lecteur
-JSON-LD, le gisement gratuit) → C8b e-commerce d'abord (F18) — chaque
-sous-lot avec preuve harnais avant/après (D8).
+**GO C8a à donner** — la spec `docs/C8_BUSINESSDNA_SPEC.md` est en **v2**
+(philosophie validée par l'utilisateur, enrichie sur sa demande) :
+- **R0** (règle fondatrice) : le Composition Engine compose des EXPÉRIENCES,
+  jamais des sections — les sections sont une conséquence.
+- **Systèmes** : l'unité de reconstruction = le système métier complet
+  (catalogue+filtres+panier+checkout…), la page = sa projection.
+- **8 couches** (CapabilityDNA ajoutée) : Identity/Offer/BusinessModel/
+  **Capability**/Trust/Navigation/Content/Intent.
+- **CapabilityDNA** = le cœur fonctionnel : capacités réelles {kind,
+  evidence, surfaces, preservation} avec 4 niveaux de préservation
+  (native/reconnected/delegated/lost→warning bloquant) ; interdit de
+  simuler une capacité morte (CTA factice).
+- **Chaîne des buts** (Intent Engine §5.0) : Business Goal → User Goal →
+  Objects → Capabilities → Journey → Composition → Interface, jamais
+  l'inverse.
+C8a = fondations : types Sourced des 8 couches + ontologie générique +
+lecteur JSON-LD/microdata + trace ; preuve harnais avant/après (D8).
 
 ## Commandes
 
