@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-10 — Conception BusinessDNA & Intent Engine (C8-spec, zéro code)
+- `docs/C8_BUSINESSDNA_SPEC.md` : partir de « ce qu'un humain comprend en 10 s » → 7 couches (Identity/Offer/BusinessModel/Trust/Navigation/Content/Intent) ; les *DNA sectorielles deviennent des ONTOLOGIES déclaratives (P2), pas des couches ; entité générique Sourced ; 12 ontologies esquissées.
+- Classification refondée : inférence descendante depuis entités+modèle (458 cartes-prix ⇒ e-commerce) — l'industrie mots-clés devient candidat faible du resolver (fix F22 by design).
+- Intent Engine : intents pondérés de page (transact/reserve/appointment/quote/browse/portfolio…) et de section (convert/reassure/demonstrate/present-offer/orient/inform/brand) → plan, blocs par capacité, CTA canoniques i18n, journeys→Readiness. Injection : businessLayer/intentLayer + SceneSpecSources (D7, prêt).
+- Suivant : validation utilisateur de la spec, puis C8a (fondations + JSON-LD) → C8b e-commerce (F18), preuves harnais par sous-lot (D8).
+
 ## 2026-07-10 — P0 : le moteur moderne devient LE produit
 - F19/F20/F21 clos : smart par défaut, mesures sur le chemin dashboard, zéro fabrication (bridge/composer/legacy/AI-edit, defaultFaq supprimé) ; varySectionOrder ne jette plus les slots réels.
 - **F24 découvert et clos** : le chemin smart rendait des pages VIDES (composer émettait sectionTitle/headline lus par aucun skin — jamais vu car produit=legacy et zpreview=legacy) → alias canoniques. F25 clos : blur-fade non neutralisé en rendu statique (CSS filter:none).

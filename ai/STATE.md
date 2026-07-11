@@ -49,14 +49,19 @@
 
 ## Prochaine action
 
-**Décision utilisateur : GO C8 ?** Lire l'addendum P0 de
-`docs/C8_PREPARATION.md` : le fabriqué a disparu et le moteur moderne tourne
-sur 9/9, mais restent (preuves) : classification 4/9 fausse (F22), objets
-métier/parcours critiques absents (F18/M5/M12), extraction faible (headline
-`<title>`, nav bruitée, FAQ=cookies F23). C8 = BusinessDna (extraction par
-familles de signaux + classification par signaux + couche `businessLayer` +
-entrée `SceneSpecSources.business` + composants métier). Harnais avant/après :
-`scripts/c7e-audit.mjs` (D8). État « avant P0 » archivé : `eval-c7e-before/dumps/` (Git ; captures hors dépôt, livrées en conversation).
+**Validation utilisateur de `docs/C8_BUSINESSDNA_SPEC.md`** (conception pure,
+zéro code, demandée avant toute ligne de C8). Décisions clés à valider :
+(1) 7 couches de compréhension — pas une par secteur ; (2) les *DNA
+sectorielles (Product/Room/Healthcare…) = ONTOLOGIES déclaratives (données)
+d'une couche unique OfferDNA.entities ; (3) classification d'industrie
+refondée en inférence descendante depuis les entités/modèle (fix F22 by
+design) ; (4) Intent Engine : intents pondérés de page ET de section →
+pilotent plan, sélection de blocs par capacité, hiérarchie des CTA,
+journeys à préserver (Commercial Readiness) ; (5) garde-fous P1-P6
+(no-fabrication d'objets, pas d'entité sans consommateur, aucune branche
+métier dans les moteurs). Après validation : C8a (fondations + lecteur
+JSON-LD, le gisement gratuit) → C8b e-commerce d'abord (F18) — chaque
+sous-lot avec preuve harnais avant/après (D8).
 
 ## Commandes
 

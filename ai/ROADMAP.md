@@ -29,7 +29,7 @@
 
 | Item | Contenu | Statut |
 |---|---|---|
-| **C8** | **Business Understanding Engine** — décision de GO après lecture des résultats P0 (une partie des défauts a disparu ; reste : classification 4/9, objets métier, parcours critiques, extraction riche — addendum du rapport) | **en attente de GO** |
+| **C8-spec** | **Spécification BusinessDNA & Intent Engine livrée** : `docs/C8_BUSINESSDNA_SPEC.md` — 7 couches (Identity/Offer/BusinessModel/Trust/Navigation/Content/Intent), ontologies sectorielles = données (P1/P2), modèle d'entité générique, classification par signaux (fix F22 by design), Intent Engine (intents pondérés page+section → pilotent plan/blocs/CTA/journeys), matrice producteurs↔consommateurs, preuve par les 9 sites, phasage C8a-C8e | **en attente de VALIDATION utilisateur** |
 
 ## Plus tard 📋 (renuméroté 2026-07-10 — D6 : C8 = Business Understanding)
 
