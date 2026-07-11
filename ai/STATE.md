@@ -49,23 +49,19 @@
 
 ## Prochaine action
 
-**GO C8a à donner** — la spec `docs/C8_BUSINESSDNA_SPEC.md` est en **v2**
-(philosophie validée par l'utilisateur, enrichie sur sa demande) :
-- **R0** (règle fondatrice) : le Composition Engine compose des EXPÉRIENCES,
-  jamais des sections — les sections sont une conséquence.
-- **Systèmes** : l'unité de reconstruction = le système métier complet
-  (catalogue+filtres+panier+checkout…), la page = sa projection.
-- **8 couches** (CapabilityDNA ajoutée) : Identity/Offer/BusinessModel/
-  **Capability**/Trust/Navigation/Content/Intent.
-- **CapabilityDNA** = le cœur fonctionnel : capacités réelles {kind,
-  evidence, surfaces, preservation} avec 4 niveaux de préservation
-  (native/reconnected/delegated/lost→warning bloquant) ; interdit de
-  simuler une capacité morte (CTA factice).
-- **Chaîne des buts** (Intent Engine §5.0) : Business Goal → User Goal →
-  Objects → Capabilities → Journey → Composition → Interface, jamais
-  l'inverse.
-C8a = fondations : types Sourced des 8 couches + ontologie générique +
-lecteur JSON-LD/microdata + trace ; preuve harnais avant/après (D8).
+**Validation utilisateur de `docs/C8_IMPLEMENTATION_PLAN.md`** (audit +
+découpage, zéro code — exigé avant toute modification). Points clés :
+- Découverte d'audit : la chaîne produits existe à ~70 % (`extractProducts`
+  JSON-LD+DOM appelé par pass-content:470, transporté par bridge:73-75 →
+  `extractedContent.products`) — PROUVÉ : 8 produits réels {nom, prix,
+  image, url} extraits sur bruneau AUJOURD'HUI ; ils meurent au composer
+  (aucun case ne consomme c.products). Rectifie M5.
+- Réutilisable : platform.ts (Shopify⇒panier), DetectedIntegration
+  (→Capability.reconnected), crawlPages, collection+CollectionGrid,
+  parseJsonLd partiel, rails D7 (candidates/SceneSpecSources/trace).
+- Branchements B1-B9 tous additifs ; découpage C8a-e avec gain D8 par lot ;
+  D9 actée (expert métier + gate de composition + préservation des modèles
+  économiques). Après GO : C8a (fondations + identité/trust réels).
 
 ## Commandes
 

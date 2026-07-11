@@ -29,7 +29,8 @@
 
 | Item | Contenu | Statut |
 |---|---|---|
-| **C8-spec** | **Spécification BusinessDNA & Intent Engine livrée** : `docs/C8_BUSINESSDNA_SPEC.md` — 7 couches (Identity/Offer/BusinessModel/Trust/Navigation/Content/Intent), ontologies sectorielles = données (P1/P2), modèle d'entité générique, classification par signaux (fix F22 by design), Intent Engine (intents pondérés page+section → pilotent plan/blocs/CTA/journeys), matrice producteurs↔consommateurs, preuve par les 9 sites, phasage C8a-C8e | **v2 livrée (R0 + systèmes + CapabilityDNA + chaîne des buts + niveaux de préservation) — philosophie validée, GO C8a à donner** |
+| **C8-spec** | **Spécification BusinessDNA & Intent Engine livrée** : `docs/C8_BUSINESSDNA_SPEC.md` — 7 couches (Identity/Offer/BusinessModel/Trust/Navigation/Content/Intent), ontologies sectorielles = données (P1/P2), modèle d'entité générique, classification par signaux (fix F22 by design), Intent Engine (intents pondérés page+section → pilotent plan/blocs/CTA/journeys), matrice producteurs↔consommateurs, preuve par les 9 sites, phasage C8a-C8e | **spec v2 VALIDÉE ; D9 actée (expert métier, gate de composition)** |
+| **C8-plan** | Audit existant + plan (`docs/C8_IMPLEMENTATION_PLAN.md`) : la chaîne produits existe à 70 % (extractProducts JSON-LD+DOM → bridge → analysis ; PROUVÉ 8 produits réels bruneau) et meurt au composer ; inventaire réutilisable ; B1-B9 additifs ; découpage C8a-e avec gain D8 par lot (a: identité/trust réels · b: catalogue vivant F18 · c: capacités+modèle+classification F22 · d: Intent Engine+parcours · e: Readiness+explication) | **en attente de VALIDATION du plan** |
 
 ## Plus tard 📋 (renuméroté 2026-07-10 — D6 : C8 = Business Understanding)
 

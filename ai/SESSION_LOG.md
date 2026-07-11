@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-10 — D9 + audit & plan C8 (zéro code)
+- D9 actée : raisonner en expert métier (jamais pages/sections/composants) ; gate de composition (réponses métier ou inconnus déclarés+tracés) ; préservation étendue aux modèles économiques ; design au service du business.
+- Audit : la chaîne produits existe à ~70 % et meurt au composer — PROUVÉ 8 produits réels extraits sur bruneau (extractProducts JSON-LD+DOM → pass-content:470 → bridge:73-75) ; inventaire réutilisable (platform, intégrations→reconnected, crawlPages, collection/CollectionGrid, parseJsonLd) ; B1-B9 additifs.
+- Plan C8a-e (`docs/C8_IMPLEMENTATION_PLAN.md`) : a fondations+identité réelle · b catalogue vivant (F18, b AVANT c car producteurs prêts) · c capacités+modèle+classification (F22) · d Intent Engine+parcours · e Readiness+explication structurée. Gain D8 mesurable par lot sur le harnais.
+- Suivant : validation du plan par l'utilisateur, puis GO C8a.
+
 ## 2026-07-10 — Spec BusinessDNA v2 (systèmes, Capability, chaîne des buts, R0)
 - Philosophie v1 validée par l'utilisateur (ontologies=données, moteurs aveugles, zéro if-industry) ; enrichissements demandés intégrés.
 - R0 actée dans la spec : composer des EXPÉRIENCES, jamais des sections ; unité de reconstruction = le SYSTÈME métier complet, la page = projection.
