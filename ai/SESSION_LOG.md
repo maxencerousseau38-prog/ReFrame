@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-10 — Chantier UX : audit responsive + publish + spec (zéro code)
+- Nouveau chantier (parallèle moteur) : refonte responsive workspace + expérience de publication. Références Lovable = repère de niveau, jamais copiées ; grammaire DESIGN.md.
+- Audit (fichier:ligne) : shell `w-60` + chat éditeur `w-[400px]` figés + preview clampé (`max-h-[70vh]`/carte naturelle) = cause du « desktop réduit » ; DEUX chemins de publication (editor inline vs result→LaunchWizard, 10 checks, mobile=`<select>`) ; backend publish sans slug choisi/visibilité/SEO override/domaine/SSL (séquence Upload/Optimize/Deploy = setTimeout théâtral).
+- Spec `docs/UX_WORKSPACE_PUBLISH_SPEC.md` : principes U0-U6 (U0=progrès honnête, no-fabrication produit), archi Desktop/Laptop/Tablet/Mobile + brique `PreviewStage`, workflow 4 étapes unifié (`PublishFlow`) + wireframes, découpage UX1-7 (UI d'abord, backend flaggé au §7).
+- Suivant : validation utilisateur (principes+archi+flux+périmètre backend), puis UX1. C8a reste en attente de GO.
+
 ## 2026-07-10 — REASONING.md : le modèle mental fondateur (zéro code)
 - `docs/REASONING.md` : comment ReFrame PENSE (pas le pipeline) — 4 actes / 12 étapes R1-R12 (observer → comprendre identité/langage/offre/modèle/capacités/buts → juger indispensable/améliorable → composer/vérifier préservation/vérifier crédibilité).
 - Distinction fondatrice actée : produire de la COMPRÉHENSION (affirmation falsifiable + sourcée + lourde de conséquences), jamais de la donnée. Lois L1-L6. D10 : le raisonnement est le référentiel d'appartenance des modules (« à quelle étape R », jamais « à quel fichier ») ; pointeur ajouté dans CLAUDE.md (doctrine toujours chargée) + table de gouvernance.

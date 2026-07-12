@@ -33,6 +33,14 @@
 | **C8-raisonnement** | `docs/REASONING.md` livré : modèle mental fondateur (4 actes / 12 étapes R1-R12, lois L1-L6, référentiel étapes↔moteurs, exemple Bruneau). D10 actée : le raisonnement est le référentiel d'appartenance des modules (L5). | **livré — GO C8a à donner** |
 | **C8-plan** | Audit existant + plan (`docs/C8_IMPLEMENTATION_PLAN.md`) : la chaîne produits existe à 70 % (extractProducts JSON-LD+DOM → bridge → analysis ; PROUVÉ 8 produits réels bruneau) et meurt au composer ; inventaire réutilisable ; B1-B9 additifs ; découpage C8a-e avec gain D8 par lot (a: identité/trust réels · b: catalogue vivant F18 · c: capacités+modèle+classification F22 · d: Intent Engine+parcours · e: Readiness+explication) | **plan VALIDÉ — GO C8a à donner** |
 
+## Chantier UX (parallèle au moteur) 🎨
+
+| Item | Contenu | Statut |
+|---|---|---|
+| **UX-spec** | `docs/UX_WORKSPACE_PUBLISH_SPEC.md` : audit responsive+publish (fichier:ligne), principes U0-U6 (dont U0 progrès honnête = no-fabrication produit), architecture Desktop/Laptop/Tablet/Mobile + brique `PreviewStage` (scale/fit/device), workflow publication 4 étapes unifié + wireframes, découpage UX1-7 (UI d'abord, backend flaggé) | **spec livrée — en attente de VALIDATION** |
+| UX1-4 | audit exécutable · `PreviewStage` · shell+panneaux repliables · tablette/mobile repensés (Sheet/bottom sheets) | après GO (UI, zéro back) |
+| UX5-7 | `PublishFlow` unifié (UI) · backend publication (slug/visibilité/SEO) · domaine perso+SSL (ou « bientôt ») | après UX1-4 |
+
 ## Plus tard 📋 (renuméroté 2026-07-10 — D6 : C8 = Business Understanding)
 
 | Item | Contenu |

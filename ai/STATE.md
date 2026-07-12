@@ -49,21 +49,25 @@
 
 ## Prochaine action
 
-**GO C8a à donner** — toute la conception métier est figée et validée :
-- `docs/C8_BUSINESSDNA_SPEC.md` (v2, 8 couches, ontologies=données, Capability
-  + 4 niveaux de préservation, chaîne des buts, R0) ;
-- `docs/C8_IMPLEMENTATION_PLAN.md` (audit : chaîne produits existe à ~70 %,
-  PROUVÉ 8 produits réels bruneau ; B1-B9 additifs ; découpage C8a-e avec
-  gain D8 par lot) ;
-- `docs/REASONING.md` (modèle mental fondateur R1-R12, D10/L5) ;
-- registre D6/D7/D8/D9/D10 actés.
-**C8a** = fondations : `src/lib/business/` (types Sourced des 8 couches +
-`Entity` générique + ontologie déclarative : format + e-commerce/hôtel) +
-lecteur JSON-LD/microdata étendu (IdentityDNA complet, AggregateRating→Trust)
-+ filtres anti-bruit (bannières promo, cookies F23) + B1 (`SiteAnalysis.
-business?`) + B9 (`businessTraceEntries`). Gain visible : identité réelle
-(headline/téléphone), preuve chiffrée réelle sur 9/9 — preuve harnais
-avant/après (D8). Étapes du raisonnement allumées : R2 (identité) + début R4.
+**DEUX chantiers attendent un GO (priorité utilisateur) :**
+
+1. **UX (actif) — `docs/UX_WORKSPACE_PUBLISH_SPEC.md`** (spec livrée, zéro code).
+   Refonte responsive du workspace + expérience de publication. Audit fait
+   (fichier:ligne) : shell sidebar `w-60` + chat `w-[400px]` figés + preview
+   clampé `max-h-[70vh]`/carte naturelle = « desktop réduit » ; 2 chemins de
+   publication incohérents (editor inline vs result→LaunchWizard) ; backend
+   publish ne supporte NI slug choisi NI visibilité NI override SEO NI domaine/
+   SSL (séquence Upload/CDN théâtrale). Proposé : brique `PreviewStage`
+   (scale/fit/device), panneaux repliables, bottom sheets mobile, `PublishFlow`
+   4 étapes unifié, principe U0 (progrès honnête). Découpage UX1-7. **Décision
+   attendue** : valider principes+archi+flux + jusqu'où aller côté backend.
+
+2. **C8a (en attente)** — fondations BusinessDNA (spec v2 + plan +
+   REASONING.md + D6-D10 figés). À reprendre après/en parallèle selon priorité.
+
+Réutilisables UX (aucune dép. nouvelle) : `Sheet`/`Dialog` Radix, `LaunchWizard`
++`checks.ts` (→ étape 4 Résumé), `PublishSequence` (→ « pendant » à raccorder),
+`qualityReport`.
 
 ## Commandes
 
