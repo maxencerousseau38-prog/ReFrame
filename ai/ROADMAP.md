@@ -39,7 +39,8 @@
 |---|---|---|
 | **UX-spec** | `docs/UX_WORKSPACE_PUBLISH_SPEC.md` : audit responsive+publish (fichier:ligne), principes U0-U6 (dont U0 progrès honnête = no-fabrication produit), architecture Desktop/Laptop/Tablet/Mobile + brique `PreviewStage` (scale/fit/device), workflow publication 4 étapes unifié + wireframes, découpage UX1-7 (UI d'abord, backend flaggé) | **spec livrée — en attente de VALIDATION** |
 | **UX1 Baseline** ✅ | audit exécutable : recensement tailles figées (4 porteuses : shell `w-60`, chat `w-[400px]`, 4× clamp `70vh`) + baseline 5 largeurs × editor/result → `docs/UX1_BASELINE.md` ; mètre-étalon Y1-Y5 (U0 acté) | overflowX 192/52/298 · chrome 665px editor · preview sous 96-190vh sur result |
-| UX2-4 | `PreviewStage` (scale/fit/device) · shell+panneaux repliables · tablette/mobile repensés (Sheet/bottom sheets) | après UX1 (UI, zéro back) |
+| **UX2 PreviewStage** ✅ | brique iframe : modes device RÉELS (viewport propre → media queries), largeur canonique + scale/fit, Fit-to-Screen, orientation ; branchée result+editor (supprime les 4 clamps 70vh) ; fix flex min-w-0 | Y4 prouvé (iframe 390/834) ; Y1 overflowX=0 editor 5/5, result 4/5 (320=chrome page→UX4) |
+| UX3-4 | shell+chat repliables (chromeLeftPx, previewTopVh) · tablette/mobile repensés (Sheet/bottom sheets) | après UX2 (UI, zéro back) |
 | UX5-7 | `PublishFlow` unifié (UI) · backend publication (slug/visibilité/SEO) · domaine perso+SSL (ou « bientôt ») | après UX1-4 |
 
 ## Plus tard 📋 (renuméroté 2026-07-10 — D6 : C8 = Business Understanding)

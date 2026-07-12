@@ -49,17 +49,18 @@
 
 ## Prochaine action
 
-**UX2 — brique `PreviewStage`** (GO à confirmer). UX1 fait : baseline chiffrée
-`docs/UX1_BASELINE.md` + mètre-étalon Y1-Y5. Défauts prouvés : overflowX réel
-(result@320=192, editor@320=52, editor@1024=298) ; preview SOUS la ligne de
-flottaison sur result (previewTopVh 96-190) ; 665px de chrome sur editor≥1024
-(hero cassé) ; aucun scale/mode device (siteRenderedW suit la colonne, 2270px
-@2560) ; mobile empilé. UX2 = créer `PreviewStage` (ResizeObserver + scale/fit,
-modes Desktop/Tablet/Mobile + orientation + « Fit to Screen »), branchée sur
-result ET editor → supprime les 4 clamps `70vh` + la carte naturelle. Preuve :
-rejouer le harnais baseline (injecter `sr:schema` via `addInitScript`, mesurer
-overflowX/chromeLeft/siteRenderedW/previewTopVh), montrer Y1/Y4 améliorés.
-U0 verrouillé (registre). Rappel : **C8a reste en attente de GO** (conception figée).
+**UX3 — shell & panneaux repliables** (GO à confirmer). UX2 fait :
+`src/components/workspace/preview-stage.tsx` (iframe, modes device réels
+prouvés innerWidth 390/834, scale/fit, Fit-to-Screen) branchée sur result+
+editor ; overflowX=0 editor 5/5, result 4/5 ; 497 tests, tsc propre. Restent
+(mesurés) : **Y3 chromeLeftPx=665 sur editor** (sidebar shell `w-60` + chat
+`w-[400px]`, jamais repliables) et **Y2 previewTopVh** (preview sous les
+bannières sur result). UX3 = rendre la sidebar (`shell.tsx:144 w-60`) un rail
+repliable + le chat éditeur (`editor:257 w-[400px]`) `clamp()` repliable + un
+panneau à la fois → rendre au preview 200-400px et le remonter en tête de fold.
+Preuve : rejouer le harnais (chromeLeftPx↓, previewTopVh↓, overflowX reste 0),
+captures avant/après. U0 verrouillé. **result@320 (chrome page) = UX4.**
+Rappel : **C8a reste en attente de GO** (conception figée).
 
 ## Commandes
 
