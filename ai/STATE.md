@@ -49,25 +49,17 @@
 
 ## Prochaine action
 
-**DEUX chantiers attendent un GO (priorité utilisateur) :**
-
-1. **UX (actif) — `docs/UX_WORKSPACE_PUBLISH_SPEC.md`** (spec livrée, zéro code).
-   Refonte responsive du workspace + expérience de publication. Audit fait
-   (fichier:ligne) : shell sidebar `w-60` + chat `w-[400px]` figés + preview
-   clampé `max-h-[70vh]`/carte naturelle = « desktop réduit » ; 2 chemins de
-   publication incohérents (editor inline vs result→LaunchWizard) ; backend
-   publish ne supporte NI slug choisi NI visibilité NI override SEO NI domaine/
-   SSL (séquence Upload/CDN théâtrale). Proposé : brique `PreviewStage`
-   (scale/fit/device), panneaux repliables, bottom sheets mobile, `PublishFlow`
-   4 étapes unifié, principe U0 (progrès honnête). Découpage UX1-7. **Décision
-   attendue** : valider principes+archi+flux + jusqu'où aller côté backend.
-
-2. **C8a (en attente)** — fondations BusinessDNA (spec v2 + plan +
-   REASONING.md + D6-D10 figés). À reprendre après/en parallèle selon priorité.
-
-Réutilisables UX (aucune dép. nouvelle) : `Sheet`/`Dialog` Radix, `LaunchWizard`
-+`checks.ts` (→ étape 4 Résumé), `PublishSequence` (→ « pendant » à raccorder),
-`qualityReport`.
+**UX2 — brique `PreviewStage`** (GO à confirmer). UX1 fait : baseline chiffrée
+`docs/UX1_BASELINE.md` + mètre-étalon Y1-Y5. Défauts prouvés : overflowX réel
+(result@320=192, editor@320=52, editor@1024=298) ; preview SOUS la ligne de
+flottaison sur result (previewTopVh 96-190) ; 665px de chrome sur editor≥1024
+(hero cassé) ; aucun scale/mode device (siteRenderedW suit la colonne, 2270px
+@2560) ; mobile empilé. UX2 = créer `PreviewStage` (ResizeObserver + scale/fit,
+modes Desktop/Tablet/Mobile + orientation + « Fit to Screen »), branchée sur
+result ET editor → supprime les 4 clamps `70vh` + la carte naturelle. Preuve :
+rejouer le harnais baseline (injecter `sr:schema` via `addInitScript`, mesurer
+overflowX/chromeLeft/siteRenderedW/previewTopVh), montrer Y1/Y4 améliorés.
+U0 verrouillé (registre). Rappel : **C8a reste en attente de GO** (conception figée).
 
 ## Commandes
 

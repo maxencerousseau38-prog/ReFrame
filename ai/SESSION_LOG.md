@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-10 — UX1 : audit responsive exécutable + baseline (zéro code UI)
+- GO UX1 + U0 verrouillé (progrès honnête, no-fabrication produit) → acté au registre.
+- Recensement : 4 tailles PORTEUSES (shell `w-60`, chat éditeur `w-[400px]`, 4× clamp `70vh` du result) ; le reste sain/scope-wizard. `docs/UX1_BASELINE.md`.
+- Baseline mesurée (harnais Playwright, `sr:schema` injecté, 5 largeurs × 2 pages) : overflowX réel 192/52/298 ; preview SOUS le fold sur result (previewTopVh 96-190) ; **665px de chrome sur editor≥1024 → hero cassé** (capture) ; aucun scale/mode device (site 2270px @2560). Métrique « dominance% » écartée (non fiable, U0).
+- Mètre-étalon Y1-Y5 posé. Suivant : UX2 `PreviewStage`. C8a reste en attente.
+
 ## 2026-07-10 — Chantier UX : audit responsive + publish + spec (zéro code)
 - Nouveau chantier (parallèle moteur) : refonte responsive workspace + expérience de publication. Références Lovable = repère de niveau, jamais copiées ; grammaire DESIGN.md.
 - Audit (fichier:ligne) : shell `w-60` + chat éditeur `w-[400px]` figés + preview clampé (`max-h-[70vh]`/carte naturelle) = cause du « desktop réduit » ; DEUX chemins de publication (editor inline vs result→LaunchWizard, 10 checks, mobile=`<select>`) ; backend publish sans slug choisi/visibilité/SEO override/domaine/SSL (séquence Upload/Optimize/Deploy = setTimeout théâtral).
