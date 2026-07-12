@@ -8,6 +8,7 @@ import { MagicWand, RocketLaunch, Check, ArrowSquareOut, CircleNotch, ArrowLeft,
 import { DashboardShell } from "@/components/dashboard/shell";
 import { IntegrationsNotice } from "@/components/integrations-notice";
 import { LaunchWizard } from "@/components/launch-wizard/launch-wizard";
+import { PreviewStage } from "@/components/workspace/preview-stage";
 import { SiteRenderer } from "@/components/blocks";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -479,15 +480,26 @@ export default function ResultPage() {
 
       {/* Preview */}
       <div className="p-6">
-        <div className="overflow-hidden rounded-2xl border border-border panel shadow-xl shadow-black/5">
-          <div className="flex items-center gap-2 border-b border-border bg-secondary/50 px-4 py-2.5">
-            <span className="h-3 w-3 rounded-full bg-red-400" />
-            <span className="h-3 w-3 rounded-full bg-yellow-400" />
-            <span className="h-3 w-3 rounded-full bg-green-400" />
-            <div className="ml-3 flex-1 truncate rounded-md bg-white/5 px-3 py-1 text-xs text-muted-foreground">
-              {view === "after" ? `${schema.brand.name.toLowerCase().replace(/\s+/g, "")}.reframe.site` : schema.sourceUrl}
-            </div>
-            {view === "before" && (
+        {view === "after" ? (
+          // UX2: the rebuilt site lives in PreviewStage — real device modes
+          // (Desktop/Tablet/Mobile via a real-viewport iframe), fit-to-screen,
+          // no fixed clamp, no horizontal overflow.
+          <div className="h-[82vh] overflow-hidden rounded-2xl border border-border panel shadow-xl shadow-black/5">
+            <PreviewStage label={`${schema.brand.name.toLowerCase().replace(/\s+/g, "")}.reframe.site`}>
+              <SiteRenderer schema={schema} />
+            </PreviewStage>
+          </div>
+        ) : (
+          // "Before" is the client's live site (external iframe / screenshot) —
+          // not our render, so device modes don't apply; keep the simple frame.
+          <div className="overflow-hidden rounded-2xl border border-border panel shadow-xl shadow-black/5">
+            <div className="flex items-center gap-2 border-b border-border bg-secondary/50 px-4 py-2.5">
+              <span className="h-3 w-3 rounded-full bg-red-400" />
+              <span className="h-3 w-3 rounded-full bg-yellow-400" />
+              <span className="h-3 w-3 rounded-full bg-green-400" />
+              <div className="ml-3 flex-1 truncate rounded-md bg-white/5 px-3 py-1 text-xs text-muted-foreground">
+                {schema.sourceUrl}
+              </div>
               <a
                 href={liveUrl(schema.sourceUrl)}
                 target="_blank"
@@ -496,16 +508,12 @@ export default function ResultPage() {
               >
                 Open live <ArrowSquareOut weight="bold" className="h-3.5 w-3.5" />
               </a>
-            )}
-          </div>
-          <div className="max-h-[70vh] overflow-y-auto">
-            {view === "after" ? (
-              <SiteRenderer schema={schema} />
-            ) : (
+            </div>
+            <div className="max-h-[70vh] overflow-y-auto">
               <BeforeView analysis={analysis} url={schema.sourceUrl} />
-            )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <LaunchWizard

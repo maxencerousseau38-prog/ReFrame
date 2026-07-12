@@ -152,7 +152,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         <div className="border-t border-white/8 pt-4">{renderAccount()}</div>
       </aside>
 
-      <main className="flex-1">
+      <main className="min-w-0 flex-1">
         {/* Mobile top bar + Sheet menu (below lg) */}
         <div className="sticky top-0 z-30 flex items-center justify-between border-b border-white/10 bg-background/80 px-4 py-3 backdrop-blur-xl lg:hidden">
           <Link href="/" aria-label="Home">
