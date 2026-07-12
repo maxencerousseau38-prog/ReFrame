@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-10 — REASONING.md : le modèle mental fondateur (zéro code)
+- `docs/REASONING.md` : comment ReFrame PENSE (pas le pipeline) — 4 actes / 12 étapes R1-R12 (observer → comprendre identité/langage/offre/modèle/capacités/buts → juger indispensable/améliorable → composer/vérifier préservation/vérifier crédibilité).
+- Distinction fondatrice actée : produire de la COMPRÉHENSION (affirmation falsifiable + sourcée + lourde de conséquences), jamais de la donnée. Lois L1-L6. D10 : le raisonnement est le référentiel d'appartenance des modules (« à quelle étape R », jamais « à quel fichier ») ; pointeur ajouté dans CLAUDE.md (doctrine toujours chargée) + table de gouvernance.
+- Référentiel étapes↔moteurs (R1-R12 mappés sur C1-C7 existants + C8a-e à venir) + exemple canonique Bruneau raconté de R1 à R12.
+- Suivant : toute la conception C8 est figée (spec v2 + plan + reasoning + D6-D10) → GO C8a (fondations 8 couches + JSON-LD + IdentityDNA), preuve harnais par lot (D8).
+
 ## 2026-07-10 — D9 + audit & plan C8 (zéro code)
 - D9 actée : raisonner en expert métier (jamais pages/sections/composants) ; gate de composition (réponses métier ou inconnus déclarés+tracés) ; préservation étendue aux modèles économiques ; design au service du business.
 - Audit : la chaîne produits existe à ~70 % et meurt au composer — PROUVÉ 8 produits réels extraits sur bruneau (extractProducts JSON-LD+DOM → pass-content:470 → bridge:73-75) ; inventaire réutilisable (platform, intégrations→reconnected, crawlPages, collection/CollectionGrid, parseJsonLd) ; B1-B9 additifs.

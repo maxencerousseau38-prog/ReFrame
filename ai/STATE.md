@@ -49,19 +49,21 @@
 
 ## Prochaine action
 
-**Validation utilisateur de `docs/C8_IMPLEMENTATION_PLAN.md`** (audit +
-découpage, zéro code — exigé avant toute modification). Points clés :
-- Découverte d'audit : la chaîne produits existe à ~70 % (`extractProducts`
-  JSON-LD+DOM appelé par pass-content:470, transporté par bridge:73-75 →
-  `extractedContent.products`) — PROUVÉ : 8 produits réels {nom, prix,
-  image, url} extraits sur bruneau AUJOURD'HUI ; ils meurent au composer
-  (aucun case ne consomme c.products). Rectifie M5.
-- Réutilisable : platform.ts (Shopify⇒panier), DetectedIntegration
-  (→Capability.reconnected), crawlPages, collection+CollectionGrid,
-  parseJsonLd partiel, rails D7 (candidates/SceneSpecSources/trace).
-- Branchements B1-B9 tous additifs ; découpage C8a-e avec gain D8 par lot ;
-  D9 actée (expert métier + gate de composition + préservation des modèles
-  économiques). Après GO : C8a (fondations + identité/trust réels).
+**GO C8a à donner** — toute la conception métier est figée et validée :
+- `docs/C8_BUSINESSDNA_SPEC.md` (v2, 8 couches, ontologies=données, Capability
+  + 4 niveaux de préservation, chaîne des buts, R0) ;
+- `docs/C8_IMPLEMENTATION_PLAN.md` (audit : chaîne produits existe à ~70 %,
+  PROUVÉ 8 produits réels bruneau ; B1-B9 additifs ; découpage C8a-e avec
+  gain D8 par lot) ;
+- `docs/REASONING.md` (modèle mental fondateur R1-R12, D10/L5) ;
+- registre D6/D7/D8/D9/D10 actés.
+**C8a** = fondations : `src/lib/business/` (types Sourced des 8 couches +
+`Entity` générique + ontologie déclarative : format + e-commerce/hôtel) +
+lecteur JSON-LD/microdata étendu (IdentityDNA complet, AggregateRating→Trust)
++ filtres anti-bruit (bannières promo, cookies F23) + B1 (`SiteAnalysis.
+business?`) + B9 (`businessTraceEntries`). Gain visible : identité réelle
+(headline/téléphone), preuve chiffrée réelle sur 9/9 — preuve harnais
+avant/après (D8). Étapes du raisonnement allumées : R2 (identité) + début R4.
 
 ## Commandes
 

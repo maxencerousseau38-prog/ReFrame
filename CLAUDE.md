@@ -88,7 +88,9 @@ Le point d'entrée de CHAQUE session est **`ai/STATE.md`** (injecté par le hook
 SessionStart). Ne jamais rescanner le dépôt : `ai/PIPELINE.md` (carte
 pipeline→fichiers), `ai/MODULES/*.md` (fiches), `ai/ROADMAP.md` (chantiers),
 `ai/CONVENTIONS.md` (protocole de sous-lot + gouvernance des docs),
-`docs/ARCHITECTURE_DECISIONS.md` (décisions actées). En clôture de session :
+`docs/ARCHITECTURE_DECISIONS.md` (décisions actées), **`docs/REASONING.md`
+(modèle mental fondateur — comment ReFrame pense : R1-R12 ; tout module
+déclare son étape de raisonnement, jamais son fichier — D10/L5)**. En clôture de session :
 mettre à jour STATE + SESSION_LOG + ROADMAP avant le dernier push.
 Conteneur recréé → `bash ai/bootstrap.sh`.
 

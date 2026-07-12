@@ -59,7 +59,8 @@
 | `ai/CONVENTIONS.md` | règles + protocole + cette table | par décision actée | listes |
 | `ai/SESSION_LOG.md` | journal append-only (fait/décidé/suivant) | chaque session | 3-5 l./entrée |
 | `docs/ARCHITECTURE_DECISIONS.md` | registre décisions/findings (F/D/E/A) | à chaque décision/finding | tableaux |
-| `docs/*_SPEC.md`, `docs/C7_PREPARATION.md` | specs de chantier (contrats d'implémentation) | avant le chantier | spec |
+| `docs/REASONING.md` | **modèle mental fondateur** : les 12 étapes R1-R12 du raisonnement ; tout module déclare son étape (L5) | rarement, par décision actée | fondateur |
+| `docs/*_SPEC.md`, `docs/C7_PREPARATION.md`, `docs/C8_*` | specs de chantier (contrats d'implémentation) | avant le chantier | spec |
 | `CLAUDE.md` | doctrine produit + pointeurs OS (toujours chargé) | rarement | court |
 | `DESIGN.md` | tokens visuels canoniques | décision design | référence |
 | `README.md` | humains (setup, graphify CLI) | outillage | guide |
