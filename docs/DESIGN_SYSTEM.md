@@ -58,18 +58,24 @@ PreviewStage). Avant UX5 : 3 easings (`.23,1,.32,1` / `.25,.46,.45,.94` /
 Avant UX5 : `shadow-2xl` (×6), `shadow-[0_50px_120px…]` — lourdes. Remplacées
 par `shadow-float` (léger) ; la profondeur passe par ring/hairline + contraste.
 
-### 2.4 Couleur — identité premium, quasi-monochrome (PX)
-- **Identité (2026-07-10)** : le « vert IA » est ABANDONNÉ. Canvas near-black
-  faintement cool (`--background: 232 16% 5%`), accent **indigo premium**
-  (`--accent: 234 78% 54%`, AA 7.0 sur blanc), brand **violet discret**
-  (`--brand: 256 72% 66%`, usage rare), texte off-white (jamais blanc pur).
-- Surfaces : paliers translucides (`.glass` / `.glass-dark` / `.panel`,
-  `bg-white/[0.03…]`) — verre léger + hairline, jamais de fill opaque criard.
+### 2.4 Couleur — MONOCHROME intemporel (DESIGN OVERHAUL V3)
+- **Identité (V3, 2026-07-13)** : monochrome grayscale PUR. Aucune couleur ne
+  domine — ni vert, ni bleu, ni violet. Canvas near-black neutre
+  (`--background: 0 0% 5.5%` ≈ #0E0E0E), texte off-white (`--foreground: 0 0%
+  98%`, jamais blanc pur). L'accent **n'est plus une teinte** : c'est le clair
+  (`--accent: 0 0% 96%`, `--primary: 0 0% 100%`) — bouton primaire et focus.
+- Surfaces : paliers translucides blancs (`.glass` / `.glass-dark` / `.panel`,
+  `bg-white/[0.03…0.05]`) — verre léger + hairline, jamais de fill opaque criard.
+  Glass V3 : `blur(24px)`, border blanc `.08`, radius 24px, ombre TRÈS légère,
+  jamais de glow / halo / ombre colorée.
 - Texte : hiérarchie par NIVEAUX DE GRIS (`text-foreground` / `text-muted-
-  foreground` 65%), jamais par couleur.
-- **Accent indigo = guide seulement** : bouton primaire (Publish, AI), anneau
-  de focus (`--ring` un ton plus vif), état actif. Interdit en décoration.
-  Verts sémantiques (succès/publié) conservés distincts de l'accent.
+  foreground` 62%), jamais par couleur.
+- **Accent = le clair, guide seulement** : bouton primaire (Publish, AI), anneau
+  de focus (`--ring: 0 0% 64%`), état actif. Interdit en décoration.
+- **Statut** : le succès/publié est neutralisé (check + surface blanche
+  translucide, plus de vert). Les scores se lisent par la CLARTÉ (lightness),
+  pas par teinte. Warning/erreur (ambre/rouge) restent des signaux
+  fonctionnels restreints, jamais décoratifs.
 
 ### 2.5 Spacing — grille 4px
 Barres/toolbars : `py-2.5` (10) / `py-3` (12), `px-4` (16). Panneaux : `p-3`

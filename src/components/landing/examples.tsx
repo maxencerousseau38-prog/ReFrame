@@ -44,7 +44,7 @@ export function Examples() {
 function Card({ e }: { e: Ex }) {
   return (
     <div className="group overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#0f0f11] shadow-[0_30px_90px_-40px_rgba(0,0,0,0.85)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:border-accent/40">
-      {/* elevated visual: grayscale landscape under a faint lime lift */}
+      {/* elevated visual: grayscale landscape under a faint neutral lift */}
       <div className="relative h-56 overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center grayscale contrast-110 transition-transform duration-700 ease-out group-hover:scale-105"

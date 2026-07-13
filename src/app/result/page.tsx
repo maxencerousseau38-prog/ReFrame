@@ -302,7 +302,7 @@ export default function ResultPage() {
         <div className="border-b border-border bg-secondary/30 px-6 py-3">
           <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-3 gap-y-2">
             {emailState === "sent" ? (
-              <p className="flex items-center gap-2 text-sm text-emerald-300">
+              <p className="flex items-center gap-2 text-sm text-foreground">
                 <Check weight="bold" className="h-4 w-4" /> Sent. Your redesign link is in your inbox.
               </p>
             ) : (
@@ -329,7 +329,7 @@ export default function ResultPage() {
       )}
 
       {published && (
-        <div className="flex items-center justify-center gap-2 border-b border-emerald-500/30 bg-emerald-500/10 px-6 py-2.5 text-sm text-emerald-300">
+        <div className="flex items-center justify-center gap-2 border-b border-white/12 bg-white/[0.04] px-6 py-2.5 text-sm text-foreground">
           <Check weight="bold" className="h-4 w-4" /> Published to
           <a href={published} target="_blank" rel="noreferrer" className="font-medium underline underline-offset-2">
             {published.replace("https://", "")}
@@ -434,7 +434,8 @@ export default function ResultPage() {
                     ["accessibility", "Access."],
                   ] as const).map(([k, label]) => {
                     const v = analysis.scores[k];
-                    const color = v < 60 ? "#ef4444" : v < 75 ? "#f59e0b" : "#10b981";
+                    // V3 monochrome: score reads through lightness, not hue.
+                    const color = `hsl(0 0% ${v < 60 ? 46 : v < 75 ? 68 : 92}%)`;
                     return (
                       <li key={k} className="flex items-center gap-3 text-[13px]">
                         <span className="w-20 shrink-0 text-muted-foreground">{label}</span>

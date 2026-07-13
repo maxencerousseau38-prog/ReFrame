@@ -146,7 +146,7 @@ function Phase({ index }: { index: number }) {
   return <ShipState />;
 }
 
-/** 0 — Read: wireframe under a sweeping lime scan. */
+/** 0 — Read: wireframe under a sweeping neutral scan. */
 function ReadState() {
   const reduce = useReducedMotion();
   return (

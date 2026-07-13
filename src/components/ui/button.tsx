@@ -12,7 +12,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // primary CTA: lime fill, near-black label (WCAG AA pass)
+        // primary CTA (V3 monochrome): near-white fill, near-black label (WCAG AA pass)
         default:
           "bg-accent text-accent-foreground hover:bg-accent/90",
         light: "bg-white text-neutral-950 hover:bg-white/90 shadow-[0_8px_30px_-8px_rgba(255,255,255,0.25)]",

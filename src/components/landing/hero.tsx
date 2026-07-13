@@ -121,7 +121,7 @@ function HeroTransform() {
         </div>
       </div>
 
-      {/* AFTER — modern, dark, lime-accented, prominent */}
+      {/* AFTER — modern, dark, monochrome-accented, prominent */}
       <div className="relative z-10 mt-20 w-[94%] overflow-hidden rounded-2xl border border-accent/30 bg-[#0f0f11] shadow-[0_50px_120px_-30px_rgba(0,0,0,0.9)]">
         <div className="flex items-center gap-2 border-b border-white/8 px-3 py-2.5">
           <span className="relative flex h-2 w-2 items-center justify-center">
@@ -148,7 +148,7 @@ function HeroTransform() {
               Explore more <ArrowRight weight="bold" className="h-3 w-3" />
             </span>
           </div>
-          {/* clean editorial visual, grayscale with a faint lime lift */}
+          {/* clean editorial visual, grayscale with a faint neutral lift */}
           <div className="relative overflow-hidden rounded-xl ring-1 ring-white/10">
             <div
               className="h-full min-h-[120px] w-full bg-cover bg-center grayscale contrast-110"

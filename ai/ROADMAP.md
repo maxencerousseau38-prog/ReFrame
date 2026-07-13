@@ -37,8 +37,9 @@
 
 | Lot | Contenu | Statut |
 |---|---|---|
-| **PX1 Identité** ✅ | tokens : accent lime→indigo premium (AA 7.0), canvas near-black cool, brand violet discret ; tout le chrome hérite (D11/D12) | landing/editor/result re-tintés, vert disparu, 497 tests, tsc propre |
-| PX2-7 | composants premium · motion/micro-interactions · chat AI premium · publish flow · assets premium (zéro placeholder) · responsive parfait (ex-UX4) | à faire, 1 lot cohérent/fois (preuve avant/après) |
+| **PX1 Identité** ✅→remplacée | tokens : accent lime→indigo premium (AA 7.0), canvas near-black cool ; **remplacée par V3** (l'indigo est abandonné) | historique |
+| **V3 Monochrome** ✅ | REVIREMENT (D13, supersede D12) : grayscale PUR, aucune teinte dominante ; accent = le clair, glass 24px, statut/scores neutralisés, résidus lime purgés | hue-scan editor/result 0 %, landing 0,7 % (mockup « before » voulu), 497 tests, tsc propre |
+| V3-2..7 | composants en verre 24px · motion/micro-interactions (opacity/translateY/scale/blur) · chat AI premium · publish flow · assets pro (zéro placeholder) · responsive parfait (ex-UX4) | à faire, 1 lot cohérent/fois (preuve avant/après) |
 
 ## Chantier UX (parallèle au moteur) 🎨
 

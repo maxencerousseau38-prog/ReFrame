@@ -49,17 +49,22 @@
 
 ## Prochaine action
 
-**Sprint Premium Edition (`docs/PREMIUM_EDITION_PLAN.md`) — PX1 fait.**
-Identité premium livrée (D12) : accent indigo (`--accent 234 78% 54%`, AA 7.0),
-canvas near-black cool, brand violet discret — le « vert IA » a disparu ; tout
-le chrome hérite via les tokens gelés (D11). 497 tests, tsc propre, additif.
-**Suivant (1 lot cohérent à la fois, preuve avant/après)** : PX2 composants
-premium (Button/Input/Dropdown/Tabs/Modal/Card en verre léger + hairline +
-focus/hover/active unifiés) · PX3 motion/micro-interactions · PX4 chat AI
-premium · PX5 publish flow (U0 : backend flaggé, spec §7) · PX6 assets premium
-(zéro placeholder) · PX7 responsive parfait (absorbe UX4). Garde-fous : U0
-(aucune fausse UI), D8 (preuve visible), séparation chrome/sites générés,
-aucun token ad hoc. Rappel : **C8a** (BusinessDNA, figé) toujours en attente.
+**DESIGN OVERHAUL V3 — identité MONOCHROME livrée (D13, supersede D12).**
+Revirement acté : l'indigo de D12 est abandonné à son tour. Grayscale PUR —
+aucune teinte ne domine (ni vert, ni bleu, ni violet). Tokens (`globals.css`) :
+canvas #0E neutre (`--background 0 0% 5.5%`), accent = le clair (`--accent 0 0%
+96%`, `--primary 0 0% 100%`, `--ring 0 0% 64%`). Glass V3 : `blur(24px)`, border
+blanc `.08`, radius 24px, ombre très légère, jamais de glow/halo/ombre colorée.
+Statut succès/publié neutralisé (fin du vert), scores lus par la CLARTÉ ; résidus
+lime landing purgés. **Preuve** : hue-scan editor/result = 0 % coloré, landing
+0,7 % (uniquement le bleu daté du mockup « before », voulu) ; captures grayscale
+1440 ; 497 tests, tsc propre, additif. Tout le chrome hérite (D11).
+**Suivant (1 lot cohérent/fois, preuve avant/après)** : V3-2 composants premium
+en verre 24px (Button/Input/Dropdown/Tabs/Modal/Card) · motion/micro-interactions
+(opacity/translateY/scale/blur only) · chat AI premium · publish flow (U0 :
+backend flaggé) · imagerie pro (zéro placeholder) · responsive parfait (absorbe
+UX4). Garde-fous : U0, D8 (preuve visible), séparation chrome/sites générés,
+aucun token ad hoc, monochrome (D13). Rappel : **C8a** (BusinessDNA, figé) en attente.
 
 ## Commandes
 

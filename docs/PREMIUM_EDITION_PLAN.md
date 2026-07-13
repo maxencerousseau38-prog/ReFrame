@@ -15,7 +15,8 @@
 
 | Lot | Contenu | Statut |
 |---|---|---|
-| **PX1 — Nouvelle identité** | tokens : accent lime→**indigo premium** (`234 78% 54%`, AA 7.0), canvas near-black cool, brand violet discret, off-white ; commentaires/doc gelé mis à jour. Tout le chrome hérite (D11). | **✅ fait** — landing/editor/result re-tintés, vert disparu, 497 tests |
+| **PX1 — Nouvelle identité** | tokens : accent lime→**indigo premium** (`234 78% 54%`, AA 7.0), canvas near-black cool, brand violet discret, off-white ; commentaires/doc gelé mis à jour. Tout le chrome hérite (D11). | **✅ fait** — puis **remplacé par V3** (l'indigo est abandonné) |
+| **V3 — MONOCHROME intemporel** | REVIREMENT (D13, supersede D12) : plus AUCUNE teinte dominante (ni vert, ni bleu, ni violet). Grayscale pur : canvas #0E neutre, accent = le clair (`--accent 0 0% 96%`, `--primary 0 0% 100%`), `--ring 0 0% 64%`. Glass V3 : `blur(24px)`, border blanc `.08`, radius 24px, ombre très légère, jamais de glow/halo/ombre colorée. Statut succès neutralisé (fin du vert), scores lus par la clarté. Résidus lime landing purgés. | **✅ fait** — tokens+glass+result+landing, D13 acté |
 | PX2 — Composants premium | Button (variants + glass sur outline), Input, Dropdown, Tabs, Modal/Dialog, Card, Sidebar/Toolbar : verre léger, hairline, focus/hover/active cohérents, un seul langage | à faire |
 | PX3 — Motion & micro-interactions | couche motion (spring/fade/scale/stagger via framer-motion), hover magnétique léger, glow subtil, skeletons de chargement, transitions de panneaux « les autres respirent » | à faire |
 | PX4 — Chat AI premium | bulles, suggestions, streaming, loading, icônes — « discuter avec un designer IA », plus ChatGPT | à faire |

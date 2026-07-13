@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-13 — DESIGN OVERHAUL V3 : identité MONOCHROME (D13, supersede D12)
+- Revirement de direction (Creative Director) : l'indigo de PX1/D12 est abandonné → grayscale PUR, aucune teinte ne domine (ni vert, ni bleu, ni violet). Tokens `globals.css` : canvas #0E neutre (`--background 0 0% 5.5%`), accent = le clair (`--accent 0 0% 96%`, `--primary 0 0% 100%`, `--ring 0 0% 64%`).
+- Glass V3 : `blur(24px)`, border blanc `.08`, `border-radius: 24px`, ombre très légère, jamais de glow/halo/ombre colorée ; `.glass-dark/.panel/.ambient` neutralisés. Statut succès/publié neutralisé (fin du vert : bannière published + « Sent » → surface blanche/foreground), scores lus par la CLARTÉ (lightness) et non la teinte. Résidus lime landing (compare gradient/blur) purgés ; commentaires stale (hero/examples/transform/button) corrigés.
+- Preuve : hue-scan (Playwright, 1440) editor/result = 0 % coloré, landing 0,7 % — uniquement le bleu daté des mockups « before » (voulu, storytelling). Captures grayscale livrées. 497 tests verts, tsc propre, additif (tokens + résidus, sites générés inchangés). Warning/erreur (ambre/rouge) conservés en signaux fonctionnels restreints.
+- Docs : DESIGN_SYSTEM §2.4 réécrit monochrome, D13 acté (supersede D12), PREMIUM_EDITION_PLAN annoté. Suivant : V3-2 composants en verre 24px (1 lot/fois, preuve avant/après). C8a en attente.
+
 ## 2026-07-10 — Premium Edition PX1 : nouvelle identité (indigo)
 - Directive massive « SaaS IA le plus premium » → sprint méthodique `docs/PREMIUM_EDITION_PLAN.md` (PX1-PX7, additif, U0/D8/D11). PX1 = identité.
 - Tokens `globals.css` : accent lime→INDIGO premium (`234 78% 54%`, AA 7.0 vérifié), canvas near-black cool (`232 16% 5%`, fin du noir pur), brand violet discret (`256 72% 66%`), off-white. `.glass/.glass-dark/.panel` déjà présents, héritent. Commentaires + DESIGN_SYSTEM §2.4 mis à jour. D12 acté.
