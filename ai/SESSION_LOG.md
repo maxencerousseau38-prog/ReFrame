@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-10 — Premium Edition PX1 : nouvelle identité (indigo)
+- Directive massive « SaaS IA le plus premium » → sprint méthodique `docs/PREMIUM_EDITION_PLAN.md` (PX1-PX7, additif, U0/D8/D11). PX1 = identité.
+- Tokens `globals.css` : accent lime→INDIGO premium (`234 78% 54%`, AA 7.0 vérifié), canvas near-black cool (`232 16% 5%`, fin du noir pur), brand violet discret (`256 72% 66%`), off-white. `.glass/.glass-dark/.panel` déjà présents, héritent. Commentaires + DESIGN_SYSTEM §2.4 mis à jour. D12 acté.
+- Preuve : landing (mot « trust. », CTA, badge, features), editor (avatar/pill/send/Publish), result → tout indigo ; le « vert IA » a disparu. Sites générés inchangés (brand-agnostiques). 497 tests verts, tsc propre, zéro régression (tokens only).
+- Suivant : PX2 composants premium (1 lot/fois, preuve avant/après). C8a en attente.
+
 ## 2026-07-10 — UX5 : Design System premium unifié + gelé (D11)
 - Audit : chrome fragmenté (9 rayons, 3 easings/3 durées, shadow-2xl ×6). Tokens posés dans `globals.css`+`tailwind.config.ts` : rayon 20→12 (échelle sm8/md10/lg12/pill), `ease-premium`+`duration-fast`120/`duration-base`180, `shadow-raise/float/hairline` (fin des ombres lourdes), quasi-monochrome (accent=guide).
 - Appliqués au chrome : Button, PreviewStage (motion+shadow-float), shell rail, éditeur cluster, cartes result (rounded-xl+shadow-float). Additif, 497 tests verts, tsc propre, aucune régression UX1-UX4.

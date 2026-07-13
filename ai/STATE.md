@@ -49,17 +49,17 @@
 
 ## Prochaine action
 
-**Choix utilisateur** — le studio a atteint un palier premium et le Design
-System est GELÉ (D11, `docs/DESIGN_SYSTEM.md`). Reste au sprint UX :
-- **UX4** — tablette/mobile repensés (Sheet `side="bottom"` pour chat/panneaux,
-  barre d'action basse au pouce, toolbar result mobile compacte, preview mode
-  Mobile par défaut) ; cible : result@320 overflowX 168→0, mobile natif.
-- **UX (publish)** — `PublishFlow` unifié 4 étapes (spec `docs/UX_WORKSPACE_
-  PUBLISH_SPEC.md` §4) + backend (slug/visibilité/SEO) — U0 : progrès honnête.
-Et en parallèle, toujours : **C8a** (BusinessDNA, conception figée, GO en
-attente). Tous consomment le Design System gelé (aucun token ad hoc désormais).
-Tokens : `globals.css`(`:root` --radius/--rf-ease/--rf-dur) + `tailwind.config`
-(ease-premium, duration-fast/base, shadow-raise/float/hairline).
+**Sprint Premium Edition (`docs/PREMIUM_EDITION_PLAN.md`) — PX1 fait.**
+Identité premium livrée (D12) : accent indigo (`--accent 234 78% 54%`, AA 7.0),
+canvas near-black cool, brand violet discret — le « vert IA » a disparu ; tout
+le chrome hérite via les tokens gelés (D11). 497 tests, tsc propre, additif.
+**Suivant (1 lot cohérent à la fois, preuve avant/après)** : PX2 composants
+premium (Button/Input/Dropdown/Tabs/Modal/Card en verre léger + hairline +
+focus/hover/active unifiés) · PX3 motion/micro-interactions · PX4 chat AI
+premium · PX5 publish flow (U0 : backend flaggé, spec §7) · PX6 assets premium
+(zéro placeholder) · PX7 responsive parfait (absorbe UX4). Garde-fous : U0
+(aucune fausse UI), D8 (preuve visible), séparation chrome/sites générés,
+aucun token ad hoc. Rappel : **C8a** (BusinessDNA, figé) toujours en attente.
 
 ## Commandes
 

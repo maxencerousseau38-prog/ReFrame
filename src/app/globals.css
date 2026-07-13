@@ -3,35 +3,39 @@
 @tailwind utilities;
 
 /*
-  ReFrame design tokens.
-  Vibe: modern dark-tech, Linear-clean. Neutral zinc off-black canvas, one
-  electric lime accent, crisp white type. Geist throughout.
-  Accent lock: lime (~#9FDE3F). One accent across the whole product surface.
-  Shape lock: rounded-[1.25rem] for big containers, pill for interactive,
-  rounded-xl for inputs. Page theme lock: dark, always.
+  ReFrame design tokens (chrome de l'app — voir docs/DESIGN_SYSTEM.md, gelé D11).
+  Vibe: premium, intemporel, Apple/Linear/Framer. Canvas near-black faintement
+  cool, accent INDIGO premium (le « vert IA » est abandonné), brand violet
+  discret, type off-white. Geist throughout.
+  Accent lock: indigo-blue (hsl 234 78% 54%). Un accent, quasi-monochrome.
+  Shape lock (UX5): --radius 0.75rem (échelle sm8/md10/lg12), pill pour les CTA.
+  Page theme lock: dark, always.
   (Generated client sites under /s and the block renderer are brand-agnostic
    and intentionally NOT themed by these tokens.)
 */
 
 @layer base {
   :root {
-    --background: 0 0% 0%;            /* pure black — full OLED */
-    --foreground: 0 0% 100%;          /* pure white */
-    --card: 0 0% 5%;                  /* crisply elevated panels */
-    --card-foreground: 0 0% 100%;
+    /* PX — Premium identity (2026-07-10). Abandon du « vert IA » pour une
+       identité intemporelle : canvas near-black faintement cool, accent
+       indigo premium, brand violet discret. Tout le chrome hérite (D11). */
+    --background: 232 16% 5%;         /* deep near-black, faint cool tint */
+    --foreground: 230 25% 98%;        /* off-white, jamais blanc pur */
+    --card: 231 15% 8%;               /* panneaux élevés */
+    --card-foreground: 230 25% 98%;
     --primary: 0 0% 100%;
-    --primary-foreground: 0 0% 0%;
-    --secondary: 0 0% 8%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 65%;
-    --accent: 80 84% 56%;            /* electric lime, peak vivid */
-    --accent-foreground: 100 40% 5%;
-    --brand: 80 84% 56%;             /* explicit brand token (alias of accent) */
-    --brand-foreground: 100 40% 5%;
-    --border: 0 0% 13%;              /* neutral hairline — very fine */
-    --input: 0 0% 14%;
-    --ring: 80 84% 56%;
+    --primary-foreground: 232 16% 6%;
+    --secondary: 231 13% 12%;
+    --secondary-foreground: 230 20% 98%;
+    --muted: 231 12% 14%;
+    --muted-foreground: 232 10% 65%;
+    --accent: 234 78% 54%;           /* premium indigo-blue (AA 7.0 sur blanc) */
+    --accent-foreground: 0 0% 100%;
+    --brand: 256 72% 66%;            /* violet discret — usage rare */
+    --brand-foreground: 0 0% 100%;
+    --border: 231 12% 17%;           /* hairline très fine sur le canvas tinté */
+    --input: 231 12% 17%;
+    --ring: 234 84% 62%;             /* focus indigo, un ton plus vif */
     /* UX5 design system — tighter, coherent radius scale (lg 12 / md 10 / sm 8). */
     --radius: 0.75rem;
     /* UX5 motion tokens — one premium easing, two durations. Consumed by the
@@ -97,7 +101,7 @@
     backdrop-filter: blur(8px) saturate(130%);
   }
 
-  /* Ambient depth: a faint lime aura plus a cool white lift. Used sparingly,
+  /* Ambient depth: a faint indigo aura plus a cool white lift. Used sparingly,
      low opacity, never as a neon default. */
   .ambient {
     background:

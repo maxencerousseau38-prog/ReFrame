@@ -33,6 +33,13 @@
 | **C8-raisonnement** | `docs/REASONING.md` livré : modèle mental fondateur (4 actes / 12 étapes R1-R12, lois L1-L6, référentiel étapes↔moteurs, exemple Bruneau). D10 actée : le raisonnement est le référentiel d'appartenance des modules (L5). | **livré — GO C8a à donner** |
 | **C8-plan** | Audit existant + plan (`docs/C8_IMPLEMENTATION_PLAN.md`) : la chaîne produits existe à 70 % (extractProducts JSON-LD+DOM → bridge → analysis ; PROUVÉ 8 produits réels bruneau) et meurt au composer ; inventaire réutilisable ; B1-B9 additifs ; découpage C8a-e avec gain D8 par lot (a: identité/trust réels · b: catalogue vivant F18 · c: capacités+modèle+classification F22 · d: Intent Engine+parcours · e: Readiness+explication) | **plan VALIDÉ — GO C8a à donner** |
 
+## Premium Edition (sprint UI/UX premium) ✨ — `docs/PREMIUM_EDITION_PLAN.md`
+
+| Lot | Contenu | Statut |
+|---|---|---|
+| **PX1 Identité** ✅ | tokens : accent lime→indigo premium (AA 7.0), canvas near-black cool, brand violet discret ; tout le chrome hérite (D11/D12) | landing/editor/result re-tintés, vert disparu, 497 tests, tsc propre |
+| PX2-7 | composants premium · motion/micro-interactions · chat AI premium · publish flow · assets premium (zéro placeholder) · responsive parfait (ex-UX4) | à faire, 1 lot cohérent/fois (preuve avant/après) |
+
 ## Chantier UX (parallèle au moteur) 🎨
 
 | Item | Contenu | Statut |

@@ -58,13 +58,18 @@ PreviewStage). Avant UX5 : 3 easings (`.23,1,.32,1` / `.25,.46,.45,.94` /
 Avant UX5 : `shadow-2xl` (×6), `shadow-[0_50px_120px…]` — lourdes. Remplacées
 par `shadow-float` (léger) ; la profondeur passe par ring/hairline + contraste.
 
-### 2.4 Couleur — quasi-monochrome
-- Canvas `--background` (OLED), surfaces qui montent par petits paliers
-  (`bg-white/[0.03]` rail, `bg-secondary/40` barres, `bg-card`).
+### 2.4 Couleur — identité premium, quasi-monochrome (PX)
+- **Identité (2026-07-10)** : le « vert IA » est ABANDONNÉ. Canvas near-black
+  faintement cool (`--background: 232 16% 5%`), accent **indigo premium**
+  (`--accent: 234 78% 54%`, AA 7.0 sur blanc), brand **violet discret**
+  (`--brand: 256 72% 66%`, usage rare), texte off-white (jamais blanc pur).
+- Surfaces : paliers translucides (`.glass` / `.glass-dark` / `.panel`,
+  `bg-white/[0.03…]`) — verre léger + hairline, jamais de fill opaque criard.
 - Texte : hiérarchie par NIVEAUX DE GRIS (`text-foreground` / `text-muted-
   foreground` 65%), jamais par couleur.
-- **Accent lime = guide seulement** : bouton primaire (Publish, AI), anneau de
-  focus (`--ring`), état actif. Interdit en décoration.
+- **Accent indigo = guide seulement** : bouton primaire (Publish, AI), anneau
+  de focus (`--ring` un ton plus vif), état actif. Interdit en décoration.
+  Verts sémantiques (succès/publié) conservés distincts de l'accent.
 
 ### 2.5 Spacing — grille 4px
 Barres/toolbars : `py-2.5` (10) / `py-3` (12), `px-4` (16). Panneaux : `p-3`
