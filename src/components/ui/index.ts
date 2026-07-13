@@ -59,3 +59,5 @@ export { BlurReveal } from "./blur-reveal";
 export { BrowserFrame } from "./browser-frame";
 export { IslandButton } from "./island-button";
 export { Reveal } from "./reveal";
+export { GlassPillNav, type GlassPillNavItem, type GlassPillNavProps } from "./glass-pill-nav";
+export { StatGroup, type Stat, type StatGroupProps } from "./stat-group";

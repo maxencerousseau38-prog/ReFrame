@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-13 — Component Library fondée + intake #001 (decompose, don't copy)
+- Directive « bibliothèque officielle = source de vérité ». Créé `src/components/design-system/` (index barrel + `sections/` + `README.md` = catalogue/gouvernance/pipeline d'intake). Primitives foundation restent dans `ui/` (pas de tree parallèle) ; barrel = surface d'import unique.
+- Intake #001 = « Ethereal Beams Hero » (21st.dev, three.js) DÉCOMPOSÉ, jamais intégré. Rejetés (doctrine + D13) : beams 3D (dép. lourdes absentes + effet gaming/particule), shimmer sweep, glow blanc `shadow-white/25`, texte gradient-clip, icônes lucide→Phosphor. Extraits neufs universels : `GlassPillNav` + `StatGroup` (exportés via `ui/index.ts`, tokens gelés, a11y). Réutilisés sans doublon : Button/Badge. Section `HeroReframed` (monochrome, motion fade/translateY only via framer-motion).
+- Galerie vivante `/design-system` (page serveur mince + `gallery.tsx` client — split pour éviter Phosphor CSR côté serveur). README documente analyse/kept/removed/improved/where-used + scores (GlassPillNav 5/5/5/5/5).
+- Preuve : hue-scan 0/280 coloré, overflowX=0, 0 erreur runtime (1440 & 390), captures premium. 497 tests, tsc propre, additif. Note honnête : Button `light` garde une ombre blanche ≈ glow (préexistant) → cleanup au lot Button V3-2.
+
 ## 2026-07-13 — V3 palette exacte : tokens Creative Director + langage bouton + états
 - Spec précise reçue → palette exacte posée (`globals.css`) : fond `#080808` (`--background 0 0% 3.1`), sidebar `#101010`, surface `#151515` (`--card`), hover `#1B1B1B` (`--secondary`), texte `#FAFAFA/#CFCFCF/#8E8E8E`, bordures `.08` (`--border 0 0% 11`). Accent = argent `#F3F3F3` (`--accent`), bouton primaire `#F5F5F5`/`#090909` (`--primary`), `--ring 0 0% 62`.
 - Langage bouton V3 (`button.tsx`) : `rounded-full`→`rounded-2xl` (16px, fin des pills), `active:scale-[0.98]`, default→`bg-primary` (silver), secondary→`bg-white/5`+border `.08`, outline hairline `.08→.16`. Échelle radius rouverte à 3 crans (12 contrôles / 16 boutons / 24 cartes).

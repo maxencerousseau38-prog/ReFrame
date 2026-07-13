@@ -49,6 +49,23 @@
 
 ## Prochaine action
 
+**Component Library fondée (`src/components/design-system/`) — intake #001.**
+Directive « bibliothèque officielle = source de vérité » : pipeline d'intake
+gouverné (analyser → décomposer → généraliser → re-skinner ReFrame → dédupliquer
+→ rejeter les effets interdits → documenter+scorer). Composant reçu (21st.dev
+« Ethereal Beams Hero », three.js) **décomposé, PAS intégré** : REJETÉS = beams
+3D (dép. lourdes absentes + effet particule/gaming interdit D13), shimmer sweep,
+glow blanc, texte gradient-clip, icônes lucide (→ Phosphor). EXTRAITS (neufs,
+universels) : `GlassPillNav` (pill de nav en verre) + `StatGroup` (métriques),
+exportés via `ui/index.ts`. RÉUTILISÉS sans doublon : Button, Badge. Section
+réinterprétée `HeroReframed` (monochrome, motion fade/translateY only). Catalogue
++ gouvernance + scores : `design-system/README.md`. Galerie vivante `/design-system`.
+**Preuve** : hue-scan 0/280 coloré, overflowX=0, 0 erreur (1440 & 390), captures
+premium ; 497 tests, tsc propre, additif. Note honnête : variante Button `light`
+garde une ombre blanche ≈ glow (préexistant) → à nettoyer au lot Button V3-2.
+Prochains intakes (1 lot/fois) : Inputs · Cards→24px · Dialogs · Command palette
+· Pricing/Testimonials/Features/Footers · Empty/Loading/Skeleton · Motion presets.
+
 **DESIGN OVERHAUL V3 — MONOCHROME livré + palette exacte (D13, supersede D12).**
 Grayscale PUR, aucune teinte ne domine. **Palette exacte (Creative Director)** :
 fond `#080808` (`--background 0 0% 3.1`), sidebar `#101010`, surface `#151515`
