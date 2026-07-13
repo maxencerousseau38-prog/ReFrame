@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-10 — UX5 : Design System premium unifié + gelé (D11)
+- Audit : chrome fragmenté (9 rayons, 3 easings/3 durées, shadow-2xl ×6). Tokens posés dans `globals.css`+`tailwind.config.ts` : rayon 20→12 (échelle sm8/md10/lg12/pill), `ease-premium`+`duration-fast`120/`duration-base`180, `shadow-raise/float/hairline` (fin des ombres lourdes), quasi-monochrome (accent=guide).
+- Appliqués au chrome : Button, PreviewStage (motion+shadow-float), shell rail, éditeur cluster, cartes result (rounded-xl+shadow-float). Additif, 497 tests verts, tsc propre, aucune régression UX1-UX4.
+- `docs/DESIGN_SYSTEM.md` GELÉ (v1) + gouvernance (CONVENTIONS) + D11 au registre : toute UI de chrome consomme ces tokens, aucune valeur ad hoc. Nature d'un pass DS : refinement + cohérence à l'échelle (la partie motion se ressent en interaction) — honnêteté assumée.
+- Suivant : UX4 (mobile) / PublishFlow / C8a selon priorité utilisateur.
+
 ## 2026-07-10 — UX3 : Design Studio (sidebar rail + chat repliable, preview dominant)
 - `lib/use-persistent-state.ts` (partagé, SSR-safe) ; sidebar shell en rail rétractable (68↔240, persisté, animé, icônes seules) ; chat éditeur repliable/redimensionnable (drag 300-560px, masqué = PAS rendu → 0 espace) + cluster flottant AI+undo/redo.
 - PreviewStage desktop fluide-up : rend à un vrai viewport ≥1440 et remplit toute largeur supérieure (ultrawide immense), jamais upscalé.

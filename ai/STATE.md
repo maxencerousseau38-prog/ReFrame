@@ -49,19 +49,17 @@
 
 ## Prochaine action
 
-**UX4 — tablette/mobile repensés (bottom sheets)** (GO à confirmer). UX3 fait :
-studio éditeur — sidebar rail rétractable (`shell.tsx`, persisté 68↔240) +
-chat repliable/redimensionnable (`editor/page.tsx`, masqué = 0 espace DOM,
-cluster flottant AI+undo/redo) + `lib/use-persistent-state.ts` partagé +
-PreviewStage desktop fluide-up (ultrawide immense). Preuves : **+552px de
-preview à chaque largeur** (1024-2560), chromeLeft 632→80, overflowX=0 dans
-les 2 états, chat retiré du DOM masqué. 497 tests, tsc propre, aucune
-régression (défaut = comportement d'avant). Restent (mesurés UX1) :
-**result@320 overflow=168** (toolbar+bannières de la page result) et le mobile
-empilé du chat éditeur → **UX4** : Sheet `side="bottom"` pour chat/panneaux sur
-mobile, barre d'action basse au pouce, toolbar result mobile compacte, preview
-mode Mobile par défaut. Preuve harnais 320/390/768 overflowX=0. U0 verrouillé.
-Rappel : **C8a reste en attente de GO** (conception figée).
+**Choix utilisateur** — le studio a atteint un palier premium et le Design
+System est GELÉ (D11, `docs/DESIGN_SYSTEM.md`). Reste au sprint UX :
+- **UX4** — tablette/mobile repensés (Sheet `side="bottom"` pour chat/panneaux,
+  barre d'action basse au pouce, toolbar result mobile compacte, preview mode
+  Mobile par défaut) ; cible : result@320 overflowX 168→0, mobile natif.
+- **UX (publish)** — `PublishFlow` unifié 4 étapes (spec `docs/UX_WORKSPACE_
+  PUBLISH_SPEC.md` §4) + backend (slug/visibilité/SEO) — U0 : progrès honnête.
+Et en parallèle, toujours : **C8a** (BusinessDNA, conception figée, GO en
+attente). Tous consomment le Design System gelé (aucun token ad hoc désormais).
+Tokens : `globals.css`(`:root` --radius/--rf-ease/--rf-dur) + `tailwind.config`
+(ease-premium, duration-fast/base, shadow-raise/float/hairline).
 
 ## Commandes
 
