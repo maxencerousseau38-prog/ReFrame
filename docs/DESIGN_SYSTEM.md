@@ -27,14 +27,16 @@ preview reste l'élément dominant ; le chrome s'efface.
 |---|---|---|
 | `rounded-sm` | 8px (`--radius − 4`) | petits contrôles, badges |
 | `rounded-md` | 10px (`--radius − 2`) | inputs, boutons icône, items |
-| `rounded-lg` | 12px (`--radius`) | cartes, panneaux, menus, dialogs |
-| `rounded-xl` | 12px (Tailwind) | grandes surfaces (aligné sur lg) |
-| `rounded-full` | pill | **boutons CTA uniquement** (grammaire de marque) |
+| `rounded-lg` | 12px (`--radius`) | inputs, menus, petits panneaux, dialogs |
+| `rounded-2xl` | 16px (Tailwind) | **boutons** (grammaire de marque V3) |
+| `rounded-3xl` | 24px (Tailwind) | **cartes / verre dépoli** (`.glass`, grandes surfaces) |
 | `rounded-[1.75rem]` | 28px | **exception documentée** : bezel du device mobile (PreviewStage) |
 
-Avant UX5 : `--radius` = 20px → `rounded-lg/md/sm` massifs (20/18/16) et
-incohérents avec `rounded-xl/2xl` (12/16). Resserré à 12px : échelle unique,
-Linear-like. `rounded-2xl` proscrit dans le chrome (migré → `rounded-xl`).
+Échelle V3 (Creative Director) — TROIS crans délibérés : **12** petits contrôles
+· **16** boutons (`rounded-2xl`, fin des pills) · **24** cartes et verre dépoli
+(`rounded-3xl`, aligné sur `.glass`). Avant UX5 : `--radius`=20px, échelle
+incohérente ; UX5 avait tout resserré à 12 + pills — V3 rouvre 16/24 pour le
+langage bouton/carte demandé.
 
 ### 2.2 Motion — une courbe, deux durées
 | Token | Valeur | Usage |
@@ -58,24 +60,36 @@ PreviewStage). Avant UX5 : 3 easings (`.23,1,.32,1` / `.25,.46,.45,.94` /
 Avant UX5 : `shadow-2xl` (×6), `shadow-[0_50px_120px…]` — lourdes. Remplacées
 par `shadow-float` (léger) ; la profondeur passe par ring/hairline + contraste.
 
-### 2.4 Couleur — MONOCHROME intemporel (DESIGN OVERHAUL V3)
-- **Identité (V3, 2026-07-13)** : monochrome grayscale PUR. Aucune couleur ne
-  domine — ni vert, ni bleu, ni violet. Canvas near-black neutre
-  (`--background: 0 0% 5.5%` ≈ #0E0E0E), texte off-white (`--foreground: 0 0%
-  98%`, jamais blanc pur). L'accent **n'est plus une teinte** : c'est le clair
-  (`--accent: 0 0% 96%`, `--primary: 0 0% 100%`) — bouton primaire et focus.
-- Surfaces : paliers translucides blancs (`.glass` / `.glass-dark` / `.panel`,
-  `bg-white/[0.03…0.05]`) — verre léger + hairline, jamais de fill opaque criard.
-  Glass V3 : `blur(24px)`, border blanc `.08`, radius 24px, ombre TRÈS légère,
-  jamais de glow / halo / ombre colorée.
-- Texte : hiérarchie par NIVEAUX DE GRIS (`text-foreground` / `text-muted-
-  foreground` 62%), jamais par couleur.
-- **Accent = le clair, guide seulement** : bouton primaire (Publish, AI), anneau
-  de focus (`--ring: 0 0% 64%`), état actif. Interdit en décoration.
-- **Statut** : le succès/publié est neutralisé (check + surface blanche
-  translucide, plus de vert). Les scores se lisent par la CLARTÉ (lightness),
-  pas par teinte. Warning/erreur (ambre/rouge) restent des signaux
-  fonctionnels restreints, jamais décoratifs.
+### 2.4 Couleur — MONOCHROME intemporel, palette exacte (DESIGN OVERHAUL V3)
+Presque monochrome + surfaces en verre dépoli. Aucune teinte ne domine.
+Inspiration : 40% Lovable · 25% Apple · 20% Linear · 15% Framer.
+
+| Rôle | Hex | Token | Usage |
+|---|---|---|---|
+| Fond principal | `#080808` | `--background` (0 0% 3.1) | canvas |
+| Fond secondaire | `#101010` | `--secondary-2` (0 0% 6.3) | sidebar |
+| Surface | `#151515` | `--card` / `--muted` (0 0% 8.2) | cards |
+| Surface hover | `#1B1B1B` | `--secondary` (0 0% 10.6) | hover |
+| Bordure | `rgba(255,255,255,.08)` | `--border` (0 0% 11) | toutes bordures |
+| Bordure active | `rgba(255,255,255,.16)` | (focus) | états actifs |
+| Texte principal | `#FAFAFA` | `--foreground` (0 0% 98) | titres |
+| Texte secondaire | `#CFCFCF` | — (`text-zinc-300`) | corps |
+| Texte faible | `#8E8E8E` | `--muted-foreground` (0 0% 56) | descriptions |
+
+- **Accent = argent / blanc cassé** `#F3F3F3` (`--accent`), `#F5F5F5` pour le
+  bouton primaire (`--primary`). **Parcimonie absolue** : bouton principal,
+  focus (`--ring: 0 0% 62%`), sélection. JAMAIS pour le fond, jamais décoratif.
+- Surfaces : verre dépoli (`.glass` / `.glass-dark` / `.panel`,
+  `bg-white/[0.03…0.05]`) — `blur(24px)`, border blanc `.08`, radius 24px, ombre
+  TRÈS légère. Jamais de glow / halo / ombre colorée.
+- Texte : hiérarchie par NIVEAUX DE GRIS (98 → 81 → 56), jamais par couleur.
+- **Couleurs d'ÉTAT — fonction uniquement, jamais décoratives** :
+  `success #22C55E` · `warning #F59E0B` · `destructive #EF4444` · `info #3B82F6`
+  (tokens `--success/--warning/--destructive/--info` → `bg-success`, etc.).
+  Réservées aux feedbacks (validation, toast, point de statut). Les bannières
+  persistantes (publié) restent neutres ; les scores se lisent par la CLARTÉ.
+- **Détail de marque** : reflet argenté / très subtile lueur blanc-froid sur
+  certaines interactions — jamais néon.
 
 ### 2.5 Spacing — grille 4px
 Barres/toolbars : `py-2.5` (10) / `py-3` (12), `px-4` (16). Panneaux : `p-3`
@@ -95,10 +109,12 @@ taille+gris, pas par graisse lourde.
 
 ## 3. Composants (règles)
 
-- **Button** (`components/ui/button.tsx`) : LE langage unique — `rounded-full`,
-  `duration-fast ease-premium`, `active:scale-[0.97]`, focus `ring-2 ring-ring
-  ring-offset-2`. Variants : `default` (accent), `light`, `outline`, `secondary`,
-  `ghost`, `link`. Tout bouton du chrome passe par là ou reprend ce langage.
+- **Button** (`components/ui/button.tsx`) : LE langage unique — `rounded-2xl`
+  (16px, V3 : fin des pills), `duration-fast ease-premium`, `active:scale-[0.98]`,
+  focus `ring-2 ring-ring ring-offset-2`. Variants : `default` (primary silver
+  `#F5F5F5`/`#090909`), `light`, `outline` (hairline `.08`→`.16`), `secondary`
+  (`bg-white/5` + border `.08`), `ghost`, `link`. Tout bouton du chrome passe
+  par là ou reprend ce langage.
 - **Boutons icône** (device switch, rail, cluster) : `rounded-md`, hover
   `bg-white/[0.06]`, `transition-colors duration-fast ease-premium`, boîte
   `h-7/h-8 w-7/w-8` centrée. Actif : `bg-white/10`.

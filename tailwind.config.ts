@@ -43,6 +43,12 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // State colors (D13) — FUNCTION ONLY, never decorative. Feedback,
+        // validation, status dots. The single sanctioned non-neutral palette.
+        success: "hsl(var(--success))",
+        warning: "hsl(var(--warning))",
+        destructive: "hsl(var(--destructive))",
+        info: "hsl(var(--info))",
       },
       borderRadius: {
         lg: "var(--radius)",

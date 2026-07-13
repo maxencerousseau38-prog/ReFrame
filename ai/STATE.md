@@ -49,22 +49,28 @@
 
 ## Prochaine action
 
-**DESIGN OVERHAUL V3 — identité MONOCHROME livrée (D13, supersede D12).**
-Revirement acté : l'indigo de D12 est abandonné à son tour. Grayscale PUR —
-aucune teinte ne domine (ni vert, ni bleu, ni violet). Tokens (`globals.css`) :
-canvas #0E neutre (`--background 0 0% 5.5%`), accent = le clair (`--accent 0 0%
-96%`, `--primary 0 0% 100%`, `--ring 0 0% 64%`). Glass V3 : `blur(24px)`, border
-blanc `.08`, radius 24px, ombre très légère, jamais de glow/halo/ombre colorée.
-Statut succès/publié neutralisé (fin du vert), scores lus par la CLARTÉ ; résidus
-lime landing purgés. **Preuve** : hue-scan editor/result = 0 % coloré, landing
-0,7 % (uniquement le bleu daté du mockup « before », voulu) ; captures grayscale
-1440 ; 497 tests, tsc propre, additif. Tout le chrome hérite (D11).
-**Suivant (1 lot cohérent/fois, preuve avant/après)** : V3-2 composants premium
-en verre 24px (Button/Input/Dropdown/Tabs/Modal/Card) · motion/micro-interactions
-(opacity/translateY/scale/blur only) · chat AI premium · publish flow (U0 :
-backend flaggé) · imagerie pro (zéro placeholder) · responsive parfait (absorbe
-UX4). Garde-fous : U0, D8 (preuve visible), séparation chrome/sites générés,
-aucun token ad hoc, monochrome (D13). Rappel : **C8a** (BusinessDNA, figé) en attente.
+**DESIGN OVERHAUL V3 — MONOCHROME livré + palette exacte (D13, supersede D12).**
+Grayscale PUR, aucune teinte ne domine. **Palette exacte (Creative Director)** :
+fond `#080808` (`--background 0 0% 3.1`), sidebar `#101010`, surface `#151515`
+(`--card`), hover `#1B1B1B` (`--secondary`), texte `#FAFAFA`/`#CFCFCF`/`#8E8E8E`,
+bordures `rgba(255,255,255,.08→.16)` (`--border 0 0% 11`). **Accent = argent**
+`#F3F3F3` (`--accent`), bouton primaire `#F5F5F5`/`#090909` (`--primary`),
+parcimonie absolue (focus `--ring 0 0% 62`, sélection) — jamais au fond.
+**Boutons** = `rounded-2xl` 16px (fin des pills, `active:scale-[0.98]`),
+secondaire `bg-white/5`+border `.08`. **Cartes/verre** `rounded-3xl` 24px,
+`blur(24px)`, jamais glow/halo. **Couleurs d'état** (fonction only, jamais déco) :
+tokens `--success #22C55E`/`--warning #F59E0B`/`--destructive #EF4444`/`--info
+#3B82F6` → `bg-success` etc. (tailwind.config). **Preuve** : canvas = rgb(8,8,8)
+exact, Button « Analyze » radius=16px, hue-scan editor/result 0 % coloré, landing
+0,7 % (bleu du mockup « before », voulu) ; 497 tests, tsc propre, additif.
+**Suivant (1 lot/fois, preuve avant/après)** : V3-2 = migrer les CARTES du chrome
+en verre 24px (`.glass`/rounded-3xl) — result/dashboard/wizard (aujourd'hui
+rounded-xl 12px) ; puis motion/micro-interactions (fade/translateY/scale 0.98→1
+only) · chat AI premium · publish flow (U0) · imagerie pro (zéro placeholder) ·
+responsive parfait (absorbe UX4). Note honnête : les CTA bespoke du landing
+(search-pill hero, pill navbar) restent en pill par art-direction — à unifier au
+GO. Garde-fous : U0, D8, séparation chrome/sites générés, monochrome (D13).
+Rappel : **C8a** (BusinessDNA, figé) en attente.
 
 ## Commandes
 

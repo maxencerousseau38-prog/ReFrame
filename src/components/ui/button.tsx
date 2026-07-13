@@ -8,17 +8,18 @@ import { cn } from "@/lib/utils";
 // Press feedback + entrance easing follow Emil Kowalski's spec:
 // transition only transform (not `all`), strong ease-out, scale-on-active.
 const buttonVariants = cva(
-  "relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-[transform,background-color,border-color,color,box-shadow] duration-fast ease-premium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 active:scale-[0.97]",
+  "relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-sm font-medium transition-[transform,background-color,border-color,color,box-shadow] duration-fast ease-premium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]",
   {
     variants: {
       variant: {
-        // primary CTA (V3 monochrome): near-white fill, near-black label (WCAG AA pass)
+        // primary CTA (V3): silver fill #F5F5F5, near-black label #090909, radius 16px
         default:
-          "bg-accent text-accent-foreground hover:bg-accent/90",
+          "bg-primary text-primary-foreground hover:bg-primary/90",
         light: "bg-white text-neutral-950 hover:bg-white/90 shadow-[0_8px_30px_-8px_rgba(255,255,255,0.25)]",
         outline:
-          "border border-white/15 bg-transparent text-white hover:border-white/30 hover:bg-white/5",
-        secondary: "bg-white/8 text-white hover:bg-white/12",
+          "border border-white/8 bg-transparent text-white hover:border-white/16 hover:bg-white/5",
+        // secondary (V3): rgba(255,255,255,.05) fill + hairline rgba(255,255,255,.08)
+        secondary: "border border-white/8 bg-white/5 text-white hover:bg-white/[0.08]",
         ghost: "text-zinc-300 hover:bg-white/8 hover:text-white",
         link: "text-white underline-offset-4 hover:underline",
       },

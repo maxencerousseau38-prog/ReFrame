@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-13 — V3 palette exacte : tokens Creative Director + langage bouton + états
+- Spec précise reçue → palette exacte posée (`globals.css`) : fond `#080808` (`--background 0 0% 3.1`), sidebar `#101010`, surface `#151515` (`--card`), hover `#1B1B1B` (`--secondary`), texte `#FAFAFA/#CFCFCF/#8E8E8E`, bordures `.08` (`--border 0 0% 11`). Accent = argent `#F3F3F3` (`--accent`), bouton primaire `#F5F5F5`/`#090909` (`--primary`), `--ring 0 0% 62`.
+- Langage bouton V3 (`button.tsx`) : `rounded-full`→`rounded-2xl` (16px, fin des pills), `active:scale-[0.98]`, default→`bg-primary` (silver), secondary→`bg-white/5`+border `.08`, outline hairline `.08→.16`. Échelle radius rouverte à 3 crans (12 contrôles / 16 boutons / 24 cartes).
+- Couleurs d'état sanctionnées (fonction only, jamais déco) : tokens `--success #22C55E`/`--warning #F59E0B`/`--destructive #EF4444`/`--info #3B82F6` + `bg-success`/`text-destructive`… (tailwind.config). Docs : DESIGN_SYSTEM §2.1/§2.4/§3 réécrits (table palette+états), D13 précisé.
+- Preuve : canvas = rgb(8,8,8) exact, `<Button>` « Analyze » radius=16px, hue-scan editor/result 0 % coloré, landing 0,7 % (bleu du mockup « before », voulu). 497 tests, tsc propre, additif. Honnêteté : cartes chrome encore rounded-xl 12px (→ V3-2), CTA bespoke landing en pill par art-direction (à unifier au GO).
+
 ## 2026-07-13 — DESIGN OVERHAUL V3 : identité MONOCHROME (D13, supersede D12)
 - Revirement de direction (Creative Director) : l'indigo de PX1/D12 est abandonné → grayscale PUR, aucune teinte ne domine (ni vert, ni bleu, ni violet). Tokens `globals.css` : canvas #0E neutre (`--background 0 0% 5.5%`), accent = le clair (`--accent 0 0% 96%`, `--primary 0 0% 100%`, `--ring 0 0% 64%`).
 - Glass V3 : `blur(24px)`, border blanc `.08`, `border-radius: 24px`, ombre très légère, jamais de glow/halo/ombre colorée ; `.glass-dark/.panel/.ambient` neutralisés. Statut succès/publié neutralisé (fin du vert : bannière published + « Sent » → surface blanche/foreground), scores lus par la CLARTÉ (lightness) et non la teinte. Résidus lime landing (compare gradient/blur) purgés ; commentaires stale (hero/examples/transform/button) corrigés.

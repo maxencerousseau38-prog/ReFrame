@@ -39,7 +39,8 @@
 |---|---|---|
 | **PX1 Identité** ✅→remplacée | tokens : accent lime→indigo premium (AA 7.0), canvas near-black cool ; **remplacée par V3** (l'indigo est abandonné) | historique |
 | **V3 Monochrome** ✅ | REVIREMENT (D13, supersede D12) : grayscale PUR, aucune teinte dominante ; accent = le clair, glass 24px, statut/scores neutralisés, résidus lime purgés | hue-scan editor/result 0 %, landing 0,7 % (mockup « before » voulu), 497 tests, tsc propre |
-| V3-2..7 | composants en verre 24px · motion/micro-interactions (opacity/translateY/scale/blur) · chat AI premium · publish flow · assets pro (zéro placeholder) · responsive parfait (ex-UX4) | à faire, 1 lot cohérent/fois (preuve avant/après) |
+| **V3-1b Palette exacte** ✅ | tokens exacts Creative Director (#080808/#101010/#151515/#1B1B1B, texte #FAFAFA/#CFCFCF/#8E8E8E, accent argent #F3F3F3, primaire #F5F5F5/#090909) + langage bouton 16px (`rounded-2xl`, fin des pills, `active:scale-.98`, secondary verre+hairline) + couleurs d'état sanctionnées (success/warning/destructive/info, fonction only) | canvas rgb(8,8,8) exact, Button « Analyze » 16px, hue-scan 0 %, 497 tests |
+| V3-2..7 | CARTES chrome en verre 24px (`rounded-3xl`, result/dashboard/wizard) · motion/micro-interactions (fade/translateY/scale 0.98→1) · chat AI premium · publish flow · assets pro (zéro placeholder) · responsive parfait (ex-UX4) · unifier CTA bespoke landing (au GO) | à faire, 1 lot cohérent/fois (preuve avant/après) |
 
 ## Chantier UX (parallèle au moteur) 🎨
 

@@ -18,27 +18,36 @@
 
 @layer base {
   :root {
-    /* DESIGN OVERHAUL V3 (2026-07-10) — MONOCHROME premium, intemporel.
-       Aucune couleur ne domine : ni bleu, ni vert. Grayscale pur (#0E→#15),
-       surfaces et bordures en blanc translucide, texte blanc/gris. L'accent
-       n'est plus une teinte : c'est le clair/blanc (bouton primaire, focus). */
-    --background: 0 0% 5.5%;          /* ~#0E0E0E */
-    --foreground: 0 0% 98%;           /* blanc cassé, jamais pur */
-    --card: 0 0% 9%;                  /* ~#171717 panneaux */
+    /* DESIGN OVERHAUL V3 (2026-07-13) — MONOCHROME premium, intemporel.
+       Palette exacte (Creative Director) : fond #080808, surfaces en verre
+       dépoli, texte blanc cassé → gris. Aucune teinte ne domine. L'accent
+       n'est plus une couleur : c'est l'argent / blanc cassé (#F3F3F3),
+       réservé au bouton primaire, au focus et à la sélection — jamais au fond.
+       Inspiration : 40% Lovable · 25% Apple · 20% Linear · 15% Framer. */
+    --background: 0 0% 3.1%;           /* #080808 — fond principal */
+    --foreground: 0 0% 98%;            /* #FAFAFA — texte principal (titres) */
+    --card: 0 0% 8.2%;                 /* #151515 — surface / cards */
     --card-foreground: 0 0% 98%;
-    --primary: 0 0% 100%;
-    --primary-foreground: 0 0% 6%;
-    --secondary: 0 0% 11%;            /* ~#1C1C1C */
+    --primary: 0 0% 96%;               /* #F5F5F5 — bouton principal */
+    --primary-foreground: 0 0% 3.5%;   /* #090909 */
+    --secondary: 0 0% 10.6%;           /* #1B1B1B — surface hover / secondaire */
     --secondary-foreground: 0 0% 96%;
-    --muted: 0 0% 14%;
-    --muted-foreground: 0 0% 62%;     /* gris moyen */
-    --accent: 0 0% 96%;              /* NEUTRE — l'accent est le clair, pas une couleur */
-    --accent-foreground: 0 0% 8%;
-    --brand: 0 0% 90%;               /* neutre, usage rare */
-    --brand-foreground: 0 0% 8%;
-    --border: 0 0% 16%;              /* ~rgba(255,255,255,.10) sur le canvas */
-    --input: 0 0% 16%;
-    --ring: 0 0% 64%;                /* focus neutre, discret */
+    --muted: 0 0% 8.2%;                /* #151515 */
+    --muted-foreground: 0 0% 56%;      /* #8E8E8E — texte faible (descriptions) */
+    --accent: 0 0% 95%;                /* #F3F3F3 — argent, l'accent (parcimonie) */
+    --accent-foreground: 0 0% 3.5%;    /* #090909 */
+    --brand: 0 0% 92%;                 /* neutre argent, usage rare */
+    --brand-foreground: 0 0% 3.5%;
+    --border: 0 0% 11%;                /* ≈ rgba(255,255,255,.08) sur #080808 */
+    --input: 0 0% 11%;
+    --ring: 0 0% 62%;                  /* focus argent, visible mais discret (a11y) */
+    /* Couleurs d'ÉTAT — fonction uniquement, JAMAIS décoratives (D13).
+       Réservées aux feedbacks : validation, toast, point de statut. */
+    --success: 142 71% 45%;            /* #22C55E */
+    --warning: 38 92% 50%;             /* #F59E0B */
+    --destructive: 0 84% 60%;          /* #EF4444 */
+    --info: 217 91% 60%;               /* #3B82F6 */
+    --secondary-2: 0 0% 6.3%;          /* #101010 — background secondaire (sidebar) */
     /* UX5 design system — tighter, coherent radius scale (lg 12 / md 10 / sm 8). */
     --radius: 0.75rem;
     /* UX5 motion tokens — one premium easing, two durations. Consumed by the
