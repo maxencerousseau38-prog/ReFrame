@@ -4,10 +4,11 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { PaperPlaneTilt, CircleNotch, ArrowLeft, MagicWand, RocketLaunch, Check, ArrowCounterClockwise, ArrowClockwise, Sun, Moon } from "@phosphor-icons/react";
+import { PaperPlaneTilt, CircleNotch, ArrowLeft, MagicWand, RocketLaunch, Check, ArrowCounterClockwise, ArrowClockwise, Sun, Moon, CaretLeft, ChatText } from "@phosphor-icons/react";
 import { DashboardShell } from "@/components/dashboard/shell";
 import { SiteRenderer } from "@/components/blocks";
 import { PreviewStage } from "@/components/workspace/preview-stage";
+import { usePersistentState } from "@/lib/use-persistent-state";
 import { Button } from "@/components/ui/button";
 import {
   loadSchema,
@@ -49,6 +50,29 @@ export default function EditorPage() {
   const [past, setPast] = React.useState<SiteSchema[]>([]); // undo history
   const [future, setFuture] = React.useState<SiteSchema[]>([]); // redo stack
   const scrollRef = React.useRef<HTMLDivElement>(null);
+  // UX3 — Design Studio: the AI chat is a collapsible + resizable panel. Hidden,
+  // it reserves NO space (not rendered) → the preview reclaims 100% of the row.
+  const [chatOpen, setChatOpen] = usePersistentState("rf-editor-chat-open", true);
+  const [chatWidth, setChatWidth] = usePersistentState("rf-editor-chat-w", 380);
+
+  function startResize(e: React.PointerEvent) {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startW = chatWidth;
+    const onMove = (ev: PointerEvent) => {
+      setChatWidth(Math.min(560, Math.max(300, startW + (ev.clientX - startX))));
+    };
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      document.body.style.userSelect = "";
+      document.body.style.cursor = "";
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    document.body.style.userSelect = "none";
+    document.body.style.cursor = "col-resize";
+  }
 
   function applyTo(s: SiteSchema) {
     setSchema(s);
@@ -254,19 +278,23 @@ export default function EditorPage() {
   return (
     <DashboardShell>
       <div className="flex h-screen flex-col lg:flex-row">
-        {/* Chat panel */}
-        <div className="flex w-full flex-col border-r border-border bg-background lg:w-[400px]">
-          <div className="flex items-center justify-between border-b border-border px-5 py-4">
-            <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+        {/* AI chat — collapsible + resizable panel */}
+        {chatOpen && (
+        <div
+          className="relative flex w-full shrink-0 flex-col border-r border-border bg-background lg:w-[var(--chat-w)]"
+          style={{ "--chat-w": `${chatWidth}px` } as React.CSSProperties}
+        >
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
+            <div className="flex min-w-0 items-center gap-2">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground">
                 <MagicWand weight="bold" className="h-4 w-4" />
               </span>
-              <div>
-                <div className="text-sm font-semibold">AI Editor</div>
-                <div className="text-xs text-muted-foreground">{schema.brand.name}</div>
+              <div className="min-w-0">
+                <div className="truncate text-sm font-semibold">AI Editor</div>
+                <div className="truncate text-xs text-muted-foreground">{schema.brand.name}</div>
               </div>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex shrink-0 items-center gap-0.5">
               <Button
                 variant="ghost"
                 size="sm"
@@ -288,8 +316,17 @@ export default function EditorPage() {
                 <ArrowClockwise weight="bold" className="h-4 w-4" />
               </Button>
               <Link href="/result">
-                <Button variant="ghost" size="sm"><ArrowLeft weight="bold" className="h-4 w-4" /></Button>
+                <Button variant="ghost" size="sm" title="Back to result"><ArrowLeft weight="bold" className="h-4 w-4" /></Button>
               </Link>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setChatOpen(false)}
+                title="Hide panel — focus the preview"
+                aria-label="Hide panel"
+              >
+                <CaretLeft weight="bold" className="h-4 w-4" />
+              </Button>
             </div>
           </div>
 
@@ -352,10 +389,39 @@ export default function EditorPage() {
               <PaperPlaneTilt weight="bold" className="h-4 w-4" />
             </Button>
           </form>
-        </div>
 
-        {/* Live preview (UX2: PreviewStage — device modes, fit, no clamp) */}
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-secondary/30">
+          {/* Drag to resize (desktop) */}
+          <div
+            onPointerDown={startResize}
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize panel"
+            className="absolute right-0 top-0 hidden h-full w-1.5 translate-x-1/2 cursor-col-resize bg-transparent transition-colors hover:bg-accent/40 lg:block"
+          />
+        </div>
+        )}
+
+        {/* Live preview (UX2 PreviewStage). relative → floating reopen cluster
+            when the chat is hidden, so no control is ever lost. */}
+        <div className="relative flex min-h-0 min-w-0 flex-1 flex-col bg-secondary/30">
+          {!chatOpen && (
+            <div className="absolute bottom-4 left-4 z-20 flex items-center gap-0.5 rounded-full border border-border bg-background/80 p-1 shadow-lg shadow-black/30 backdrop-blur-xl">
+              <button
+                onClick={() => setChatOpen(true)}
+                title="Open AI editor"
+                aria-label="Open AI editor"
+                className="flex h-8 items-center gap-1.5 rounded-full bg-accent px-3 text-xs font-medium text-accent-foreground transition-transform hover:brightness-105 active:scale-95"
+              >
+                <ChatText weight="bold" className="h-4 w-4" /> AI
+              </button>
+              <button onClick={undo} disabled={!past.length || busy} title="Undo" aria-label="Undo" className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-white/8 hover:text-foreground disabled:opacity-40">
+                <ArrowCounterClockwise weight="bold" className="h-4 w-4" />
+              </button>
+              <button onClick={redo} disabled={!future.length || busy} title="Redo" aria-label="Redo" className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-white/8 hover:text-foreground disabled:opacity-40">
+                <ArrowClockwise weight="bold" className="h-4 w-4" />
+              </button>
+            </div>
+          )}
           <PreviewStage
             label={schema.brand.name}
             actions={

@@ -12,9 +12,11 @@ import {
   SignOut,
   CircleNotch,
   List,
+  SidebarSimple,
 } from "@phosphor-icons/react";
 import { Logo } from "@/components/brand/logo";
 import { cn } from "@/lib/utils";
+import { usePersistentState } from "@/lib/use-persistent-state";
 import { useDash } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/landing/language-switcher";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui";
@@ -38,6 +40,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const [signingOut, setSigningOut] = React.useState(false);
   const [resent, setResent] = React.useState<"idle" | "sending" | "sent">("idle");
   const [navOpen, setNavOpen] = React.useState(false);
+  // UX3: professional collapsible rail — icons-only ↔ open, persisted. A hidden
+  // label reserves no space; the flex-1 <main> reclaims it for the preview.
+  const [collapsed, setCollapsed] = usePersistentState("rf-nav-collapsed", false);
 
   // Close the mobile sheet whenever the route changes.
   React.useEffect(() => {
@@ -83,8 +88,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const renderNav = (onNavigate?: () => void) => (
-    <nav className="mt-6 flex flex-1 flex-col gap-1">
+  const renderNav = (onNavigate?: () => void, rail = false) => (
+    <nav className="mt-4 flex flex-1 flex-col gap-1">
       {nav.map((item) => {
         const active = pathname === item.href;
         return (
@@ -92,34 +97,40 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             key={item.href}
             href={item.href}
             onClick={onNavigate}
+            title={rail ? item.label : undefined}
+            aria-label={rail ? item.label : undefined}
             className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+              "flex items-center gap-3 rounded-lg py-2 text-sm font-medium transition-colors",
+              rail ? "justify-center px-0" : "px-3",
               active ? "bg-white/8 text-white" : "text-zinc-400 hover:bg-white/5 hover:text-white"
             )}
           >
-            <item.icon weight="bold" className="h-[18px] w-[18px]" />
-            {item.label}
+            <item.icon weight="bold" className="h-[18px] w-[18px] shrink-0" />
+            {!rail && <span className="truncate">{item.label}</span>}
           </Link>
         );
       })}
     </nav>
   );
 
-  const renderAccount = () =>
+  const renderAccount = (rail = false) =>
     !loaded ? (
-      <div className="flex h-10 items-center px-3 text-zinc-600">
+      <div className={cn("flex h-10 items-center text-zinc-600", rail ? "justify-center" : "px-3")}>
         <CircleNotch weight="bold" className="h-4 w-4 animate-spin" />
       </div>
     ) : email ? (
-      <div className="flex items-center justify-between gap-2 px-3 py-2">
-        <div className="min-w-0">
-          <p className="truncate text-[13px] font-medium text-white">{email}</p>
-          <p className="text-[11px] text-zinc-500">{d.signedIn}</p>
-        </div>
+      <div className={cn("flex items-center gap-2 py-2", rail ? "justify-center px-0" : "justify-between px-3")}>
+        {!rail && (
+          <div className="min-w-0">
+            <p className="truncate text-[13px] font-medium text-white">{email}</p>
+            <p className="text-[11px] text-zinc-500">{d.signedIn}</p>
+          </div>
+        )}
         <button
           onClick={logout}
           disabled={signingOut}
           aria-label="Sign out"
+          title={rail ? email : undefined}
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-50"
         >
           {signingOut ? (
@@ -132,24 +143,49 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     ) : (
       <Link
         href="/login"
-        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-accent hover:bg-white/5"
+        title={rail ? d.signIn : undefined}
+        aria-label={rail ? d.signIn : undefined}
+        className={cn(
+          "flex items-center gap-3 rounded-lg py-2 text-sm font-medium text-accent hover:bg-white/5",
+          rail ? "justify-center px-0" : "px-3"
+        )}
       >
-        <SignOut weight="bold" className="h-[18px] w-[18px] rotate-180" /> {d.signIn}
+        <SignOut weight="bold" className="h-[18px] w-[18px] rotate-180 shrink-0" /> {!rail && d.signIn}
       </Link>
     );
 
   return (
     <div className="flex min-h-screen bg-background">
-      {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-white/10 bg-white/[0.03] p-4 backdrop-blur-xl lg:flex">
-        <Link href="/" className="px-2 py-3">
-          <Logo />
-        </Link>
-        {renderNav()}
-        <div className="mb-1 flex justify-start px-1">
-          <LanguageSwitcher />
+      {/* Desktop sidebar — collapsible rail (UX3). Width animates; a hidden
+          label reserves no space, so <main> (and the preview) reclaim it. */}
+      <aside
+        className={cn(
+          "sticky top-0 hidden h-screen shrink-0 flex-col overflow-hidden border-r border-white/10 bg-white/[0.03] p-3 backdrop-blur-xl transition-[width] duration-200 ease-[cubic-bezier(.25,.46,.45,.94)] lg:flex",
+          collapsed ? "lg:w-[68px]" : "lg:w-60"
+        )}
+      >
+        <div className={cn("flex items-center py-2", collapsed ? "justify-center" : "justify-between px-1")}>
+          {!collapsed && (
+            <Link href="/" className="min-w-0 truncate">
+              <Logo />
+            </Link>
+          )}
+          <button
+            onClick={() => setCollapsed((c) => !c)}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <SidebarSimple weight="bold" className="h-[18px] w-[18px]" />
+          </button>
         </div>
-        <div className="border-t border-white/8 pt-4">{renderAccount()}</div>
+        {renderNav(undefined, collapsed)}
+        {!collapsed && (
+          <div className="mb-1 flex justify-start px-1">
+            <LanguageSwitcher />
+          </div>
+        )}
+        <div className="border-t border-white/8 pt-3">{renderAccount(collapsed)}</div>
       </aside>
 
       <main className="min-w-0 flex-1">

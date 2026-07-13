@@ -49,17 +49,18 @@
 
 ## Prochaine action
 
-**UX3 — shell & panneaux repliables** (GO à confirmer). UX2 fait :
-`src/components/workspace/preview-stage.tsx` (iframe, modes device réels
-prouvés innerWidth 390/834, scale/fit, Fit-to-Screen) branchée sur result+
-editor ; overflowX=0 editor 5/5, result 4/5 ; 497 tests, tsc propre. Restent
-(mesurés) : **Y3 chromeLeftPx=665 sur editor** (sidebar shell `w-60` + chat
-`w-[400px]`, jamais repliables) et **Y2 previewTopVh** (preview sous les
-bannières sur result). UX3 = rendre la sidebar (`shell.tsx:144 w-60`) un rail
-repliable + le chat éditeur (`editor:257 w-[400px]`) `clamp()` repliable + un
-panneau à la fois → rendre au preview 200-400px et le remonter en tête de fold.
-Preuve : rejouer le harnais (chromeLeftPx↓, previewTopVh↓, overflowX reste 0),
-captures avant/après. U0 verrouillé. **result@320 (chrome page) = UX4.**
+**UX4 — tablette/mobile repensés (bottom sheets)** (GO à confirmer). UX3 fait :
+studio éditeur — sidebar rail rétractable (`shell.tsx`, persisté 68↔240) +
+chat repliable/redimensionnable (`editor/page.tsx`, masqué = 0 espace DOM,
+cluster flottant AI+undo/redo) + `lib/use-persistent-state.ts` partagé +
+PreviewStage desktop fluide-up (ultrawide immense). Preuves : **+552px de
+preview à chaque largeur** (1024-2560), chromeLeft 632→80, overflowX=0 dans
+les 2 états, chat retiré du DOM masqué. 497 tests, tsc propre, aucune
+régression (défaut = comportement d'avant). Restent (mesurés UX1) :
+**result@320 overflow=168** (toolbar+bannières de la page result) et le mobile
+empilé du chat éditeur → **UX4** : Sheet `side="bottom"` pour chat/panneaux sur
+mobile, barre d'action basse au pouce, toolbar result mobile compacte, preview
+mode Mobile par défaut. Preuve harnais 320/390/768 overflowX=0. U0 verrouillé.
 Rappel : **C8a reste en attente de GO** (conception figée).
 
 ## Commandes

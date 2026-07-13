@@ -207,12 +207,17 @@ export function PreviewStage({
   const base = DEVICE_SIZE[device];
   // Orientation only applies to handheld devices.
   const landscape = !isDesktop && orientation === "landscape";
-  const dW = landscape ? base.h : base.w;
-  const dH = landscape ? base.w : base.h;
 
   const padX = 24; // breathing room around the frame
   const availW = Math.max(stage.w - padX, 1);
   const availH = Math.max(stage.h - padX, 1);
+
+  // Desktop is fluid-up: it renders at a REAL viewport of at least 1440 and
+  // fills any wider stage (ultra-wide → immense preview), never upscaled. On a
+  // narrower stage it stays 1440 and scales down (faithful, not squeezed).
+  // Handhelds keep their canonical device viewport.
+  const dW = isDesktop ? Math.max(base.w, Math.floor(availW)) : landscape ? base.h : base.w;
+  const dH = isDesktop ? base.h : landscape ? base.w : base.h;
 
   // Every mode: render at canonical dW, scale to fit, never upscale (≤1).
   const scale = fitScreen ? Math.min(availW / dW, availH / dH) : Math.min(1, availW / dW);

@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-10 — UX3 : Design Studio (sidebar rail + chat repliable, preview dominant)
+- `lib/use-persistent-state.ts` (partagé, SSR-safe) ; sidebar shell en rail rétractable (68↔240, persisté, animé, icônes seules) ; chat éditeur repliable/redimensionnable (drag 300-560px, masqué = PAS rendu → 0 espace) + cluster flottant AI+undo/redo.
+- PreviewStage desktop fluide-up : rend à un vrai viewport ≥1440 et remplit toute largeur supérieure (ultrawide immense), jamais upscalé.
+- Preuves harnais (/editor, défaut A → studio B, 4 largeurs) : +552px preview À CHAQUE largeur ; chromeLeft 632→80 ; ultrawide 1916→2468px ; chat retiré du DOM (0 espace) ; overflowX=0 A&B. 497 tests, tsc propre, additif (aucune régression, défaut inchangé). Captures avant/après livrées.
+- Suivant : UX4 (mobile/tablette bottom sheets + chrome result mobile). C8a en attente.
+
 ## 2026-07-10 — UX2 : PreviewStage (modes device réels)
 - `components/workspace/preview-stage.tsx` : rend le site dans un IFRAME (viewport propre → media queries du site se déclenchent) — modes Desktop/Tablet/Mobile RÉELS, largeur canonique + scale-to-fit (jamais d'upscale, overflow horizontal impossible par construction), Fit-to-Screen + orientation + %. Live via react portal (éditions instantanées). Robustesse : body capturé via effet+rAF (onLoad iframe srcless non fiable → sinon blanc, corrigé), clone des styles parent.
 - Branchée result (after) + editor : supprime les 4 clamps 70vh + carte naturelle ; dark+publish en actions. Fix flex min-w-0 (shell `<main>` + colonne preview).
