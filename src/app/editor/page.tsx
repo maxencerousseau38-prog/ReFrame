@@ -405,19 +405,19 @@ export default function EditorPage() {
             when the chat is hidden, so no control is ever lost. */}
         <div className="relative flex min-h-0 min-w-0 flex-1 flex-col bg-secondary/30">
           {!chatOpen && (
-            <div className="absolute bottom-4 left-4 z-20 flex items-center gap-0.5 rounded-full border border-border bg-background/80 p-1 shadow-lg shadow-black/30 backdrop-blur-xl">
+            <div className="absolute bottom-4 left-4 z-20 flex items-center gap-0.5 rounded-full border border-border bg-background/70 p-1 shadow-float backdrop-blur-xl">
               <button
                 onClick={() => setChatOpen(true)}
                 title="Open AI editor"
                 aria-label="Open AI editor"
-                className="flex h-8 items-center gap-1.5 rounded-full bg-accent px-3 text-xs font-medium text-accent-foreground transition-transform hover:brightness-105 active:scale-95"
+                className="flex h-8 items-center gap-1.5 rounded-full bg-accent px-3 text-xs font-medium text-accent-foreground transition duration-fast ease-premium hover:brightness-105 active:scale-95"
               >
                 <ChatText weight="bold" className="h-4 w-4" /> AI
               </button>
-              <button onClick={undo} disabled={!past.length || busy} title="Undo" aria-label="Undo" className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-white/8 hover:text-foreground disabled:opacity-40">
+              <button onClick={undo} disabled={!past.length || busy} title="Undo" aria-label="Undo" className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors duration-fast ease-premium hover:bg-white/[0.08] hover:text-foreground disabled:opacity-40">
                 <ArrowCounterClockwise weight="bold" className="h-4 w-4" />
               </button>
-              <button onClick={redo} disabled={!future.length || busy} title="Redo" aria-label="Redo" className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-white/8 hover:text-foreground disabled:opacity-40">
+              <button onClick={redo} disabled={!future.length || busy} title="Redo" aria-label="Redo" className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors duration-fast ease-premium hover:bg-white/[0.08] hover:text-foreground disabled:opacity-40">
                 <ArrowClockwise weight="bold" className="h-4 w-4" />
               </button>
             </div>

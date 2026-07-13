@@ -29,10 +29,16 @@
     --accent-foreground: 100 40% 5%;
     --brand: 80 84% 56%;             /* explicit brand token (alias of accent) */
     --brand-foreground: 100 40% 5%;
-    --border: 0 0% 14%;              /* neutral hairline */
+    --border: 0 0% 13%;              /* neutral hairline — very fine */
     --input: 0 0% 14%;
     --ring: 80 84% 56%;
-    --radius: 1.25rem;
+    /* UX5 design system — tighter, coherent radius scale (lg 12 / md 10 / sm 8). */
+    --radius: 0.75rem;
+    /* UX5 motion tokens — one premium easing, two durations. Consumed by the
+       chrome (Tailwind `ease-premium duration-fast/base` and inline styles). */
+    --rf-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --rf-dur-1: 120ms;   /* micro: hover / press / focus */
+    --rf-dur-2: 180ms;   /* base: panels, device switch, layout */
   }
 
   * {

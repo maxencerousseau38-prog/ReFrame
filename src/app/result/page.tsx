@@ -484,7 +484,7 @@ export default function ResultPage() {
           // UX2: the rebuilt site lives in PreviewStage — real device modes
           // (Desktop/Tablet/Mobile via a real-viewport iframe), fit-to-screen,
           // no fixed clamp, no horizontal overflow.
-          <div className="h-[82vh] overflow-hidden rounded-2xl border border-border panel shadow-xl shadow-black/5">
+          <div className="h-[82vh] overflow-hidden rounded-xl border border-border panel shadow-float">
             <PreviewStage label={`${schema.brand.name.toLowerCase().replace(/\s+/g, "")}.reframe.site`}>
               <SiteRenderer schema={schema} />
             </PreviewStage>
@@ -492,7 +492,7 @@ export default function ResultPage() {
         ) : (
           // "Before" is the client's live site (external iframe / screenshot) —
           // not our render, so device modes don't apply; keep the simple frame.
-          <div className="overflow-hidden rounded-2xl border border-border panel shadow-xl shadow-black/5">
+          <div className="overflow-hidden rounded-xl border border-border panel shadow-float">
             <div className="flex items-center gap-2 border-b border-border bg-secondary/50 px-4 py-2.5">
               <span className="h-3 w-3 rounded-full bg-red-400" />
               <span className="h-3 w-3 rounded-full bg-yellow-400" />

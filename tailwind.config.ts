@@ -49,6 +49,20 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      // UX5 design-system tokens (frozen — see docs/DESIGN_SYSTEM.md).
+      transitionTimingFunction: {
+        premium: "var(--rf-ease)",
+      },
+      transitionDuration: {
+        fast: "120ms",
+        base: "180ms",
+      },
+      boxShadow: {
+        // Depth via faint, tight shadows + hairline rings — never heavy blur.
+        raise: "0 1px 2px 0 rgb(0 0 0 / 0.35)",
+        float: "0 12px 32px -14px rgb(0 0 0 / 0.55)",
+        hairline: "inset 0 0 0 1px rgb(255 255 255 / 0.05)",
+      },
       fontFamily: {
         sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
         mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],

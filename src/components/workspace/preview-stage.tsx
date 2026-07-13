@@ -38,7 +38,9 @@ const DEVICE_SIZE: Record<Device, { w: number; h: number }> = {
   mobile: { w: 390, h: 844 },
 };
 
-const EASE = "cubic-bezier(.25,.46,.45,.94)";
+// UX5 — the frozen premium easing/duration (see docs/DESIGN_SYSTEM.md).
+const EASE = "cubic-bezier(0.2, 0.8, 0.2, 1)";
+const DUR = "180ms";
 
 /* -------------------------------------------------------------------------- */
 /*  Iframe with the parent's styles cloned in + children portaled into body   */
@@ -134,8 +136,8 @@ function DeviceButton({
       aria-pressed={active}
       title={label}
       className={cn(
-        "flex h-7 w-7 items-center justify-center rounded-md transition-colors",
-        active ? "bg-white/12 text-foreground" : "text-muted-foreground hover:bg-white/6 hover:text-foreground"
+        "flex h-7 w-7 items-center justify-center rounded-md transition-colors duration-fast ease-premium",
+        active ? "bg-white/10 text-foreground" : "text-muted-foreground hover:bg-white/[0.06] hover:text-foreground"
       )}
     >
       {children}
@@ -227,7 +229,7 @@ export function PreviewStage({
   const sizerH = Math.round(frameH * scale);
 
   const reduce = usePrefersReducedMotion();
-  const motion = reduce ? "none" : `transform 0.16s ${EASE}, width 0.16s ${EASE}, height 0.16s ${EASE}`;
+  const motion = reduce ? "none" : `transform ${DUR} ${EASE}, width ${DUR} ${EASE}, height ${DUR} ${EASE}`;
 
   return (
     <div className={cn("flex h-full min-h-0 min-w-0 flex-col overflow-hidden", className)}>
@@ -293,10 +295,8 @@ export function PreviewStage({
         <div style={{ width: sizerW, height: sizerH, transition: motion }} className="shrink-0">
           <div
             className={cn(
-              "overflow-hidden bg-white",
-              isDesktop
-                ? "rounded-xl shadow-2xl shadow-black/30 ring-1 ring-black/10"
-                : "rounded-[1.75rem] shadow-2xl shadow-black/40 ring-1 ring-black/10"
+              "overflow-hidden bg-white ring-1 ring-black/10 shadow-float",
+              isDesktop ? "rounded-xl" : "rounded-[1.75rem]"
             )}
             style={{
               width: dW,

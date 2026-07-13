@@ -62,7 +62,8 @@
 | `docs/REASONING.md` | **modèle mental fondateur** : les 12 étapes R1-R12 du raisonnement ; tout module déclare son étape (L5) | rarement, par décision actée | fondateur |
 | `docs/*_SPEC.md`, `docs/C7_PREPARATION.md`, `docs/C8_*` | specs de chantier (contrats d'implémentation) | avant le chantier | spec |
 | `CLAUDE.md` | doctrine produit + pointeurs OS (toujours chargé) | rarement | court |
-| `DESIGN.md` | tokens visuels canoniques | décision design | référence |
+| `DESIGN.md` | tokens visuels canoniques des SITES générés | décision design | référence |
+| `docs/DESIGN_SYSTEM.md` | **design system du CHROME de l'app** (tokens radius/motion/ombre/spacing/couleur, règles composants) — gelé UX5 | rarement, par décision actée | référence |
 | `README.md` | humains (setup, graphify CLI) | outillage | guide |
 
 Interdits : dupliquer une info entre ces fichiers ; créer un doc hors table sans l'y ajouter.

@@ -100,9 +100,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             title={rail ? item.label : undefined}
             aria-label={rail ? item.label : undefined}
             className={cn(
-              "flex items-center gap-3 rounded-lg py-2 text-sm font-medium transition-colors",
+              "flex items-center gap-3 rounded-lg py-2 text-sm font-medium transition-colors duration-fast ease-premium",
               rail ? "justify-center px-0" : "px-3",
-              active ? "bg-white/8 text-white" : "text-zinc-400 hover:bg-white/5 hover:text-white"
+              active ? "bg-white/[0.07] text-white" : "text-zinc-400 hover:bg-white/5 hover:text-white"
             )}
           >
             <item.icon weight="bold" className="h-[18px] w-[18px] shrink-0" />
@@ -160,7 +160,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           label reserves no space, so <main> (and the preview) reclaim it. */}
       <aside
         className={cn(
-          "sticky top-0 hidden h-screen shrink-0 flex-col overflow-hidden border-r border-white/10 bg-white/[0.03] p-3 backdrop-blur-xl transition-[width] duration-200 ease-[cubic-bezier(.25,.46,.45,.94)] lg:flex",
+          "sticky top-0 hidden h-screen shrink-0 flex-col overflow-hidden border-r border-white/10 bg-white/[0.03] p-3 backdrop-blur-xl transition-[width] duration-base ease-premium lg:flex",
           collapsed ? "lg:w-[68px]" : "lg:w-60"
         )}
       >
