@@ -1,5 +1,10 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-14 — Expérience de révélation : /result reconstruit (mode V2, ciblage autonome)
+- Évaluation des surfaces → /result choisie (pic émotionnel du produit D8, la plus en retard vs la lib : 6 bannières empilées au-dessus du preview, pas de barre de commande, boutons pré-V3). `EditorTopBar` généralisé (slot `center`) et propagé : même langage studio que l'éditeur sur tout le parcours ; pilule Before/After = `GlassPillNav` (mobile : pilule sous la barre).
+- Réorganisation « reveal-first » (I-021) : statut/honnêteté seuls au-dessus, la RÉVÉLATION tout de suite, insights (email capture, recommandations, scores) en cartes verre 24px SOUS le preview. DashboardShell retiré (studio full-bleed comme l'éditeur). Pastilles trafic du cadre « before » neutralisées (blanc translucide). Comportements intégralement préservés (share/copy, download, wizard publish, paywall/auth/erreurs, BeforeView iframe→shot→mockup).
+- Mesures avant/après (même seed) : previewTop 675→149 @1440, 1489→580 @390 ; BUG réel corrigé : overflow-x mobile 98→0. tsc propre, 497 tests, preuve LOCALE. Ledger : I-018 propagé, I-021 nouveau.
+
 ## 2026-07-14 — MODE V2 (Continuous Product Evolution) + propagation #1 : /login AuthSplit
 - Mode V2 acté dans ai/INTAKE_STATE.md : après chaque intake, le PRODUIT doit être visiblement meilleur (avant/après exigé) ; phases 7 Propagation (zéro composant orphelin) + 8 Moteur IA (🔵 file, câblage bloqué par lib/library morte — U0). Garde-fou : jamais forcer une brique inutile.
 - Propagation #1 : `/login` reconstruit en AuthSplit (I-017 🟡→🟢) — formulaire gauche (Input verre, PasswordInput toggle œil, Button argent 16px fin du pill, LabeledDivider + secondary pour le switch login/signup), panneau éditorial droit (copy produit réelle, grid+ambient, zéro fabrication). Comportement intégralement préservé (modes, forgot, needsConfirmation, next, erreurs → tokens destructive).

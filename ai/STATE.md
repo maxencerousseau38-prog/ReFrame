@@ -49,6 +49,18 @@
 
 ## Prochaine action
 
+**Expérience de révélation livrée : /result reconstruit (ciblage autonome V2).**
+Barre de commande studio propagée (EditorTopBar slot `center`, pilule
+Before/After GlassPillNav + variante mobile), réorganisation « reveal-first »
+(I-021 : statut/honnêteté seuls au-dessus, insights en cartes verre 24px SOUS le
+preview), DashboardShell retiré, pastilles du cadre before neutralisées.
+Mesures (même seed) : previewTop 675→149 @1440, 1489→580 @390, overflow-x
+mobile 98→0 (bug réel). Comportements préservés. tsc, 497 tests, preuve LOCALE.
+**Cible suivante auto-sélectionnée : l'expérience de GÉNÉRATION** (dashboard
+entry → analyze loader → arrivée sur result) — première impression du produit,
+surface la plus nue vs la lib (1 input + vide), et c'est le moment « magique »
+du produit. Puis : wizard/publish · pastilles PreviewStage · /reset.
+
 **MODE V2 — Continuous Product Evolution (2026-07-14, ai/INTAKE_STATE.md).**
 Après chaque intake : produit visiblement meilleur (avant/après exigé), phases
 7 Propagation (zéro composant orphelin, sans forcer) + 8 Moteur IA (🔵 file —

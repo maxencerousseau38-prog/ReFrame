@@ -3,9 +3,9 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { MagicWand, RocketLaunch, Check, ArrowSquareOut, CircleNotch, ArrowLeft, DownloadSimple, Sparkle, Warning, LinkSimple } from "@phosphor-icons/react";
-import { DashboardShell } from "@/components/dashboard/shell";
+import { MagicWand, RocketLaunch, Check, ArrowSquareOut, CircleNotch, DownloadSimple, Sparkle, Warning, LinkSimple } from "@phosphor-icons/react";
+import { EditorTopBar } from "@/components/workspace/editor-top-bar";
+import { GlassPillNav } from "@/components/ui/glass-pill-nav";
 import { IntegrationsNotice } from "@/components/integrations-notice";
 import { LaunchWizard } from "@/components/launch-wizard/launch-wizard";
 import { PreviewStage } from "@/components/workspace/preview-stage";
@@ -205,11 +205,9 @@ export default function ResultPage() {
 
   if (!schema) {
     return (
-      <DashboardShell>
-        <div className="flex h-screen items-center justify-center">
-          <CircleNotch weight="bold" className="h-6 w-6 animate-spin text-muted-foreground" />
-        </div>
-      </DashboardShell>
+      <div className="flex h-screen items-center justify-center bg-background">
+        <CircleNotch weight="bold" className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
     );
   }
 
@@ -233,60 +231,59 @@ export default function ResultPage() {
   const quality = schema ? qualityReport(schema) : null;
 
   return (
-    <DashboardShell>
-      {/* Toolbar */}
-      <div className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-black/55 px-6 py-3 backdrop-blur-2xl backdrop-saturate-150">
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="sm"><ArrowLeft weight="bold" className="h-4 w-4" /></Button>
-          </Link>
-          <div>
-            <div className="text-sm font-semibold">{schema.brand.name}</div>
-            <div className="text-xs text-muted-foreground">{schema.sourceUrl}</div>
-          </div>
-        </div>
-
-        <div className="inline-flex shrink-0 rounded-full border border-border bg-secondary p-0.5">
-          {(["before", "after"] as const).map((v) => (
-            <button
-              key={v}
-              onClick={() => setView(v)}
-              className={cn(
-                "relative rounded-full px-3 py-0.5 text-[13px] font-medium capitalize transition-colors",
-                view === v ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {view === v && (
-                <motion.span layoutId="result-pill" className="absolute inset-0 rounded-full bg-white/10 shadow-sm" transition={{ type: "spring", stiffness: 350, damping: 30 }} />
-              )}
-              <span className="relative">{v}</span>
-            </button>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={copyShare} disabled={!shareUrl} title={shareUrl ?? "Saving…"}>
-            {copied ? <Check weight="bold" className="h-4 w-4 text-accent" /> : <LinkSimple weight="bold" className="h-4 w-4" />}
-            {copied ? "Copied" : "Share"}
+    <div className="flex h-screen flex-col bg-background">
+      {/* Studio command bar — same language as the editor (one journey). */}
+      <EditorTopBar
+        title={schema.brand.name}
+        subtitle={schema.sourceUrl}
+        center={
+          <GlassPillNav
+            aria-label="Compare before and after"
+            items={[
+              { label: "Before", active: view === "before", onClick: () => setView("before") },
+              { label: "After", active: view === "after", onClick: () => setView("after") },
+            ]}
+          />
+        }
+      >
+        <Button variant="secondary" size="sm" onClick={copyShare} disabled={!shareUrl} title={shareUrl ?? "Saving…"}>
+          {copied ? <Check weight="bold" className="h-4 w-4" /> : <LinkSimple weight="bold" className="h-4 w-4" />}
+          {copied ? "Copied" : "Share"}
+        </Button>
+        <Button variant="secondary" size="sm" onClick={downloadHtml}>
+          <DownloadSimple weight="bold" className="h-4 w-4" />
+          <span className="hidden md:inline">Download</span>
+        </Button>
+        <Link href={projectId ? `/editor?p=${projectId}` : "/editor"}>
+          <Button variant="secondary" size="sm">
+            <MagicWand weight="bold" className="h-4 w-4" />
+            <span className="hidden md:inline">Edit with AI</span>
           </Button>
-          <Button variant="outline" size="sm" onClick={downloadHtml}>
-            <DownloadSimple weight="bold" className="h-4 w-4" /> Download
+        </Link>
+        {published ? (
+          <a href={published} target="_blank" rel="noreferrer">
+            <Button size="sm"><Check weight="bold" className="h-4 w-4" /> Live</Button>
+          </a>
+        ) : (
+          <Button size="sm" onClick={() => setWizardOpen(true)} disabled={publishing}>
+            {publishing ? <CircleNotch weight="bold" className="h-4 w-4 animate-spin" /> : <RocketLaunch weight="bold" className="h-4 w-4" />}
+            Publish
           </Button>
-          <Link href={projectId ? `/editor?p=${projectId}` : "/editor"}>
-            <Button variant="outline" size="sm"><MagicWand weight="bold" className="h-4 w-4" /> Edit with AI</Button>
-          </Link>
-          {published ? (
-            <a href={published} target="_blank" rel="noreferrer">
-              <Button size="sm"><Check weight="bold" className="h-4 w-4" /> Live</Button>
-            </a>
-          ) : (
-            <Button size="sm" onClick={() => setWizardOpen(true)} disabled={publishing}>
-              {publishing ? <CircleNotch weight="bold" className="h-4 w-4 animate-spin" /> : <RocketLaunch weight="bold" className="h-4 w-4" />}
-              Publish
-            </Button>
-          )}
-        </div>
+        )}
+      </EditorTopBar>
+
+      {/* Mobile view switch (the bar hides its center pill under sm). */}
+      <div className="flex justify-center border-b border-white/8 py-2 sm:hidden">
+        <GlassPillNav
+          aria-label="Compare before and after"
+          items={[
+            { label: "Before", active: view === "before", onClick: () => setView("before") },
+            { label: "After", active: view === "after", onClick: () => setView("after") },
+          ]}
+        />
       </div>
+
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-clip">
 
       {/* Pre-publish safety: surface + actually reconnect business tools. */}
       {!published && analysis?.integrations?.length ? (
@@ -296,37 +293,6 @@ export default function ResultPage() {
           onConnect={connectIntegration}
         />
       ) : null}
-
-      {/* Don't lose the redesign: email the link to capture the lead. */}
-      {shareUrl && !published && (
-        <div className="border-b border-border bg-secondary/30 px-6 py-3">
-          <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-3 gap-y-2">
-            {emailState === "sent" ? (
-              <p className="flex items-center gap-2 text-sm text-foreground">
-                <Check weight="bold" className="h-4 w-4" /> Sent. Your redesign link is in your inbox.
-              </p>
-            ) : (
-              <>
-                <span className="text-sm font-medium">Don&apos;t lose this redesign</span>
-                <form onSubmit={emailMyRedesign} className="flex flex-1 items-center gap-2">
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@business.com"
-                    className="h-9 min-w-0 flex-1 rounded-lg border border-border bg-background px-3 text-[13px] focus:border-foreground/20 focus:outline-none"
-                  />
-                  <Button type="submit" size="sm" variant="light" disabled={emailState === "sending"}>
-                    {emailState === "sending" ? <CircleNotch weight="bold" className="h-4 w-4 animate-spin" /> : "Email it to me"}
-                  </Button>
-                </form>
-                {emailState === "error" && <span className="text-xs text-amber-400">Couldn&apos;t send. Use the Share button to copy the link.</span>}
-              </>
-            )}
-          </div>
-        </div>
-      )}
 
       {published && (
         <div className="flex items-center justify-center gap-2 border-b border-white/12 bg-white/[0.04] px-6 py-2.5 text-sm text-foreground">
@@ -385,22 +351,89 @@ export default function ResultPage() {
         </div>
       )}
 
-      {/* Smart optimizations: surface what Smart mode changed and why. */}
-      {schema.recommendations && schema.recommendations.length > 0 && (
-        <div className="border-b border-border bg-secondary/30 px-6 py-4">
-          <div className="mx-auto max-w-5xl">
+      {/* Preview */}
+      <div className="px-4 pt-4 sm:px-6 sm:pt-6">
+        {view === "after" ? (
+          // UX2: the rebuilt site lives in PreviewStage — real device modes
+          // (Desktop/Tablet/Mobile via a real-viewport iframe), fit-to-screen,
+          // no fixed clamp, no horizontal overflow.
+          <div className="h-[82vh] overflow-hidden rounded-3xl border border-white/8 panel shadow-float">
+            <PreviewStage label={`${schema.brand.name.toLowerCase().replace(/\s+/g, "")}.reframe.site`}>
+              <SiteRenderer schema={schema} />
+            </PreviewStage>
+          </div>
+        ) : (
+          // "Before" is the client's live site (external iframe / screenshot) —
+          // not our render, so device modes don't apply; keep the simple frame.
+          <div className="overflow-hidden rounded-3xl border border-white/8 panel shadow-float">
+            <div className="flex items-center gap-2 border-b border-border bg-secondary/50 px-4 py-2.5">
+              <span className="h-3 w-3 rounded-full bg-white/25" />
+              <span className="h-3 w-3 rounded-full bg-white/15" />
+              <span className="h-3 w-3 rounded-full bg-white/10" />
+              <div className="ml-3 flex-1 truncate rounded-md bg-white/5 px-3 py-1 text-xs text-muted-foreground">
+                {schema.sourceUrl}
+              </div>
+              <a
+                href={liveUrl(schema.sourceUrl)}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Open live <ArrowSquareOut weight="bold" className="h-3.5 w-3.5" />
+              </a>
+            </div>
+            <div className="max-h-[70vh] overflow-y-auto">
+              <BeforeView analysis={analysis} url={schema.sourceUrl} />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Insights — proof AFTER the reveal, contained, glass. */}
+      <div className="mx-auto w-full max-w-6xl space-y-5 px-4 py-10 sm:px-6">
+        {/* Don't lose the redesign: email the link to capture the lead. */}
+        {shareUrl && !published && (
+          <div className="rounded-3xl border border-white/8 bg-white/[0.03] p-5">
+            {emailState === "sent" ? (
+              <p className="flex items-center gap-2 text-sm text-foreground">
+                <Check weight="bold" className="h-4 w-4" /> Sent. Your redesign link is in your inbox.
+              </p>
+            ) : (
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                <span className="text-sm font-medium">Don&apos;t lose this redesign</span>
+                <form onSubmit={emailMyRedesign} className="flex min-w-0 flex-1 items-center gap-2">
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@business.com"
+                    className="h-10 min-w-0 flex-1 rounded-lg border border-white/8 bg-white/[0.04] px-3 text-[13px] transition-colors duration-fast ease-premium placeholder:text-muted-foreground focus:border-white/16 focus:bg-white/[0.06] focus:outline-none"
+                  />
+                  <Button type="submit" size="sm" disabled={emailState === "sending"}>
+                    {emailState === "sending" ? <CircleNotch weight="bold" className="h-4 w-4 animate-spin" /> : "Email it to me"}
+                  </Button>
+                </form>
+                {emailState === "error" && (
+                  <span className="text-xs text-warning">Couldn&apos;t send. Use the Share button to copy the link.</span>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Smart optimizations: surface what Smart mode changed and why. */}
+        {schema.recommendations && schema.recommendations.length > 0 && (
+          <div className="rounded-3xl border border-white/8 bg-white/[0.03] p-5">
             <div className="flex items-center gap-2 text-sm font-medium">
-              <Sparkle weight="fill" className="h-4 w-4 text-accent" />
+              <Sparkle weight="fill" className="h-4 w-4 text-foreground/70" />
               Smart made {schema.recommendations.length} optimization
               {schema.recommendations.length > 1 ? "s" : ""} for conversion
             </div>
             <ul className="mt-3 grid gap-2 sm:grid-cols-2">
               {schema.recommendations.map((r, i) => (
-                <li
-                  key={i}
-                  className="flex gap-2.5 rounded-lg border border-border bg-background/50 px-3.5 py-2.5"
-                >
-                  <Check weight="bold" className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                <li key={i} className="flex gap-2.5 rounded-xl border border-white/8 bg-white/[0.02] px-3.5 py-2.5">
+                  <Check weight="bold" className="mt-0.5 h-4 w-4 shrink-0 text-foreground/70" />
                   <div>
                     <div className="text-sm font-medium">{r.action}</div>
                     <div className="text-xs text-muted-foreground">{r.reason}</div>
@@ -409,13 +442,12 @@ export default function ResultPage() {
               ))}
             </ul>
           </div>
-        </div>
-      )}
+        )}
 
       {/* C2 — make "it's better" objective: the real (measured) scores of the
           client's current site next to the concrete upgrades the rebuild ships. */}
       {analysis && (
-        <div className="border-b border-border bg-secondary/20 px-6 py-5">
+        <div className="rounded-3xl border border-white/8 bg-white/[0.03] p-5">
           <div className="mx-auto max-w-5xl">
             <div className="flex items-center gap-2 text-sm font-medium">
               <Sparkle weight="fill" className="h-4 w-4 text-accent" /> Why your new site is better
@@ -479,42 +511,7 @@ export default function ResultPage() {
         </div>
       )}
 
-      {/* Preview */}
-      <div className="p-6">
-        {view === "after" ? (
-          // UX2: the rebuilt site lives in PreviewStage — real device modes
-          // (Desktop/Tablet/Mobile via a real-viewport iframe), fit-to-screen,
-          // no fixed clamp, no horizontal overflow.
-          <div className="h-[82vh] overflow-hidden rounded-xl border border-border panel shadow-float">
-            <PreviewStage label={`${schema.brand.name.toLowerCase().replace(/\s+/g, "")}.reframe.site`}>
-              <SiteRenderer schema={schema} />
-            </PreviewStage>
-          </div>
-        ) : (
-          // "Before" is the client's live site (external iframe / screenshot) —
-          // not our render, so device modes don't apply; keep the simple frame.
-          <div className="overflow-hidden rounded-xl border border-border panel shadow-float">
-            <div className="flex items-center gap-2 border-b border-border bg-secondary/50 px-4 py-2.5">
-              <span className="h-3 w-3 rounded-full bg-red-400" />
-              <span className="h-3 w-3 rounded-full bg-yellow-400" />
-              <span className="h-3 w-3 rounded-full bg-green-400" />
-              <div className="ml-3 flex-1 truncate rounded-md bg-white/5 px-3 py-1 text-xs text-muted-foreground">
-                {schema.sourceUrl}
-              </div>
-              <a
-                href={liveUrl(schema.sourceUrl)}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
-              >
-                Open live <ArrowSquareOut weight="bold" className="h-3.5 w-3.5" />
-              </a>
-            </div>
-            <div className="max-h-[70vh] overflow-y-auto">
-              <BeforeView analysis={analysis} url={schema.sourceUrl} />
-            </div>
-          </div>
-        )}
+      </div>
       </div>
 
       <LaunchWizard
@@ -525,7 +522,7 @@ export default function ResultPage() {
         onPublish={publish}
         published={published}
       />
-    </DashboardShell>
+    </div>
   );
 }
 

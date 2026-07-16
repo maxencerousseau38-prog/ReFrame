@@ -113,7 +113,8 @@ Status legend: 🟢 REALIZED · 🔵 QUEUED (generation, blocked) · 🟡 PATTER
 
 | ID | Idea | Type | SaaS surfaces | Gen-site cat. | Compare → status | Realization |
 |---|---|---|---|---|---|---|
-| I-018 | Single command bar: identity + save status left, view pill center, actions right | layout · organization · UX | Editor (live), Result (candidate), Wizard (candidate) | — | NEW → 🟢 | `EditorTopBar` + `GlassPillNav` |
+| I-018 | Single command bar: identity + save status left, view pill center, actions right | layout · organization · UX | **Editor (live), Result (live — Before/After pill via `center` slot)**, Wizard (candidate) | — | NEW → 🟢 propagated | `EditorTopBar` + `GlassPillNav` |
+| I-021 | Reveal-first: the product moment renders above the proof (insights below the preview, status banners only above) | UX · organization | Result (live) | — | NEW → 🟢 | `/result` restructure |
 | I-019 | Full-bleed studio (no app rail around the canvas) | layout · UX | Editor (live) | — | NEW → 🟢 | `/editor` sans DashboardShell |
 | I-020 | Chat as quiet column: user = glass chip, assistant = plain text, chips above a glass input | UI · composition | Editor (live), future AI surfaces | — | MERGE (restyle of existing chat) → 🟢 | `/editor` panel V3 |
 

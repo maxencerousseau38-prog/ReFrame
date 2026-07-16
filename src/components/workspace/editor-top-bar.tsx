@@ -21,9 +21,11 @@ export interface EditorTopBarProps {
   children?: React.ReactNode;
   /** Extra element in the left cluster (e.g. back-to-result). */
   leftExtra?: React.ReactNode;
+  /** Center element. Defaults to the single real view pill ("Aperçu"). */
+  center?: React.ReactNode;
 }
 
-export function EditorTopBar({ title, subtitle, children, leftExtra }: EditorTopBarProps) {
+export function EditorTopBar({ title, subtitle, children, leftExtra, center }: EditorTopBarProps) {
   return (
     <header className="relative z-30 flex h-14 shrink-0 items-center gap-3 border-b border-white/8 bg-background/80 px-3 backdrop-blur-xl sm:px-4">
       {/* Identity */}
@@ -45,9 +47,10 @@ export function EditorTopBar({ title, subtitle, children, leftExtra }: EditorTop
         {leftExtra}
       </div>
 
-      {/* View pill — only the real view. A Code tab ships when code view exists. */}
+      {/* Center: the view pill by default (only the real view — a Code tab
+          ships when code view exists), or a page-supplied switcher. */}
       <div className="hidden sm:block">
-        <GlassPillNav aria-label="Editor view" items={[{ label: "Aperçu", active: true }]} />
+        {center ?? <GlassPillNav aria-label="Editor view" items={[{ label: "Aperçu", active: true }]} />}
       </div>
 
       {/* Actions */}
