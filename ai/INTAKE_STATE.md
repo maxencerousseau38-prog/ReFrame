@@ -1,12 +1,23 @@
 # Intake Pipeline — checkpoints (cerveau visuel)
 
+> **MODE V2 — Continuous Product Evolution (2026-07-14).** La bibliothèque n'est
+> plus l'objectif : c'est un moyen. Après CHAQUE intake, le PRODUIT doit être
+> visiblement meilleur (avant/après exigé). Deux phases s'ajoutent aux 6 étapes :
+> **7. Propagation** — chaque brique nouvelle/améliorée est immédiatement
+> utilisée dans les surfaces où elle améliore réellement le produit (zéro
+> composant orphelin) ; **8. Moteur IA** — les idées « génération » sont mises
+> en file 🔵 (câblage réel BLOQUÉ par lib/library morte + blocks god-file,
+> roadmap P1/P2 — ne jamais prétendre le contraire, U0).
+> Garde-fou : la propagation ne force JAMAIS une brique là où elle n'apporte
+> rien (« 5 composants utilisés partout > 300 jamais utilisés »).
+
 > Protocole permanent pour chaque composant 21st.dev reçu. UNE étape à la fois
 > (5-10 min), un résultat produit + commit à chaque checkpoint. Si une session
 > meurt/bloque : lire ce fichier, reprendre à la première étape non cochée.
 > Ne JAMAIS refaire une étape cochée. Référentiel des idées : `src/components/
 > design-system/PATTERNS.md` · décisions par intake : `.../README.md`.
 
-## Les 6 étapes (checkpoints)
+## Les 6 étapes (checkpoints) + 7 Propagation + 8 Moteur (V2)
 
 | # | Étape | Sortie attendue (committée) |
 |---|---|---|

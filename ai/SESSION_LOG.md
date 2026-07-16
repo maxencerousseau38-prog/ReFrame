@@ -1,5 +1,10 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-14 — MODE V2 (Continuous Product Evolution) + propagation #1 : /login AuthSplit
+- Mode V2 acté dans ai/INTAKE_STATE.md : après chaque intake, le PRODUIT doit être visiblement meilleur (avant/après exigé) ; phases 7 Propagation (zéro composant orphelin) + 8 Moteur IA (🔵 file, câblage bloqué par lib/library morte — U0). Garde-fou : jamais forcer une brique inutile.
+- Propagation #1 : `/login` reconstruit en AuthSplit (I-017 🟡→🟢) — formulaire gauche (Input verre, PasswordInput toggle œil, Button argent 16px fin du pill, LabeledDivider + secondary pour le switch login/signup), panneau éditorial droit (copy produit réelle, grid+ambient, zéro fabrication). Comportement intégralement préservé (modes, forgot, needsConfirmation, next, erreurs → tokens destructive).
+- BUG RÉEL corrigé : overflow-x mobile 145px (halo ambient w-680 non clippé) → `overflow-x-clip` + `w-[min(680px,100vw)]` ; mesuré 145→0 @390. Décision U0 : pas de checkbox « keep me signed in » (sessions Supabase = cookies, case non câblée = fausse UI). Preuve LOCALE avant/après 1440+390, tsc propre, 497 tests.
+
 ## 2026-07-14 — Éditeur V3 : architecture studio (référence Lovable, jamais copiée)
 - `/editor` restructuré en studio plein écran : `EditorTopBar` (nouvelle brique workspace) = identité + statut de sauvegarde RÉEL à gauche · pilule `GlassPillNav` « Aperçu » seule au centre (pas d'onglet Code mort, U0) · undo/redo + **Share** (câblé /api/share réel → lien /r/<id> copié) + **Publish** argent à droite. DashboardShell retiré de l'éditeur (canvas = héros), retour via logo.
 - Chat V3 : bulle utilisateur = chip verre, assistant = texte calme, chips suggestions, input verre « Ask ReFrame… » + envoi argent. Publish/Live sortis du PreviewStage (restent : devices/fit/dark). Comportements préservés : collapse/resize chat, cluster flottant, undo/redo, streaming.

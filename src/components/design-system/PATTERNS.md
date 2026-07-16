@@ -105,7 +105,7 @@ Status legend: 🟢 REALIZED · 🔵 QUEUED (generation, blocked) · 🟡 PATTER
 | I-014 | Staggered fade+blur+rise entrance cascade | animation | Landing, Auth | Hero | REUSE → 🟢 | `Reveal`/`BlurReveal` |
 | I-015 | OAuth provider button (brand icon + neutral shell) | UI · UX | Auth | — | 🟡 QUEUED — U0: OAuth not wired in Supabase; build when it lands | idea only |
 | I-016 | Floating glass cards over full-bleed media | composition · glass · depth | — | **Testimonials, Restaurant, Immobilier, Agence** (REAL content only) | 🔵 QUEUED (generation; fabrication rejected, mechanic kept) | idea only |
-| I-017 | Split panel: focused form left, immersive media right | layout | Auth (login/signup/reset redesign) | Contact, Agence | 🟡 pattern **AuthSplit** — realize at the /login V3 redesign (on GO) | idea only |
+| I-017 | Split panel: focused form left, immersive media right | layout | Auth (login/signup/reset redesign) | Contact, Agence | 🟢 REALIZED — /login rebuilt as AuthSplit (V2 propagation pass #1); also fixed a real 145px mobile overflow (ambient halo unclipped). `/reset` remains a candidate. Note: no "keep me signed in" checkbox — Supabase sessions are cookie-managed, an unwired checkbox would be fake UI (U0). | `/login` |
 | A-004 | Violet accent (focus/links) | UI | — | — | 🔴 anti-pattern (non-monochrome) | never adopt |
 | A-005 | Fabricated testimonials / stock avatars | UX | — | — | 🔴 anti-pattern (fabrication — doctrine) | never adopt |
 

@@ -49,6 +49,18 @@
 
 ## Prochaine action
 
+**MODE V2 — Continuous Product Evolution (2026-07-14, ai/INTAKE_STATE.md).**
+Après chaque intake : produit visiblement meilleur (avant/après exigé), phases
+7 Propagation (zéro composant orphelin, sans forcer) + 8 Moteur IA (🔵 file —
+câblage réel bloqué par lib/library morte + blocks god-file, P1/P2, U0).
+**Propagation #1 livrée : `/login` AuthSplit** (I-017 🟢) — Input verre,
+PasswordInput, Button 16px, LabeledDivider+secondary switch, panneau éditorial
+copy réelle ; BUG réel corrigé (overflow-x mobile 145→0 @390, halo clippé) ;
+pas de checkbox session (U0 : non câblée). Preuve avant/après 1440+390, tsc,
+497 tests. **Candidats propagation suivants** : `/reset` (mêmes briques) ·
+EditorTopBar sur /result · pastilles BrowserFrame à neutraliser · GlassPillNav
+switch login/signup ?
+
 **Éditeur V3 — architecture studio livrée (réf. Lovable, jamais copiée).**
 `/editor` = studio plein écran : `EditorTopBar` (identité + statut réel · pilule
 « Aperçu » · undo/redo + Share réel `/api/share` + Publish argent), chat colonne

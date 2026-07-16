@@ -4,7 +4,11 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, CircleNotch } from "@phosphor-icons/react";
-import { Logo } from "@/components/brand/logo";
+import { Logo, LogoMark } from "@/components/brand/logo";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
+import { LabeledDivider } from "@/components/ui/labeled-divider";
 
 type Mode = "login" | "signup";
 
@@ -75,30 +79,33 @@ function LoginForm() {
   }
 
   return (
-    <main className="relative flex min-h-[100dvh] items-center justify-center px-6 py-16">
-      <div className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[680px] -translate-x-1/2 ambient-soft blur-[120px]" />
+    // AuthSplit (I-017): focused form left, quiet editorial panel right.
+    // overflow-x-clip kills the ambient-halo horizontal scroll on mobile.
+    <main className="grid min-h-[100dvh] overflow-x-clip lg:grid-cols-2">
+      {/* Form column */}
+      <section className="relative flex items-center justify-center px-6 py-16">
+        <div className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[min(680px,100vw)] -translate-x-1/2 ambient-soft blur-[120px]" />
 
-      <div className="relative w-full max-w-sm">
-        <Link href="/" className="mb-8 inline-flex">
-          <Logo />
-        </Link>
+        <div className="relative w-full max-w-sm">
+          <Link href="/" className="mb-10 inline-flex">
+            <Logo />
+          </Link>
 
-        <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 bezel-core">
-          <h1 className="text-xl font-semibold tracking-tight text-white">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
             {mode === "login" ? "Welcome back" : "Create your account"}
           </h1>
-          <p className="mt-1 text-sm text-zinc-400">
+          <p className="mt-1.5 text-sm text-muted-foreground">
             {mode === "login"
               ? "Sign in to manage your published sites."
               : "Publish sites you can come back to and edit."}
           </p>
 
-          <form onSubmit={submit} className="mt-6 space-y-4">
+          <form onSubmit={submit} className="mt-8 space-y-4">
             <div className="space-y-1.5">
-              <label htmlFor="email" className="text-[13px] font-medium text-zinc-300">
+              <label htmlFor="email" className="text-[13px] font-medium text-foreground/80">
                 Email
               </label>
-              <input
+              <Input
                 id="email"
                 type="email"
                 autoComplete="email"
@@ -106,52 +113,47 @@ function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@business.com"
-                className="h-11 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 text-[15px] text-white placeholder:text-zinc-500 focus:border-accent/50 focus:outline-none focus:ring-1 focus:ring-accent/40"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="password" className="text-[13px] font-medium text-zinc-300">
-                Password
-              </label>
-              <input
+              <div className="flex items-center justify-between">
+                <label htmlFor="password" className="text-[13px] font-medium text-foreground/80">
+                  Password
+                </label>
+                {mode === "login" && (
+                  <button
+                    type="button"
+                    onClick={forgot}
+                    className="text-[13px] text-muted-foreground transition-colors duration-fast ease-premium hover:text-foreground"
+                  >
+                    Forgot password?
+                  </button>
+                )}
+              </div>
+              <PasswordInput
                 id="password"
-                type="password"
                 autoComplete={mode === "login" ? "current-password" : "new-password"}
                 required
                 minLength={8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={mode === "login" ? "Your password" : "At least 8 characters"}
-                className="h-11 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 text-[15px] text-white placeholder:text-zinc-500 focus:border-accent/50 focus:outline-none focus:ring-1 focus:ring-accent/40"
               />
             </div>
 
             {error && (
-              <p className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-[13px] text-red-300">
+              <p className="rounded-lg border border-destructive/25 bg-destructive/10 px-3 py-2 text-[13px] text-red-200">
                 {error}
               </p>
             )}
             {notice && (
-              <p className="rounded-lg border border-accent/30 bg-accent/[0.06] px-3 py-2 text-[13px] text-zinc-200">
+              <p className="rounded-lg border border-white/12 bg-white/[0.05] px-3 py-2 text-[13px] text-foreground/90">
                 {notice}
               </p>
             )}
-            {mode === "login" && (
-              <button
-                type="button"
-                onClick={forgot}
-                className="text-[13px] text-zinc-400 transition-colors hover:text-white"
-              >
-                Forgot password?
-              </button>
-            )}
 
-            <button
-              type="submit"
-              disabled={busy}
-              className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-accent text-[14px] font-medium text-accent-foreground transition-[transform,filter] duration-200 ease-out hover:brightness-105 active:scale-[0.98] disabled:opacity-60"
-            >
+            <Button type="submit" disabled={busy} className="h-11 w-full">
               {busy ? (
                 <CircleNotch weight="bold" className="h-4 w-4 animate-spin" />
               ) : (
@@ -160,23 +162,41 @@ function LoginForm() {
                   <ArrowRight weight="bold" className="h-4 w-4" />
                 </>
               )}
-            </button>
+            </Button>
           </form>
-        </div>
 
-        <p className="mt-5 text-center text-sm text-zinc-400">
-          {mode === "login" ? "New to ReFrame?" : "Already have an account?"}{" "}
-          <button
+          <LabeledDivider
+            className="mt-8"
+            label={mode === "login" ? "New to ReFrame?" : "Already have an account?"}
+          />
+          <Button
+            variant="secondary"
+            className="mt-4 h-11 w-full"
             onClick={() => {
               setMode(mode === "login" ? "signup" : "login");
               setError(null);
             }}
-            className="font-medium text-accent hover:underline"
           >
             {mode === "login" ? "Create an account" : "Sign in"}
-          </button>
-        </p>
-      </div>
+          </Button>
+        </div>
+      </section>
+
+      {/* Editorial panel — real product copy only, no fabricated proof. */}
+      <aside className="relative hidden overflow-hidden border-l border-white/8 lg:flex lg:items-center lg:justify-center">
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-grid bg-fade-b opacity-50" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 ambient opacity-70" />
+        <div className="relative max-w-md px-10">
+          <LogoMark className="h-8 opacity-90" />
+          <p className="mt-8 text-balance text-3xl font-semibold leading-[1.15] tracking-tight text-foreground">
+            The website your customers trust.
+          </p>
+          <p className="mt-4 text-pretty text-[15px] leading-relaxed text-muted-foreground">
+            Paste your link. ReFrame rebuilds your existing site into one that
+            earns trust on sight — no builder, no blank page.
+          </p>
+        </div>
+      </aside>
     </main>
   );
 }
