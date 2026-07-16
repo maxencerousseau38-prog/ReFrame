@@ -12,8 +12,15 @@ product chrome). It composes on the frozen D11 tokens (`globals.css` +
 design-system/
   index.ts        single import surface (re-exports ui/ primitives + sections)
   README.md       this catalog + governance + per-component analysis
+  PATTERNS.md     the Visual Brain — idea & pattern ledger (every extracted idea)
   sections/       composed, universal sections/templates (HeroReframed, …)
 ```
+
+**Two records, two purposes.** This README logs each intake's *component-level*
+decision (what shipped). `PATTERNS.md` is the **Visual Brain**: every atomic
+*idea* extracted from every component — classified by target surface (SaaS +
+generated-site), compared against the whole library, and marked reuse / merge /
+replace / new / reject. New intakes append to BOTH.
 
 Foundation **primitives** live in `@/components/ui` (Button, Badge, Card, Input,
 GlassPillNav, StatGroup, …) — the shadcn/Radix layer on the same tokens. This
