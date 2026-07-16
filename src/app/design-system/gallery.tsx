@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { GlassPillNav } from "@/components/ui/glass-pill-nav";
 import { StatGroup } from "@/components/ui/stat-group";
+import { ScrollScaleReveal } from "@/components/ui/scroll-reveal";
 import { HeroReframed } from "@/components/design-system";
 
 function Row({ title, children }: { title: string; children: React.ReactNode }) {
@@ -69,6 +70,20 @@ export function DesignSystemGallery() {
             />
           </div>
         </Row>
+      </div>
+
+      {/* ScrollScaleReveal (new) — scroll down to see the focal media scale gently */}
+      <div className="border-t border-white/8">
+        <div className="mx-auto max-w-5xl px-6 pt-10">
+          <h2 className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            ScrollScaleReveal (new) — scroll to reveal
+          </h2>
+        </div>
+        <ScrollScaleReveal from={1} to={1.35} heightVh={200}>
+          <div className="glass flex aspect-[16/10] w-[min(88vw,900px)] items-center justify-center rounded-3xl">
+            <span className="text-sm text-muted-foreground">Focal media — scales 1 → 1.35 on scroll</span>
+          </div>
+        </ScrollScaleReveal>
       </div>
 
       {/* Full section template */}

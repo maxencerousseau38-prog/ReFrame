@@ -88,12 +88,43 @@ pricing period toggle. StatGroup → landing social-proof, dashboard KPI row,
 result "why your new site is better". HeroReframed → landing, template previews,
 empty-state splash.
 
+### #002 — "Zoom Parallax" gallery (21st.dev, framer-motion + Lenis)
+
+**Why it was interesting.** One good idea: a focal element that scales as it
+scrolls through a pinned stage — an Apple/Framer-style reveal.
+
+**Decomposed → triaged:**
+
+| Atom | Decision | Reason |
+|---|---|---|
+| `@studio-freight/lenis` smooth-scroll dep | **REJECTED** | Heavy new dependency for a decorative effect; native scroll + `useScroll` suffices. |
+| 7-image hardcoded `vw`-positioned cluster | **REJECTED** | Brittle, **not responsive** (overlaps on mobile), monolithic. |
+| Scale 1 → 9 zoom-jack over 300vh | **REJECTED** | Spectacular/gimmicky — violates the "intemporel, never spectacular" doctrine. |
+| No `prefers-reduced-motion` | **FIXED** | ReFrame's a11y floor: the scale freezes under reduced-motion. |
+| Raw `<img>`, no lazy-load, 7 heavy images | **REJECTED** | Perf; the primitive is media-agnostic (wrap anything). |
+| Scroll-linked scale on a pinned stage | **EXTRACTED → `ScrollScaleReveal`** | The one reusable, tasteful mechanic — rebuilt restrained (1→1.35), responsive, reduced-motion-safe, transform-only, zero new deps. |
+
+**New component:** `ScrollScaleReveal` (media-agnostic, exported from `ui/index.ts`).
+**Not a duplicate of** `blocks/use-parallax.ts` (that is gsap y-translate for
+brand-agnostic *generated sites*; this is framer-motion scale for the *chrome*).
+
+**Scores (0–5) of the delivered ReFrame version:**
+
+| Component | Design | Reusability | Premium | Perf | A11y |
+|---|---|---|---|---|---|
+| ScrollScaleReveal | 4 | 4 | 4 | 4 | 5 |
+| *(rejected zoom-parallax, for contrast)* | 3 | 1 | 2 | 2 | 1 |
+
+**Where used:** Landing hero/media reveal, template sections, a preview frame
+that lifts on scroll. **Decision: INTEGRATED (distilled primitive only)** — the
+original monolithic component was **REFUSED**.
+
 ---
 
 ## Catalog (populated so far)
 
 - **Primitives:** `Button`, `Badge`, `Card`, `Input`, `Label`, **`GlassPillNav`**,
-  **`StatGroup`**, `BrowserFrame`, `Reveal`, `BlurReveal`.
+  **`StatGroup`**, **`ScrollScaleReveal`**, `BrowserFrame`, `Reveal`, `BlurReveal`.
 - **Sections:** **`HeroReframed`**.
 
 Live gallery: `/design-system` (renders every entry on the real tokens).

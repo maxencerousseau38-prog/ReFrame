@@ -1,5 +1,10 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-13 — Component Library intake #002 (Zoom Parallax → ScrollScaleReveal)
+- Composant reçu « Zoom Parallax » (21st.dev, framer-motion + Lenis) DÉCOMPOSÉ, jamais intégré. Rejetés : dép. Lenis (smooth-scroll), cluster 7-images en `vw` codé en dur (non responsive), scale 1→9 (spectaculaire, hors doctrine V3), `<img>` bruts. Corrigé : reduced-motion honoré.
+- Extrait 1 primitive : `ScrollScaleReveal` (scale lié au scroll sur scène sticky, retenu 1→1.35, responsive, reduced-motion-safe, transform-only, zéro nouvelle dép) — exportée via `ui/index.ts` + barrel `design-system`. Pas un doublon de `blocks/use-parallax.ts` (gsap/sites générés vs framer-motion/chrome). Vitrine `/design-system` + README intake #002 + scores. Décision : INTÉGRÉ (primitive distillée) ; monolithe REFUSÉ.
+- Preuve LOCALE uniquement (pas de déploiement — infra Vercel non nettoyée) : tsc propre, 497 tests verts, additif.
+
 ## 2026-07-13 — Component Library fondée + intake #001 (decompose, don't copy)
 - Directive « bibliothèque officielle = source de vérité ». Créé `src/components/design-system/` (index barrel + `sections/` + `README.md` = catalogue/gouvernance/pipeline d'intake). Primitives foundation restent dans `ui/` (pas de tree parallèle) ; barrel = surface d'import unique.
 - Intake #001 = « Ethereal Beams Hero » (21st.dev, three.js) DÉCOMPOSÉ, jamais intégré. Rejetés (doctrine + D13) : beams 3D (dép. lourdes absentes + effet gaming/particule), shimmer sweep, glow blanc `shadow-white/25`, texte gradient-clip, icônes lucide→Phosphor. Extraits neufs universels : `GlassPillNav` + `StatGroup` (exportés via `ui/index.ts`, tokens gelés, a11y). Réutilisés sans doublon : Button/Badge. Section `HeroReframed` (monochrome, motion fade/translateY only via framer-motion).

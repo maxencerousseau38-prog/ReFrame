@@ -61,3 +61,4 @@ export { IslandButton } from "./island-button";
 export { Reveal } from "./reveal";
 export { GlassPillNav, type GlassPillNavItem, type GlassPillNavProps } from "./glass-pill-nav";
 export { StatGroup, type Stat, type StatGroupProps } from "./stat-group";
+export { ScrollScaleReveal, type ScrollScaleRevealProps } from "./scroll-reveal";

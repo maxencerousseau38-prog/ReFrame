@@ -26,6 +26,7 @@ export {
   Label,
   GlassPillNav,
   StatGroup,
+  ScrollScaleReveal,
   BrowserFrame,
   Reveal,
   BlurReveal,
