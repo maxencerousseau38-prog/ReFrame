@@ -109,6 +109,14 @@ Status legend: 🟢 REALIZED · 🔵 QUEUED (generation, blocked) · 🟡 PATTER
 | A-004 | Violet accent (focus/links) | UI | — | — | 🔴 anti-pattern (non-monochrome) | never adopt |
 | A-005 | Fabricated testimonials / stock avatars | UX | — | — | 🔴 anti-pattern (fabrication — doctrine) | never adopt |
 
+### From the studio-editor redesign (Lovable-class architecture, reference only — never copied)
+
+| ID | Idea | Type | SaaS surfaces | Gen-site cat. | Compare → status | Realization |
+|---|---|---|---|---|---|---|
+| I-018 | Single command bar: identity + save status left, view pill center, actions right | layout · organization · UX | Editor (live), Result (candidate), Wizard (candidate) | — | NEW → 🟢 | `EditorTopBar` + `GlassPillNav` |
+| I-019 | Full-bleed studio (no app rail around the canvas) | layout · UX | Editor (live) | — | NEW → 🟢 | `/editor` sans DashboardShell |
+| I-020 | Chat as quiet column: user = glass chip, assistant = plain text, chips above a glass input | UI · composition | Editor (live), future AI surfaces | — | MERGE (restyle of existing chat) → 🟢 | `/editor` panel V3 |
+
 ## Open pattern candidates (🟡 — ideas awaiting a real component to justify code)
 
 - **AmbientDrift** (I-005): an extremely subtle monochrome moving light field —

@@ -4,8 +4,8 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { PaperPlaneTilt, CircleNotch, ArrowLeft, MagicWand, RocketLaunch, Check, ArrowCounterClockwise, ArrowClockwise, Sun, Moon, CaretLeft, ChatText } from "@phosphor-icons/react";
-import { DashboardShell } from "@/components/dashboard/shell";
+import { PaperPlaneTilt, CircleNotch, ArrowLeft, MagicWand, RocketLaunch, Check, ArrowCounterClockwise, ArrowClockwise, Sun, Moon, CaretLeft, ChatText, LinkSimple } from "@phosphor-icons/react";
+import { EditorTopBar } from "@/components/workspace/editor-top-bar";
 import { SiteRenderer } from "@/components/blocks";
 import { PreviewStage } from "@/components/workspace/preview-stage";
 import { usePersistentState } from "@/lib/use-persistent-state";
@@ -46,6 +46,7 @@ export default function EditorPage() {
   const [input, setInput] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [published, setPublished] = React.useState<string | null>(null);
+  const [shareState, setShareState] = React.useState<"idle" | "busy" | "copied">("idle");
   const [projectId, setProjectId] = React.useState<string | null>(null);
   const [past, setPast] = React.useState<SiteSchema[]>([]); // undo history
   const [future, setFuture] = React.useState<SiteSchema[]>([]); // redo stack
@@ -265,19 +266,102 @@ export default function EditorPage() {
     }
   }
 
+  // Persist the current redesign as a public /r/<id> snapshot and put the link
+  // on the clipboard. Real capability (same store the result page uses).
+  async function share() {
+    if (!schema || shareState === "busy") return;
+    setShareState("busy");
+    try {
+      const res = await fetch("/api/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ schema }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error || "share failed");
+      const abs = `${window.location.origin}${data.url}`;
+      try {
+        await navigator.clipboard.writeText(abs);
+        setShareState("copied");
+        setTimeout(() => setShareState("idle"), 2000);
+      } catch {
+        // Clipboard blocked (permissions): still surface the link in the chat.
+        setMessages((m) => [...m, { role: "assistant", content: `Share link ready: ${abs}` }]);
+        setShareState("idle");
+      }
+    } catch {
+      setMessages((m) => [...m, { role: "assistant", content: "Could not create a share link. Please try again." }]);
+      setShareState("idle");
+    }
+  }
+
   if (!schema) {
     return (
-      <DashboardShell>
-        <div className="flex h-screen items-center justify-center">
-          <CircleNotch weight="bold" className="h-6 w-6 animate-spin text-muted-foreground" />
-        </div>
-      </DashboardShell>
+      <div className="flex h-screen items-center justify-center bg-background">
+        <CircleNotch weight="bold" className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
     );
   }
 
   return (
-    <DashboardShell>
-      <div className="flex h-screen flex-col lg:flex-row">
+    <div className="flex h-screen flex-col bg-background">
+      <EditorTopBar
+        title={schema.brand.name}
+        subtitle={busy ? "Applying…" : "All changes saved"}
+        leftExtra={
+          <Link
+            href="/result"
+            title="Back to result"
+            aria-label="Back to result"
+            className="ml-1 hidden h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors duration-fast ease-premium hover:bg-white/[0.06] hover:text-foreground sm:flex"
+          >
+            <ArrowLeft weight="bold" className="h-4 w-4" />
+          </Link>
+        }
+      >
+        <button
+          onClick={undo}
+          disabled={!past.length || busy}
+          title="Undo"
+          aria-label="Undo"
+          className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors duration-fast ease-premium hover:bg-white/[0.06] hover:text-foreground disabled:opacity-40"
+        >
+          <ArrowCounterClockwise weight="bold" className="h-4 w-4" />
+        </button>
+        <button
+          onClick={redo}
+          disabled={!future.length || busy}
+          title="Redo"
+          aria-label="Redo"
+          className="mr-1 flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors duration-fast ease-premium hover:bg-white/[0.06] hover:text-foreground disabled:opacity-40"
+        >
+          <ArrowClockwise weight="bold" className="h-4 w-4" />
+        </button>
+        <Button variant="secondary" size="sm" onClick={share} disabled={shareState === "busy"}>
+          {shareState === "copied" ? (
+            <>
+              <Check weight="bold" className="h-4 w-4" /> Link copied
+            </>
+          ) : (
+            <>
+              <LinkSimple weight="bold" className="h-4 w-4" /> Share
+            </>
+          )}
+        </Button>
+        {published ? (
+          <a href={published} target="_blank" rel="noreferrer">
+            <Button size="sm">
+              <Check weight="bold" className="h-4 w-4" /> Live
+            </Button>
+          </a>
+        ) : (
+          <Button size="sm" onClick={publish}>
+            <RocketLaunch weight="bold" className="h-4 w-4" /> Publish
+          </Button>
+        )}
+      </EditorTopBar>
+
+      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
         {/* AI chat — collapsible + resizable panel */}
         {chatOpen && (
         <div
@@ -294,40 +378,15 @@ export default function EditorPage() {
                 <div className="truncate text-xs text-muted-foreground">{schema.brand.name}</div>
               </div>
             </div>
-            <div className="flex shrink-0 items-center gap-0.5">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={undo}
-                disabled={!past.length || busy}
-                title="Undo last change"
-                aria-label="Undo last change"
-              >
-                <ArrowCounterClockwise weight="bold" className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={redo}
-                disabled={!future.length || busy}
-                title="Redo"
-                aria-label="Redo"
-              >
-                <ArrowClockwise weight="bold" className="h-4 w-4" />
-              </Button>
-              <Link href="/result">
-                <Button variant="ghost" size="sm" title="Back to result"><ArrowLeft weight="bold" className="h-4 w-4" /></Button>
-              </Link>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setChatOpen(false)}
-                title="Hide panel — focus the preview"
-                aria-label="Hide panel"
-              >
-                <CaretLeft weight="bold" className="h-4 w-4" />
-              </Button>
-            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setChatOpen(false)}
+              title="Hide panel — focus the preview"
+              aria-label="Hide panel"
+            >
+              <CaretLeft weight="bold" className="h-4 w-4" />
+            </Button>
           </div>
 
           <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto p-5">
@@ -341,8 +400,8 @@ export default function EditorPage() {
                 <div
                   className={
                     m.role === "user"
-                      ? "max-w-[85%] rounded-2xl rounded-br-sm bg-accent px-4 py-2.5 text-sm text-accent-foreground"
-                      : "max-w-[85%] rounded-2xl rounded-bl-sm border border-border bg-card px-4 py-2.5 text-sm"
+                      ? "max-w-[85%] rounded-2xl rounded-br-md border border-white/8 bg-white/[0.07] px-4 py-2.5 text-sm text-foreground"
+                      : "max-w-[92%] text-sm leading-relaxed text-foreground/90"
                   }
                 >
                   {m.content}
@@ -381,11 +440,11 @@ export default function EditorPage() {
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Describe a change…"
+              placeholder="Ask ReFrame…"
               disabled={busy}
-              className="h-11 flex-1 rounded-xl border border-border bg-background px-4 text-sm outline-none focus:border-foreground/20 focus:ring-4 focus:ring-foreground/5"
+              className="h-11 flex-1 rounded-2xl border border-white/8 bg-white/[0.04] px-4 text-sm outline-none transition-colors duration-fast ease-premium placeholder:text-muted-foreground focus:border-white/16 focus:bg-white/[0.06]"
             />
-            <Button type="submit" size="icon" disabled={busy || !input.trim()} className="h-11 w-11">
+            <Button type="submit" size="icon" disabled={busy || !input.trim()} className="h-11 w-11 rounded-2xl">
               <PaperPlaneTilt weight="bold" className="h-4 w-4" />
             </Button>
           </form>
@@ -435,13 +494,6 @@ export default function EditorPage() {
                 >
                   {schema.theme.dark ? <Sun weight="bold" className="h-4 w-4" /> : <Moon weight="bold" className="h-4 w-4" />}
                 </button>
-                {published ? (
-                  <a href={published} target="_blank" rel="noreferrer">
-                    <Button size="sm"><Check weight="bold" className="h-4 w-4" /> Live</Button>
-                  </a>
-                ) : (
-                  <Button size="sm" onClick={publish}><RocketLaunch weight="bold" className="h-4 w-4" /> Publish</Button>
-                )}
               </>
             }
           >
@@ -449,6 +501,6 @@ export default function EditorPage() {
           </PreviewStage>
         </div>
       </div>
-    </DashboardShell>
+    </div>
   );
 }

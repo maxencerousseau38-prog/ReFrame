@@ -49,6 +49,16 @@
 
 ## Prochaine action
 
+**Éditeur V3 — architecture studio livrée (réf. Lovable, jamais copiée).**
+`/editor` = studio plein écran : `EditorTopBar` (identité + statut réel · pilule
+« Aperçu » · undo/redo + Share réel `/api/share` + Publish argent), chat colonne
+calme (chip verre / texte / chips / input verre), PreviewStage inchangé
+(devices/fit/dark). DashboardShell retiré de l'éditeur. Preuve locale : 7
+contrôles réels, overflowX=0, monochrome (reste : pastilles trafic BrowserFrame,
+préexistantes), tsc + 497 tests. Ledger I-018/019/020. **Candidats suivants** :
+même barre sur /result · redesign /login (AuthSplit, queued) · pastilles
+BrowserFrame à neutraliser ?
+
 **Component Library fondée (`src/components/design-system/`) — intake #001.**
 Directive « bibliothèque officielle = source de vérité » : pipeline d'intake
 gouverné (analyser → décomposer → généraliser → re-skinner ReFrame → dédupliquer

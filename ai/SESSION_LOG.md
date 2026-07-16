@@ -1,5 +1,10 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-14 — Éditeur V3 : architecture studio (référence Lovable, jamais copiée)
+- `/editor` restructuré en studio plein écran : `EditorTopBar` (nouvelle brique workspace) = identité + statut de sauvegarde RÉEL à gauche · pilule `GlassPillNav` « Aperçu » seule au centre (pas d'onglet Code mort, U0) · undo/redo + **Share** (câblé /api/share réel → lien /r/<id> copié) + **Publish** argent à droite. DashboardShell retiré de l'éditeur (canvas = héros), retour via logo.
+- Chat V3 : bulle utilisateur = chip verre, assistant = texte calme, chips suggestions, input verre « Ask ReFrame… » + envoi argent. Publish/Live sortis du PreviewStage (restent : devices/fit/dark). Comportements préservés : collapse/resize chat, cluster flottant, undo/redo, streaming.
+- Preuve LOCALE (seed sessionStorage — loadSchema lit sessionStorage, pas localStorage) : topbar 7 contrôles réels, iframe preview OK, overflowX=0, 0 erreur, monochrome (3 éléments colorés = pastilles trafic du BrowserFrame, préexistantes). tsc propre, 497 tests. Ledger : I-018/I-019/I-020.
+
 ## 2026-07-14 — Intake #003 (Sign-In Page) : champs de formulaire verre V3
 - Pipeline checkpointé 6 étapes (ai/INTAKE_STATE.md). Rejetés : violet (A-004), témoignages/avatars fabriqués (A-005), bouton Google OAuth (🟡 queued — non câblé Supabase, U0). lucide→Phosphor.
 - MERGE : `Input` upgradé au verre V3 (bg-white/.04, hairline .08→.16 au focus) — pas de fork. NOUVEAUX : `PasswordInput` (toggle Eye/EyeSlash, aria-pressed, compose Input), `Checkbox` (natif zéro dép, coche argent), `LabeledDivider` (role=separator). Exports ui/index + barrel + vitrine /design-system.
