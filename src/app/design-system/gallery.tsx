@@ -3,6 +3,10 @@
 import { ArrowRight, Star } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { LabeledDivider } from "@/components/ui/labeled-divider";
 import { GlassPillNav } from "@/components/ui/glass-pill-nav";
 import { StatGroup } from "@/components/ui/stat-group";
 import { ScrollScaleReveal } from "@/components/ui/scroll-reveal";
@@ -46,6 +50,15 @@ export function DesignSystemGallery() {
           </Badge>
           <Badge variant="outline">Outline</Badge>
           <Badge variant="accent">Accent</Badge>
+        </Row>
+
+        <Row title="Form fields (glass) — Input · PasswordInput · Checkbox · LabeledDivider">
+          <div className="flex w-full max-w-sm flex-col gap-4">
+            <Input placeholder="you@business.com" type="email" aria-label="Email" />
+            <PasswordInput placeholder="Your password" aria-label="Password" />
+            <Checkbox label="Keep me signed in" defaultChecked />
+            <LabeledDivider label="or continue with" />
+          </div>
         </Row>
 
         <Row title="GlassPillNav (new)">

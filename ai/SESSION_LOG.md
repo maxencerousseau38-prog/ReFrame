@@ -1,5 +1,10 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-14 — Intake #003 (Sign-In Page) : champs de formulaire verre V3
+- Pipeline checkpointé 6 étapes (ai/INTAKE_STATE.md). Rejetés : violet (A-004), témoignages/avatars fabriqués (A-005), bouton Google OAuth (🟡 queued — non câblé Supabase, U0). lucide→Phosphor.
+- MERGE : `Input` upgradé au verre V3 (bg-white/.04, hairline .08→.16 au focus) — pas de fork. NOUVEAUX : `PasswordInput` (toggle Eye/EyeSlash, aria-pressed, compose Input), `Checkbox` (natif zéro dép, coche argent), `LabeledDivider` (role=separator). Exports ui/index + barrel + vitrine /design-system.
+- Ledger +10 idées (I-010→I-017, A-004/A-005) dont patterns queued : AuthSplit (redesign /login sur GO), cartes verre sur média (génération, contenu réel only). tsc propre, 497 tests, additif, preuve LOCALE (Vercel non nettoyé).
+
 ## 2026-07-13 — Component Library intake #002 (Zoom Parallax → ScrollScaleReveal)
 - Composant reçu « Zoom Parallax » (21st.dev, framer-motion + Lenis) DÉCOMPOSÉ, jamais intégré. Rejetés : dép. Lenis (smooth-scroll), cluster 7-images en `vw` codé en dur (non responsive), scale 1→9 (spectaculaire, hors doctrine V3), `<img>` bruts. Corrigé : reduced-motion honoré.
 - Extrait 1 primitive : `ScrollScaleReveal` (scale lié au scroll sur scène sticky, retenu 1→1.35, responsive, reduced-motion-safe, transform-only, zéro nouvelle dép) — exportée via `ui/index.ts` + barrel `design-system`. Pas un doublon de `blocks/use-parallax.ts` (gsap/sites générés vs framer-motion/chrome). Vitrine `/design-system` + README intake #002 + scores. Décision : INTÉGRÉ (primitive distillée) ; monolithe REFUSÉ.

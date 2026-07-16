@@ -94,6 +94,21 @@ Status legend: 🟢 REALIZED · 🔵 QUEUED (generation, blocked) · 🟡 PATTER
 
 ---
 
+### From intake #003 — "Sign-In Page"
+
+| ID | Idea | Type | SaaS surfaces | Gen-site cat. | Compare → status | Realization |
+|---|---|---|---|---|---|---|
+| I-010 | Glass field: translucent fill, hairline brightens on focus | UI · glass · interaction | ALL forms (Auth, Settings, Publish, Wizard, Dashboard) | Contact | MERGE (upgraded existing `Input`) → 🟢 | `Input` v2 |
+| I-011 | Password visibility toggle inside the field | interaction · UX | Auth, Settings, Integrations (secrets) | — | NEW → 🟢 | `PasswordInput` |
+| I-012 | Monochrome checkbox, silver checked-state | UI | Auth, Settings, Publish, Wizard, Dashboard bulk-select | Contact (consent) | NEW → 🟢 | `Checkbox` |
+| I-013 | Hairline divider with centered quiet label | composition · UI | Auth, Settings groups, Wizard, Pricing | Pricing, FAQ | NEW → 🟢 | `LabeledDivider` |
+| I-014 | Staggered fade+blur+rise entrance cascade | animation | Landing, Auth | Hero | REUSE → 🟢 | `Reveal`/`BlurReveal` |
+| I-015 | OAuth provider button (brand icon + neutral shell) | UI · UX | Auth | — | 🟡 QUEUED — U0: OAuth not wired in Supabase; build when it lands | idea only |
+| I-016 | Floating glass cards over full-bleed media | composition · glass · depth | — | **Testimonials, Restaurant, Immobilier, Agence** (REAL content only) | 🔵 QUEUED (generation; fabrication rejected, mechanic kept) | idea only |
+| I-017 | Split panel: focused form left, immersive media right | layout | Auth (login/signup/reset redesign) | Contact, Agence | 🟡 pattern **AuthSplit** — realize at the /login V3 redesign (on GO) | idea only |
+| A-004 | Violet accent (focus/links) | UI | — | — | 🔴 anti-pattern (non-monochrome) | never adopt |
+| A-005 | Fabricated testimonials / stock avatars | UX | — | — | 🔴 anti-pattern (fabrication — doctrine) | never adopt |
+
 ## Open pattern candidates (🟡 — ideas awaiting a real component to justify code)
 
 - **AmbientDrift** (I-005): an extremely subtle monochrome moving light field —

@@ -126,6 +126,43 @@ brand-agnostic *generated sites*; this is framer-motion scale for the *chrome*).
 that lifts on scroll. **Decision: INTEGRATED (distilled primitive only)** — the
 original monolithic component was **REFUSED**.
 
+### #003 — "Sign-In Page" (21st.dev, lucide + violet accents)
+
+**Why it was interesting.** A complete auth surface — it exposed three field
+mechanics the library lacked (password toggle, checkbox, labeled divider) and a
+glass input language that upgrades our existing `Input`.
+
+**Decomposed → triaged:**
+
+| Atom | Decision | Reason |
+|---|---|---|
+| Violet focus/links (`violet-400/70`, `violet-500/10`) | **REJECTED** | Monochrome doctrine — focus is silver/white. |
+| lucide `Eye/EyeOff` | **REPLACED** | Phosphor-uniform (`Eye`/`EyeSlash`). |
+| Fabricated testimonials + randomuser avatars | **REJECTED** | Never fabricate. The *mechanic* (glass cards over media) is logged as a pattern for REAL testimonials in generated sites. |
+| Google OAuth button | **QUEUED** | OAuth is not wired in Supabase config — shipping a dead button violates U0. Logged; realize when OAuth lands. |
+| Glass input wrapper (focus-within brighten) | **MERGED → `Input`** | Upgraded the existing primitive in place (no fork): `bg-white/[0.04]`, hairline `.08` → `.16` + ring on focus. |
+| Password visibility toggle | **EXTRACTED → `PasswordInput`** | Composes `Input` (no duplication); real button, `aria-pressed`. |
+| "Keep me signed in" checkbox | **EXTRACTED → `Checkbox`** | Library had none. Native input (zero deps), silver checked-state, AT-safe. |
+| "Or continue with" divider | **EXTRACTED → `LabeledDivider`** | `role="separator"`, quiet label chip. |
+| Staggered fade+blur entrance cascade | **REUSE** | `Reveal` / `BlurReveal` already do this. |
+| Split auth layout (form \| media) | **PATTERN (queued)** | AuthSplit — realize when `/login` gets its V3 redesign (app work, on GO). |
+
+**New:** `PasswordInput`, `Checkbox`, `LabeledDivider` · **Upgraded:** `Input` (glass V3).
+
+**Scores (0–5):**
+
+| Component | Design | Reusability | Premium | Perf | A11y |
+|---|---|---|---|---|---|
+| Input (upgraded) | 5 | 5 | 5 | 5 | 5 |
+| PasswordInput | 4 | 5 | 4 | 5 | 5 |
+| Checkbox | 4 | 5 | 4 | 5 | 5 |
+| LabeledDivider | 4 | 4 | 4 | 5 | 5 |
+
+**Where used:** auth (`/login`, `/reset` — adoption at their V3 redesign),
+Settings (change password, API keys), Publish (visibility options), Wizard
+confirmations, dashboards (bulk select). **Decision: INTEGRATED (3 new) +
+MERGED (Input upgrade)** — the monolithic page was **REFUSED**.
+
 ---
 
 ## Catalog (populated so far)

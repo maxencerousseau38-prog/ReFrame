@@ -25,9 +25,9 @@ dans PATTERNS.md (moteur bloqué par lib/library morte + blocks/index.tsx, P1/P2
 ## État courant
 
 - **Intake en cours : AUCUN** — en attente du prochain composant.
-- Dernier intake terminé : **#002** (Zoom Parallax → `ScrollScaleReveal`), 6/6 ✅.
-- Dernier checkpoint committé : `10194e2` (Visual Brain ledger, 13 idées).
-- Ledger : 6 🟢 réalisées · 3 🟡 patterns candidats · 1 🔵 queued génération · 3 🔴 anti-patterns.
+- Dernier intake terminé : **#003** (Sign-In Page → `PasswordInput`/`Checkbox`/`LabeledDivider` + upgrade `Input` verre), 6/6 ✅.
+- Ledger : 11 🟢 réalisées · 5 🟡 patterns candidats · 2 🔵 queued génération · 5 🔴 anti-patterns.
+- Rappel adoption : `/login`+`/reset` consomment ces primitives à leur redesign V3 (pattern AuthSplit, sur GO).
 
 ## Journal des intakes (append-only)
 
@@ -35,3 +35,4 @@ dans PATTERNS.md (moteur bloqué par lib/library morte + blocks/index.tsx, P1/P2
 |---|---|---|---|
 | #001 | Ethereal Beams Hero (three.js) | 6/6 ✅ | `eec73c8` |
 | #002 | Zoom Parallax (framer-motion+Lenis) | 6/6 ✅ | `50031b8` |
+| #003 | Sign-In Page (lucide+violet) | 6/6 ✅ | (ce commit) |
