@@ -2430,6 +2430,10 @@ export function qualityPass(blocks: Block[], imagePool: string[]): { blocks: Blo
     };
     let changed = false;
     out = out.map((b) => {
+      // Team portraits are IDENTITY, not interchangeable decor: swapping a
+      // person's photo for a pool image puts a dining room on the founder's
+      // face. The roster keeps exactly the images extracted per member.
+      if (b.type === "team") return b;
       const props: Record<string, unknown> = { ...(b.props as Record<string, unknown>) };
       if (typeof props.image === "string") {
         const n = next();

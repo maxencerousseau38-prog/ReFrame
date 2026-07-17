@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-15 — Creative Director QG : portraits d'équipe + titre About (moteur)
+- Doctrine Creative Director reçue (quality gates : aucune section vide/texte perdu/hiérarchie confuse). Diagnostic DOM factuel : « sections vides » = artefact de capture (whileInView), mais 2 VRAIS bugs moteur confirmés.
+- BUG 1 (moteur) : `qualityPass` étape « distribute imagery » écrasait les PORTRAITS des membres d'équipe avec le pool général (salle à manger sur le visage de la fondatrice). Preuve par test : PORTRAIT0/1 → POOL1/2. Fix : blocs `team` exclus de la redistribution (l'image d'une personne = identité). Test de régression permanent `team-portraits.test.ts` → suite passe à 498.
+- BUG 2 (renderer) : titre About « écho fantôme » (contour text-stroke) + vrai titre en reveal séparé → tout état pré-animation montrait le contour seul (= titre cassé en capture/print/device lent). Fix : écho + titre révélés comme UNE unité motion.
+- Preuves visuelles : « The people behind Northlight » net, 3/4 vrais portraits rendus (4e = cold-start proxy sandbox, URL 200 vérifiée). tsc propre, 498 tests. LOCAL.
+
 ## 2026-07-15 — Moteur IA : nouvelle section générable GalleryBento (restaurants/hôtels)
 - Mandat « absorber la qualité, l'injecter dans le moteur » : nouvelle section GENERABLE `GalleryBento` (collage éditorial : tuile de tête monumentale + satellites, reveal en cascade, hover profondeur + légendes indexées, hairlines) — code original, grammaire maison (rfSectionPad/rfContainer/CoverImage/EASE, brand-tinted). Enregistrée REGISTRY + BLOCK_CATALOG avec `prefer: restaurant/hotel` → le moteur la SÉLECTIONNE seul.
 - Tueur visuel corrigé par construction : l'ancienne galerie alternée affichait des RECTANGLES VIDES pour les items sans image (pleine page restaurant) ; GalleryBento filtre → images réelles uniquement, <4 images = grille propre, 0 image = section omise (no-fabrication).

@@ -1784,8 +1784,17 @@ function StatementEditorial({ props }: { props: any }) {
               {props.eyebrow}
             </span>
           )}
-          {/* monumental title with a ghosted echo behind it — the one bold move */}
-          <div className="relative mt-6">
+          {/* monumental title with a ghosted echo behind it — the one bold move.
+              Echo + title reveal as ONE unit: a separately-animated title left
+              the bare outline visible whenever the reveal hadn't fired yet
+              (slow devices, screenshots, print) and read as a rendering bug. */}
+          <motion.div
+            initial={reduce ? false : { opacity: 0, y: 22 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.7, ease: EASE }}
+            className="relative mt-6"
+          >
             <span
               aria-hidden
               className="pointer-events-none absolute -left-0.5 -top-[0.16em] hidden select-none text-[clamp(2.4rem,6vw,5rem)] leading-[0.92] tracking-[-0.03em] sm:block"
@@ -1798,17 +1807,13 @@ function StatementEditorial({ props }: { props: any }) {
             >
               {title}
             </span>
-            <motion.h2
-              initial={reduce ? false : { opacity: 0, y: 22 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.7, ease: EASE }}
+            <h2
               className="relative text-[clamp(2.4rem,6vw,5rem)] leading-[0.92] tracking-[-0.03em] [text-wrap:balance]"
               style={{ fontFamily: "var(--brand-font)", fontWeight: 590, color: "var(--brand)" }}
             >
               {title}
-            </motion.h2>
-          </div>
+            </h2>
+          </motion.div>
           {props.body && (
             <p className="mt-7 max-w-xl text-lg leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.66 }}>
               {props.body}

@@ -49,6 +49,19 @@
 
 ## Prochaine action
 
+**Creative Director QG (2026-07-15) : 2 bugs moteur tués.** (1) `qualityPass`
+écrasait les PORTRAITS d'équipe avec le pool d'images (fix : blocs team exclus
+de la redistribution ; test de régression `team-portraits.test.ts`, suite → 498).
+(2) Titre About « écho fantôme » : reveal séparé laissait le contour seul en
+état pré-animation (fix : écho+titre révélés comme une unité). Diagnostic DOM :
+les « sections vides » de la pleine page étaient un artefact de capture — pas
+de bug produit. Preuves : portraits réels rendus, titre net. tsc, 498 tests.
+**Doctrine à ancrer (conseil utilisateur, en attente)** : architecture de
+prompts en couches (Design Rules / Sector Playbooks / Pipeline / Quality Gates)
+— candidat : enrichir DOCTRINE dans llm.ts + docs sectoriels. **Cible visuelle
+suivante** : ventre de page restant (gap blanc au-dessus des témoignages,
+cartes features aux images dupliquées de la galerie ?) ou nouveau composant 21st.
+
 **Moteur IA enrichi (2026-07-15) : section générable `GalleryBento` livrée.**
 Collage éditorial (tuile monumentale + satellites, reveal cascade, hover
 profondeur) sélectionné SEUL par le moteur (`prefer restaurant/hotel`), images
