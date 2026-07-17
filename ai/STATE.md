@@ -49,6 +49,17 @@
 
 ## Prochaine action
 
+**Expérience de GÉNÉRATION livrée (V2) : entrée dashboard + moment d'analyse.**
+Entrée focale centrée + command field verre (I-022, bouton dans la barre),
+erreurs → destructive ; AnalyzeLoader → carte verre 24px avec l'URL réelle
+analysée (I-023), étapes calmes argent. Preuves locales avant/après + état
+analyse, overflowX=0, tsc, 497 tests, comportements intacts. Le parcours
+dashboard → génération → result → editor parle désormais UNE langue.
+**Cible suivante auto-sélectionnée : le flow PUBLISH (LaunchWizard)** — dernier
+maillon du parcours encore sur l'ancien langage (emerald/rounded anciens vus à
+l'audit wizard-steps.tsx), et c'est le moment de conversion payante. Ensuite :
+pastilles PreviewStage · /reset · landing pills.
+
 **Expérience de révélation livrée : /result reconstruit (ciblage autonome V2).**
 Barre de commande studio propagée (EditorTopBar slot `center`, pilule
 Before/After GlassPillNav + variante mobile), réorganisation « reveal-first »

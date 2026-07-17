@@ -115,6 +115,8 @@ Status legend: 🟢 REALIZED · 🔵 QUEUED (generation, blocked) · 🟡 PATTER
 |---|---|---|---|---|---|---|
 | I-018 | Single command bar: identity + save status left, view pill center, actions right | layout · organization · UX | **Editor (live), Result (live — Before/After pill via `center` slot)**, Wizard (candidate) | — | NEW → 🟢 propagated | `EditorTopBar` + `GlassPillNav` |
 | I-021 | Reveal-first: the product moment renders above the proof (insights below the preview, status banners only above) | UX · organization | Result (live) | — | NEW → 🟢 | `/result` restructure |
+| I-022 | Command field: one glass bar, icon + input + primary button inside | UI · composition | Dashboard entry (live), landing hero (candidate) | Contact | NEW → 🟢 | `/dashboard` entry |
+| I-023 | Progress card: quiet glass card naming the REAL subject (url) + staged pipeline narrative | UX · animation | Generation moment (live), publish sequence (candidate) | — | MERGE (restyle of AnalyzeLoader) → 🟢 | `analyze-loader.tsx` |
 | I-019 | Full-bleed studio (no app rail around the canvas) | layout · UX | Editor (live) | — | NEW → 🟢 | `/editor` sans DashboardShell |
 | I-020 | Chat as quiet column: user = glass chip, assistant = plain text, chips above a glass input | UI · composition | Editor (live), future AI surfaces | — | MERGE (restyle of existing chat) → 🟢 | `/editor` panel V3 |
 

@@ -152,47 +152,49 @@ function DashboardInner() {
       <div className="mx-auto max-w-5xl px-6 py-10 sm:py-16">
         {/* Recurring value first for returning customers (self-hides otherwise). */}
         <ValueSummary />
-        <div className="mb-10">
-          <Badge variant="outline" className="mb-3">
-            <Sparkle weight="fill" className="h-3 w-3" /> New project
-          </Badge>
-          <h1 className="text-4xl font-semibold tracking-[-0.02em]">{d.title}</h1>
-          <p className="mt-3 text-muted-foreground">{d.subtitle}</p>
-        </div>
+        {/* Entry — the first product moment: centered, focal, breathing. */}
+        <div className={phase === "idle" ? "mx-auto max-w-2xl pt-6 text-center sm:pt-14" : "mx-auto max-w-2xl text-center"}>
+          <div className="mb-4 flex justify-center">
+            <Badge variant="outline">
+              <Sparkle weight="fill" className="h-3 w-3" /> New project
+            </Badge>
+          </div>
+          <h1 className="text-balance text-4xl font-semibold tracking-[-0.02em] sm:text-5xl">{d.title}</h1>
+          <p className="mx-auto mt-4 max-w-lg text-pretty text-muted-foreground">{d.subtitle}</p>
 
-        {/* URL input */}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (url.trim()) void runAnalyze(url.trim());
-          }}
-          className="flex flex-col gap-3 sm:flex-row"
-        >
-          <div className="relative flex-1">
-            <Globe weight="bold" className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+          {/* URL command field — one glass bar, button inside. */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (url.trim()) void runAnalyze(url.trim());
+            }}
+            className="mt-9 flex items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.04] p-2 transition-colors duration-fast ease-premium focus-within:border-white/16 focus-within:bg-white/[0.05]"
+          >
+            <Globe weight="bold" className="ml-3 h-5 w-5 shrink-0 text-muted-foreground" />
             <input
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder={d.urlPlaceholder}
               disabled={phase === "analyzing" || phase === "generating"}
-              className="h-12 w-full rounded-xl border border-border bg-background pl-12 pr-4 text-[15px] shadow-sm transition-all focus:border-foreground/20 focus:outline-none focus:ring-4 focus:ring-foreground/5"
+              aria-label={d.urlPlaceholder}
+              className="h-11 w-full min-w-0 flex-1 bg-transparent text-[15px] outline-none placeholder:text-muted-foreground"
             />
-          </div>
-          <Button
-            type="submit"
-            size="lg"
-            variant="light"
-            disabled={phase === "analyzing" || phase === "generating" || !url.trim()}
-          >
-            {d.analyze} <ArrowRight weight="bold" className="h-4 w-4" />
-          </Button>
-        </form>
+            <Button
+              type="submit"
+              disabled={phase === "analyzing" || phase === "generating" || !url.trim()}
+              className="shrink-0"
+            >
+              <span className="hidden sm:inline">{d.analyze}</span>
+              <ArrowRight weight="bold" className="h-4 w-4" />
+            </Button>
+          </form>
 
-        {error && (
-          <div className="mt-4 flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-            <Warning weight="bold" className="h-4 w-4" /> {error}
-          </div>
-        )}
+          {error && (
+            <div className="mt-4 flex items-center gap-2 rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-left text-sm text-red-200">
+              <Warning weight="bold" className="h-4 w-4 shrink-0" /> {error}
+            </div>
+          )}
+        </div>
 
         {/* Saved projects (signed-in users), shown on the empty dashboard. */}
         {phase === "idle" && <RecentProjects />}
@@ -201,8 +203,8 @@ function DashboardInner() {
 
         {/* States */}
         {(phase === "analyzing" || phase === "generating") && (
-          <div className="mt-16">
-            <AnalyzeLoader done={phase === "generating"} />
+          <div className="mt-12">
+            <AnalyzeLoader done={phase === "generating"} url={url || undefined} />
           </div>
         )}
 

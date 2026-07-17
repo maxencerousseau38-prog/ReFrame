@@ -1,5 +1,10 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-14 — Expérience de GÉNÉRATION : entrée dashboard + moment d'analyse (V2, ciblage autonome)
+- Entrée `/dashboard` refaite en composition focale centrée (badge, titre 4xl→5xl text-balance, sous-titre contenu) + « command field » (I-022) : UNE barre en verre (icône + input + bouton argent à l'intérieur, focus-within), erreur → tokens destructive. Bouton `light` retiré du parcours.
+- `AnalyzeLoader` (moment magique) → carte verre 24px (I-023) : en-tête « Reading your site » + URL RÉELLE analysée (prop `url`), étapes calmes (courante en white/[0.06], coches argent, pending muted), motion ease-premium, reduced-motion conservé. Timing narratif préexistant conservé (borderline U0, documenté — le done reste le signal réel).
+- Preuve LOCALE : captures avant/après 1440+390 + état analyse (auto-run ?url=example.com), overflowX=0 partout, tsc propre, 497 tests. Comportements intacts (analyze/generate/modes/i18n/extras). Prochaine cible auto : wizard/publish OU pastilles PreviewStage (au choix du prochain tour).
+
 ## 2026-07-14 — Expérience de révélation : /result reconstruit (mode V2, ciblage autonome)
 - Évaluation des surfaces → /result choisie (pic émotionnel du produit D8, la plus en retard vs la lib : 6 bannières empilées au-dessus du preview, pas de barre de commande, boutons pré-V3). `EditorTopBar` généralisé (slot `center`) et propagé : même langage studio que l'éditeur sur tout le parcours ; pilule Before/After = `GlassPillNav` (mobile : pilule sous la barre).
 - Réorganisation « reveal-first » (I-021) : statut/honnêteté seuls au-dessus, la RÉVÉLATION tout de suite, insights (email capture, recommandations, scores) en cartes verre 24px SOUS le preview. DashboardShell retiré (studio full-bleed comme l'éditeur). Pastilles trafic du cadre « before » neutralisées (blanc translucide). Comportements intégralement préservés (share/copy, download, wizard publish, paywall/auth/erreurs, BeforeView iframe→shot→mockup).
