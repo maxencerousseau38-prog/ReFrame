@@ -49,6 +49,16 @@
 
 ## Prochaine action
 
+**MODE DESIGN LEAD (2026-07-14) : impact visible <2s, produit d'abord, sites
+générés = priorité absolue.** Passe #1 livrée : imagerie SECTORIELLE du
+zpreview (`INDUSTRY_IMAGES` 7 secteurs + fallback + vrais portraits équipe,
+34 URLs vérifiées 200) — le hero restaurant passait d'un écran de code flou à
+une table gastronomique ; realestate = maison d'architecte. tsc, 497 tests.
+**Suivant** : audit visuel des pages générées COMPLÈTES (fullPage, pas que le
+hero) secteur par secteur → identifier et tuer le prochain « template feel »
+(rythme des sections ? cartes ? footer ?). Interdit : parler bibliothèque —
+uniquement des transformations visibles du produit.
+
 **Expérience de GÉNÉRATION livrée (V2) : entrée dashboard + moment d'analyse.**
 Entrée focale centrée + command field verre (I-022, bouton dans la barre),
 erreurs → destructive ; AnalyzeLoader → carte verre 24px avec l'URL réelle

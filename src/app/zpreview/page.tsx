@@ -17,18 +17,93 @@ const sections: BlockType[] = [
 ];
 
 const img = (id: string) => `https://images.unsplash.com/${id}?w=1200&q=80`;
-const SAMPLE_IMAGES = [
-  img("photo-1487058792275-0ad4aaf24ca7"),
-  img("photo-1498050108023-c5249f4df085"),
-  img("photo-1467232004584-a241de8bcf5d"),
-  img("photo-1517694712202-14dd9538aa97"),
-  img("photo-1531403009284-440f080d1e12"),
-  img("photo-1454165804606-c3d57bc86b40"),
+
+/**
+ * Sector-appropriate imagery (every URL verified 200). A restaurant preview
+ * must look like a restaurant, not a code editor: the fixture is how the
+ * generated templates are judged, so its imagery has to be premium AND true
+ * to the industry. Order matters: [0] is the hero.
+ */
+const INDUSTRY_IMAGES: Partial<Record<Industry, string[]>> = {
+  restaurant: [
+    img("photo-1414235077428-338989a2e8c0"),
+    img("photo-1517248135467-4c7edcad34c4"),
+    img("photo-1504674900247-0877df9cc836"),
+    img("photo-1555396273-367ea4eb4db5"),
+    img("photo-1544148103-0773bf10d330"),
+    img("photo-1546069901-ba9599a7e63c"),
+  ],
+  agency: [
+    img("photo-1497366216548-37526070297c"),
+    img("photo-1522071820081-009f0129c71c"),
+    img("photo-1524758631624-e2822e304c36"),
+    img("photo-1497215728101-856f4ea42174"),
+    img("photo-1521737711867-e3b97375f902"),
+    img("photo-1497366811353-6870744d04b2"),
+  ],
+  realestate: [
+    img("photo-1600585154340-be6161a56a0c"),
+    img("photo-1600607687939-ce8a6c25118c"),
+    img("photo-1512917774080-9991f1c4c750"),
+    img("photo-1600566753190-17f0baa2a6c3"),
+    img("photo-1600210492486-724fe5c67fb0"),
+    img("photo-1600566753086-00f18fb6b3ea"),
+  ],
+  artisan: [
+    img("photo-1504148455328-c376907d081c"),
+    img("photo-1452860606245-08befc0ff44b"),
+    img("photo-1416879595882-3373a0480b5b"),
+    img("photo-1529220502050-f15e570c634e"),
+    img("photo-1572981779307-38b8cabb2407"),
+    img("photo-1486406146926-c627a92ad1ab"),
+  ],
+  ecommerce: [
+    img("photo-1441986300917-64674bd600d8"),
+    img("photo-1542291026-7eec264c27ff"),
+    img("photo-1505740420928-5e560c06d30e"),
+    img("photo-1523381210434-271e8be1f52b"),
+    img("photo-1526170375885-4d8ecf77b99f"),
+    img("photo-1560343090-f0409e92791a"),
+  ],
+  health: [
+    img("photo-1576091160399-112ba8d25d1d"),
+    img("photo-1579684385127-1ef15d508118"),
+    img("photo-1538108149393-fbbd81895907"),
+    img("photo-1584982751601-97dcc096659c"),
+    img("photo-1631217868264-e5b90bb7e133"),
+    img("photo-1576765608535-5f04d1e3f289"),
+  ],
+  saas: [
+    img("photo-1498050108023-c5249f4df085"),
+    img("photo-1531403009284-440f080d1e12"),
+    img("photo-1517694712202-14dd9538aa97"),
+    img("photo-1454165804606-c3d57bc86b40"),
+    img("photo-1467232004584-a241de8bcf5d"),
+    img("photo-1487058792275-0ad4aaf24ca7"),
+  ],
+};
+
+/** Premium neutral fallback for sectors without a curated set. */
+const GENERIC_IMAGES = [
+  img("photo-1486406146926-c627a92ad1ab"),
+  img("photo-1449824913935-59a10b8d2000"),
+  img("photo-1470071459604-3b5ec3a7fe05"),
+  img("photo-1506905925346-21bda4d32df4"),
+  img("photo-1441974231531-c6227db76b6e"),
+  img("photo-1493397212122-2b85dda8106b"),
+];
+
+/** Real portraits for the team section (not screenshots of code). */
+const TEAM_PORTRAITS = [
+  img("photo-1560250097-0b93528c311a"),
+  img("photo-1573496359142-b8d87734a5a2"),
+  img("photo-1519085360753-af0119f7cbe7"),
+  img("photo-1438761681033-6461ffad8d80"),
 ];
 
 function buildAnalysis(industry: Industry, withImages: boolean): SiteAnalysis {
   const p = INDUSTRY_PROFILES[industry];
-  const images = withImages ? SAMPLE_IMAGES : [];
+  const images = withImages ? INDUSTRY_IMAGES[industry] ?? GENERIC_IMAGES : [];
   return {
     url: `https://demo-${industry}.com`,
     brandName: "Northlight",
@@ -57,10 +132,10 @@ function buildAnalysis(industry: Industry, withImages: boolean): SiteAnalysis {
         { platform: "X", url: "https://x.com/northlight" },
       ],
       team: [
-        { name: "Élise Caron", role: "Founder & Principal", image: SAMPLE_IMAGES[0], bio: "Twenty years shaping spaces across Europe, with a relentless eye for light and proportion." },
-        { name: "Marcus Reede", role: "Creative Director", image: SAMPLE_IMAGES[1], bio: "Leads every project from first sketch to final reveal." },
-        { name: "Priya Nair", role: "Head of Delivery", image: SAMPLE_IMAGES[2], bio: "Keeps complex builds calm, on time and on budget." },
-        { name: "Tomás Vidal", role: "Senior Designer", image: SAMPLE_IMAGES[3], bio: "Detail-obsessed, from joinery to typography." },
+        { name: "Élise Caron", role: "Founder & Principal", image: TEAM_PORTRAITS[0], bio: "Twenty years shaping spaces across Europe, with a relentless eye for light and proportion." },
+        { name: "Marcus Reede", role: "Creative Director", image: TEAM_PORTRAITS[1], bio: "Leads every project from first sketch to final reveal." },
+        { name: "Priya Nair", role: "Head of Delivery", image: TEAM_PORTRAITS[2], bio: "Keeps complex builds calm, on time and on budget." },
+        { name: "Tomás Vidal", role: "Senior Designer", image: TEAM_PORTRAITS[3], bio: "Detail-obsessed, from joinery to typography." },
       ],
       collection: {
         items: [

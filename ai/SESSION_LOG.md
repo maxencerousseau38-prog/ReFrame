@@ -1,5 +1,10 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-14 — MODE DESIGN LEAD : sites générés — imagerie sectorielle (impact <2s)
+- Nouveau mandat : plus de travail de bibliothèque, uniquement des transformations visibles du PRODUIT ; priorité absolue = sites générés. Diagnostic visuel zpreview : le fixture servait 6 photos d'ÉCRANS DE CODE à toutes les industries → un restaurant avait un hero « code flou » (tueur de qualité perçue n°1).
+- Fix moteur-galerie : `INDUSTRY_IMAGES` par secteur (restaurant/agency/realestate/artisan/ecommerce/health/saas, 6 images premium chacune, TOUTES vérifiées HTTP 200) + `GENERIC_IMAGES` fallback + `TEAM_PORTRAITS` réels (l'équipe avait des screenshots de code comme visages). Hero [0] pensé par secteur.
+- Avant/après restaurant : code flou → table gastronomique ; realestate : maison d'architecte au crépuscule ; santé/ecommerce cohérents. tsc propre, 497 tests, overflow 0. Preuve LOCALE. Suivant (Design Lead) : juger le rendu complet des pages générées (pas que le hero) et attaquer le prochain tueur visuel.
+
 ## 2026-07-14 — Expérience de GÉNÉRATION : entrée dashboard + moment d'analyse (V2, ciblage autonome)
 - Entrée `/dashboard` refaite en composition focale centrée (badge, titre 4xl→5xl text-balance, sous-titre contenu) + « command field » (I-022) : UNE barre en verre (icône + input + bouton argent à l'intérieur, focus-within), erreur → tokens destructive. Bouton `light` retiré du parcours.
 - `AnalyzeLoader` (moment magique) → carte verre 24px (I-023) : en-tête « Reading your site » + URL RÉELLE analysée (prop `url`), étapes calmes (courante en white/[0.06], coches argent, pending muted), motion ease-premium, reduced-motion conservé. Timing narratif préexistant conservé (borderline U0, documenté — le done reste le signal réel).
