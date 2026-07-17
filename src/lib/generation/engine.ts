@@ -2032,7 +2032,15 @@ function buildBlock(
         id: uid("cta"),
         type: "cta",
         variant: pickVariant("cta", analysis.industry, brand, mood),
-        props: { title: "Ready to get started?", subtitle: "Reach out today and let's make it happen.", cta: profile.cta.primary, ctaHref: bookHref },
+        props: {
+          // Closing band speaks the SECTOR's voice ("The table is set"), never
+          // generic SaaS-speak on a restaurant. Neutral fallback for sectors
+          // without curated closing copy.
+          title: profile.closing?.title ?? "Ready to get started?",
+          subtitle: profile.closing?.subtitle ?? "Reach out today and let's make it happen.",
+          cta: profile.cta.primary,
+          ctaHref: bookHref,
+        },
       };
     case "contact":
       return {
@@ -2416,44 +2424,71 @@ export function qualityPass(blocks: Block[], imagePool: string[]): { blocks: Blo
   //    rewrites fields that already hold an image (never adds imagery to an
   //    intentionally image-free section), and keeps the hero on the best photo.
   if (imagePool.length > 1) {
+    // A photo appears at most ONCE per page. Cycling the pool with modulo put
+    // the same dining room in the gallery, the feature cards and the About
+    // split within two viewports — instant template feel. Blocks are walked in
+    // page order (hero first, then the gallery showcase), and when the pool
+    // runs dry the image is DROPPED: every consuming variant degrades to its
+    // text/icon layout, which reads far more premium than a repeat.
     let idx = 0;
-    let prev = "";
-    const next = (): string => {
-      let img = imagePool[idx % imagePool.length];
-      if (img === prev && imagePool.length > 1) {
-        idx++;
-        img = imagePool[idx % imagePool.length];
-      }
-      idx++;
-      prev = img;
-      return img;
-    };
+    const next = (): string | undefined => (idx < imagePool.length ? imagePool[idx++] : undefined);
     let changed = false;
-    out = out.map((b) => {
-      // Team portraits are IDENTITY, not interchangeable decor: swapping a
-      // person's photo for a pool image puts a dining room on the founder's
-      // face. The roster keeps exactly the images extracted per member.
-      if (b.type === "team") return b;
-      const props: Record<string, unknown> = { ...(b.props as Record<string, unknown>) };
-      if (typeof props.image === "string") {
-        const n = next();
-        if (n !== props.image) changed = true;
-        props.image = n;
-      }
-      if (Array.isArray(props.items)) {
-        props.items = (props.items as unknown[]).map((it) => {
-          if (it && typeof it === "object" && typeof (it as { image?: unknown }).image === "string") {
-            const n = next();
-            if (n !== (it as { image: string }).image) changed = true;
-            return { ...(it as object), image: n };
+    // EDITORIAL PRIORITY, not array order: the hero keeps the best photo, then
+    // the gallery — the page's image showcase — is served before card sections.
+    // Without this, feature cards drained the pool and the magazine collage
+    // (the strongest section) vanished entirely.
+    const next2 = out.map((b) => ({ ...b, props: { ...(b.props as Record<string, unknown>) } }));
+    const isShowcase = (t: string) => t === "portfolio" || t === "gallery";
+    const passes: ((t: string) => boolean)[] = [
+      (t) => t === "hero",
+      (t) => isShowcase(t),
+      () => true,
+    ];
+    const served = new Set<number>();
+    for (const match of passes) {
+      next2.forEach((b, i) => {
+        if (served.has(i) || !match(b.type)) return;
+        served.add(i);
+        // Team portraits are IDENTITY, not interchangeable decor: swapping a
+        // person's photo for a pool image puts a dining room on the founder's
+        // face. The roster keeps exactly the images extracted per member.
+        if (b.type === "team") return;
+        const props = b.props as Record<string, unknown>;
+        if (typeof props.image === "string") {
+          const n = next();
+          if (n !== props.image) changed = true;
+          props.image = n;
+        }
+        if (Array.isArray(props.items)) {
+          const items = props.items as { image?: unknown }[];
+          const wanting = items.filter((it) => it && typeof it === "object" && typeof it.image === "string").length;
+          const remaining = imagePool.length - idx;
+          if (wanting === 0) return;
+          if (isShowcase(b.type) ? remaining === 0 : remaining < wanting) {
+            // Card rows are all-or-nothing (a half-imaged row looks broken; a
+            // clean icon/text row looks chosen). The showcase accepts a partial
+            // set — its collage adapts to any count and stays the page's peak.
+            props.items = items.map((it) =>
+              it && typeof it === "object" && typeof it.image === "string" ? { ...it, image: undefined } : it
+            );
+            changed = true;
+          } else {
+            props.items = items.map((it) => {
+              if (it && typeof it === "object" && typeof it.image === "string") {
+                const n = next();
+                if (n === undefined) return { ...it, image: undefined };
+                if (n !== it.image) changed = true;
+                return { ...it, image: n };
+              }
+              return it;
+            });
           }
-          return it;
-        });
-      }
-      return { ...b, props };
-    });
+        }
+      });
+    }
+    out = next2;
     if (changed) {
-      recommendations.push({ action: "Distributed the real photos across sections", reason: "Reusing one image everywhere looks templated; each section now gets a distinct photo." });
+      recommendations.push({ action: "Gave every section its own photo", reason: "Repeating the same image across sections looks templated; each photo now appears once, and sections beyond the pool render clean text layouts." });
     }
   }
 

@@ -19,6 +19,8 @@ interface IndustryProfile {
   };
   /** Primary call-to-action label, tuned to the sector. */
   cta: { primary: string };
+  /** Closing-band copy in the sector's voice. Falls back to a neutral line. */
+  closing?: { title: string; subtitle: string };
 }
 
 export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
@@ -34,6 +36,7 @@ export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
     },
     preferred: { hero: "HeroPremium2", features: "FeaturesGrid1" },
     cta: { primary: "Book a table" },
+    closing: { title: "The table is set", subtitle: "Book tonight, or plan the whole evening — we'll take care of the rest." },
   },
   artisan: {
     id: "artisan",
@@ -47,6 +50,7 @@ export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
     },
     preferred: { hero: "HeroPremium1", features: "FeaturesGrid1" },
     cta: { primary: "Get a free quote" },
+    closing: { title: "Built to last, done right", subtitle: "Tell us about the job — we'll come back with a clear plan and an honest quote." },
   },
   realestate: {
     id: "realestate",
@@ -60,6 +64,7 @@ export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
     },
     preferred: { hero: "HeroPremium2", features: "FeaturesGrid1" },
     cta: { primary: "Book a viewing" },
+    closing: { title: "Your next address is waiting", subtitle: "Book a viewing or ask us anything — local expertise, zero pressure." },
   },
   saas: {
     id: "saas",
@@ -74,6 +79,7 @@ export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
     },
     preferred: { hero: "HeroPremium1", features: "FeaturesGrid1" },
     cta: { primary: "Start free" },
+    closing: { title: "Start building today", subtitle: "Set up in minutes. Cancel anytime — no credit card required." },
   },
   agency: {
     id: "agency",
@@ -87,6 +93,7 @@ export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
     },
     preferred: { hero: "HeroPremium2", features: "FeaturesGrid1" },
     cta: { primary: "Start a project" },
+    closing: { title: "Let's make something people remember", subtitle: "Bring the brief — we'll bring the ideas." },
   },
   ecommerce: {
     id: "ecommerce",
@@ -100,6 +107,7 @@ export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
     },
     preferred: { hero: "HeroPremium1", features: "FeaturesGrid1" },
     cta: { primary: "Shop now" },
+    closing: { title: "Find the piece you'll keep", subtitle: "New arrivals land every week — see what's in store." },
   },
   health: {
     id: "health",
@@ -113,6 +121,7 @@ export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
     },
     preferred: { hero: "HeroPremium2", features: "FeaturesGrid1" },
     cta: { primary: "Book an appointment" },
+    closing: { title: "Your health, on your schedule", subtitle: "Book an appointment that fits your life — most requests confirmed the same day." },
   },
   hotel: {
     id: "hotel",
@@ -126,6 +135,7 @@ export const INDUSTRY_PROFILES: Record<Industry, IndustryProfile> = {
     },
     preferred: { hero: "HeroImageFull", features: "FeaturesGrid1" },
     cta: { primary: "Book your stay" },
+    closing: { title: "Your stay starts here", subtitle: "Check availability and book direct — the best rate, always." },
   },
   architect: {
     id: "architect",

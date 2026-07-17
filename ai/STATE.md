@@ -49,6 +49,21 @@
 
 ## Prochaine action
 
+**Ventre de page restaurant réévalué (2026-07-15) — parcours, pas composants.**
+Moteur : « une photo = une fois par page » (qualityPass) avec allocation par
+PRIORITÉ ÉDITORIALE (hero → galerie-vitrine partiel OK → singles → rangées
+all-or-nothing → texte/icônes) ; v1 par ordre de tableau avait tué la galerie
+→ refusée en auto-critique, corrigée. Voix sectorielle de clôture
+(`closing{title,subtitle}` ×9 secteurs, restaurant « The table is set »).
+Mesuré : 0 doublon (avant 5), galerie 5 vues, About 966→689px, tuiles icônes
+propres. tsc, 498 tests, LOCAL. **Design Review — gate « agence ou générateur ? »
+PAS ENCORE PASSÉ ; défauts assumés → prochaine passe** : 1) copy des cartes
+features = agency-speak FABRIQUÉ plaqué sur les services du secteur (« from
+brief to launch » sur un menu) — descriptions inventées à supprimer ou
+sectoriser (F21) ; 2) ventre tonalement plat (tout clair) — envisager un temps
+sombre éditorial (témoignages ?) pour les moods warm/elegant ; 3) présence de
+la clôture encore modeste (479px) ; 4) zones média des tuiles icônes hautes.
+
 **Creative Director QG (2026-07-15) : 2 bugs moteur tués.** (1) `qualityPass`
 écrasait les PORTRAITS d'équipe avec le pool d'images (fix : blocs team exclus
 de la redistribution ; test de régression `team-portraits.test.ts`, suite → 498).

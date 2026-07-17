@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-15 — Ventre de page restaurant : parcours réévalué (Creative Director)
+- Carte du rythme mesurée : 5 doublons d'images inter-sections (features réutilisait 4/6 photos de la galerie, About une 5e) + clôture générique « Ready to get started? » 450px/pad32 (la plus petite section) pour un restaurant.
+- Moteur : règle « une photo = une fois par page » dans qualityPass avec ALLOCATION PAR PRIORITÉ ÉDITORIALE (hero → GALERIE la vitrine, partiel autorisé → singles → rangées de cartes all-or-nothing → texte/icônes). 1ère version (ordre du tableau) avait TUÉ la galerie — refusée par auto-critique, corrigée. Team toujours exclu (identité).
+- Voix sectorielle de clôture : champ `closing{title,subtitle}` dans IndustryProfile + copy originale pour 9 secteurs (restaurant « The table is set »…) consommée par le bloc CTA (fallback neutre conservé).
+- Mesures après : 0 doublon inter-sections, galerie 5 vues restaurée, features en tuiles icônes propres, About resserré 966→689px, clôture en voix restaurant. tsc, 498 tests, LOCAL. Défauts identifiés en Design Review (copy cartes = agency-speak fabriqué sur secteur, ventre tonalement plat, présence CTA encore modeste) → prochaine passe.
+
 ## 2026-07-15 — Creative Director QG : portraits d'équipe + titre About (moteur)
 - Doctrine Creative Director reçue (quality gates : aucune section vide/texte perdu/hiérarchie confuse). Diagnostic DOM factuel : « sections vides » = artefact de capture (whileInView), mais 2 VRAIS bugs moteur confirmés.
 - BUG 1 (moteur) : `qualityPass` étape « distribute imagery » écrasait les PORTRAITS des membres d'équipe avec le pool général (salle à manger sur le visage de la fondatrice). Preuve par test : PORTRAIT0/1 → POOL1/2. Fix : blocs `team` exclus de la redistribution (l'image d'une personne = identité). Test de régression permanent `team-portraits.test.ts` → suite passe à 498.
