@@ -1,5 +1,10 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-15 — Moteur IA : nouvelle section générable GalleryBento (restaurants/hôtels)
+- Mandat « absorber la qualité, l'injecter dans le moteur » : nouvelle section GENERABLE `GalleryBento` (collage éditorial : tuile de tête monumentale + satellites, reveal en cascade, hover profondeur + légendes indexées, hairlines) — code original, grammaire maison (rfSectionPad/rfContainer/CoverImage/EASE, brand-tinted). Enregistrée REGISTRY + BLOCK_CATALOG avec `prefer: restaurant/hotel` → le moteur la SÉLECTIONNE seul.
+- Tueur visuel corrigé par construction : l'ancienne galerie alternée affichait des RECTANGLES VIDES pour les items sans image (pleine page restaurant) ; GalleryBento filtre → images réelles uniquement, <4 images = grille propre, 0 image = section omise (no-fabrication).
+- Avant/après pleine page restaurant : bandes cassées → collage magazine 6 vues ; page 9116→7570px. tsc propre, 497 tests. Preuve LOCALE. Prochains tueurs identifiés sur la pleine page : « What our clients say » VIDE, « The people behind » VIDE, titre About quasi invisible (beige sur blanc).
+
 ## 2026-07-14 — MODE DESIGN LEAD : sites générés — imagerie sectorielle (impact <2s)
 - Nouveau mandat : plus de travail de bibliothèque, uniquement des transformations visibles du PRODUIT ; priorité absolue = sites générés. Diagnostic visuel zpreview : le fixture servait 6 photos d'ÉCRANS DE CODE à toutes les industries → un restaurant avait un hero « code flou » (tueur de qualité perçue n°1).
 - Fix moteur-galerie : `INDUSTRY_IMAGES` par secteur (restaurant/agency/realestate/artisan/ecommerce/health/saas, 6 images premium chacune, TOUTES vérifiées HTTP 200) + `GENERIC_IMAGES` fallback + `TEAM_PORTRAITS` réels (l'équipe avait des screenshots de code comme visages). Hero [0] pensé par secteur.

@@ -49,6 +49,17 @@
 
 ## Prochaine action
 
+**Moteur IA enrichi (2026-07-15) : section générable `GalleryBento` livrée.**
+Collage éditorial (tuile monumentale + satellites, reveal cascade, hover
+profondeur) sélectionné SEUL par le moteur (`prefer restaurant/hotel`), images
+réelles uniquement (fin des rectangles vides de GalleryFeature). Avant/après
+pleine page restaurant, page 9116→7570px, tsc + 497 tests, preuve LOCALE.
+**Tueurs visuels suivants (pleine page restaurant)** : 1) « What our clients
+say » rend VIDE malgré 3 témoignages réels dans le fixture (bug rendu ?) ;
+2) « The people behind » (team) VIDE aussi ; 3) titre « About Northlight »
+quasi invisible (beige sur blanc, contraste KO). → prochaine passe : réparer
+le ventre de page (testimonials/team/about), même méthode avant/après.
+
 **MODE DESIGN LEAD (2026-07-14) : impact visible <2s, produit d'abord, sites
 générés = priorité absolue.** Passe #1 livrée : imagerie SECTORIELLE du
 zpreview (`INDUSTRY_IMAGES` 7 secteurs + fallback + vrais portraits équipe,

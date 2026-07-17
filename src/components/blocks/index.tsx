@@ -3848,6 +3848,71 @@ function GalleryFeature({ props }: { props: any }) {
   );
 }
 
+/** Editorial photo collage: one monumental lead tile + satellite tiles on a
+ *  strict grid — the richness of a magazine spread, generable by the engine.
+ *  Staggered reveal, hover depth (image lift + caption), hairline rings.
+ *  Only REAL images render (imageless items are dropped, never placeholdered);
+ *  under 4 usable images it degrades to a clean two-column grid. */
+function GalleryBento({ props }: { props: any }) {
+  const items = ((props.items || []) as any[]).filter((it) => it?.image);
+  if (!items.length) return null;
+  const bento = items.length >= 4;
+  // Lead tile dominates; satellites alternate; a wide band closes the row.
+  const span = (i: number) =>
+    !bento
+      ? "sm:col-span-2"
+      : i === 0
+      ? "sm:col-span-2 sm:row-span-2"
+      : (i % 5 === 4 ? "sm:col-span-2" : "sm:col-span-1");
+  return (
+    <section className="px-6" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)", ...rfSectionPad(104) }}>
+      <div className="mx-auto" style={rfContainer(1152)}>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="max-w-2xl">
+            {props.eyebrow && <div className="mb-3 text-xs font-medium uppercase tracking-[0.22em]" style={{ color: "var(--brand-accent)" }}>{props.eyebrow}</div>}
+            {props.title && <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ color: "var(--brand)" }}>{props.title}</h2>}
+          </div>
+          {items.length > 1 && (
+            <div className="pb-1 text-xs font-medium uppercase tracking-[0.2em]" style={{ color: "color-mix(in srgb, var(--brand-ink) 45%, transparent)" }}>
+              {String(items.length).padStart(2, "0")} — views
+            </div>
+          )}
+        </div>
+        <div className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-4 sm:[grid-auto-rows:190px] lg:[grid-auto-rows:230px] sm:gap-4">
+          {items.slice(0, 7).map((it, i) => (
+            <motion.figure
+              key={i}
+              initial={{ opacity: 0, y: 18, scale: 0.985 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.55, ease: EASE, delay: (i % 4) * 0.07 }}
+              className={cn("group relative m-0 min-h-[220px] overflow-hidden rounded-[1.1rem] sm:min-h-0", span(i))}
+              style={{ boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
+            >
+              <CoverImage
+                image={it.image}
+                gradient="linear-gradient(160deg, color-mix(in srgb, var(--brand-accent) 14%, transparent), transparent 55%)"
+                className="absolute inset-0 h-full w-full transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+              />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                style={{ background: "linear-gradient(to top, rgba(0,0,0,0.55), transparent 45%)" }}
+              />
+              {it.title && (
+                <figcaption className="absolute inset-x-0 bottom-0 flex translate-y-2 items-center justify-between p-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                  <span className="text-sm font-medium text-white">{it.title}</span>
+                  <span className="font-mono text-[11px] text-white/70">{String(i + 1).padStart(2, "0")}</span>
+                </figcaption>
+              )}
+            </motion.figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   TestimonialsSpotlight,
   TestimonialsStacked,
@@ -3856,6 +3921,7 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   GalleryMasonry,
   GalleryStrip,
   GalleryFeature,
+  GalleryBento,
   ProductGrid,
   FooterColumns,
   FooterMinimal,
