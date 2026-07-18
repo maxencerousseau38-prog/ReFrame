@@ -1990,6 +1990,77 @@ function TestimonialsEditorial({ props }: { props: any }) {
 }
 
 /**
+ * TestimonialsNocturne — the "evening beat": a dark, atmospheric testimonial
+ * band for warm / elegant brands (restaurants, hotels, spas), which until now
+ * only ever got LIGHT proof sections, leaving the whole page tonally flat. A
+ * monumental serif pull-quote on the brand's dark contrast surface, a giant
+ * low-opacity quotation glyph, an accent hairline, and up to two supporting
+ * quotes below. Brand-agnostic (all colour from --brand-contrast/--brand-accent),
+ * reduced-motion safe, real quotes only (never fabricated).
+ */
+function TestimonialsNocturne({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  const items = (props.items || []) as any[];
+  if (!items.length) return null;
+  const [lead, ...rest] = items;
+  const support = rest.slice(0, 2);
+  return (
+    <section className="relative overflow-hidden px-6 text-white" style={{ background: "var(--brand-contrast)", ...rfSectionPad(128) }}>
+      {/* faint warm halo from the accent, top-left — atmosphere, never neon */}
+      <div aria-hidden className="pointer-events-none absolute -left-40 -top-40 h-[36rem] w-[36rem] rounded-full opacity-[0.14]" style={{ background: "radial-gradient(circle, var(--brand-accent), transparent 60%)", filter: "blur(40px)" }} />
+      <div className="relative mx-auto" style={rfContainer(1100)}>
+        {props.title && (
+          <p className="text-[0.7rem] font-medium uppercase tracking-[0.3em]" style={{ color: "var(--brand-accent)" }}>
+            {props.title}
+          </p>
+        )}
+        <motion.figure
+          initial={reduce ? false : { opacity: 0, y: 22 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-90px" }}
+          transition={{ duration: 0.7, ease: EASE }}
+          className="relative mt-8"
+        >
+          <span aria-hidden className="pointer-events-none absolute -left-2 -top-[0.55em] select-none text-[9rem] leading-none" style={{ fontFamily: "var(--brand-font)", color: "var(--brand-accent)", opacity: 0.18 }}>
+            &ldquo;
+          </span>
+          <blockquote className="relative max-w-4xl text-[clamp(1.75rem,4vw,3rem)] font-medium leading-[1.18] tracking-[-0.015em] [text-wrap:balance]" style={{ fontFamily: "var(--brand-font)" }}>
+            {lead.quote}
+          </blockquote>
+          <figcaption className="mt-8 flex items-center gap-3 text-sm text-white/60">
+            <span className="h-px w-8" style={{ background: "var(--brand-accent)" }} />
+            <span className="font-medium text-white">{lead.name || lead.author}</span>
+            {lead.role && <span>&middot; {lead.role}</span>}
+          </figcaption>
+        </motion.figure>
+
+        {support.length > 0 && (
+          <div className="mt-14 grid gap-8 border-t border-white/12 pt-10 sm:grid-cols-2">
+            {support.map((t, i) => (
+              <motion.figure
+                key={i}
+                initial={reduce ? false : { opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-70px" }}
+                transition={{ duration: 0.55, ease: EASE, delay: 0.08 + i * 0.08 }}
+              >
+                <blockquote className="text-[15px] leading-relaxed text-white/80">
+                  &ldquo;{t.quote}&rdquo;
+                </blockquote>
+                <figcaption className="mt-3 text-xs text-white/50">
+                  <span className="font-medium text-white/90">{t.name || t.author}</span>
+                  {t.role && <span> &middot; {t.role}</span>}
+                </figcaption>
+              </motion.figure>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/**
  * Editorial closing CTA (light). A serif statement on the brand canvas framed by
  * hairline rules, with the accent pill button — the calm, warm/elegant
  * counterpart to the dark, glowing CTASection1.
@@ -3965,6 +4036,7 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   AboutSplit,
   TestimonialsSlider1,
   TestimonialsEditorial,
+  TestimonialsNocturne,
   TestimonialsGrid,
   FaqGrid,
   FAQAccordion1,

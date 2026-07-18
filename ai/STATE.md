@@ -49,6 +49,18 @@
 
 ## Prochaine action
 
+**Module moteur `TestimonialsNocturne` livré (2026-07-15) — temps sombre du soir.**
+Bloc générable (bande sombre `--brand-contrast`, citation serif monumentale,
+halo accent, glyphe filigrane, citations d'appui), signature restaurant+hotel
+(autres warm gardent leur variété — mesuré 3/6). REGISTRY+catalog+2 tests màj+1
+régression. Vérif : 4 fichiers, câblé, moteur sélectionne (test+DOM), build
+exit 0, 500 tests. LOCAL (branche≠main). **Dépôt de minage archform INACCESSIBLE
+→ ATTENTE de ton approbation `add_repo` maxencerousseau38-prog/archform-replica-project.**
+**Défauts restants Design Review restaurant (prochaines passes)** : 1) copy
+cartes features FABRIQUÉE (agency-speak sur services) — à sectoriser/supprimer
+(F21) ; 2) clôture présence modeste (479px) ; 3) étendre le catalogue par
+secteur (Hero/Gallery/CTA V-multiples) une fois archform accessible.
+
 **Ventre de page restaurant réévalué (2026-07-15) — parcours, pas composants.**
 Moteur : « une photo = une fois par page » (qualityPass) avec allocation par
 PRIORITÉ ÉDITORIALE (hero → galerie-vitrine partiel OK → singles → rangées

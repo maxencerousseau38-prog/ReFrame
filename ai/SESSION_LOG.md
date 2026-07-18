@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-15 — Module moteur : TestimonialsNocturne (temps sombre du soir) — workflow vérifié
+- Dépôt de minage archform INACCESSIBLE (add_repo hors approbation, clone bloqué proxy) → au lieu de rester en analyse, lot moteur visible : le défaut n°1 de ma Design Review (ventre restaurant tonalement PLAT, aucune bande sombre car les variantes sombres avaient moods bold/minimal → jamais servies aux secteurs warm).
+- Nouveau bloc GÉNÉRABLE `TestimonialsNocturne` : bande sombre atmosphérique (`var(--brand-contrast)`, citation serif monumentale, halo accent, glyphe guillemet filigrane, 2 citations d'appui), brand-agnostic, reduced-motion, real-only. Enregistré REGISTRY + BLOCK_CATALOG. Recadré après auto-critique : v1 monopolisait TOUS les secteurs warm (même bande partout) → restreint à restaurant+hotel (signature du soir), les autres warm gardent leur variété (mesuré : 3 variantes distinctes/6 marques).
+- 2 tests catalog.test.ts encodaient « warm=toujours clair » → mis à jour vers le comportement voulu (le meilleur gagne). Test de régression `testimonials-nocturne.test.ts` : restaurant+hotel → Nocturne.
+- VÉRIF : 4 fichiers modifiés, composant câblé (REGISTRY+catalog, pas juste créé), moteur le SÉLECTIONNE (test + DOM : bande sombre rendue sur zpreview restaurant), build exit 0, 500 tests (498→500). Preuve LOCALE (branche≠main : prod Vercel inchangée tant que promotion non faite).
+
 ## 2026-07-15 — Ventre de page restaurant : parcours réévalué (Creative Director)
 - Carte du rythme mesurée : 5 doublons d'images inter-sections (features réutilisait 4/6 photos de la galerie, About une 5e) + clôture générique « Ready to get started? » 450px/pad32 (la plus petite section) pour un restaurant.
 - Moteur : règle « une photo = une fois par page » dans qualityPass avec ALLOCATION PAR PRIORITÉ ÉDITORIALE (hero → GALERIE la vitrine, partiel autorisé → singles → rangées de cartes all-or-nothing → texte/icônes). 1ère version (ordre du tableau) avait TUÉ la galerie — refusée par auto-critique, corrigée. Team toujours exclu (identité).

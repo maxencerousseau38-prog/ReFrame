@@ -17,12 +17,15 @@ describe("pickVariant scoring", () => {
     expect(["FeaturesBento", "FeaturesSpotlight"]).toContain(pickVariant("features", "agency", "X", "bold"));
   });
 
-  it("routes testimonials and CTA by mood (light editorial vs dark)", () => {
-    // Warm/elegant brands get a LIGHT testimonials/CTA treatment (not the dark
-    // slider/panel). Which light variant can vary per brand (seeded jitter), so
-    // assert the routing intent rather than a single template.
-    expect(["TestimonialsEditorial", "TestimonialsGrid"]).toContain(
-      pickVariant("testimonials", "restaurant", "X", "warm")
+  it("routes testimonials and CTA by mood (evening venues dark, others light)", () => {
+    // Evening venues (restaurants, hotels) get the dark atmospheric Nocturne
+    // beat as a sector signature — their pages were otherwise tonally flat.
+    expect(pickVariant("testimonials", "restaurant", "X", "warm")).toBe("TestimonialsNocturne");
+    expect(pickVariant("testimonials", "hotel", "X", "warm")).toBe("TestimonialsNocturne");
+    // Other warm/elegant sectors keep a LIGHT treatment (Editorial/Grid/Stacked);
+    // which one varies per brand (seeded jitter), so assert the routing intent.
+    expect(["TestimonialsEditorial", "TestimonialsGrid", "TestimonialsStacked"]).toContain(
+      pickVariant("testimonials", "health", "X", "warm")
     );
     expect(pickVariant("testimonials", "saas", "X", "minimal")).toBe("TestimonialsSlider1");
     expect(pickVariant("cta", "health", "X", "elegant")).toBe("CTAEditorial");
@@ -31,11 +34,12 @@ describe("pickVariant scoring", () => {
   });
 
   it("diversifies same-profile brands where variants are competitive", () => {
-    // Where several variants fit equally (e.g. warm testimonials: Editorial vs
-    // Grid), distinct brands should not all land on the same template. (Where
-    // one variant clearly dominates, it is still used for all - by design.)
+    // Where several variants fit equally (warm testimonials: Editorial vs Grid
+    // vs Stacked for non-evening sectors), distinct brands should not all land
+    // on the same template. (Where one variant is a sector signature — e.g.
+    // Nocturne for restaurants/hotels — it is still used for all, by design.)
     const picks = ["Acme", "Globex", "Initech", "Umbra", "Vertex", "Nimbus"].map((n) =>
-      pickVariant("testimonials", "restaurant", n, "warm")
+      pickVariant("testimonials", "health", n, "warm")
     );
     expect(new Set(picks).size).toBeGreaterThan(1);
   });
