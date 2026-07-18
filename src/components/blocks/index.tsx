@@ -3579,6 +3579,12 @@ function FeaturesSticky({ props }: { props: any }) {
 function FeaturesShowcase({ props }: { props: any }) {
   const reduce = useReducedMotion();
   const items = (props.items || []) as any[];
+  // The tall image-tile layout only earns its space when there are REAL photos
+  // to fill it. With no imagery (and, honestly, no fabricated blurbs) it becomes
+  // an empty media zone under a lone title — thin and unfinished. So without
+  // images we switch to a compact icon-card grid (Linear/Stripe grammar): an
+  // accent icon chip, the title, and a real description when one exists.
+  const hasImages = items.some((it) => it.image);
   return (
     <section className="px-6" style={{ color: "var(--brand-ink)", ...rfSectionPad(96) }}>
       <div className="mx-auto" style={rfContainer(1152)}>
@@ -3594,22 +3600,39 @@ function FeaturesShowcase({ props }: { props: any }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.5, delay: (i % 3) * 0.06, ease: EASE }}
-              className="group flex flex-col overflow-hidden border"
+              className={cn("group flex flex-col overflow-hidden border transition-colors duration-300", hasImages ? "" : "p-7 hover:border-[color:color-mix(in_srgb,var(--brand-accent)_45%,transparent)]")}
               style={{ borderColor: HAIRLINE, borderRadius: "calc(var(--brand-radius) * 1.1)" }}
             >
-              {item.image ? (
-                <CoverImage image={item.image} gradient="linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))" className="aspect-[4/3] w-full" />
+              {hasImages ? (
+                <>
+                  {item.image ? (
+                    <CoverImage image={item.image} gradient="linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))" className="aspect-[4/3] w-full" />
+                  ) : (
+                    <div className="flex aspect-[4/3] w-full items-center justify-center" style={{ background: "var(--brand-surface-2)" }}>
+                      <span style={{ color: "var(--brand-accent)" }}><BlockIcon name={item.icon} className="h-8 w-8" /></span>
+                    </div>
+                  )}
+                  <div className="flex flex-1 flex-col p-6">
+                    <h3 className="rf-fluid-h3 tracking-tight" style={{ color: "var(--brand)" }}>{item.title}</h3>
+                    {item.description && (
+                      <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{item.description}</p>
+                    )}
+                  </div>
+                </>
               ) : (
-                <div className="flex aspect-[4/3] w-full items-center justify-center" style={{ background: "var(--brand-surface-2)" }}>
-                  <span style={{ color: "var(--brand-accent)" }}><BlockIcon name={item.icon} className="h-8 w-8" /></span>
-                </div>
+                <>
+                  <span
+                    className="flex h-12 w-12 items-center justify-center rounded-2xl"
+                    style={{ background: "color-mix(in srgb, var(--brand-accent) 12%, transparent)", color: "var(--brand-accent)" }}
+                  >
+                    <BlockIcon name={item.icon} className="h-6 w-6" />
+                  </span>
+                  <h3 className="mt-6 rf-fluid-h3 tracking-tight" style={{ color: "var(--brand)" }}>{item.title}</h3>
+                  {item.description && (
+                    <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{item.description}</p>
+                  )}
+                </>
               )}
-              <div className="flex flex-1 flex-col p-6">
-                <h3 className="rf-fluid-h3 tracking-tight" style={{ color: "var(--brand)" }}>{item.title}</h3>
-                {item.description && (
-                  <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{item.description}</p>
-                )}
-              </div>
             </motion.div>
           ))}
         </div>

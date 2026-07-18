@@ -49,6 +49,15 @@
 
 ## Prochaine action
 
+**Fabrication des descriptions features SUPPRIMÉE (2026-07-15, F21).**
+`featureBlurb()` inventait une phrase par service depuis son titre → supprimée ;
+description réelle uniquement, sinon carte titre-seul. `FeaturesShowcase`
+réécrit : tuile image si images, sinon carte icône COMPACTE (Linear/Stripe).
+Vérif : 2 fichiers, 0 réf restante, build exit 0, 500 tests, avant/après. LOCAL.
+**Défauts Design Review restaurant restants** : clôture présence modeste (479px).
+**Bloqueurs en attente de ton action** : (1) approbation `add_repo` archform
+pour le minage ; (2) GO promotion `main` (Phase 2/3) sinon rien n'atteint la prod.
+
 **Module moteur `TestimonialsNocturne` livré (2026-07-15) — temps sombre du soir.**
 Bloc générable (bande sombre `--brand-contrast`, citation serif monumentale,
 halo accent, glyphe filigrane, citations d'appui), signature restaurant+hotel

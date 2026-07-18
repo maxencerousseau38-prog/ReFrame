@@ -1926,9 +1926,14 @@ function buildBlock(
     case "features": {
       // P0/F21: no real services/features extracted → section omitted.
       if (!c.serviceItems?.length && c.services.length === 0) return null;
+      // Real content only (F21): a card carries a description ONLY when the
+      // source site actually had one. Title-only services render as clean,
+      // Apple-grade title cards — never a fabricated one-liner ("wine pairing,
+      // executed cleanly from brief to launch"), which is exactly what made the
+      // rebuilds read as machine-generated.
       const base = c.serviceItems?.length
-        ? c.serviceItems.map((s) => ({ title: s.title, description: s.description || featureBlurb(s.title, analysis.industry) }))
-        : c.services.map((s) => ({ title: s, description: featureBlurb(s, analysis.industry) }));
+        ? c.serviceItems.map((s) => ({ title: s.title, description: s.description }))
+        : c.services.map((s) => ({ title: s }));
       // Image-led tiles (Apple-store grade) when there is enough REAL imagery to
       // vary across tiles; otherwise the bento degrades to restrained icon tiles.
       const useImages = c.images.length >= 3;
@@ -1964,8 +1969,8 @@ function buildBlock(
           eyebrow: "Services",
           title: sectionTitle(slot.type, brand),
           items: c.serviceItems?.length
-            ? c.serviceItems.map((s) => ({ title: s.title, description: s.description || featureBlurb(s.title, analysis.industry) }))
-            : c.services.map((s) => ({ title: s, description: featureBlurb(s, analysis.industry) })),
+            ? c.serviceItems.map((s) => ({ title: s.title, description: s.description }))
+            : c.services.map((s) => ({ title: s })),
         },
       };
     case "portfolio":
@@ -2501,30 +2506,6 @@ function collectionMeta(industry: Industry): { label: string; path: string } {
   if (industry === "ecommerce" || industry === "fashion") return { label: "Catalogue", path: "catalogue" };
   if (industry === "gym") return { label: "Classes", path: "classes" };
   return { label: "Pricing", path: "pricing" };
-}
-
-function featureBlurb(service: string, industry: Industry): string {
-  const map: Record<string, string> = {
-    "Free quotes": "Transparent, no-obligation pricing before any work begins.",
-    "24/7 emergencies": "Real people on call, day or night, when you need us most.",
-    "Licensed & insured": "Fully certified and covered for complete peace of mind.",
-    "Workmanship guarantee": "If it's not right, we make it right, guaranteed.",
-  };
-  if (map[service]) return map[service];
-
-  // Varied, grammatical fallbacks so no two items read the same. Chosen
-  // deterministically from the service name (stable across renders).
-  const lower = service.toLowerCase();
-  const patterns = [
-    `${service}, handled end to end with senior craft.`,
-    `${service}, considered, on-brand, and delivered on time.`,
-    `${service} done properly: no templates, no shortcuts.`,
-    `${service}, tailored to your brand and built to last.`,
-    `Clear, results-driven ${lower} that earns its keep.`,
-    `Thoughtful ${lower}, executed cleanly from brief to launch.`,
-  ];
-  const idx = service.split("").reduce((s, c) => s + c.charCodeAt(0), 0) % patterns.length;
-  return patterns[idx];
 }
 
 /**

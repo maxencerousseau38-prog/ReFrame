@@ -1,5 +1,10 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-15 — Moteur : fin de la fabrication des descriptions de cartes (F21) + FeaturesShowcase compact
+- Défaut Design Review n°2 tué : `featureBlurb()` (engine.ts) inventait une phrase pour CHAQUE service depuis son seul titre (« Wine pairing, executed cleanly from brief to launch » sur un resto) → violation no-fabrication. Fonction SUPPRIMÉE ; 2 sites d'appel (features + services) : description RÉELLE uniquement (`s.description`), sinon aucune (carte titre-seul).
+- Effet de bord visuel géré (vérifié à l'œil, pas supposé) : sans description ni image, `FeaturesShowcase` montrait une grande zone média VIDE + titre seul (thin/inachevé). Réécrit : grande tuile image seulement s'il y a des images ; sinon carte icône COMPACTE (pastille accent + titre, grammaire Linear/Stripe) — premium même titre-seul.
+- VÉRIF : 2 fichiers (engine.ts, blocks/index.tsx), featureBlurb 0 référence restante, build exit 0, 500 tests, capture avant(inventé)/après(compact honnête). LOCAL (branche≠main).
+
 ## 2026-07-15 — Module moteur : TestimonialsNocturne (temps sombre du soir) — workflow vérifié
 - Dépôt de minage archform INACCESSIBLE (add_repo hors approbation, clone bloqué proxy) → au lieu de rester en analyse, lot moteur visible : le défaut n°1 de ma Design Review (ventre restaurant tonalement PLAT, aucune bande sombre car les variantes sombres avaient moods bold/minimal → jamais servies aux secteurs warm).
 - Nouveau bloc GÉNÉRABLE `TestimonialsNocturne` : bande sombre atmosphérique (`var(--brand-contrast)`, citation serif monumentale, halo accent, glyphe guillemet filigrane, 2 citations d'appui), brand-agnostic, reduced-motion, real-only. Enregistré REGISTRY + BLOCK_CATALOG. Recadré après auto-critique : v1 monopolisait TOUS les secteurs warm (même bande partout) → restreint à restaurant+hotel (signature du soir), les autres warm gardent leur variété (mesuré : 3 variantes distinctes/6 marques).
