@@ -1184,7 +1184,7 @@ function Footer1({ props }: { props: any }) {
             >
               {props.brand}
             </div>
-            <p className="mt-2 text-sm" style={{ opacity: 0.55 }}>Crafted with care.</p>
+            {props.tagline && <p className="mt-2 text-sm" style={{ opacity: 0.55 }}>{props.tagline}</p>}
           </div>
           <div className="flex items-center gap-5">
             {Array.isArray(props.social) && props.social.length > 0 && (
@@ -3232,7 +3232,7 @@ function FooterColumns({ props }: { props: any }) {
       <div className="mx-auto grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]" style={rfContainer(1152)}>
         <div>
           <div className="text-2xl font-medium tracking-tight" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>{props.brand}</div>
-          <p className="mt-3 max-w-xs text-sm" style={{ opacity: 0.55 }}>Crafted with care.</p>
+          {props.tagline && <p className="mt-3 max-w-xs text-sm" style={{ opacity: 0.55 }}>{props.tagline}</p>}
         </div>
         <div className={col}>
           <span className={head} style={{ opacity: 0.5 }}>Pages</span>
@@ -3300,6 +3300,133 @@ function FooterMinimal({ props }: { props: any }) {
         <span>Privacy &middot; Terms</span>
       </div>
       <div className="pointer-events-none -mb-[0.18em] mt-6 select-none whitespace-nowrap text-[22vw] font-semibold leading-none tracking-tight" style={{ color: "var(--brand)", opacity: 0.06 }}>
+        {props.brand}
+      </div>
+    </footer>
+  );
+}
+
+/**
+ * FooterSignature — an editorial dark "sign-off" footer. Merges three studied
+ * sources, fully reinterpreted in ReFrame grammar (never copied):
+ *  - Archform's inverted footer — dark ground, mono-caps column eyebrows, hairline
+ *    baseline (grounds the page on a confident dark note vs a flat light sitemap).
+ *  - 21st "Footer Section 5" (#19358) — a monumental OUTLINED brand wordmark the
+ *    page literally signs off with (kept the stroke-wordmark architecture; dropped
+ *    its fluted-glass shader dep, hardcoded blue, and fabricated 6-link columns).
+ *  - ReFrame doctrine — the REAL tagline only (never the "Crafted with care."
+ *    filler), rare accent, real pages/services/contact, AA by construction.
+ * Brand-agnostic: always paints on --brand-contrast / --brand-contrast-ink, so it
+ * is correct in light AND dark themes. Long wordmarks are cropped by the footer's
+ * own overflow (intended monumental clip), never the page — no horizontal scroll.
+ */
+function FooterSignature({ props }: { props: any }) {
+  const services = (props.services || []).slice(0, 5) as string[];
+  const contact = props.contact || {};
+  const social = Array.isArray(props.social) ? (props.social as { platform: string; url: string }[]) : [];
+  const pages = [
+    { label: "Home", href: "#top" },
+    { label: "Services", href: "#services" },
+    { label: "About", href: "#about" },
+    { label: "Contact", href: "#contact" },
+  ];
+  const eyebrow = "text-[11px] font-medium uppercase tracking-[0.18em]";
+  const link = "text-sm transition-opacity hover:opacity-100";
+  const hair = "color-mix(in srgb, var(--brand-contrast-ink) 16%, transparent)";
+  return (
+    <footer
+      className="relative overflow-hidden px-6 pb-0"
+      data-variant="FooterSignature"
+      style={{
+        background: "var(--brand-contrast)",
+        color: "var(--brand-contrast-ink)",
+        paddingTop: `max(calc(var(--rf-rhythm, 1) * var(--rf-space-section, 80px)), 80px)`,
+      }}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 18 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 0.6, ease: EASE }}
+        className="mx-auto flex flex-col gap-12 lg:flex-row lg:justify-between"
+        style={rfContainer(1200)}
+      >
+        {/* Left: brand mark + REAL tagline + real social */}
+        <div className="max-w-sm">
+          <div className="text-2xl font-medium tracking-tight" style={{ fontFamily: "var(--brand-font)" }}>
+            {props.brand}
+          </div>
+          {props.tagline && (
+            <p className="mt-3 text-sm leading-relaxed" style={{ opacity: 0.66 }}>
+              {props.tagline}
+            </p>
+          )}
+          {social.length > 0 && (
+            <ul className="mt-6 flex flex-wrap items-center gap-4">
+              {social.map((s) => (
+                <li key={s.platform}>
+                  <a
+                    href={s.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={s.platform}
+                    className={cn(link, eyebrow)}
+                    style={{ opacity: 0.72 }}
+                  >
+                    {s.platform}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        {/* Right: real link columns with mono-caps eyebrows */}
+        <div className="grid grid-cols-2 gap-10 sm:grid-cols-3 sm:gap-16">
+          <div className="flex flex-col gap-3">
+            <span className={eyebrow} style={{ opacity: 0.5 }}>Pages</span>
+            {pages.map((p) => (
+              <a key={p.label} href={p.href} className={link} style={{ opacity: 0.78 }}>{p.label}</a>
+            ))}
+          </div>
+          {services.length > 0 && (
+            <div className="flex flex-col gap-3">
+              <span className={eyebrow} style={{ opacity: 0.5 }}>Services</span>
+              {services.map((s) => (
+                <a key={s} href="#services" className={link} style={{ opacity: 0.78 }}>{s}</a>
+              ))}
+            </div>
+          )}
+          {(contact.email || contact.phone || contact.address) && (
+            <div className="flex flex-col gap-3">
+              <span className={eyebrow} style={{ opacity: 0.5 }}>Contact</span>
+              {contact.email && <a href={`mailto:${contact.email}`} className={link} style={{ opacity: 0.78 }}>{contact.email}</a>}
+              {contact.phone && <a href={`tel:${String(contact.phone).replace(/\s+/g, "")}`} className={link} style={{ opacity: 0.78 }}>{contact.phone}</a>}
+              {contact.address && <span className="text-sm" style={{ opacity: 0.78 }}>{contact.address}</span>}
+            </div>
+          )}
+        </div>
+      </motion.div>
+      {/* Baseline legal row */}
+      <div
+        className="mx-auto mt-14 flex flex-col gap-2 border-t pt-6 text-xs sm:flex-row sm:items-center sm:justify-between"
+        style={{ ...rfContainer(1200), borderColor: hair, opacity: 0.6 }}
+      >
+        <span>&copy; {new Date().getFullYear()} {props.brand}. All rights reserved.</span>
+        <span>Privacy &middot; Terms</span>
+      </div>
+      {/* The page signs its name: a monumental OUTLINED wordmark across the base.
+          aria-hidden (the real name is the text mark above); cropped by the footer. */}
+      <div
+        aria-hidden
+        className="pointer-events-none mt-8 -mb-[0.14em] select-none whitespace-nowrap text-center font-semibold leading-[0.72]"
+        style={{
+          fontFamily: "var(--brand-font)",
+          fontSize: "min(16vw, 260px)",
+          color: "transparent",
+          WebkitTextStroke: "1px color-mix(in srgb, var(--brand-contrast-ink) 30%, transparent)",
+          letterSpacing: "-0.02em",
+        }}
+      >
         {props.brand}
       </div>
     </footer>
@@ -4160,6 +4287,7 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   ProductGrid,
   FooterColumns,
   FooterMinimal,
+  FooterSignature,
   CTABanner,
   CTAGradient,
   FeaturesSpotlight,

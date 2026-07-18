@@ -49,6 +49,33 @@
 
 ## Prochaine action
 
+**FOOTER SIGNATURE livré (2026-07-18) — la dernière impression, enfin premium.**
+Revue Directeur Artistique : le footer était le moment le plus « template » de
+CHAQUE site (Footer1 mince par défaut ; FooterColumns = sitemap SaaS générique ;
++ fabrication « Crafted with care. » codée en dur, jamais la vraie tagline).
+Fusion 3 sources RÉELLEMENT minées : **21st MCP** (comparé 10 footers ; retenu
+#19358 « Footer Section 5 » — wordmark OUTLINÉ monumental + panneau qui chevauche
+sa baseline ; REJETÉ son shader fluted-glass/dep lourde + bleu codé + 6 colonnes
+fabriquées) + **Archform** `Contact.tsx > Footer` (fond sombre inversé + eyebrows
+mono-caps par colonne + baseline hairline) + **grammaire ReFrame** (vraie tagline
+only, accent rare, `--brand-contrast`/`--brand-contrast-ink` → AA par construction).
+→ `FooterSignature` : sign-off éditorial sombre (brand-contrast), tagline réelle,
+colonnes Pages/Services/Contact réelles à eyebrows mono-caps, et le **nom de la
+marque en OUTLINE monumental** en pied (le site « signe »), rogné par le footer
+(jamais la page). Correct en clair ET sombre ; s'adapte à la typo de marque (sans
+pour architect, serif pour restaurant — prouvé). **Fabrication tuée globalement** :
+`tagline` réelle (`deAiDash(headline)`) passée à TOUS les footers ; « Crafted with
+care. » supprimé de Footer1 + FooterColumns (omis si pas de tagline, F21). Câblage :
+`blocks/index.tsx` (composant + REGISTRY + fix fabrication), `catalog.ts` (entrée
+prefer architect/realestate/restaurant/hotel ; sectors editorial+hospitality+
+fashion/lawyer/finance ; autres gardent Footer1/Columns/Minimal), `engine.ts`
+(props.tagline). Preuve : moteur SÉLECTIONNE (test+DOM `data-variant`), avant/après
+architect (light générique → dark signé) + restaurant (serif chaud), 320/390/768/
+1440 overflow-x=0 (wordmark rogné), régression `footer-signature.test.ts` (4 tests),
+tsc, **520 tests**, build exit 0. LOCAL (feature). **Défauts suivants** : hero
+variety AU SEIN d'une famille (2 restos = même hero) ; Nav ; `ensureSlot("stats")`
+en retail. **Promotion `main`** : SUR DEMANDE (main==dev depuis le dernier lot).
+
 **🚀 PROMOTION `main` FAITE (2026-07-18) — le blocage prod historique est LEVÉ.**
 Sur GO explicite de l'utilisateur, `main` a été avancée en **fast-forward** vers
 la pointe de `claude/siterevive-ai-saas-a9sxzw` (`9d493d5`) : +214 commits, 0

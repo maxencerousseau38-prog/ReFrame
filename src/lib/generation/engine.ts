@@ -2071,8 +2071,11 @@ function buildBlock(
         id: uid("footer"),
         type: "footer",
         variant: pickVariant("footer", analysis.industry, brand, mood),
-        // Real data for the multi-column footer; other footers ignore the extras.
-        props: { brand, services: c.services, contact: c.contact, social: c.socialLinks },
+        // Real data for the site-map / signature footers; simpler footers ignore
+        // the extras. `tagline` is the site's REAL one-liner (same source as the
+        // brand tagline) — footers omit it when absent rather than fabricate a
+        // "Crafted with care." filler (F21).
+        props: { brand, tagline: deAiDash(c.headline), services: c.services, contact: c.contact, social: c.socialLinks },
       };
     default:
       return buildBlock({ ...slot, category: "features" }, analysis, mood);

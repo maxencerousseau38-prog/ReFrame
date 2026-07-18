@@ -110,6 +110,7 @@ export const BLOCK_CATALOG: BlockMeta[] = [
   { variant: "Footer1", category: "footer", sectors: "all", motion: 0, license: "ReFrame original", when: "Editorial footer." },
   { variant: "FooterColumns", category: "footer", sectors: ["saas", "agency", "ecommerce", "generic"], moods: ["minimal", "bold"], motion: 0, license: "ReFrame original", when: "Multi-column site-map footer: brand + pages + real services + real contact." },
   { variant: "FooterMinimal", category: "footer", sectors: "all", moods: ["bold", "elegant"], motion: 0, license: "ReFrame original", when: "Minimal centered footer with a colossal brand wordmark watermark." },
+  { variant: "FooterSignature", category: "footer", sectors: ["architect", "agency", "realestate", "construction", "restaurant", "hotel", "fashion", "lawyer", "finance"], prefer: ["architect", "realestate", "restaurant", "hotel"], moods: ["elegant", "warm", "bold"], motion: 1, license: "ReFrame original", when: "Editorial dark sign-off: inverted brand-contrast ground, mono-caps link columns, real tagline, and a monumental outlined brand wordmark across the base." },
 ];
 
 function hash(s: string): number {
