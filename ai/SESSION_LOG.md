@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-18 — Promotion `main` : le blocage prod historique est levé
+- GO explicite de l'utilisateur pour pousser la branche de dev dans `main`. Une seule branche de travail (`claude/siterevive-ai-saas-a9sxzw`) ; `main` était un ANCÊTRE strict (214 commits de retard, 0 divergence) → fast-forward propre, aucun conflit, aucune perte possible.
+- Gate avant push : `npx tsc --noEmit` propre, 516 tests verts, `npm run build` exit 0 sur la pointe `9d493d5`. Puis `git checkout main` + `git merge --ff-only` + `git push origin main` (`c627536..9d493d5`). Vérifié : remote main == remote feature == `9d493d5`.
+- Vercel : la prod suit `main` → le déploiement se déclenche via l'intégration GitHub↔Vercel. NON vérifiable ici (connecteur Vercel MCP exige une approbation interactive indisponible en headless) — à confirmer côté dashboard (repo `maxencerousseau38-prog/ReFrame`). Rollback éventuel : `git push origin c627536:main`.
+- Conséquence OS : la règle « rien n'atteint la prod avant GO main » ne s'applique plus ; main et dev sont alignées. Les prochains lots repartent de la feature et re-promeuvent sur demande.
+
 ## 2026-07-18 — FAMILLES DE DESIGN : casser le « même squelette re-skinné »
 - Directive Directeur Artistique : cesser d'optimiser des composants isolés, produire de VRAIES familles de design (rythme/narration/hero/sections/CTA/langage propres). Diagnostic de la racine : `INDUSTRY_FLOW` (planner) donnait à tous les secteurs un arc quasi identique → tout se lisait comme un seul squelette. Remplacé par 5 familles à arc + rythme distincts.
 - Câblé RÉELLEMENT du planner au renderer : `planner.ts` (`FAMILY_FLOW` 5 arcs, `FAMILY_RHYTHM` editorial 1.35→product 1.0, `SECTOR_FAMILY`, `familyOf`) ; `types.ts` (`DesignFamily`, `SiteSchema.family`+`.rhythm`) ; `engine.ts` (stampe family+rhythm en mode smart uniquement, classic/preserve/explicit neutres) ; `blocks/index.tsx` (`rfSectionPad` multiplie par `var(--rf-rhythm,1)` — s'applique aussi au fallback NON mesuré, donc rythme visible partout ; `--rf-rhythm` publié inline sur `.rf-site`).

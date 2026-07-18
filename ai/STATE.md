@@ -49,6 +49,22 @@
 
 ## Prochaine action
 
+**🚀 PROMOTION `main` FAITE (2026-07-18) — le blocage prod historique est LEVÉ.**
+Sur GO explicite de l'utilisateur, `main` a été avancée en **fast-forward** vers
+la pointe de `claude/siterevive-ai-saas-a9sxzw` (`9d493d5`) : +214 commits, 0
+divergence (main était ancêtre strict → aucun conflit, rien perdu). Remote
+`main` == remote feature == `9d493d5` (vérifié). Gate avant push : tsc propre,
+**516 tests**, `npm run build` exit 0. Ce qui atteint enfin la prod : tout V2
+(chantiers 1→C7e), zéro-fabrication (F21), Design System, et les **5 familles de
+design**. **Vercel** : la prod suit `main`, donc le déploiement se déclenche via
+l'intégration GitHub↔Vercel de Vercel — NON vérifiable depuis cet environnement
+(le connecteur Vercel MCP exige une approbation interactive indisponible en
+headless). À confirmer côté dashboard Vercel (repo `maxencerousseau38-prog/
+ReFrame`). Rollback si besoin : `git push origin <sha_précédent>:main` (l'ancien
+main était `c627536`). **Désormais la règle « rien n'atteint la prod avant GO
+main » ne tient plus** : main et la branche de dev sont alignées ; les prochains
+lots repartent de la feature et re-promeuvent sur demande.
+
 **FAMILLES DE DESIGN livrées (2026-07-18) — la racine de la variété réelle.**
 Directive Directeur Artistique : arrêter d'optimiser des composants isolés ;
 casser le « même squelette re-skinné ». Diagnostic : `INDUSTRY_FLOW` (planner)
