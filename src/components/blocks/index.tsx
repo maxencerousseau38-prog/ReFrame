@@ -233,7 +233,10 @@ function rfSectionPad(fallbackPx: number): React.CSSProperties {
   // Floor at the component's current padding: the section only ever becomes
   // MORE generous (measured/premium rhythm), never tighter — strictly
   // non-regressive vs V5. Exact-measured tightening is deferred to SceneShell.
-  const v = `max(var(--rf-space-section, ${fallbackPx}px), ${fallbackPx}px)`;
+  // --rf-rhythm (default 1) is the per-family reading-rhythm multiplier: the
+  // editorial family breathes (1.35), product stays dense (1.0). It scales the
+  // measured/premium band; the hard floor still guarantees non-regression vs V5.
+  const v = `max(calc(var(--rf-rhythm, 1) * var(--rf-space-section, ${fallbackPx}px)), ${fallbackPx}px)`;
   return { paddingTop: v, paddingBottom: v };
 }
 
@@ -4516,6 +4519,9 @@ export function SiteRenderer({
           background: "var(--brand-surface)",
           color: "var(--brand-ink)",
           scrollBehavior: "smooth",
+          // Per-family reading rhythm (editorial breathes, product stays dense).
+          // Published as a CSS var consumed by every section via rfSectionPad.
+          ...(schema.rhythm ? { ["--rf-rhythm" as string]: String(schema.rhythm) } : {}),
         }}
       >
         <SiteNav brand={brand} items={items} cta={cta} logoUrl={schema.brand.logo} dark={schema.theme.dark === true} />

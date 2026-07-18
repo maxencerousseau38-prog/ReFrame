@@ -49,6 +49,40 @@
 
 ## Prochaine action
 
+**FAMILLES DE DESIGN livrées (2026-07-18) — la racine de la variété réelle.**
+Directive Directeur Artistique : arrêter d'optimiser des composants isolés ;
+casser le « même squelette re-skinné ». Diagnostic : `INDUSTRY_FLOW` (planner)
+donnait à chaque secteur un arc quasi identique. Remplacé par **5 familles**,
+chacune avec son PROPRE arc narratif ET son PROPRE rythme de lecture :
+`editorial` (architect/agency/realestate/construction, ×1.35, work-first :
+hero→portfolio→about→features→stats→testimonials→cta) · `hospitality`
+(restaurant/hotel, ×1.18, imagerie+récit, SANS stats/faq : hero→gallery→about→
+features→testimonials→cta) · `product` (saas/gym, ×1.0 dense : hero→features→
+stats→testimonials→faq→cta) · `retail` (ecommerce/fashion/automotive, ×1.05
+court : hero→gallery→features→testimonials→cta) · `trust` (health/lawyer/
+finance/trades…, ×1.08 calme, credentials-led : hero→features→about→stats→
+testimonials→faq→cta). Câblage RÉEL : `planner.ts` (FAMILY_FLOW/FAMILY_RHYTHM/
+SECTOR_FAMILY/`familyOf`), `types.ts` (`DesignFamily`, `SiteSchema.family`+
+`.rhythm`), `engine.ts` (stampe family+rhythm en mode smart), `blocks/index.tsx`
+(`rfSectionPad` × `var(--rf-rhythm,1)` — s'applique AUSSI au fallback non-mesuré ;
+`--rf-rhythm` publié sur `.rf-site`). Preuve DOM (4 familles @1440) :
+`--rf-rhythm`=1.35/1.18/1.05/1.08, paddings sections mesurés distincts
+(editorial 112–173 vs retail 80–118), overflow-x=0. Preuve visuelle : 4 sites
+génériquement DIFFÉRENTS (agency froid/portfolio-first/wordmark monumental/« LET'S
+MAKE SOMETHING PEOPLE REMEMBER » ; restaurant chaud/hero image/gallery+about/
+témoignages sombres soir/« The table is set » ; ecommerce vert/hero split/gallery
+produit/bannière « Find the piece you'll keep » ; health bleu/hero doux/process+
+about+stats+FAQ/« Your health, on your schedule »). Régression :
+`design-families.test.ts` (11 tests : routing, 5 arcs distincts, rythme ordonné,
+moteur stampe family+rhythm, classic n'en porte pas). Vérif : 5 fichiers, câblé,
+moteur sélectionne (test+DOM+captures), build exit 0, **516 tests**, git. LOCAL
+(branche≠main → Vercel ne déploie pas avant promotion). **Défaut résiduel repéré
+(prochaine passe, PAS ce lot)** : `ensureSlot("stats")` peut ré-insérer une bande
+stats APRÈS contact dans les familles retail (arc sans stats) — placement à revoir.
+**Défauts suivants (inchangés)** : footer (Footer1/FooterMinimal) ; hero variety
+par secteur AU SEIN d'une famille ; Projects archform (cartes décalées scale-in).
+**Bloqueur prod** : GO promotion `main` sinon rien en prod.
+
 **Fusion 3 sources : `CTAImmersive` livré (2026-07-15) — closing monumental.**
 Défaut n°1 (clôture faible 479px) tué. Fusion 21st(#7181 ossature, exécution
 rejetée) + Archform(Contact plein-cadre) + ReFrame(tokens/copy) → closing

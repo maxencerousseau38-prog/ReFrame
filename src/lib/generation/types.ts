@@ -154,7 +154,26 @@ export interface SiteSchema {
    * ("remove the animations") and back on again.
    */
   animations?: boolean;
+  /**
+   * The design family the sector was routed to (editorial / hospitality /
+   * product / retail / trust). Drives the narrative arc (planner) and the
+   * reading rhythm; undefined for generic sectors with no family flow.
+   */
+  family?: DesignFamily;
+  /**
+   * The family's reading-rhythm multiplier, resolved at generation time and
+   * published as `--rf-rhythm` on the site root. Editorial breathes (1.35),
+   * product stays dense (1.0). Undefined → renderer defaults the var to 1.
+   */
+  rhythm?: number;
 }
+
+/**
+ * Design families — a whole class of brands sharing a narrative arc AND a
+ * reading rhythm, so generated sites stop reading as one skeleton re-skinned.
+ * The arc lives in the planner (FAMILY_FLOW); the rhythm in FAMILY_RHYTHM.
+ */
+export type DesignFamily = "editorial" | "hospitality" | "product" | "retail" | "trust";
 
 /** Result of analyzing an existing website. */
 export type IntegrationCategory =

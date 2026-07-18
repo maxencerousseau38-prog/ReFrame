@@ -67,7 +67,7 @@ import type {
 import { INDUSTRY_PROFILES, detectIndustry } from "./industries";
 import { pickVariant } from "./catalog";
 import { detectStructure, renderableCategory } from "./structure";
-import { planClassic, planPreserve, planSmart, planExplicit, type Slot } from "./planner";
+import { planClassic, planPreserve, planSmart, planExplicit, familyOf, FAMILY_RHYTHM, type Slot } from "./planner";
 import { canRender, renderHtml } from "@/lib/server/render";
 
 /* -------------------------------------------------------------------------- */
@@ -2236,6 +2236,11 @@ export function generateSite(
   const qp = qualityPass(blocks.map(sanitizeBlock), analysis.extractedContent.images);
   const recommendations = [...plan.recommendations, ...qp.recommendations];
 
+  // Design family → published reading rhythm. Only smart mode routes through a
+  // family arc; classic/preserve/explicit keep the neutral V5 rhythm (undefined
+  // → the renderer defaults --rf-rhythm to 1), so those modes are unchanged.
+  const family = mode === "smart" && !opts.layout?.length ? familyOf(analysis.industry) : undefined;
+
   return {
     id: uid("site"),
     sourceUrl: analysis.url,
@@ -2248,6 +2253,8 @@ export function generateSite(
       : undefined,
     mode,
     recommendations: recommendations.length ? recommendations : undefined,
+    family,
+    rhythm: family ? FAMILY_RHYTHM[family] : undefined,
   };
 }
 

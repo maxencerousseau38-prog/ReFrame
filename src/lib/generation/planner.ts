@@ -1,5 +1,7 @@
-import type { BlockType, SiteStructure, Recommendation } from "./types";
+import type { BlockType, SiteStructure, Recommendation, DesignFamily } from "./types";
 import { renderableCategory } from "./structure";
+
+export type { DesignFamily };
 
 /**
  * Planners turn a mode + the detected structure into an ordered list of section
@@ -71,33 +73,53 @@ export function planPreserve(structure?: SiteStructure): Plan {
 }
 
 /**
- * Premium per-trade section flows — the "agency template" composition for each
- * sector. PREFERRED orders, not guarantees: the engine drops any section it has
- * no real data for (never fabricated), so the page self-prunes to what's genuine
- * while keeping the high-end rhythm. Only slot-driven, buildable section types
- * appear here (team/menu are spliced separately by the engine when real).
+ * DESIGN FAMILIES — the root of real variety. The old flows all marched through
+ * the same arc (hero → gallery/portfolio → features → about → stats →
+ * testimonials → faq → cta → …), so every generated site read as one skeleton
+ * re-skinned. A family gives a WHOLE class of brands its own narrative arc AND
+ * its own reading rhythm; per-family `prefer` variants (in the catalog) then
+ * give it its own heroes/sections/CTAs. Five families, five genuinely different
+ * page architectures:
+ *
+ *  - editorial  : work-first studio narrative — portfolio, then a statement,
+ *                 then process, monumental & airy. (architects, agencies, property, build)
+ *  - hospitality: immersive imagery + story + evening proof, no metrics/FAQ. (restaurants, hotels)
+ *  - product    : value → metrics → proof → objections → convert, dense. (SaaS, gyms)
+ *  - retail     : shop imagery → features → proof → buy, short & punchy. (e-commerce, fashion, auto)
+ *  - trust      : value → who we are → credentials → proof → objections → book, calm. (health, legal, trades, finance)
  */
-const INDUSTRY_FLOW: Record<string, BlockType[]> = {
-  restaurant: ["hero", "gallery", "features", "about", "testimonials", "cta", "contact", "footer"],
-  artisan: ["hero", "stats", "portfolio", "features", "testimonials", "faq", "cta", "contact", "footer"],
-  agency: ["hero", "portfolio", "features", "stats", "testimonials", "faq", "cta", "contact", "footer"],
-  realestate: ["hero", "portfolio", "features", "about", "testimonials", "cta", "contact", "footer"],
-  saas: ["hero", "features", "stats", "testimonials", "faq", "cta", "contact", "footer"],
-  health: ["hero", "features", "about", "testimonials", "faq", "cta", "contact", "footer"],
-  ecommerce: ["hero", "gallery", "features", "testimonials", "cta", "contact", "footer"],
-  hotel: ["hero", "gallery", "features", "about", "testimonials", "faq", "cta", "contact", "footer"],
-  architect: ["hero", "portfolio", "features", "about", "stats", "testimonials", "faq", "cta", "contact", "footer"],
-  lawyer: ["hero", "features", "about", "stats", "testimonials", "faq", "cta", "contact", "footer"],
-  gym: ["hero", "features", "pricing", "stats", "testimonials", "faq", "cta", "contact", "footer"],
-  coach: ["hero", "features", "about", "stats", "testimonials", "faq", "cta", "contact", "footer"],
-  plumber: ["hero", "features", "about", "stats", "testimonials", "faq", "cta", "contact", "footer"],
-  electrician: ["hero", "features", "about", "stats", "testimonials", "faq", "cta", "contact", "footer"],
-  construction: ["hero", "portfolio", "features", "about", "stats", "testimonials", "faq", "cta", "contact", "footer"],
-  finance: ["hero", "features", "about", "stats", "testimonials", "faq", "cta", "contact", "footer"],
-  fashion: ["hero", "gallery", "features", "testimonials", "cta", "contact", "footer"],
-  automotive: ["hero", "gallery", "features", "about", "testimonials", "faq", "cta", "contact", "footer"],
-  medical: ["hero", "features", "about", "testimonials", "faq", "cta", "contact", "footer"],
+const FAMILY_FLOW: Record<DesignFamily, BlockType[]> = {
+  editorial: ["hero", "portfolio", "about", "features", "stats", "testimonials", "cta", "contact", "footer"],
+  hospitality: ["hero", "gallery", "about", "features", "testimonials", "cta", "contact", "footer"],
+  product: ["hero", "features", "stats", "testimonials", "faq", "cta", "contact", "footer"],
+  retail: ["hero", "gallery", "features", "testimonials", "cta", "contact", "footer"],
+  trust: ["hero", "features", "about", "stats", "testimonials", "faq", "cta", "contact", "footer"],
 };
+
+/** Reading rhythm per family: a global multiplier on every section's vertical
+ *  padding (consumed via `--rf-rhythm`). Editorial breathes; product is dense.
+ *  Floored at 1 so it never regresses below the premium V5 baseline. */
+export const FAMILY_RHYTHM: Record<DesignFamily, number> = {
+  editorial: 1.35,
+  hospitality: 1.18,
+  retail: 1.05,
+  product: 1.0,
+  trust: 1.08,
+};
+
+const SECTOR_FAMILY: Record<string, DesignFamily> = {
+  architect: "editorial", agency: "editorial", realestate: "editorial", construction: "editorial",
+  restaurant: "hospitality", hotel: "hospitality",
+  saas: "product", gym: "product",
+  ecommerce: "retail", fashion: "retail", automotive: "retail",
+  health: "trust", medical: "trust", lawyer: "trust", finance: "trust",
+  coach: "trust", plumber: "trust", electrician: "trust", artisan: "trust",
+};
+
+/** The design family a sector belongs to (undefined → generic, no family flow). */
+export function familyOf(industry?: string): DesignFamily | undefined {
+  return industry ? SECTOR_FAMILY[industry] : undefined;
+}
 
 /** Smart: a premium per-trade composition (identity preserved, empty sections
  *  dropped); falls back to Preserve + conversion tuning for unknown sectors.
@@ -110,15 +132,16 @@ export function planSmart(
   opts?: { hasFaq?: boolean }
 ): Plan {
   const noFaq = opts?.hasFaq === false;
-  const flow = industry ? INDUSTRY_FLOW[industry] : undefined;
+  const family = familyOf(industry);
+  const flow = family ? FAMILY_FLOW[family] : undefined;
   if (flow) {
     const kept = noFaq ? flow.filter((t) => t !== "faq") : flow;
     return {
       slots: anchor(kept.map((t) => slot(t))),
       recommendations: [
         {
-          action: `Composed a premium ${industry} layout`,
-          reason: "Re-arranged into an agency-grade section flow for the sector; sections without real content are dropped.",
+          action: `Composed a premium ${family} layout for ${industry}`,
+          reason: `Arranged into the ${family} family's narrative arc; sections without real content are dropped.`,
         },
       ],
     };

@@ -2,11 +2,11 @@ import { describe, it, expect } from "vitest";
 import { pickVariant } from "@/lib/generation/catalog";
 import { generateSite } from "@/lib/generation/engine";
 import { INDUSTRY_PROFILES } from "@/lib/generation/industries";
-import type { SiteAnalysis } from "@/lib/generation/types";
+import type { SiteAnalysis, Industry } from "@/lib/generation/types";
 
 describe("CTAImmersive routing", () => {
   it("is the closing signature for image-led warm sectors", () => {
-    for (const s of ["restaurant", "hotel", "realestate", "architect"]) {
+    for (const s of ["restaurant", "hotel", "realestate", "architect"] as Industry[]) {
       expect(pickVariant("cta", s, "Acme", "warm")).toBe("CTAImmersive");
     }
   });
