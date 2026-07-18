@@ -3642,6 +3642,69 @@ function FeaturesShowcase({ props }: { props: any }) {
 }
 
 /**
+ * CTAImmersive — the monumental closing moment. Synthesised from three sources,
+ * copied from none: the architecture of an architectural studio's full-bleed
+ * Contact finish (photo + dark scrim + colossal headline + baseline lead/CTA
+ * row with a dotted pill), the "one statement, one action" skeleton of premium
+ * SaaS CTAs (their purple gradients + fabricated avatars rejected), and
+ * ReFrame's brand tokens + real sector-voiced copy. A full-bleed brand photo
+ * when one is spare, otherwise the brand's dark contrast surface with a faint
+ * accent aura — never flat, never fabricated. Replaces the modest centered band
+ * as the last thing a visitor sees. Reduced-motion safe.
+ */
+function CTAImmersive({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  const hasImage = typeof props.image === "string" && props.image;
+  return (
+    <section className="relative overflow-hidden px-6 text-white" style={{ background: "var(--brand-contrast)", ...rfSectionPad(160) }}>
+      {hasImage ? (
+        <>
+          <CoverImage image={props.image} gradient="var(--brand-contrast)" className="absolute inset-0 h-full w-full opacity-55" />
+          <div
+            aria-hidden
+            className="absolute inset-0"
+            style={{ background: "linear-gradient(to top, var(--brand-contrast), color-mix(in srgb, var(--brand-contrast) 55%, transparent) 50%, color-mix(in srgb, var(--brand-contrast) 25%, transparent))" }}
+          />
+        </>
+      ) : (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-40 -top-40 h-[42rem] w-[42rem] rounded-full opacity-[0.16]"
+          style={{ background: "radial-gradient(circle, var(--brand-accent), transparent 60%)", filter: "blur(50px)" }}
+        />
+      )}
+      <div className="relative mx-auto" style={rfContainer(1200)}>
+        <div className="flex items-center justify-between text-[11px] font-medium uppercase tracking-[0.28em] text-white/55">
+          <span>{props.eyebrow || "Get in touch"}</span>
+          <span aria-hidden>—</span>
+        </div>
+        <motion.h2
+          initial={reduce ? false : { opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-90px" }}
+          transition={{ duration: 0.8, ease: EASE }}
+          className="mt-10 max-w-4xl text-[clamp(2.75rem,7vw,6rem)] font-semibold leading-[0.98] tracking-tight [text-wrap:balance]"
+          style={{ fontFamily: "var(--brand-font)" }}
+        >
+          {props.title}
+        </motion.h2>
+        <div className="mt-12 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          {props.subtitle && <p className="max-w-md text-[15px] leading-relaxed text-white/70">{props.subtitle}</p>}
+          <a
+            {...ctaAttrs(props.ctaHref)}
+            className="group inline-flex shrink-0 items-center gap-2.5 rounded-full bg-white px-8 py-4 text-[13px] font-medium text-black transition-transform duration-300 ease-out hover:-translate-y-0.5 active:scale-[0.98]"
+          >
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--brand-accent)" }} />
+            {props.cta}
+            <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
  * FeaturesProcess — a monumental numbered "how we work" narrative. The
  * architecture (only) is mined from an architectural studio's Process section
  * and rebuilt in ReFrame's grammar: alternating image / numbered-step rows,
@@ -4131,6 +4194,7 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   TestimonialsEditorial,
   TestimonialsNocturne,
   FeaturesProcess,
+  CTAImmersive,
   TestimonialsGrid,
   FaqGrid,
   FAQAccordion1,

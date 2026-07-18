@@ -2045,6 +2045,11 @@ function buildBlock(
           subtitle: profile.closing?.subtitle ?? "Reach out today and let's make it happen.",
           cta: profile.cta.primary,
           ctaHref: bookHref,
+          // Candidate background for the immersive closing. qualityPass either
+          // hands it a distinct real photo (never a repeat) or drops it when the
+          // pool is spent — the section then closes on the brand's dark surface.
+          // Other CTA variants ignore this field.
+          image: analysis.extractedContent.images[0],
         },
       };
     case "contact":
@@ -2445,7 +2450,8 @@ export function qualityPass(blocks: Block[], imagePool: string[]): { blocks: Blo
     // without the priority, card sections drained it and the gallery vanished.
     const next2 = out.map((b) => ({ ...b, props: { ...(b.props as Record<string, unknown>) } }));
     const isShowcase = (b: Block) =>
-      b.type === "portfolio" || b.type === "gallery" || b.variant === "FeaturesProcess";
+      b.type === "portfolio" || b.type === "gallery" ||
+      b.variant === "FeaturesProcess" || b.variant === "CTAImmersive";
     const served = new Set<number>();
 
     // Serve one block up to `cap` images (cap = Infinity when unshared).

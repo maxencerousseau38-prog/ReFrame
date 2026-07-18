@@ -49,6 +49,17 @@
 
 ## Prochaine action
 
+**Fusion 3 sources : `CTAImmersive` livré (2026-07-15) — closing monumental.**
+Défaut n°1 (clôture faible 479px) tué. Fusion 21st(#7181 ossature, exécution
+rejetée) + Archform(Contact plein-cadre) + ReFrame(tokens/copy) → closing
+immersif (photo plein-cadre partagée du pool OU surface sombre brand-contrast +
+titre serif monumental + rangée baseline pill). Signature restaurant/hotel/
+realestate/architect ; health reste clair. CTAImmersive rejoint le partage
+image-led. Vérif : 3 fichiers+test, câblé, moteur sélectionne (test+DOM), build
+exit 0, 505 tests. LOCAL. **Défauts suivants** : footer (Footer1/FooterMinimal
+pas encore audités) ; hero variety par secteur ; Projects archform (cartes
+décalées scale-in). **Bloqueur prod** : GO promotion `main` sinon rien en prod.
+
 **Minage archform #1 livré (2026-07-15) : `FeaturesProcess` + allocation partagée.**
 Section process image-led monumentale (photo alternée + numéros géants), minée
 de la Process d'archform, réécrite ReFrame, pilotée par vrais services. Signature
