@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-15 — Minage archform #1 : FeaturesProcess (process image-led) + allocation partagée
+- Dépôt archform cloné + analysé (site/*: Hero/Process/Projects/Services/Nav/Studio). Pattern extrait : la section Process (récit numéroté « how we work », rythme alterné image/étape, numéros monumentaux) — ARCHITECTURE seulement, réécrite en grammaire ReFrame (tokens/rfSectionPad/CoverImage/EASE/reduced-motion), pilotée par les VRAIS services (zéro fabrication, description réelle only).
+- Dédup : ReFrame avait déjà `ProcessTimeline` (timeline verticale compacte texte-seul) → `FeaturesProcess` est la version IMAGE-LED monumentale, distincte. Enregistré REGISTRY+catalog, signature architect (prefer), compétitif agency/realestate (variété préservée — 4 variantes/6 marques), métiers image-pauvres gardent ProcessTimeline. Test régression + 1 test catalog inchangé (agency/X→Spotlight).
+- Bug d'allocation découvert & corrigé : hero+galerie vidaient le pool → FeaturesProcess sans images (image-led inerte). qualityPass refait : les sections image-led (galerie + FeaturesProcess) PARTAGENT le pool équitablement (cap quand >1). Mesuré : hero1/galerie3/process2 sur pool de 6. Restaurant inchangé (pas de FeaturesProcess).
+- VÉRIF : 4 fichiers, câblé (REGISTRY+catalog), moteur SÉLECTIONNE (test+DOM), image-led rendu (capture architect : photo 4/5 + « 01/ » alterné), build exit 0, 502 tests (500→502). LOCAL (branche≠main).
+
 ## 2026-07-15 — Moteur : fin de la fabrication des descriptions de cartes (F21) + FeaturesShowcase compact
 - Défaut Design Review n°2 tué : `featureBlurb()` (engine.ts) inventait une phrase pour CHAQUE service depuis son seul titre (« Wine pairing, executed cleanly from brief to launch » sur un resto) → violation no-fabrication. Fonction SUPPRIMÉE ; 2 sites d'appel (features + services) : description RÉELLE uniquement (`s.description`), sinon aucune (carte titre-seul).
 - Effet de bord visuel géré (vérifié à l'œil, pas supposé) : sans description ni image, `FeaturesShowcase` montrait une grande zone média VIDE + titre seul (thin/inachevé). Réécrit : grande tuile image seulement s'il y a des images ; sinon carte icône COMPACTE (pastille accent + titre, grammaire Linear/Stripe) — premium même titre-seul.

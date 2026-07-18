@@ -3642,6 +3642,76 @@ function FeaturesShowcase({ props }: { props: any }) {
 }
 
 /**
+ * FeaturesProcess — a monumental numbered "how we work" narrative. The
+ * architecture (only) is mined from an architectural studio's Process section
+ * and rebuilt in ReFrame's grammar: alternating image / numbered-step rows,
+ * huge step numerals, a staggered scroll reveal, generous vertical rhythm.
+ * Drives entirely on the client's REAL services (each becomes a step) — a photo
+ * per row when real imagery exists, otherwise a clean numbered editorial row.
+ * No fabrication. For service/process-led brands (studios, agencies, firms).
+ */
+function FeaturesProcess({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  const items = ((props.items || []) as any[]).slice(0, 5);
+  if (!items.length) return null;
+  return (
+    <section className="px-6" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)", ...rfSectionPad(120) }}>
+      <div className="mx-auto" style={rfContainer(1200)}>
+        <div className="flex items-end justify-between gap-6">
+          <div className="max-w-2xl">
+            <div className="mb-3 text-xs font-medium uppercase tracking-[0.28em]" style={{ color: "var(--brand-accent)" }}>Process</div>
+            <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>{props.title}</h2>
+          </div>
+          <span className="hidden shrink-0 pb-2 font-mono text-xs uppercase tracking-[0.2em] sm:block" style={{ color: "color-mix(in srgb, var(--brand-ink) 45%, transparent)" }}>
+            — {String(items.length).padStart(2, "0")}
+          </span>
+        </div>
+        <div className="mt-20 space-y-24 sm:space-y-28">
+          {items.map((it, i) => {
+            const flip = i % 2 === 1;
+            return (
+              <div key={i} className="grid items-center gap-8 sm:grid-cols-2 sm:gap-12">
+                {it.image && (
+                  <motion.div
+                    initial={reduce ? false : { opacity: 0, y: 28 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-80px" }}
+                    transition={{ duration: 0.75, ease: EASE }}
+                    className={cn(flip && "sm:order-2")}
+                  >
+                    <CoverImage
+                      image={it.image}
+                      gradient="linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))"
+                      className="aspect-[4/5] w-full"
+                      style={{ borderRadius: "var(--brand-radius)", boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
+                    />
+                  </motion.div>
+                )}
+                <motion.div
+                  initial={reduce ? false : { opacity: 0, y: 28 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-80px" }}
+                  transition={{ duration: 0.75, ease: EASE, delay: 0.06 }}
+                  className={cn(!it.image && "sm:col-span-2 sm:max-w-3xl")}
+                >
+                  <div className="text-5xl font-semibold tracking-tight sm:text-6xl" style={{ fontFamily: "var(--brand-font)", color: "color-mix(in srgb, var(--brand-ink) 32%, transparent)" }}>
+                    {String(i + 1).padStart(2, "0")} <span style={{ color: "var(--brand-accent)" }}>/</span>
+                  </div>
+                  <h3 className="mt-4 rf-fluid-h3 leading-[1.02] tracking-tight" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>{it.title}</h3>
+                  {it.description && (
+                    <p className="mt-4 max-w-md text-[15px] leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.6 }}>{it.description}</p>
+                  )}
+                </motion.div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
  * Product grid - the client's REAL catalogue, kept whole and modernized. A
  * responsive grid of premium product cards (image + name + price), every entry
  * scraped from the source site (never fabricated). Cards link to the real
@@ -4060,6 +4130,7 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   TestimonialsSlider1,
   TestimonialsEditorial,
   TestimonialsNocturne,
+  FeaturesProcess,
   TestimonialsGrid,
   FaqGrid,
   FAQAccordion1,

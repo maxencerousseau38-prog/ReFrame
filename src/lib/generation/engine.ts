@@ -2439,61 +2439,68 @@ export function qualityPass(blocks: Block[], imagePool: string[]): { blocks: Blo
     const next = (): string | undefined => (idx < imagePool.length ? imagePool[idx++] : undefined);
     let changed = false;
     // EDITORIAL PRIORITY, not array order: the hero keeps the best photo, then
-    // the gallery — the page's image showcase — is served before card sections.
-    // Without this, feature cards drained the pool and the magazine collage
-    // (the strongest section) vanished entirely.
+    // the image-led SHOWCASES (gallery + the image-led FeaturesProcess) SHARE
+    // the pool fairly, then everything else. Without the fair share, the gallery
+    // drained the pool and a downstream image-led process rendered text-only;
+    // without the priority, card sections drained it and the gallery vanished.
     const next2 = out.map((b) => ({ ...b, props: { ...(b.props as Record<string, unknown>) } }));
-    const isShowcase = (t: string) => t === "portfolio" || t === "gallery";
-    const passes: ((t: string) => boolean)[] = [
-      (t) => t === "hero",
-      (t) => isShowcase(t),
-      () => true,
-    ];
+    const isShowcase = (b: Block) =>
+      b.type === "portfolio" || b.type === "gallery" || b.variant === "FeaturesProcess";
     const served = new Set<number>();
-    for (const match of passes) {
-      next2.forEach((b, i) => {
-        if (served.has(i) || !match(b.type)) return;
-        served.add(i);
-        // Team portraits are IDENTITY, not interchangeable decor: swapping a
-        // person's photo for a pool image puts a dining room on the founder's
-        // face. The roster keeps exactly the images extracted per member.
-        if (b.type === "team") return;
-        const props = b.props as Record<string, unknown>;
-        if (typeof props.image === "string") {
-          const n = next();
-          if (n !== props.image) changed = true;
-          props.image = n;
-        }
-        if (Array.isArray(props.items)) {
-          const items = props.items as { image?: unknown }[];
-          const wanting = items.filter((it) => it && typeof it === "object" && typeof it.image === "string").length;
-          const remaining = imagePool.length - idx;
-          if (wanting === 0) return;
-          if (isShowcase(b.type) ? remaining === 0 : remaining < wanting) {
-            // Card rows are all-or-nothing (a half-imaged row looks broken; a
-            // clean icon/text row looks chosen). The showcase accepts a partial
-            // set — its collage adapts to any count and stays the page's peak.
-            props.items = items.map((it) =>
-              it && typeof it === "object" && typeof it.image === "string" ? { ...it, image: undefined } : it
-            );
-            changed = true;
-          } else {
-            props.items = items.map((it) => {
-              if (it && typeof it === "object" && typeof it.image === "string") {
-                const n = next();
-                if (n === undefined) return { ...it, image: undefined };
-                if (n !== it.image) changed = true;
-                return { ...it, image: n };
-              }
-              return it;
-            });
+
+    // Serve one block up to `cap` images (cap = Infinity when unshared).
+    const serveBlock = (b: Block, i: number, cap: number) => {
+      served.add(i);
+      // Team portraits are IDENTITY, not interchangeable decor: swapping a
+      // person's photo for a pool image puts a dining room on the founder's
+      // face. The roster keeps exactly the images extracted per member.
+      if (b.type === "team") return;
+      const props = b.props as Record<string, unknown>;
+      if (typeof props.image === "string") {
+        const n = next();
+        if (n !== props.image) changed = true;
+        props.image = n;
+      }
+      if (Array.isArray(props.items)) {
+        const items = props.items as { image?: unknown }[];
+        const imagedKeys = items
+          .map((it, k) => (it && typeof it === "object" && typeof it.image === "string" ? k : -1))
+          .filter((k) => k >= 0);
+        if (imagedKeys.length === 0) return;
+        const remaining = imagePool.length - idx;
+        const want = Math.min(imagedKeys.length, cap);
+        // Card rows are all-or-nothing (a half-imaged row looks broken; a clean
+        // icon/text row looks chosen). Showcases accept a partial set — their
+        // layouts adapt to any count.
+        const fill = isShowcase(b) ? Math.min(want, remaining) : remaining >= want ? want : 0;
+        const fillSet = new Set(imagedKeys.slice(0, fill));
+        props.items = items.map((it, k) => {
+          if (it && typeof it === "object" && typeof it.image === "string") {
+            if (!fillSet.has(k)) { changed = true; return { ...it, image: undefined }; }
+            const n = next();
+            if (n === undefined) { changed = true; return { ...it, image: undefined }; }
+            if (n !== it.image) changed = true;
+            return { ...it, image: n };
           }
-        }
-      });
-    }
+          return it;
+        });
+      }
+    };
+
+    // Pass 1 — hero keeps the best photo.
+    next2.forEach((b, i) => { if (b.type === "hero") serveBlock(b, i, Infinity); });
+    // Pass 2 — showcases share what remains (fair cap only when >1 competes).
+    const showcases = next2.map((b, i) => ({ b, i })).filter(({ b, i }) => !served.has(i) && isShowcase(b));
+    const cap = showcases.length > 1
+      ? Math.max(3, Math.floor((imagePool.length - idx) / showcases.length))
+      : Infinity;
+    showcases.forEach(({ b, i }) => serveBlock(b, i, cap));
+    // Pass 3 — everything else with whatever is left.
+    next2.forEach((b, i) => { if (!served.has(i)) serveBlock(b, i, Infinity); });
+
     out = next2;
     if (changed) {
-      recommendations.push({ action: "Gave every section its own photo", reason: "Repeating the same image across sections looks templated; each photo now appears once, and sections beyond the pool render clean text layouts." });
+      recommendations.push({ action: "Gave every section its own photo", reason: "Repeating the same image across sections looks templated; each photo now appears once, shared fairly between image-led sections, and sections beyond the pool render clean text layouts." });
     }
   }
 

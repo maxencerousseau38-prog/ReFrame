@@ -49,6 +49,17 @@
 
 ## Prochaine action
 
+**Minage archform #1 livré (2026-07-15) : `FeaturesProcess` + allocation partagée.**
+Section process image-led monumentale (photo alternée + numéros géants), minée
+de la Process d'archform, réécrite ReFrame, pilotée par vrais services. Signature
+architect ; agency/realestate compétitif ; distincte de ProcessTimeline (texte).
+Bug d'allocation corrigé : galerie + FeaturesProcess PARTAGENT le pool (cap) —
+avant, la galerie vidait tout et le process rendait sans images. Vérif : 4
+fichiers, câblé, moteur sélectionne (test+DOM), image-led rendu (capture), build
+exit 0, 502 tests. LOCAL. **Archform : autres patterns à miner** = Projects
+(cartes décalées + scale-in), Nav, Studio (ImageReveal/UnderlineLink), Services.
+**Bloqueur prod inchangé** : GO promotion `main` (Phase 2/3) sinon rien en prod.
+
 **Fabrication des descriptions features SUPPRIMÉE (2026-07-15, F21).**
 `featureBlurb()` inventait une phrase par service depuis son titre → supprimée ;
 description réelle uniquement, sinon carte titre-seul. `FeaturesShowcase`
