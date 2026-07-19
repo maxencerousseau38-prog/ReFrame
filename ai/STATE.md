@@ -49,6 +49,33 @@
 
 ## Prochaine action
 
+**COHÉRENCE : collection curée « nos vins » préservée + showcase image (2026-07-19).**
+Demande : sites recréés plus cohérents — une section « nos vins » doit revenir
+AVEC les vrais vins ; sections de même nom = architectures différentes. Contrainte
+E1 : sandbox bloque le TLS externe → extraction prouvée par FIXTURES, pas de scrape
+live. Gap concret trouvé : une collection curée SANS prix ni classe `product`
+(vins par nom + photo + blurb) était droppée par `extractCollection` (exige prix)
+ET `extractProducts` (exige prix/classe) → perdue. Livré : (1) **extractCollection
+branche C** heading-gated (regex FR/EN « nos vins/our menu/notre collection… », pas
+« menu » nu), price-OPTIONNELLE, capture nom+blurb+IMAGE par item, garde-fou
+substance (photo|blurb|prix sinon skip) — conservateur. `base` param + `image?`
+sur les items (types.ts). (2) **CollectionShowcase** — grille d'images premium
+(carte photo réelle par item + nom serif + prix opt + blurb), architecture
+DISTINCTE de la liste-menu texte CollectionGrid → 2 sections « Menu » diffèrent
+selon le vrai contenu. (3) Wiring : collection AVEC photos → section on-page HOME
+(visible/cohérent) ; menu texte → page dédiée (inchangé, anti-doublon). (4)
+**qualityPass exclut CollectionShowcase** de la redistribution d'images (chaque
+plat/vin garde SA photo, comme les portraits team). Preuve : régression
+`collection-showcase.test.ts` (6 : capture 4 vins price-less avec images ;
+conservatisme nav/bare ; menu prix inchangé ; showcase on home ; photos NON
+permutées ; menu texte → page CollectionGrid), capture restaurant home = section
+« Menu » 6 plats photos distinctes, overflow-x=0, tsc, 536 tests, build exit 0.
+LOCAL (feature). **Honnête** : le « scrape 100% pages/produits » complet reste un
+chantier multi-lots bloqué par E1 (test live impossible ici) ; ce lot ferme le
+gap concret « nos vins ». **Suivants** : per-page meta au crawl ; associer images
+↔ sections à la source ; variété archi des sections restantes (about/services). 
+**Promotion `main`** : SUR DEMANDE.
+
 **NAV IMMERSIVE + HERO FIDÉLITÉ ARCHFORM (2026-07-19) — les sites ressemblent à la référence.**
 Cible utilisateur : capture de la référence Archform (hero cinématique sombre,
 display SERIF monumental, nav transparente centrée majuscules + pill « • CONTACT »,

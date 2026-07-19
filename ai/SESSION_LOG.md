@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-19 — Cohérence : collection curée « nos vins » (price-less + photos) préservée
+- Demande : recréations cohérentes (section « nos vins » avec les vrais vins) + sections de même nom d'architecture différente. Contrainte E1 : pas de scrape live en sandbox → preuve par fixtures.
+- Gap concret : une collection curée sans prix ni classe `product` (vins par nom + photo + blurb) tombait entre extractCollection (exige prix) et extractProducts (exige prix/classe) → droppée.
+- extractCollection branche C : heading-gated (COLLECTION_HEADING FR/EN, « menu » nu exclu), price-optionnelle, capture nom+blurb+IMAGE, garde-fou substance. base param + image? sur items (types.ts). CollectionShowcase : grille d'images premium (photo réelle/nom serif/prix opt/blurb), architecture distincte du CollectionGrid texte. Wiring : collection imagée → section HOME ; menu texte → page dédiée (anti-doublon). qualityPass exclut CollectionShowcase de la redistribution (chaque item garde sa photo, comme team).
+- VÉRIF : régression collection-showcase.test.ts (6 : 4 vins price-less capturés avec images ; conservatisme ; menu prix inchangé ; showcase on home ; photos non permutées ; menu texte → CollectionGrid page), capture restaurant home = « Menu » 6 plats photos distinctes, overflow-x=0, tsc, 536 tests (530→536), build exit 0. LOCAL (feature). Honnête : le « scrape 100% » complet reste multi-lots (bloqué E1).
+
 ## 2026-07-19 — Nav immersive + hero fidélité Archform (ressembler à la référence)
 - Cible : capture référence Archform (hero sombre plein-cadre, display SERIF monumental, nav transparente centrée majuscules + pill « • CONTACT », cue « SCROLL TO EXPLORE »). Écart n°1 diagnostiqué : la NAV (barre solide au-dessus vs transparente survolant le hero, se solidifiant au scroll).
 - 21st MCP (heroes archi/editorial) : archétypes premium déjà couverts → gap = nav + finition, pas un composant. Livré sur blocks/index.tsx uniquement.

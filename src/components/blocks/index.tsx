@@ -2316,6 +2316,76 @@ function CollectionGrid({ props }: { props: any }) {
   );
 }
 
+/**
+ * CollectionShowcase — a premium IMAGE grid for a curated collection captured
+ * WITH photos (a "Nos vins" wine selection, a signature-dishes range, a product
+ * line). Deliberately a DIFFERENT architecture from the text-led CollectionGrid
+ * menu list, so two same-named collection sections read differently. Each card
+ * keeps the item's REAL photo, name, optional price and blurb; an item without a
+ * photo degrades to a clean monogram tile (never a fabricated image).
+ */
+function CollectionShowcase({ props }: { props: any }) {
+  const items = (props.items || []) as { name: string; price?: string; description?: string; image?: string }[];
+  const reduce = useReducedMotion();
+  return (
+    <section className="px-6" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)", ...rfSectionPad(112) }}>
+      <div className="mx-auto" style={rfContainer(1200)}>
+        {props.eyebrow && (
+          <span className="inline-flex items-center gap-3 text-[0.7rem] font-medium uppercase tracking-[0.28em]" style={{ color: "var(--brand-accent)" }}>
+            <span className="h-px w-9" style={{ background: "var(--brand-accent)" }} />
+            {props.eyebrow}
+          </span>
+        )}
+        <h2 className="mt-5 max-w-2xl text-[clamp(2rem,4.5vw,3.25rem)] font-medium leading-[1.05] tracking-[-0.02em]" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>
+          {props.title}
+        </h2>
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((it, i) => (
+            <motion.article
+              key={i}
+              initial={reduce ? false : { opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.5, ease: EASE, delay: Math.min(i, 8) * 0.05 }}
+              className="group flex flex-col overflow-hidden"
+              style={{ borderRadius: "var(--brand-radius)", background: "var(--brand-surface-2)", boxShadow: "0 0 0 1px color-mix(in srgb, var(--brand-ink) 8%, transparent)" }}
+            >
+              <div className="relative aspect-[4/5] overflow-hidden">
+                {it.image ? (
+                  <CoverImage
+                    image={it.image}
+                    gradient="linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))"
+                    className="h-full w-full transition-transform duration-500 group-hover:scale-[1.04]"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center" style={{ background: "color-mix(in srgb, var(--brand-accent) 10%, var(--brand-surface-2))" }}>
+                    <span className="text-4xl font-medium" style={{ fontFamily: "var(--brand-font)", color: "var(--brand-accent)", opacity: 0.5 }}>
+                      {(it.name || "•").trim().charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="flex flex-1 flex-col p-5">
+                <div className="flex items-baseline justify-between gap-3">
+                  <h3 className="text-lg font-medium leading-snug" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>
+                    {it.name}
+                  </h3>
+                  {it.price && (
+                    <span className="shrink-0 text-sm font-medium tabular-nums" style={{ color: "var(--brand-accent)" }}>{it.price}</span>
+                  )}
+                </div>
+                {it.description && (
+                  <p className="mt-2 text-sm leading-relaxed" style={{ opacity: 0.66 }}>{it.description}</p>
+                )}
+              </div>
+            </motion.article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Additional premium variants                                               */
 /* -------------------------------------------------------------------------- */
@@ -4495,6 +4565,7 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   CTASection1,
   CTAEditorial,
   CollectionGrid,
+  CollectionShowcase,
   ContactFormPremium1,
   Footer1,
 };

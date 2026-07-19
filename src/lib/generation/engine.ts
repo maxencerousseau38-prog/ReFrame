@@ -575,8 +575,10 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
       faqItems: extractFaq(root, ld),
       // Real social profiles for the footer (never fabricated).
       socialLinks: extractSocialLinks(root),
-      // Real menu / price list, when the page exposes one (CollectionGrid block).
-      collection: extractCollection(root),
+      // Real menu / price list / curated collection (wines, dishes, product
+      // range), when the page exposes one. Price menus render as a text list;
+      // a photographed "nos vins"-style selection renders as an image showcase.
+      collection: extractCollection(root, url),
       // Real team members (premium TeamGrid section), never fabricated.
       team: extractTeam(root, url),
       ...(products.length ? { products } : {}),
@@ -1460,21 +1462,23 @@ export function extractSocialLinks(
  * block when present.
  */
 export function extractCollection(
-  root: HTMLElement
-): { items: { name: string; price?: string; description?: string }[] } | undefined {
-  const items: { name: string; price?: string; description?: string }[] = [];
+  root: HTMLElement,
+  base = ""
+): { items: { name: string; price?: string; description?: string; image?: string }[] } | undefined {
+  const items: { name: string; price?: string; description?: string; image?: string }[] = [];
   const seen = new Set<string>();
-  const add = (rawName: string, rawPrice?: string, rawDesc?: string) => {
+  const add = (rawName: string, rawPrice?: string, rawDesc?: string, image?: string) => {
     if (items.length >= 24) return;
     const name = clean(rawName).slice(0, 80);
     if (name.length < 2 || GENERIC_HEADING.test(name)) return;
     const key = name.toLowerCase();
     if (seen.has(key)) return;
     seen.add(key);
-    const item: { name: string; price?: string; description?: string } = { name };
+    const item: { name: string; price?: string; description?: string; image?: string } = { name };
     if (rawPrice) item.price = clean(rawPrice).slice(0, 24);
     const desc = clean(rawDesc || "");
     if (desc && desc.toLowerCase() !== key && desc.length >= 8) item.description = desc.slice(0, 200);
+    if (image) item.image = image;
     items.push(item);
   };
 
@@ -1506,8 +1510,51 @@ export function extractCollection(
     }
   }
 
+  // C) Heading-gated CURATED collection (price-OPTIONAL): a "Nos vins" / "Our menu"
+  //    / "Notre collection" section listing named items with photos + descriptions
+  //    but no prices — common for wine cellars, fine dining, artisan ranges. Gated
+  //    by a real collection heading (like the team extractor) so a stray list never
+  //    invents one; each item needs SUBSTANCE beyond a bare name (image, blurb or
+  //    price) to reject nav/menu noise. This is what makes a real "nos vins"
+  //    section survive the rebuild with its actual wines.
+  if (items.length < 3) {
+    let container: HTMLElement | null = null;
+    for (const h of root.querySelectorAll("h1, h2, h3")) {
+      if (COLLECTION_HEADING.test(clean(h.text))) {
+        container = (h.closest("section") as HTMLElement | null) ?? (h.parentNode as HTMLElement | null);
+        break;
+      }
+    }
+    if (container) {
+      for (const el of container.querySelectorAll("li, article, figure, .card, .item, .tile, .product, .wine, .dish, .bottle")) {
+        if (items.length >= 24) break;
+        const nameEl = el.querySelector("h2, h3, h4, h5, figcaption, .name, .title, dt, strong, b");
+        const name = clean(nameEl?.text || "");
+        if (!name) continue;
+        const pm = clean(el.text).match(PRICE_RE);
+        let desc = "";
+        for (const p of el.querySelectorAll("p, .desc, .description, dd, small")) {
+          const t = clean(p.text);
+          if (t && t.toLowerCase() !== name.toLowerCase() && t.length >= 8) { desc = t; break; }
+        }
+        const img = el.querySelector("img");
+        const src = img ? (img.getAttribute("src") || img.getAttribute("data-src") || img.getAttribute("data-lazy-src") || "") : "";
+        const image = src ? abs(src, base) : undefined;
+        // Need real substance (photo / blurb / price) — a bare name is nav noise.
+        if (!image && !desc && !pm) continue;
+        add(name, pm ? pm[0] : undefined, desc, image);
+      }
+    }
+  }
+
   return items.length >= 3 ? { items: items.slice(0, 24) } : undefined;
 }
+
+/** Section headings that mark a real, owner-curated collection (menu / wine list
+ *  / product range) — FR + EN. Bare "menu" is excluded (too generic); we require
+ *  a specific phrase so a nav word never triggers a fabricated section. */
+const COLLECTION_HEADING =
+  /\b(nos vins|our wines?|wine list|carte des vins|la carte|notre menu|our menu|nos plats|our dishes|nos produits|our products|our range|notre collection|our collection|nos cr[ée]ations|notre s[ée]lection|our selection|nos boissons|our drinks|nos sp[ée]cialit[ée]s|our specialties|nos formules)\b/i;
 
 const TEAM_HEADING_RE =
   /\b(our team|the team|meet the team|our people|leadership|founders?|our staff|notre [ée]quipe|l['’]?[ée]quipe|qui sommes[- ]nous)\b/i;
@@ -2187,6 +2234,24 @@ export function generateSite(
     blocks.splice(at >= 0 ? at : blocks.length, 0, teamBlock);
   }
 
+  // A curated collection captured WITH photos (e.g. a "Nos vins" wine selection)
+  // belongs on the home page as a premium image showcase — the section is part of
+  // who the business is, so the rebuild keeps it visible and coherent. Text-only
+  // price menus stay on the dedicated Menu/Catalogue page (built below).
+  const collection = analysis.extractedContent.collection;
+  const collectionOnHome = !!collection?.items?.length && collection.items.some((it) => it.image);
+  if (collectionOnHome && collection) {
+    const meta = collectionMeta(analysis.industry);
+    const collBlock: Block = {
+      id: uid("collection"),
+      type: "gallery",
+      variant: "CollectionShowcase",
+      props: { eyebrow: meta.label, title: meta.label, items: collection.items },
+    };
+    const at = blocks.findIndex((b) => b.type === "cta" || b.type === "footer");
+    blocks.splice(at >= 0 ? at : blocks.length, 0, collBlock);
+  }
+
   // Multi-page: beyond the home overview, build the standard small-business
   // pages (Services, About, Contact). Each is a focused page of real blocks
   // (fabricated sections still drop out). Empty pages are omitted.
@@ -2207,10 +2272,11 @@ export function generateSite(
         buildPage("Contact", "contact", ["contact", "footer"]),
       ].filter((p): p is SitePage => p !== null);
 
-  // CMS-lite: an owner-managed collection (menu / price list) becomes a real
-  // page. Industry-labelled, inserted before Contact.
-  const collection = analysis.extractedContent.collection;
-  if (collection?.items?.length) {
+  // CMS-lite: a text-only owner-managed collection (menu / price list) becomes a
+  // dedicated page. Industry-labelled, inserted before Contact. Photographed
+  // collections were already surfaced on the home page above (skip to avoid a
+  // duplicate).
+  if (collection?.items?.length && !collectionOnHome) {
     const meta = collectionMeta(analysis.industry);
     const footer = buildBlock({ type: "footer", category: "footer" }, analysis, mood);
     const block: Block = {
@@ -2477,6 +2543,10 @@ export function qualityPass(blocks: Block[], imagePool: string[]): { blocks: Blo
       // person's photo for a pool image puts a dining room on the founder's
       // face. The roster keeps exactly the images extracted per member.
       if (b.type === "team") return;
+      // A curated collection's per-item photos are the REAL product shots (this
+      // wine, that dish) — never reassign them from the shared pool, or bottle A
+      // gets bottle B's label. Keep exactly what was scraped per item.
+      if (b.variant === "CollectionShowcase") return;
       const props = b.props as Record<string, unknown>;
       if (typeof props.image === "string") {
         const n = next();

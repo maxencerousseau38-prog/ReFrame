@@ -137,13 +137,25 @@ function buildAnalysis(industry: Industry, withImages: boolean, brandName = "Nor
         { name: "Priya Nair", role: "Head of Delivery", image: TEAM_PORTRAITS[2], bio: "Keeps complex builds calm, on time and on budget." },
         { name: "Tomás Vidal", role: "Senior Designer", image: TEAM_PORTRAITS[3], bio: "Detail-obsessed, from joinery to typography." },
       ],
+      // A photographed collection (each item keeps its OWN real photo) → renders
+      // as the premium on-page CollectionShowcase. With no images it falls back
+      // to a text menu on a dedicated page (both paths exercised by ?img=0).
       collection: {
-        items: [
-          { name: "Burrata & heirloom tomato", price: "€14", description: "Stracciatella, basil oil, aged balsamic." },
-          { name: "Tagliatelle al ragù", price: "€18", description: "Slow-cooked beef, parmigiano, hand-cut pasta." },
-          { name: "Branzino al forno", price: "€26", description: "Whole sea bass, lemon, rosemary potatoes." },
-          { name: "Tiramisù", price: "€9", description: "Mascarpone, espresso, cocoa." },
-        ],
+        items: withImages
+          ? [
+              { name: "Burrata & heirloom tomato", description: "Stracciatella, basil oil, aged balsamic.", image: images[1] },
+              { name: "Tagliatelle al ragù", description: "Slow-cooked beef, parmigiano, hand-cut pasta.", image: images[2] },
+              { name: "Branzino al forno", description: "Whole sea bass, lemon, rosemary potatoes.", image: images[3] },
+              { name: "Wood-fired focaccia", description: "Rosemary, flaked salt, olive oil.", image: images[4] },
+              { name: "Seasonal risotto", description: "Carnaroli, parmigiano, market vegetables.", image: images[5] },
+              { name: "Tiramisù", description: "Mascarpone, espresso, cocoa.", image: images[0] },
+            ]
+          : [
+              { name: "Burrata & heirloom tomato", price: "€14", description: "Stracciatella, basil oil, aged balsamic." },
+              { name: "Tagliatelle al ragù", price: "€18", description: "Slow-cooked beef, parmigiano, hand-cut pasta." },
+              { name: "Branzino al forno", price: "€26", description: "Whole sea bass, lemon, rosemary potatoes." },
+              { name: "Tiramisù", price: "€9", description: "Mascarpone, espresso, cocoa." },
+            ],
       },
       testimonials: [
         { quote: "They rebuilt our site in days and it finally looks like the business we actually run.", name: "Élise Caron", role: "Owner" },

@@ -295,7 +295,7 @@ export interface SiteAnalysis {
      * An owner-managed collection (menu / price list / service catalogue),
      * rendered as a dedicated page. Real content only - never fabricated.
      */
-    collection?: { items: { name: string; price?: string; description?: string }[] };
+    collection?: { items: { name: string; price?: string; description?: string; image?: string }[] };
     /**
      * Real products scraped from the page (JSON-LD Product / repeated product
      * cards): the client's actual catalogue, kept and modernized rather than
