@@ -168,7 +168,7 @@ function buildAnalysis(industry: Industry, withImages: boolean, brandName = "Nor
   };
 }
 
-const INDUSTRIES: Industry[] = ["restaurant", "artisan", "realestate", "saas", "agency", "ecommerce", "health", "generic"];
+const INDUSTRIES: Industry[] = ["restaurant", "artisan", "realestate", "saas", "agency", "ecommerce", "health", "generic", "architect", "hotel"];
 
 export default function PreviewPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
   const industry = (INDUSTRIES.includes(searchParams.industry as Industry) ? searchParams.industry : "agency") as Industry;

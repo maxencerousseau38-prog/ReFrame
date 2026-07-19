@@ -49,6 +49,29 @@
 
 ## Prochaine action
 
+**MONOPOLE DU HERO éliminé pour architect/realestate (2026-07-19) — routing, pas nouveau composant.**
+Suite du fil « variété du hero dans une famille ». Probe aux VRAIS moods des
+secteurs (le probe précédent utilisait « warm » à tort) : architect(elegant)/
+realestate(elegant) = 1/8 ; health(elegant) = **déjà 2/8** (jamais monopolisé,
+artefact du mauvais mood) ; agency(bold) = 1/8. Décision Directeur Artistique
+validée par **21st MCP** (search architecture/property hero → tous les archétypes
+premium — full-bleed/split/collage/image-above — sont DÉJÀ couverts par nos 5
+heroes éditoriaux) : le défaut est du ROUTING, pas un composant manquant ; ajouter
+un 6e hero = redondance refusée. Fix = déverrouiller les heroes premium existants
+via co-prefer (2 lignes catalog) : `HeroMonumental` prefer += realestate,
+`HeroArchform` prefer += architect → pour architect ET realestate les deux
+signatures architecturales s'égalisent (11=11 / 13=13) → jitter départage →
+**2/8 distinct**. Preuve : probe 2/8, 2 marques realestate RÉELLES = 2 heros
+(Atelier Nord→Monumental wordmark-bas, Studio Vela→Archform display-géant),
+overflow-x=0. agency reste **1/8 par CHOIX** : HeroAgencia (wordmark condensé
+near-black) EST la signature agence — forcer un co-égal sacrifierait le fit (D-doctrine).
+Bonus QA : `INDUSTRIES` whitelist de zpreview += architect, hotel (avant : fallback
+silencieux → agency). Régression `editorial-hero-variety.test.ts` (5). tsc, 530
+tests, build exit 0. LOCAL (feature). **État heros par secteur** : restaurant/
+hotel/architect/realestate/health/saas = ≥2 ; agency = 1 (voulu). **Défauts
+suivants** : Nav (jamais audité) ; `ensureSlot("stats")` en retail. **Promotion
+`main`** : feature en avance de 2 lots (HeroCollage + ce lot) — SUR DEMANDE.
+
 **HERO COLLAGE livré (2026-07-18) — variété du hero AU SEIN d'une famille.**
 Revue Directeur Artistique : deux marques d'un même secteur prenaient le MÊME
 hero (>50% de la qualité perçue → « template » immédiat). Défaut reproduit

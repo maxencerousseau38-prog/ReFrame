@@ -1,5 +1,12 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-19 — Monopole du hero éliminé (architect/realestate) : routing, pas nouveau composant
+- Suite du fil variété-hero. Probe aux VRAIS moods : architect/realestate(elegant)=1/8 ; health(elegant)=déjà 2/8 (le « 1/6 » précédent = artefact mood « warm ») ; agency(bold)=1/8. Fil corrigé : health n'était jamais monopolisé.
+- 21st MCP (search architecture/property/editorial hero) : tous les archétypes premium (full-bleed/split/collage/image-above) sont DÉJÀ couverts par nos 5 heroes éditoriaux. Décision Directeur Artistique : le défaut est du ROUTING ; ajouter un 6e hero = redondance → refusé. On déverrouille l'existant.
+- Fix = 2 lignes catalog (co-prefer) : HeroMonumental prefer += realestate, HeroArchform prefer += architect. Pour architect ET realestate les 2 signatures architecturales s'égalisent → jitter départage → 2/8. Zéro nouveau composant, zéro risque de fit dégradé.
+- agency reste 1/8 PAR CHOIX : HeroAgencia (wordmark condensé near-black) = la signature agence ; forcer un co-égal sacrifierait le fit (doctrine « ne pas forcer la variété »). Bonus : zpreview INDUSTRIES += architect, hotel (fallback silencieux → agency corrigé).
+- VÉRIF : probe 2/8, 2 marques realestate réelles = 2 heros distincts (Atelier Nord→Monumental, Studio Vela→Archform, captures 1440), overflow-x=0, régression editorial-hero-variety.test.ts (5), catalog.test.ts inchangé (realestate ∈ {Monumental,Archform} tient), tsc, 530 tests (525→530), build exit 0. LOCAL (feature, +2 lots vs main).
+
 ## 2026-07-18 — HeroCollage : casser le monopole du hero au sein d'une famille
 - Revue Directeur Artistique : deux marques d'un même secteur = MÊME hero (>50% qualité perçue → template immédiat). Probe : restaurant/hotel/architect/realestate/health = 1/6 distinct. Racine prouvée : un `prefer` unique (+5) bat toujours la jitter (max 1.6) → monopole du hero.
 - Minage 3 sources : 21st MCP (search hospitality → 10 comparés ; #19074 « Editorial Collage Hero » = 2 images superposées + serif ; get_component bloqué limite 2/j → reinterprété depuis desc/preview) + Archform Hero.tsx (reveal masqué ligne + ken-burns scale-in) + grammaire ReFrame. Reinterprété 100%.
