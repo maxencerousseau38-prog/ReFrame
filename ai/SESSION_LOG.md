@@ -1,5 +1,12 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-19 — Nav immersive + hero fidélité Archform (ressembler à la référence)
+- Cible : capture référence Archform (hero sombre plein-cadre, display SERIF monumental, nav transparente centrée majuscules + pill « • CONTACT », cue « SCROLL TO EXPLORE »). Écart n°1 diagnostiqué : la NAV (barre solide au-dessus vs transparente survolant le hero, se solidifiant au scroll).
+- 21st MCP (heroes archi/editorial) : archétypes premium déjà couverts → gap = nav + finition, pas un composant. Livré sur blocks/index.tsx uniquement.
+- SiteNav mode `overlay` : transparent blanc sur hero sombre (liens majuscules trackés, pill blanche outline à point), position `fixed`, se solidifie en barre givrée au scroll (scroll listener, état `solid`) ; sites non-overlay strictement inchangés.
+- SiteRenderer : OVERLAY_HEROES = {HeroArchform, HeroImageFull, HeroMonumental} ; si 1er bloc ∈ set → overlay + injecte `_overlayNav` au 1er bloc (render-only, non persisté). Heroes ImageFull/Archform cachent leur rangée-marque interne sous la nav (fin du doublon) ; Monumental clair (padTop 112px) sans changement. HeroArchform : titre en reveal MASQUÉ ligne (rise-from-mask) + cue « — SCROLL TO EXPLORE » à trait (finition référence).
+- VÉRIF captures : architect(serif) HeroArchform top (nav transparente + serif monumental + scroll cue ≈ référence), scrolled (nav givrée solide), mobile, restaurant HeroImageFull overlay (rangée cachée), saas clair = barre solide (régression non-overlay). overflow-x=0 partout. tsc, 530 tests, build exit 0. LOCAL (feature +3 lots vs main).
+
 ## 2026-07-19 — Monopole du hero éliminé (architect/realestate) : routing, pas nouveau composant
 - Suite du fil variété-hero. Probe aux VRAIS moods : architect/realestate(elegant)=1/8 ; health(elegant)=déjà 2/8 (le « 1/6 » précédent = artefact mood « warm ») ; agency(bold)=1/8. Fil corrigé : health n'était jamais monopolisé.
 - 21st MCP (search architecture/property/editorial hero) : tous les archétypes premium (full-bleed/split/collage/image-above) sont DÉJÀ couverts par nos 5 heroes éditoriaux. Décision Directeur Artistique : le défaut est du ROUTING ; ajouter un 6e hero = redondance → refusé. On déverrouille l'existant.

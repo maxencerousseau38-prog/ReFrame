@@ -49,6 +49,30 @@
 
 ## Prochaine action
 
+**NAV IMMERSIVE + HERO FIDÉLITÉ ARCHFORM (2026-07-19) — les sites ressemblent à la référence.**
+Cible utilisateur : capture de la référence Archform (hero cinématique sombre,
+display SERIF monumental, nav transparente centrée majuscules + pill « • CONTACT »,
+cue « SCROLL TO EXPLORE »). Diagnostic Directeur Artistique : l'écart n°1 était
+la NAV — ReFrame avait une barre solide AU-DESSUS du hero, la référence a une nav
+TRANSPARENTE qui SURVOLE le hero plein-cadre puis se solidifie au scroll (pattern
+premium immersif). 21st MCP consulté (heroes archi/editorial) : archétypes déjà
+couverts → le gap est la nav + la finition, pas un composant. Livré : (1) **SiteNav
+mode `overlay`** — transparent blanc sur hero sombre (liens majuscules trackés,
+pill blanche outline à point), `fixed`, se solidifie en barre givrée au scroll
+(listener) ; non-overlay inchangé (barre solide). (2) **SiteRenderer** détecte un
+hero sombre plein-cadre (`OVERLAY_HEROES` = HeroArchform/HeroImageFull/
+HeroMonumental) → passe `overlay` + injecte `_overlayNav` au 1er bloc. (3) Heroes :
+HeroImageFull + HeroArchform masquent leur rangée-marque interne sous la nav
+(plus de doublon) ; **HeroArchform** reçoit la finition référence — titre en
+**reveal masqué ligne** (rise-from-mask) + cue « — SCROLL TO EXPLORE » à trait.
+Preuve : architect(serif) HeroArchform top = nav transparente + « SPACES THAT
+SHAPE HOW YOU LIVE » serif monumental + scroll cue (≈ référence) ; scrolled = nav
+givrée solide ; mobile OK ; restaurant HeroImageFull overlay (rangée cachée) ;
+saas hero clair = barre solide inchangée (régression) ; overflow-x=0 partout.
+tsc, 530 tests, build exit 0. LOCAL (feature). **Suivants** : étendre reveal
+masqué + scroll cue à HeroMonumental/ImageFull ; hamburger mobile ; imagerie
+architect dans zpreview. **Promotion `main`** : SUR DEMANDE (feature +3 lots).
+
 **MONOPOLE DU HERO éliminé pour architect/realestate (2026-07-19) — routing, pas nouveau composant.**
 Suite du fil « variété du hero dans une famille ». Probe aux VRAIS moods des
 secteurs (le probe précédent utilisait « warm » à tort) : architect(elegant)/

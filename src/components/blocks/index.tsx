@@ -2358,18 +2358,21 @@ function HeroImageFull({ props }: { props: any }) {
         style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.55), rgba(0,0,0,0.04) 26%, rgba(0,0,0,0.12) 52%, rgba(0,0,0,0.86))" }}
       />
 
-      {/* top meta row — brand wordmark left, sector label right */}
-      <div
-        className="relative mx-auto flex w-full max-w-6xl items-center justify-between gap-6 border-b pb-5"
-        style={{ borderColor: "rgba(255,255,255,0.16)" }}
-      >
-        {brand && <span className="truncate text-sm font-medium tracking-tight">{brand}</span>}
-        {props.eyebrow && (
-          <span className="shrink-0 text-[0.68rem] font-medium uppercase tracking-[0.28em] text-white/75">
-            {props.eyebrow}
-          </span>
-        )}
-      </div>
+      {/* top meta row — brand wordmark left, sector label right. Hidden when the
+          immersive overlay nav is present (the nav already carries the brand). */}
+      {!props._overlayNav && (
+        <div
+          className="relative mx-auto flex w-full max-w-6xl items-center justify-between gap-6 border-b pb-5"
+          style={{ borderColor: "rgba(255,255,255,0.16)" }}
+        >
+          {brand && <span className="truncate text-sm font-medium tracking-tight">{brand}</span>}
+          {props.eyebrow && (
+            <span className="shrink-0 text-[0.68rem] font-medium uppercase tracking-[0.28em] text-white/75">
+              {props.eyebrow}
+            </span>
+          )}
+        </div>
+      )}
 
       {/* editorial title, anchored to the bottom of the frame */}
       <div className="relative mx-auto mt-auto w-full max-w-6xl">
@@ -2995,23 +2998,30 @@ function HeroArchform({ props }: { props: any }) {
       </div>
       <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.04) 30%, rgba(0,0,0,0.1) 55%, rgba(0,0,0,0.88))" }} />
 
-      <div className="relative mx-auto flex w-full max-w-6xl items-center justify-between gap-6">
-        {brand && <span className="truncate text-sm font-semibold uppercase tracking-[0.22em]">{brand}</span>}
-        {props.eyebrow && (
-          <span className="hidden shrink-0 text-[0.66rem] font-medium uppercase tracking-[0.28em] text-white/70 sm:block">{props.eyebrow}</span>
-        )}
-      </div>
+      {/* top meta row — hidden under the immersive overlay nav (nav carries brand). */}
+      {!props._overlayNav && (
+        <div className="relative mx-auto flex w-full max-w-6xl items-center justify-between gap-6">
+          {brand && <span className="truncate text-sm font-semibold uppercase tracking-[0.22em]">{brand}</span>}
+          {props.eyebrow && (
+            <span className="hidden shrink-0 text-[0.66rem] font-medium uppercase tracking-[0.28em] text-white/70 sm:block">{props.eyebrow}</span>
+          )}
+        </div>
+      )}
 
       <div className="relative mx-auto mt-auto w-full max-w-6xl">
-        <motion.h1
-          initial={reduce ? false : { opacity: 0, y: 28, filter: "blur(8px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{ duration: 0.8, ease: EASE, delay: 0.05 }}
-          className="max-w-[16ch] text-[clamp(2.8rem,9vw,8rem)] uppercase leading-[0.92] tracking-[-0.02em] [text-wrap:balance]"
-          style={{ fontFamily: "var(--brand-font)", fontWeight: 800 }}
-        >
-          {props.title}
-        </motion.h1>
+        {/* masked line-reveal display (Archform signature): the headline rises
+            from an overflow mask rather than fading — more premium, editorial. */}
+        <div className="overflow-hidden pb-[0.08em]">
+          <motion.h1
+            initial={reduce ? { y: 0 } : { y: "110%" }}
+            animate={{ y: "0%" }}
+            transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
+            className="max-w-[16ch] text-[clamp(2.8rem,9vw,8rem)] uppercase leading-[0.92] tracking-[-0.02em] [text-wrap:balance]"
+            style={{ fontFamily: "var(--brand-font)", fontWeight: 800 }}
+          >
+            {props.title}
+          </motion.h1>
+        </div>
         <div className="mt-8 flex flex-col gap-6 border-t pt-6 sm:flex-row sm:items-end sm:justify-between" style={{ borderColor: "rgba(255,255,255,0.18)" }}>
           {props.subtitle && <p className="max-w-md text-[15px] leading-relaxed text-white/80">{props.subtitle}</p>}
           <div className="flex flex-wrap items-center gap-3">
@@ -3025,8 +3035,9 @@ function HeroArchform({ props }: { props: any }) {
                 {props.secondaryCta}
               </a>
             )}
-            <span className="hidden items-center gap-2 text-[0.6rem] uppercase tracking-[0.28em] text-white/60 lg:inline-flex">
-              Scroll <span aria-hidden>&darr;</span>
+            {/* elegant scroll cue — a leading rule + label, like the reference. */}
+            <span className="hidden items-center gap-3 text-[0.6rem] uppercase tracking-[0.28em] text-white/60 lg:inline-flex">
+              <span aria-hidden className="h-px w-10 bg-white/50" /> Scroll to explore
             </span>
           </div>
         </div>
@@ -4678,25 +4689,53 @@ function BrandLogo({ logo, name, dark }: { logo?: string; name: string; dark?: b
   );
 }
 
-function SiteNav({ brand, items, cta, logoUrl, dark }: { brand: NavItem; items: NavItem[]; cta: NavItem; logoUrl?: string; dark?: boolean }) {
+/** Heroes that render as a dark full-bleed image: they get the immersive overlay
+ *  nav (transparent → solid on scroll) and hide their own top brand row. */
+const OVERLAY_HEROES = new Set(["HeroArchform", "HeroImageFull", "HeroMonumental"]);
+
+function SiteNav({ brand, items, cta, logoUrl, dark, overlay }: { brand: NavItem; items: NavItem[]; cta: NavItem; logoUrl?: string; dark?: boolean; overlay?: boolean }) {
+  // Immersive pattern (Archform-grade): over a dark full-bleed hero the nav floats
+  // transparently with white text, then solidifies into the normal bar once the
+  // visitor scrolls past the hero. Non-overlay sites keep the solid sticky bar.
+  const [solid, setSolid] = React.useState(!overlay);
+  React.useEffect(() => {
+    if (!overlay) { setSolid(true); return; }
+    const onScroll = () => setSolid(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [overlay]);
+  const onDark = !!overlay && !solid; // transparent-over-hero styling
+
   const link = (it: NavItem, key: React.Key) => {
-    const cls = "text-sm transition-opacity hover:opacity-70";
-    const style = { color: "var(--brand-ink)", opacity: it.active ? 1 : 0.72 } as React.CSSProperties;
+    const cls = cn("transition-opacity hover:opacity-100", onDark ? "text-[0.78rem] uppercase tracking-[0.16em]" : "text-sm hover:opacity-70");
+    const style = { color: onDark ? "#fff" : "var(--brand-ink)", opacity: it.active ? 1 : onDark ? 0.82 : 0.72 } as React.CSSProperties;
     return it.href ? (
       <a key={key} href={it.href} className={cls} style={style}>{it.label}</a>
     ) : (
       <button key={key} type="button" onClick={it.onClick} className={cls} style={style}>{it.label}</button>
     );
   };
-  const ctaCls = "shrink-0 px-4 py-2 text-sm font-medium text-white transition-transform active:scale-[0.98]";
-  const ctaStyle = { background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)" } as React.CSSProperties;
+  // CTA: solid → accent pill; over the hero → white-outlined pill with a leading dot.
+  const ctaCls = onDark
+    ? "inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-[0.78rem] font-medium uppercase tracking-[0.16em] text-white transition-colors hover:bg-white/10"
+    : "shrink-0 px-4 py-2 text-sm font-medium text-white transition-transform active:scale-[0.98]";
+  const ctaStyle = (onDark
+    ? { borderColor: "rgba(255,255,255,0.45)" }
+    : { background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)" }) as React.CSSProperties;
+  const ctaInner = (
+    <>
+      {onDark && <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-white" />}
+      {cta.label}
+    </>
+  );
 
   return (
     <header
-      className="sticky top-0 z-40 backdrop-blur-md"
+      className={cn("z-40 transition-colors duration-300", overlay ? "fixed inset-x-0 top-0" : "sticky top-0", !onDark && "backdrop-blur-md")}
       style={{
-        background: "color-mix(in srgb, var(--brand-surface) 82%, transparent)",
-        borderBottom: `1px solid ${HAIRLINE}`,
+        background: onDark ? "transparent" : "color-mix(in srgb, var(--brand-surface) 82%, transparent)",
+        borderBottom: `1px solid ${onDark ? "transparent" : HAIRLINE}`,
         // Sit below the status bar / notch on phones (viewportFit: cover).
         paddingTop: "env(safe-area-inset-top)",
       }}
@@ -4704,18 +4743,18 @@ function SiteNav({ brand, items, cta, logoUrl, dark }: { brand: NavItem; items: 
       <div className="mx-auto flex items-center justify-between gap-4 px-[max(1.5rem,env(safe-area-inset-left))] py-3.5" style={rfContainer(1152)}>
         {brand.href ? (
           <a href={brand.href} className="inline-flex items-center" aria-label={brand.label}>
-            <BrandLogo logo={logoUrl} name={brand.label} dark={dark} />
+            <BrandLogo logo={logoUrl} name={brand.label} dark={onDark ? true : dark} />
           </a>
         ) : (
           <button type="button" onClick={brand.onClick} className="inline-flex items-center" aria-label={brand.label}>
-            <BrandLogo logo={logoUrl} name={brand.label} dark={dark} />
+            <BrandLogo logo={logoUrl} name={brand.label} dark={onDark ? true : dark} />
           </button>
         )}
         <nav className="hidden items-center gap-7 md:flex">{items.map(link)}</nav>
         {cta.href ? (
-          <a href={cta.href} className={ctaCls} style={ctaStyle}>{cta.label}</a>
+          <a href={cta.href} className={ctaCls} style={ctaStyle}>{ctaInner}</a>
         ) : (
-          <button type="button" onClick={cta.onClick} className={ctaCls} style={ctaStyle}>{cta.label}</button>
+          <button type="button" onClick={cta.onClick} className={ctaCls} style={ctaStyle}>{ctaInner}</button>
         )}
       </div>
     </header>
@@ -4787,6 +4826,11 @@ export function SiteRenderer({
 
   const themeScope = React.useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const fontLink = fontGoogleUrl(schema.theme.font);
+  // Immersive nav: when the page opens on a dark full-bleed image hero, the nav
+  // floats transparently over it and the hero hides its own brand row (the nav
+  // carries the brand). Light heroes keep the standard solid bar.
+  const overlayNav = OVERLAY_HEROES.has((current.blocks[0]?.variant as string) || "");
+
   return (
     <MotionConfig reducedMotion={animationsOn ? "user" : "always"}>
       {fontLink && <link rel="stylesheet" href={fontLink} />}
@@ -4804,10 +4848,10 @@ export function SiteRenderer({
           ...(schema.rhythm ? { ["--rf-rhythm" as string]: String(schema.rhythm) } : {}),
         }}
       >
-        <SiteNav brand={brand} items={items} cta={cta} logoUrl={schema.brand.logo} dark={schema.theme.dark === true} />
+        <SiteNav brand={brand} items={items} cta={cta} logoUrl={schema.brand.logo} dark={schema.theme.dark === true} overlay={overlayNav} />
         {current.blocks.map((block, i) => (
           <SceneShell key={block.id} block={block}>
-            <BlockRenderer block={block} index={i + 1} />
+            <BlockRenderer block={i === 0 && overlayNav ? { ...block, props: { ...(block.props as object), _overlayNav: true } } : block} index={i + 1} />
           </SceneShell>
         ))}
       </div>
