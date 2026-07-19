@@ -101,12 +101,12 @@ const TEAM_PORTRAITS = [
   img("photo-1438761681033-6461ffad8d80"),
 ];
 
-function buildAnalysis(industry: Industry, withImages: boolean): SiteAnalysis {
+function buildAnalysis(industry: Industry, withImages: boolean, brandName = "Northlight"): SiteAnalysis {
   const p = INDUSTRY_PROFILES[industry];
   const images = withImages ? INDUSTRY_IMAGES[industry] ?? GENERIC_IMAGES : [];
   return {
     url: `https://demo-${industry}.com`,
-    brandName: "Northlight",
+    brandName,
     industry,
     industryLabel: p.label,
     fetched: true,
@@ -174,7 +174,10 @@ export default function PreviewPage({ searchParams }: { searchParams: Record<str
   const industry = (INDUSTRIES.includes(searchParams.industry as Industry) ? searchParams.industry : "agency") as Industry;
   const withImages = searchParams.img !== "0";
   const mode = (["preserve", "smart", "classic"].includes(searchParams.mode || "") ? searchParams.mode : "smart") as GenerationMode;
-  const analysis = buildAnalysis(industry, withImages);
+  // QA: override the brand name (the layout seed) to audit per-brand variety
+  // (e.g. ?industry=restaurant&brand=Osteria vs &brand=Bistro pick different heroes).
+  const brandName = (searchParams.brand || "").trim() || "Northlight";
+  const analysis = buildAnalysis(industry, withImages, brandName);
   // QA: override the brand accent to audit contrast (e.g. ?accent=ffd400 for yellow).
   if (/^[0-9a-fA-F]{6}$/.test(searchParams.accent || "")) {
     analysis.brand = { ...analysis.brand, accentColor: `#${searchParams.accent}` };

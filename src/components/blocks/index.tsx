@@ -754,6 +754,157 @@ function HeroEditorial({ props }: { props: any }) {
   );
 }
 
+/**
+ * HeroCollage — an editorial SPLIT hospitality hero. Merges three studied sources,
+ * fully reinterpreted in ReFrame grammar (never copied):
+ *  - 21st "Editorial Collage Hero" (#19074): a serif headline beside a layered
+ *    collage of two overlapping images over a soft wash (magazine depth).
+ *  - Archform Hero.tsx: the masked line-reveal heading (rises from an overflow
+ *    mask) and the slow ken-burns image scale-in.
+ *  - ReFrame doctrine: brand tokens, REAL copy/images only, rare accent, reduced
+ *    motion honoured, AA.
+ * Deliberately DISTINCT from the full-bleed heroes (HeroImageFull / HeroMonumental
+ * / HeroArchform) and from HeroEditorial's single framed portrait — this is a
+ * two-photo collage. It co-prefers restaurant/hotel with HeroImageFull so two
+ * same-sector brands get genuinely different (but both fitting) first impressions.
+ * Degrades to a single framed tile when only one photo exists (never an empty frame).
+ */
+function HeroCollage({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  const imgA = React.useRef<HTMLImageElement>(null);
+  useParallax(imgA);
+  const rise = reduce
+    ? { hidden: { opacity: 1, y: 0 }, visible: { opacity: 1, y: 0 } }
+    : { hidden: { opacity: 0, y: 22 }, visible: { opacity: 1, y: 0 } };
+  const hasSecond = typeof props.image2 === "string" && !!props.image2;
+  return (
+    <section
+      className="relative overflow-hidden px-6 pt-[var(--rf-scene-pt,5rem)] pb-[var(--rf-scene-pb,5rem)] sm:pt-[var(--rf-scene-pt,7rem)] sm:pb-[var(--rf-scene-pb,7rem)]"
+      style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}
+    >
+      {/* soft brand wash behind the collage — depth, not a gradient slab */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute right-[-10%] top-[-12%] h-[60%] w-[55%] rounded-full blur-3xl"
+        style={{ background: "radial-gradient(closest-side, color-mix(in srgb, var(--brand-accent) 16%, transparent), transparent)" }}
+      />
+      <div className="relative mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1fr_1fr]">
+        {/* Left — copy */}
+        <div>
+          {props.eyebrow && (
+            <motion.span
+              initial="hidden"
+              animate="visible"
+              variants={rise}
+              transition={{ duration: 0.6 }}
+              className="inline-flex items-center gap-3 text-[0.7rem] font-medium uppercase tracking-[0.28em]"
+              style={{ color: "var(--brand-accent)" }}
+            >
+              <span className="h-px w-9" style={{ background: "var(--brand-accent)" }} />
+              {props.eyebrow}
+            </motion.span>
+          )}
+          {/* masked line-reveal headline (Archform) */}
+          <div className="mt-6 overflow-hidden">
+            <motion.h1
+              initial={reduce ? { y: 0 } : { y: "112%" }}
+              animate={{ y: "0%" }}
+              transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
+              className="text-[clamp(2.5rem,6vw,4.75rem)] font-medium leading-[1.02] tracking-[-0.02em]"
+              style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}
+            >
+              {props.title}
+            </motion.h1>
+          </div>
+          <motion.p
+            initial="hidden"
+            animate="visible"
+            variants={rise}
+            transition={{ duration: 0.7, delay: 0.18 }}
+            className="mt-6 max-w-md text-lg leading-relaxed"
+            style={{ color: "var(--brand-ink)", opacity: 0.72 }}
+          >
+            {props.subtitle}
+          </motion.p>
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={rise}
+            transition={{ duration: 0.7, delay: 0.26 }}
+            className="mt-9 flex flex-wrap items-center gap-5"
+          >
+            <a
+              {...ctaAttrs(props.primaryHref)}
+              className="px-7 py-3.5 text-sm font-medium tracking-wide shadow-sm transition-transform active:scale-[0.98]"
+              style={{ background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)" }}
+            >
+              {props.primaryCta}
+            </a>
+            {props.secondaryCta && (
+              <a
+                {...ctaAttrs(props.secondaryHref)}
+                className="text-sm font-medium underline-offset-4 transition-opacity hover:opacity-70"
+                style={{ color: "var(--brand)" }}
+              >
+                {props.secondaryCta} &rarr;
+              </a>
+            )}
+          </motion.div>
+        </div>
+        {/* Right — two-image collage (or a single framed tile) */}
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+          className={cn("relative", hasSecond && "pb-14 pr-10 sm:pb-16 sm:pr-12")}
+        >
+          <div
+            className="relative aspect-[4/5] overflow-hidden"
+            style={{ borderRadius: "var(--brand-radius)", boxShadow: "0 40px 100px -45px rgba(0,0,0,0.5), 0 0 0 1px color-mix(in srgb, var(--brand-ink) 8%, transparent)" }}
+          >
+            <motion.div
+              className="absolute inset-0"
+              initial={reduce ? false : { scale: 1.12 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <CoverImage
+                image={props.image}
+                gradient="linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))"
+                overscan
+                parallaxRef={imgA}
+                className="h-full w-full"
+              />
+            </motion.div>
+            {/* caption chip on the primary image */}
+            <div
+              className="absolute left-4 top-4 rounded-full px-3 py-1 text-[0.65rem] font-medium uppercase tracking-[0.22em] backdrop-blur"
+              style={{ background: "color-mix(in srgb, var(--brand-contrast) 55%, transparent)", color: "var(--brand-contrast-ink)" }}
+            >
+              {props.caption || props.eyebrow}
+            </div>
+          </div>
+          {hasSecond && (
+            <div
+              className="absolute bottom-0 right-0 aspect-square w-1/2 overflow-hidden"
+              style={{ borderRadius: "var(--brand-radius)", boxShadow: "0 30px 70px -35px rgba(0,0,0,0.55)", outline: "6px solid var(--brand-surface)", outlineOffset: "-1px" }}
+            >
+              <motion.div
+                className="absolute inset-0"
+                initial={reduce ? false : { scale: 1.14 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 1.7, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+              >
+                <CoverImage image={props.image2} gradient="var(--brand-surface-2)" className="h-full w-full" />
+              </motion.div>
+            </div>
+          )}
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Features                                                                  */
 /* -------------------------------------------------------------------------- */
@@ -4299,6 +4450,7 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   HeroCanvas,
   HeroPremium2,
   HeroEditorial,
+  HeroCollage,
   HeroSpotlight,
   HeroImageFull,
   HeroMonumental,

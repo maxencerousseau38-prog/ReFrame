@@ -9,7 +9,10 @@ describe("pickVariant scoring", () => {
   });
 
   it("gives each sector its signature premium hero", () => {
-    expect(pickVariant("hero", "restaurant", "X", "warm")).toBe("HeroImageFull"); // immersive food
+    // Hospitality now has TWO signature heroes (immersive full-bleed OR editorial
+    // collage), so two same-sector brands differ up top — which one varies per
+    // brand (seeded jitter); assert the routing intent, not a single winner.
+    expect(["HeroImageFull", "HeroCollage"]).toContain(pickVariant("hero", "restaurant", "X", "warm"));
     expect(["HeroMonumental", "HeroArchform"]).toContain(pickVariant("hero", "realestate", "X", "elegant")); // property showcase
     expect(pickVariant("hero", "agency", "X", "bold")).toBe("HeroAgencia"); // colossal wordmark
     expect(pickVariant("hero", "saas", "X", "minimal")).toBe("HeroBento"); // product + proof

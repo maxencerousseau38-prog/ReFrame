@@ -1897,15 +1897,16 @@ function buildBlock(
   const phoneHref = contact.phone ? `tel:${contact.phone.replace(/\s+/g, "")}` : undefined;
 
   switch (slot.category) {
-    case "hero":
+    case "hero": {
+      // With no usable image, image-led heroes fall flat; route to the
+      // image-free "brand canvas" so the first impression still lands.
+      const heroVariant = c.heroImageUrl
+        ? pickVariant("hero", analysis.industry, brand, mood)
+        : "HeroCanvas";
       return {
         id: uid("hero"),
         type: "hero",
-        // With no usable image, image-led heroes fall flat; route to the
-        // image-free "brand canvas" so the first impression still lands.
-        variant: c.heroImageUrl
-          ? pickVariant("hero", analysis.industry, brand, mood)
-          : "HeroCanvas",
+        variant: heroVariant,
         props: {
           eyebrow: profile.label,
           title: c.headline,
@@ -1915,6 +1916,10 @@ function buildBlock(
           secondaryCta: phoneHref ? "Call us" : "Learn more",
           secondaryHref: phoneHref || "#contact",
           image: c.heroImageUrl,
+          // Second real photo for the editorial collage ONLY (qualityPass gives
+          // it a unique pool slot). Other heroes ignore it, so they never
+          // reserve a photo they won't show.
+          ...(heroVariant === "HeroCollage" ? { image2: c.images[1] } : {}),
           brand,
           caption: c.services[0],
           // For proof-bearing heroes (Bento): real metrics only, plus real
@@ -1923,6 +1928,7 @@ function buildBlock(
           services: c.services,
         },
       };
+    }
     case "features": {
       // P0/F21: no real services/features extracted → section omitted.
       if (!c.serviceItems?.length && c.services.length === 0) return null;
@@ -2476,6 +2482,15 @@ export function qualityPass(blocks: Block[], imagePool: string[]): { blocks: Blo
         const n = next();
         if (n !== props.image) changed = true;
         props.image = n;
+      }
+      // A second collage photo (HeroCollage) takes its OWN unique pool slot, so
+      // the two hero images never repeat a downstream gallery/feature photo.
+      // Drops to undefined when the pool is spent → the collage degrades to a
+      // single framed tile rather than a repeat.
+      if (typeof props.image2 === "string") {
+        const n = next();
+        if (n !== props.image2) changed = true;
+        props.image2 = n;
       }
       if (Array.isArray(props.items)) {
         const items = props.items as { image?: unknown }[];

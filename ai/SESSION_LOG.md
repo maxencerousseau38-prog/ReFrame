@@ -1,5 +1,12 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-18 — HeroCollage : casser le monopole du hero au sein d'une famille
+- Revue Directeur Artistique : deux marques d'un même secteur = MÊME hero (>50% qualité perçue → template immédiat). Probe : restaurant/hotel/architect/realestate/health = 1/6 distinct. Racine prouvée : un `prefer` unique (+5) bat toujours la jitter (max 1.6) → monopole du hero.
+- Minage 3 sources : 21st MCP (search hospitality → 10 comparés ; #19074 « Editorial Collage Hero » = 2 images superposées + serif ; get_component bloqué limite 2/j → reinterprété depuis desc/preview) + Archform Hero.tsx (reveal masqué ligne + ken-burns scale-in) + grammaire ReFrame. Reinterprété 100%.
+- `HeroCollage` : hero SPLIT éditorial (eyebrow mono-caps + titre serif reveal-masqué à gauche ; collage 2 photos superposées à droite, matte/profondeur, ken-burns, chip caption). Distinct des full-bleed ET de HeroEditorial (portrait unique). Dégrade en tuile simple si 1 seule photo.
+- Fix monopole : co-prefer restaurant/hotel avec HeroImageFull (14=14 → jitter départage) → restaurant/hotel = 2/6 distinct (~50/50). Zéro photo dupliquée : image2 seulement sur HeroCollage + qualityPass.serveBlock lui donne un slot pool UNIQUE. Ajout param QA `?brand=` à zpreview pour auditer la variété par marque.
+- VÉRIF : blocks+catalog+engine+qualityPass+zpreview, moteur SÉLECTIONNE (test+DOM), 2 restos réels = 2 heros (Osteria Nord→Collage, Le Marais→ImageFull, captures 1440+390), overflow-x=0, régression hero-collage.test.ts (6), catalog.test.ts mis à jour (restaurant = 2 signatures), tsc, 525 tests (520→525), build exit 0. LOCAL (feature).
+
 ## 2026-07-18 — FooterSignature : la dernière impression enfin premium (fusion 3 sources)
 - Revue Directeur Artistique : le footer = moment le plus « template » de chaque site. Footer1 (défaut) mince ; FooterColumns = sitemap SaaS générique ; fabrication « Crafted with care. » codée en dur (la vraie tagline n'était jamais passée). Capture BEFORE architect = footer clair 4-colonnes indistinct d'un starter.
 - Minage RÉEL 3 sources : 21st MCP (search « premium editorial footer » → 10 résultats comparés ; get_component #19358 « Footer Section 5 » analysé → gardé l'ARCHITECTURE wordmark outliné monumental + panneau chevauchant la baseline ; REJETÉ shader @paper-design + bleu codé + 6 colonnes fabriquées) + Archform Contact.tsx>Footer (fond sombre inversé bg-primary + eyebrows mono-caps + baseline hairline) + grammaire ReFrame. Reinterprété à 100%, zéro markup copié.

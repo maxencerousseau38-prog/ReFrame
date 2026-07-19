@@ -49,6 +49,33 @@
 
 ## Prochaine action
 
+**HERO COLLAGE livré (2026-07-18) — variété du hero AU SEIN d'une famille.**
+Revue Directeur Artistique : deux marques d'un même secteur prenaient le MÊME
+hero (>50% de la qualité perçue → « template » immédiat). Défaut reproduit
+(probe) : restaurant/hotel/architect/realestate/health = **1/6 distinct** (un
+seul hero pour toutes les marques). Racine PROUVÉE par le scoring : un `prefer`
+unique = +5, la jitter par marque plafonne à 1.6 → le prefer gagne TOUJOURS
+(monopole). Fusion 3 sources réellement minées : **21st MCP** (search hospitality
+hero → 10 comparés ; retenu #19074 « Editorial Collage Hero » = collage 2 images
+superposées + titre serif ; get_component bloqué par la limite 2/j → reinterprété
+depuis desc/preview) + **Archform** `Hero.tsx` (reveal masqué ligne-par-ligne +
+ken-burns scale-in) + **grammaire ReFrame**. → `HeroCollage` : hero SPLIT éditorial
+(eyebrow mono-caps + titre serif reveal-masqué à gauche ; collage 2 photos
+superposées à droite, matte + profondeur, ken-burns). Distinct des heroes
+full-bleed ET de HeroEditorial (portrait unique). **Fix du monopole** : co-prefer
+restaurant/hotel avec HeroImageFull (scores égaux 14=14 → jitter départage) →
+restaurant/hotel passent à **2/6 distinct** (~50/50). Pas de photo dupliquée :
+`image2` seulement sur HeroCollage + `qualityPass.serveBlock` lui donne un slot
+pool UNIQUE (dégrade en tuile simple si pool épuisé). Câblé : blocks (composant+
+REGISTRY), catalog (HeroCollage co-prefer), engine (variant calculé une fois +
+image2 conditionnel), qualityPass (image2), zpreview (param `?brand=` pour auditer
+la variété par marque). Preuve : probe 2/6, moteur SÉLECTIONNE (test+DOM), 2 restos
+RÉELS = 2 heros différents (Osteria Nord→Collage, Le Marais→ImageFull, captures
+1440+390), overflow-x=0, régression `hero-collage.test.ts` (6), tsc, 525 tests,
+build exit 0. LOCAL (feature). **Défauts suivants** : architect/realestate/health
+encore 1/6 (chacun mérite son 2e hero — prochaines passes) ; Nav ;
+`ensureSlot("stats")` en retail. **Promotion `main`** : SUR DEMANDE.
+
 **FOOTER SIGNATURE livré (2026-07-18) — la dernière impression, enfin premium.**
 Revue Directeur Artistique : le footer était le moment le plus « template » de
 CHAQUE site (Footer1 mince par défaut ; FooterColumns = sitemap SaaS générique ;
