@@ -275,7 +275,7 @@ Respecter :
 
 # 15. SKILLS PRIORITAIRES
 
-Toujours utiliser les skills pertinents.
+Charger uniquement les skills nécessaires à la tâche actuelle. Ne jamais charger un skill par précaution.
 
 Design :
 ui-ux-pro-max, design, design-system, ui-styling
