@@ -1,73 +1,68 @@
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /*
-  ReFrame design tokens (chrome de l'app — voir docs/DESIGN_SYSTEM.md, gelé D11).
-  DESIGN OVERHAUL V3 : MONOCHROME premium, intemporel, keynote-Apple.
-  Aucune couleur ne domine — ni bleu, ni vert. Canvas grayscale pur (#0E→#15),
-  surfaces et bordures en blanc translucide, texte blanc/gris. L'accent n'est
-  plus une teinte : c'est le clair (bouton primaire, focus). Geist throughout.
-  Glass lock (V3): blur(24px), border blanc .08, radius 24px, ombre très légère,
-  jamais de glow / halo / ombre colorée.
-  Shape lock (UX5): --radius 0.75rem (échelle sm8/md10/lg12), pill pour les CTA.
-  Page theme lock: dark, always.
+  ReFrame design tokens.
+  Vibe: modern dark-tech, Linear-clean. Neutral zinc off-black canvas, one
+  electric lime accent, crisp white type. Geist throughout.
+  Accent lock: lime (~#9FDE3F). One accent across the whole product surface.
+  Shape lock: rounded-[1.25rem] for big containers, pill for interactive,
+  rounded-xl for inputs. Page theme lock: dark, always.
   (Generated client sites under /s and the block renderer are brand-agnostic
    and intentionally NOT themed by these tokens.)
 */
 
 @layer base {
   :root {
-    /* DESIGN OVERHAUL V3 (2026-07-13) — MONOCHROME premium, intemporel.
-       Palette exacte (Creative Director) : fond #080808, surfaces en verre
-       dépoli, texte blanc cassé → gris. Aucune teinte ne domine. L'accent
-       n'est plus une couleur : c'est l'argent / blanc cassé (#F3F3F3),
-       réservé au bouton primaire, au focus et à la sélection — jamais au fond.
-       Inspiration : 40% Lovable · 25% Apple · 20% Linear · 15% Framer. */
-    --background: 0 0% 3.1%;           /* #080808 — fond principal */
-    --foreground: 0 0% 98%;            /* #FAFAFA — texte principal (titres) */
-    --card: 0 0% 8.2%;                 /* #151515 — surface / cards */
-    --card-foreground: 0 0% 98%;
-    --primary: 0 0% 96%;               /* #F5F5F5 — bouton principal */
-    --primary-foreground: 0 0% 3.5%;   /* #090909 */
-    --secondary: 0 0% 10.6%;           /* #1B1B1B — surface hover / secondaire */
-    --secondary-foreground: 0 0% 96%;
-    --muted: 0 0% 8.2%;                /* #151515 */
-    --muted-foreground: 0 0% 56%;      /* #8E8E8E — texte faible (descriptions) */
-    --accent: 0 0% 95%;                /* #F3F3F3 — argent, l'accent (parcimonie) */
-    --accent-foreground: 0 0% 3.5%;    /* #090909 */
-    --brand: 0 0% 92%;                 /* neutre argent, usage rare */
-    --brand-foreground: 0 0% 3.5%;
-    --border: 0 0% 11%;                /* ≈ rgba(255,255,255,.08) sur #080808 */
-    --input: 0 0% 11%;
-    --ring: 0 0% 62%;                  /* focus argent, visible mais discret (a11y) */
-    /* Couleurs d'ÉTAT — fonction uniquement, JAMAIS décoratives (D13).
-       Réservées aux feedbacks : validation, toast, point de statut. */
-    --success: 142 71% 45%;            /* #22C55E */
-    --warning: 38 92% 50%;             /* #F59E0B */
-    --destructive: 0 84% 60%;          /* #EF4444 */
-    --info: 217 91% 60%;               /* #3B82F6 */
-    --secondary-2: 0 0% 6.3%;          /* #101010 — background secondaire (sidebar) */
-    /* UX5 design system — tighter, coherent radius scale (lg 12 / md 10 / sm 8). */
-    --radius: 0.75rem;
-    /* UX5 motion tokens — one premium easing, two durations. Consumed by the
-       chrome (Tailwind `ease-premium duration-fast/base` and inline styles). */
-    --rf-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
-    --rf-dur-1: 120ms;   /* micro: hover / press / focus */
-    --rf-dur-2: 180ms;   /* base: panels, device switch, layout */
+    --background: oklch(1 0 0);            /* pure black — full OLED */
+    --foreground: oklch(0.145 0 0);          /* pure white */
+    --card: oklch(1 0 0);                  /* crisply elevated panels */
+    --card-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);            /* electric lime, peak vivid */
+    --accent-foreground: oklch(0.205 0 0);
+    --border: oklch(0.922 0 0);              /* neutral hairline */
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.708 0 0);
+    --radius: 0.625rem;
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --sidebar: oklch(0.985 0 0);
+    --sidebar-foreground: oklch(0.145 0 0);
+    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-border: oklch(0.922 0 0);
+    --sidebar-ring: oklch(0.708 0 0);
   }
 
   * {
-    @apply border-border;
+    @apply border-border outline-ring/50;
   }
 
   html {
     color-scheme: dark;
     scroll-behavior: smooth;
+    @apply font-sans;
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply antialiased bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
     /* Crisp, thin type on the OLED canvas: grayscale smoothing instead of
        subpixel, plus legibility hinting. */
@@ -80,6 +75,43 @@
     background: hsl(var(--accent));
     color: hsl(var(--accent-foreground));
   }
+  .theme {
+    --font-heading: var(--font-sans);
+    --font-sans: var(--font-sans);
+  }
+  .dark {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.488 0.243 264.376);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.556 0 0);
+  }
 }
 
 @layer utilities {
@@ -87,43 +119,41 @@
     text-wrap: balance;
   }
 
-  /* Frosted glass (V3 monochrome) — for elements that float OVER content (nav,
-     overlays, menus, pills). Pure white-translucent tint + blur, a hairline
-     border, radius 24px, an extremely light shadow. No saturation boost, no
-     glow, no halo, no coloured shadow. Used only where content sits behind. */
+  /* Frosted glass — for elements that float OVER content (nav, overlays,
+     menus, pills). Translucent tint + blur + saturation + a hairline and a
+     top light edge. Used only where there is real content behind it. */
   .glass {
-    background: hsl(0 0% 100% / 0.04);
-    -webkit-backdrop-filter: blur(24px);
-    backdrop-filter: blur(24px);
-    border: 1px solid hsl(0 0% 100% / 0.08);
-    border-radius: 24px;
-    box-shadow: 0 8px 24px -16px hsl(0 0% 0% / 0.5);
+    background: hsl(0 0% 100% / 0.045);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid hsl(0 0% 100% / 0.09);
+    box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.08), 0 20px 60px -24px hsl(0 0% 0% / 0.8);
   }
   /* Darker variant for bars that sit above bright/varied content. */
   .glass-dark {
     background: hsl(0 0% 0% / 0.5);
-    -webkit-backdrop-filter: blur(24px);
-    backdrop-filter: blur(24px);
-    border: 1px solid hsl(0 0% 100% / 0.08);
-    box-shadow: 0 8px 24px -16px hsl(0 0% 0% / 0.5);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    backdrop-filter: blur(20px) saturate(150%);
+    border: 1px solid hsl(0 0% 100% / 0.09);
+    box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.07);
   }
   /* Light translucent veil for elevated panels/cards — a whisper of glass that
      keeps the OLED canvas crisp. Replaces opaque card fills app-wide. */
   .panel {
     background-color: hsl(0 0% 100% / 0.035);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(8px) saturate(130%);
+    backdrop-filter: blur(8px) saturate(130%);
   }
 
-  /* Ambient depth (V3 monochrome): a faint neutral white lift only. Used
-     sparingly, very low opacity — never a coloured aura, never neon. */
+  /* Ambient depth: a faint lime aura plus a cool white lift. Used sparingly,
+     low opacity, never as a neon default. */
   .ambient {
     background:
-      radial-gradient(42% 46% at 22% 18%, hsl(0 0% 100% / 0.05) 0%, transparent 70%),
-      radial-gradient(38% 42% at 82% 28%, hsl(0 0% 100% / 0.04) 0%, transparent 70%);
+      radial-gradient(42% 46% at 22% 18%, hsl(var(--accent) / 0.14) 0%, transparent 70%),
+      radial-gradient(38% 42% at 82% 28%, hsl(0 0% 100% / 0.06) 0%, transparent 70%);
   }
   .ambient-soft {
-    background: radial-gradient(50% 55% at 50% 40%, hsl(0 0% 100% / 0.05) 0%, transparent 70%);
+    background: radial-gradient(50% 55% at 50% 40%, hsl(var(--accent) / 0.12) 0%, transparent 70%);
   }
 
   /* Faint dotted grid */
@@ -168,161 +198,6 @@
   .animate-marquee {
     animation: none !important;
   }
-}
-
-/* Card surface for rebuilt sites: white in light mode, elevated dark in dark
-   mode (driven by the --brand-card token), so dark mode has no white cards. */
-.rf-card {
-  background: var(--brand-card, #ffffff);
-}
-
-/* ──────────────────────────────────────────────────────────────────────────
-   Recreated client sites: fit every device perfectly, like a native app.
-   `.rf-site` wraps the whole rendered site (set by SiteRenderer). These rules
-   guarantee an app-like fit from a 320px phone to a 4K display without editing
-   each block:
-     • never scroll sideways (the #1 thing that breaks "fits like an app")
-     • media and embeds never exceed their column
-     • flex/grid children may shrink instead of forcing overflow
-     • long unbroken strings (URLs, emails) wrap instead of pushing the width
-   ────────────────────────────────────────────────────────────────────────── */
-.rf-site {
-  overflow-x: hidden;
-  max-width: 100%;
-}
-.rf-site img,
-.rf-site video,
-.rf-site svg,
-.rf-site iframe,
-.rf-site canvas {
-  max-width: 100%;
-}
-.rf-site * {
-  min-width: 0; /* let flex/grid items shrink below their content size */
-}
-.rf-site h1,
-.rf-site h2,
-.rf-site h3,
-.rf-site p,
-.rf-site a,
-.rf-site li,
-.rf-site span {
-  overflow-wrap: break-word;
-}
-
-/* Fluid type for recreated sites: headings scale continuously WITH the screen
-   (clamp), so the site "follows" the viewport instead of jumping at breakpoints.
-   Min keeps phones tidy; max caps it on large displays; the vw term scales the
-   middle. Applied to hero/section titles in the block renderer. */
-/* A3 — the type hierarchy is DesignDNA-driven: measured/premium scale,
-   weight and tracking flow through --rf-* vars; fallbacks are the exact V5
-   values (used only without engine tokens). */
-.rf-fluid-display {
-  font-size: var(--rf-text-display, clamp(2.25rem, 1.4rem + 4.2vw, 4rem));
-  line-height: 1.04;
-  letter-spacing: var(--rf-tracking, -0.022em);
-  font-weight: var(--rf-heading-weight, 600);
-}
-.rf-fluid-h2 {
-  font-size: var(--rf-text-h2, clamp(1.75rem, 1.2rem + 2.6vw, 3rem));
-  line-height: 1.1;
-  letter-spacing: var(--rf-tracking, -0.02em);
-  font-weight: var(--rf-heading-weight, 600);
-}
-.rf-fluid-h3 {
-  font-size: var(--rf-text-h3, 1.125rem);
-  line-height: 1.35;
-  letter-spacing: var(--rf-tracking, -0.01em);
-  font-weight: var(--rf-heading-weight, 600);
-}
-.rf-fluid-lead {
-  font-size: clamp(1.0625rem, 1rem + 0.5vw, 1.25rem);
-  line-height: 1.6;
-}
-
-/* Premium effect primitives (see components/blocks/fx.tsx). Brand-token driven,
-   dependency-free, export-safe: the data-animate="off" rule below stops the
-   keyframes while the static layer (gradient/border/wash) stays visible. */
-.rf-aurora {
-  animation: rf-aurora 22s ease-in-out infinite alternate;
-}
-@keyframes rf-aurora {
-  0% { transform: translate3d(-4%, -2%, 0) rotate(0deg) scale(1.05); }
-  50% { transform: translate3d(4%, 3%, 0) rotate(8deg) scale(1.15); }
-  100% { transform: translate3d(-2%, 2%, 0) rotate(-6deg) scale(1.08); }
-}
-
-.rf-meteor {
-  animation: rf-meteor linear infinite;
-  opacity: 0;
-}
-/* A thin trailing streak drawn off the leading dot. */
-.rf-meteor::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%) rotate(45deg);
-  transform-origin: left center;
-  width: 64px;
-  height: 1px;
-  background: linear-gradient(90deg, var(--brand-accent), transparent);
-  opacity: 0.5;
-}
-@keyframes rf-meteor {
-  0% { transform: translate3d(0, 0, 0); opacity: 0; }
-  10% { opacity: 1; }
-  100% { transform: translate3d(-260px, 320px, 0); opacity: 0; }
-}
-
-/* Border beam: a light travelling around a card edge (animated conic angle). */
-@property --rf-beam-angle {
-  syntax: "<angle>";
-  initial-value: 0deg;
-  inherits: false;
-}
-.rf-border-beam {
-  background: conic-gradient(from var(--rf-beam-angle), transparent 0%, var(--brand-accent) 12%, transparent 28%);
-  animation: rf-beam 4.5s linear infinite;
-}
-@keyframes rf-beam {
-  to { --rf-beam-angle: 360deg; }
-}
-
-/* Shine border: a highlight sweeping along the edge. */
-.rf-shine {
-  animation: rf-shine 3.2s linear infinite;
-}
-@keyframes rf-shine {
-  from { background-position: 200% 0; }
-  to { background-position: -200% 0; }
-}
-
-
-/* Client-toggled motion kill switch (set on a rebuilt site via the AI editor).
-   Stops CSS keyframe animations (marquee, ping, spin) and makes transitions
-   instant, without zeroing transforms (so layout/centering stays intact). */
-[data-animate="off"] *,
-[data-animate="off"] *::before,
-[data-animate="off"] *::after {
-  animation-duration: 0.001ms !important;
-  animation-iteration-count: 1 !important;
-  transition-duration: 0.001ms !important;
-  scroll-behavior: auto !important;
-}
-/* Neutralise framer-motion's inline entrance state (opacity:0 + translate/scale)
-   so hosted/static sites paint their content immediately — no JS-dependent
-   reveal, no fade-in flash. Targets only inline reveal states (framer), not the
-   class-based decorative opacity. */
-[data-animate="off"] [style*="opacity:0"],
-[data-animate="off"] [style*="opacity: 0"] {
-  opacity: 1 !important;
-  transform: none !important;
-}
-/* blur-fade entrances also park a filter:blur() on the initial state — a
-   static/hosted render must paint SHARP text (P0). */
-[data-animate="off"] [style*="filter"],
-[data-animate="off"] [style*="blur"] {
-  filter: none !important;
 }
 
 ::-webkit-scrollbar {

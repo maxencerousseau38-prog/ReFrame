@@ -1,7 +1,33 @@
 ---
 name: redesign-existing-projects
-description: Upgrades existing websites and apps to premium quality. Audits current design, identifies generic AI patterns, and applies high-end design standards without breaking functionality. Works with any CSS framework or vanilla CSS.
+description: |
+  Upgrades existing websites and apps to premium quality. Audits current design, identifies generic AI patterns, and applies high-end design standards without breaking functionality. Works with any CSS framework or vanilla CSS.
+triggers:
+  - "redesign existing project"
+  - "improve current UI"
+  - "premium redesign"
+  - "audit UI"
+od:
+  mode: prototype
+  surface: web
+  platform: desktop
+  scenario: design
+  category: creative-direction
+  upstream: "https://github.com/Leonxlnx/taste-skill"
+  preview:
+    type: html
+  design_system:
+    requires: true
+  craft:
+    requires:
+      - typography
+      - color
+      - anti-ai-slop
+      - state-coverage
+  example_prompt: |
+    Audit the existing UI first, then redesign it to premium quality without breaking functionality, preserving useful product structure.
 ---
+
 
 # Redesign Skill
 
