@@ -195,6 +195,26 @@ export interface DetectedIntegration {
 
 export type { VisualDNA } from "@/lib/extraction/types";
 
+/**
+ * The role the SOURCE markup gave an image — the strongest cheap signal for
+ * where it belongs in the rebuild. `social` (og/twitter card) is the owner's
+ * hand-picked shot; `background` a CSS hero; `gallery` lived in a figure/grid;
+ * `portrait` reads as a person/tall crop; `content` an inline body image.
+ */
+export type ImageKind = "social" | "hero" | "gallery" | "portrait" | "content" | "background";
+
+/** An extracted image plus the DOM signal that lets the engine place it where it
+ *  has the most business + emotional impact (not just in DOM order). */
+export interface ScrapedImage {
+  url: string;
+  /** Real alt / caption text — the semantic anchor ("grilled salmon", "the team"). */
+  alt?: string;
+  /** Intrinsic dimensions when the markup declared them (aspect-ratio signal). */
+  w?: number;
+  h?: number;
+  kind: ImageKind;
+}
+
 export interface SiteAnalysis {
   url: string;
   brandName: string;
@@ -263,6 +283,14 @@ export interface SiteAnalysis {
     services: string[];
     heroImageUrl?: string;
     images: string[];
+    /**
+     * The same images as `images`, but each carrying the DOM signal captured at
+     * extraction (alt text, dimensions, and the role the source markup gave it).
+     * This is what lets the engine place a photo where it has the most business +
+     * emotional impact (the plated dish in the hero, the room in the about) rather
+     * than in DOM order. Absent → the distributor falls back to positional order.
+     */
+    imagesRich?: ScrapedImage[];
     contactHint?: string;
     /**
      * Real prose pulled from the source page so the rebuild reuses the client's

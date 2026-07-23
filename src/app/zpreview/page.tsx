@@ -1,7 +1,7 @@
 import { SiteRenderer } from "@/components/blocks";
 import { generateSite } from "@/lib/generation/engine";
 import { INDUSTRY_PROFILES } from "@/lib/generation/industries";
-import type { SiteAnalysis, BlockType, Industry, GenerationMode } from "@/lib/generation/types";
+import type { SiteAnalysis, BlockType, Industry, GenerationMode, ScrapedImage } from "@/lib/generation/types";
 
 /**
  * Internal template gallery. Generates a full, realistic site through the real
@@ -101,7 +101,28 @@ const TEAM_PORTRAITS = [
   img("photo-1438761681033-6461ffad8d80"),
 ];
 
-function buildAnalysis(industry: Industry, withImages: boolean, brandName = "Northlight"): SiteAnalysis {
+// QA: per-sector "signature" alt words — attached to a mid-array image so the
+// semantic distributor must reorder off the first-in-DOM shot to lead the hero.
+// Mirrors what real scraping reads from the source's alt text.
+const SECTOR_SIGNATURE_ALT: Partial<Record<Industry, string>> = {
+  restaurant: "grilled plated signature dish, chef special",
+  architect: "modern villa facade, exterior architecture",
+  realestate: "modern villa facade, exterior property",
+  saas: "the product dashboard analytics screen",
+  automotive: "a detailed sports car in the workshop",
+  ecommerce: "the product collection lookbook",
+};
+function buildImagesRich(industry: Industry, images: string[]): ScrapedImage[] {
+  const sig = SECTOR_SIGNATURE_ALT[industry];
+  return images.map((url, i) => {
+    // index 0 = a plain content/detail frame; index 2 = the tagged signature
+    // (kind social + strong sector alt) → semantics must pick it for the hero.
+    if (i === 2 && sig) return { url, alt: sig, kind: "social", w: 1600, h: 1000 };
+    if (i === 0) return { url, alt: "a quiet interior detail", kind: "content", w: 1600, h: 1000 };
+    return { url, alt: undefined, kind: "gallery", w: 1400, h: 1000 };
+  });
+}
+function buildAnalysis(industry: Industry, withImages: boolean, brandName = "Northlight", withRich = true): SiteAnalysis {
   const p = INDUSTRY_PROFILES[industry];
   const images = withImages ? INDUSTRY_IMAGES[industry] ?? GENERIC_IMAGES : [];
   return {
@@ -121,6 +142,7 @@ function buildAnalysis(industry: Industry, withImages: boolean, brandName = "Nor
       services: p.defaults.services,
       heroImageUrl: images[0],
       images,
+      ...(withImages && withRich ? { imagesRich: buildImagesRich(industry, images) } : {}),
       faqItems: [
         { question: "How quickly can you start?", answer: "Most projects begin within a few days of your first message — just reach out." },
         { question: "How is a project priced?", answer: "Every project is quoted transparently up front, with no hidden fees and no surprises." },
@@ -189,7 +211,10 @@ export default function PreviewPage({ searchParams }: { searchParams: Record<str
   // QA: override the brand name (the layout seed) to audit per-brand variety
   // (e.g. ?industry=restaurant&brand=Osteria vs &brand=Bistro pick different heroes).
   const brandName = (searchParams.brand || "").trim() || "Northlight";
-  const analysis = buildAnalysis(industry, withImages, brandName);
+  // QA: ?rich=0 disables the extracted image metadata → positional fallback,
+  // to A/B the semantic placement against DOM order on a real render.
+  const withRich = searchParams.rich !== "0";
+  const analysis = buildAnalysis(industry, withImages, brandName, withRich);
   // QA: override the brand accent to audit contrast (e.g. ?accent=ffd400 for yellow).
   if (/^[0-9a-fA-F]{6}$/.test(searchParams.accent || "")) {
     analysis.brand = { ...analysis.brand, accentColor: `#${searchParams.accent}` };

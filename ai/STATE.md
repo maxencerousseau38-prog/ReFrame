@@ -49,6 +49,30 @@
 
 ## Prochaine action
 
+**PLACEMENT IMAGE↔SECTION SÉMANTIQUE livré (2026-07-19) — backlog audit #3.**
+Défaut : distribution 100% POSITIONNELLE (extractImages jetait tout le signal DOM,
+qualityPass popait le pool en ordre) → une salle pouvait mener le hero, un plat
+finir en carte. Correctif au niveau MOTEUR (module profond, petite interface) :
+(1) `ScrapedImage {url, alt?, w?, h?, kind}` + `extractImagesRich` capture le
+signal source (alt, dimensions, RÔLE via classes ancêtres/aspect : social/hero/
+gallery/portrait/content/background) ; `extractImages` devient wrapper `.map(url)`
+(back-compat). Validation préserve la meta (`imagesRich` sur extractedContent).
+(2) `scoreImage(img, intent, industry)` : fit du kind par intent (hero/about/cta/
+generic) + aspect (hero=large, about=portrait) + VOCABULAIRE SECTORIEL sur l'alt
+(hospitality dish/plate/cuisine ; property villa/facade/interior ; product
+dashboard/screen ; auto car/engine ; retail) + mots ABOUT (team/studio/interior).
+(3) qualityPass réécrit : Phase A sinks mono-image à forte valeur (hero + 2e frame
+collage → about → CTA immersif) prennent le meilleur fit sémantique ; Phase B
+galeries partagent le RESTE divers ; Phase C bas-valeur positionnel. Invariants
+gardés : une photo = une fois, team/collection exclus (identité), fallback flat-
+score = ordre éditorial d'avant (0 régression). Vérif : régression
+`image-placement.test.ts` (8 : meta extraite ; 4 SECTEURS restaurant/architect/
+saas/garage → le shot signature mène le hero, le cadre who/where ancre le about ;
+zéro doublon ; fallback positionnel), Playwright A/B `?rich=0` sur RENDU RÉEL 4
+secteurs (hero change on/off, overflow-x=0, 0 erreur console, captures), 554
+tests, tsc 0, build 0. LOCAL (feature). **Backlog restant** : SEO par page >
+stats/faq/gallery variety > OWASP/CWV. **Promotion `main`** : SUR DEMANDE.
+
 **NAV MOBILE HAMBURGER livrée (2026-07-19) — tête du backlog audit, niveau SYSTÈME.**
 Défaut : sous md, les liens de nav disparaissaient (marque+CTA only) sur TOUS les
 sites générés. Fix dans le composant PARTAGÉ `SiteNav` (SiteRenderer → tous les

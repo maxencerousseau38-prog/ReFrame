@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-19 — Placement image↔section sémantique (moteur, 4 secteurs)
+- Défaut : distribution positionnelle (extractImages jetait le signal DOM ; qualityPass en ordre). Correctif moteur, module profond.
+- ScrapedImage {url,alt,w,h,kind} + extractImagesRich (kind inféré des classes ancêtres/aspect : social/hero/gallery/portrait/content/background ; alt+dims capturés) ; extractImages = wrapper .map(url) (back-compat) ; imagesRich threadé sur extractedContent (validation préserve la meta).
+- scoreImage(img,intent,industry) : KIND_FIT par intent (hero/about/cta/generic) + aspect + IMAGE_VOCAB sectoriel sur l'alt (hospitality/property/product/retail/auto) + ABOUT_WORDS. qualityPass réécrit en 3 phases : A) sinks mono-image forte valeur best-fit (hero+image2 collage → about → CTA immersif), B) galeries partagent le reste, C) bas-valeur positionnel. Invariants : 1 photo/1 fois, team/collection exclus, fallback flat-score = ordre d'avant (0 régression, 546 tests inchangés avant ajout).
+- zpreview enrichi (imagesRich + ?rich=0) pour A/B sur rendu réel. VÉRIF : image-placement.test.ts (8 : extraction meta + 4 secteurs restaurant/architect/saas/garage le shot signature mène le hero + about who/where + zéro doublon + fallback), Playwright A/B 4 secteurs (hero src change on/off, overflow 0, 0 console), captures restaurant on(dish)/off(interior), 554 tests (546→554), tsc 0, build 0. LOCAL (feature).
+
 ## 2026-07-19 — Nav mobile hamburger : niveau système, WCAG, bug containing-block tué
 - Tête du backlog audit. Fix dans SiteNav (composant partagé → TOUS les sites, solid+overlay) : hamburger 44px, panneau plein écran aux tokens du site, liens serif hairlines, pill CTA. WCAG : aria-expanded/controls, dialog aria-modal, Escape, focus in/out, scroll lock, reduced-motion instantané. Motion 0.22s EASE + stagger 45ms.
 - Bug réel détecté à la CAPTURE (pas au test DOM) : panneau transparent → diagnostic = backdrop-blur du header (filter) = containing block des fixed → inset-0 rogné au header. Fix : portal vers le wrapper [data-rf] (viewport + vars scopées conservées). Leçon : toujours VOIR la capture, un test DOM peut passer sur un rendu cassé.

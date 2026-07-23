@@ -63,6 +63,8 @@ import type {
   Recommendation,
   DetectedIntegration,
   IntegrationCategory,
+  ScrapedImage,
+  ImageKind,
 } from "./types";
 import { INDUSTRY_PROFILES, detectIndustry } from "./industries";
 import { pickVariant, pickVariantFrom } from "./catalog";
@@ -419,7 +421,12 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
   // actually load (real image bytes) so the rebuild never renders broken or
   // placeholder tiles - dead/hotlink-blocked URLs are dropped here.
   const ogImage = abs(meta('meta[property="og:image"]'), url);
-  const images = await validateImages(extractImages(root, url));
+  // Extract WITH metadata, then keep only the validated (loadable) ones — the
+  // rich list drives semantic placement, `images` stays the URL-only view.
+  const richAll = extractImagesRich(root, url);
+  const liveUrls = new Set(await validateImages(richAll.map((i) => i.url)));
+  const imagesRich = richAll.filter((i) => liveUrls.has(i.url));
+  const images = imagesRich.map((i) => i.url);
   const heroImageUrl = images[0];
 
   // Real products (the client's actual catalogue) - kept and modernized, never
@@ -561,6 +568,7 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
             : [], // P0/F21: never the preset list — omitted sections beat fabricated ones
       heroImageUrl,
       images,
+      imagesRich,
       contactHint: root.querySelector("form") ? "Contact form detected" : undefined,
       // Real business details pulled from the page, so the rebuild keeps the
       // client's actual contact + credibility (never fabricated).
@@ -669,19 +677,42 @@ const IMAGE_JUNK_RE =
  * tracking pixels) and tiny declared sizes. This is what lets the rebuild use
  * the client's actual photos instead of falling back to stock gradients.
  */
+/** URL-only image list (back-compat). The metadata-carrying source of truth is
+ *  `extractImagesRich`; this is `.map(i => i.url)` over it. */
 export function extractImages(root: HTMLElement, base: string): string[] {
-  const candidates: string[] = [];
+  return extractImagesRich(root, base).map((i) => i.url);
+}
+
+/** Infer the role the SOURCE markup gave an <img>, from its ancestor classes /
+ *  tag chain and declared aspect — the cheap signal that drives placement. */
+function inferImageKind(ctxClass: string, tagChain: string, w?: number, h?: number): ImageKind {
+  if (/figure/.test(tagChain) || /(gallery|grid|masonry|carousel|slider|portfolio|projects|works|lightbox|collage)/.test(ctxClass)) return "gallery";
+  if (/(hero|banner|masthead|jumbotron|cover|splash|billboard)/.test(ctxClass)) return "hero";
+  if (/(team|member|staff|author|avatar|portrait|founder|people|profile|headshot)/.test(ctxClass)) return "portrait";
+  if (w && h && h > w * 1.15) return "portrait";
+  return "content";
+}
+
+/**
+ * Extract images WITH their DOM signal (alt, dimensions, source role). Same
+ * candidate sweep as before — social cards, <img> (srcset-aware), CSS
+ * backgrounds — but each carries the metadata the distributor needs to place
+ * a photo where it earns its keep. Deduped by URL (first metadata wins), junk
+ * filtered, capped at 8.
+ */
+export function extractImagesRich(root: HTMLElement, base: string): ScrapedImage[] {
+  const candidates: ScrapedImage[] = [];
 
   // Social-card images first: usually the single best, hand-picked hero shot.
   for (const sel of ['meta[property="og:image"]', 'meta[name="twitter:image"]', 'meta[property="og:image:url"]']) {
     const c = root.querySelector(sel)?.getAttribute("content");
-    if (c) candidates.push(c);
+    if (c) candidates.push({ url: c, kind: "social" });
   }
 
   for (const el of root.querySelectorAll("img")) {
     // Skip images explicitly declared tiny (icons, pixels).
-    const w = parseInt(el.getAttribute("width") || "", 10);
-    const h = parseInt(el.getAttribute("height") || "", 10);
+    const w = parseInt(el.getAttribute("width") || "", 10) || undefined;
+    const h = parseInt(el.getAttribute("height") || "", 10) || undefined;
     if ((w && w < 100) || (h && h < 100)) continue;
     const srcset = el.getAttribute("srcset") || el.getAttribute("data-srcset");
     const best = srcset ? largestFromSrcset(srcset) : "";
@@ -692,25 +723,35 @@ export function extractImages(root: HTMLElement, base: string): string[] {
       el.getAttribute("data-lazy-src") ||
       el.getAttribute("data-original") ||
       "";
-    if (src) candidates.push(src);
+    if (!src) continue;
+    const p = el.parentNode as HTMLElement | null;
+    const gp = p?.parentNode as HTMLElement | null;
+    const ctxClass = [el, p, gp].map((n) => (n && "getAttribute" in n ? n.getAttribute("class") : "") || "").join(" ").toLowerCase();
+    const tagChain = [p?.tagName, gp?.tagName].filter(Boolean).join(" ").toLowerCase();
+    candidates.push({
+      url: src,
+      alt: clean(el.getAttribute("alt") || "") || undefined,
+      w, h,
+      kind: inferImageKind(ctxClass, tagChain, w, h),
+    });
   }
 
   // Background-image heroes (inline styles + <style> blocks).
   const styleText = root.querySelectorAll("style").map((s) => s.text).join(" ");
   const inline = root.querySelectorAll("[style]").map((e) => e.getAttribute("style") || "").join(" ");
-  for (const u of backgroundImageUrls(`${styleText} ${inline}`)) candidates.push(u);
+  for (const u of backgroundImageUrls(`${styleText} ${inline}`)) candidates.push({ url: u, kind: "background" });
 
-  const cleaned = candidates
-    .map((s) => abs(s, base))
-    .filter(
-      (s) =>
-        s &&
-        /^https?:/i.test(s) &&
-        !s.startsWith("data:") &&
-        !/\.svg($|\?)/i.test(s) &&
-        !IMAGE_JUNK_RE.test(s)
-    );
-  return dedupe(cleaned).slice(0, 8);
+  const seen = new Set<string>();
+  const out: ScrapedImage[] = [];
+  for (const c of candidates) {
+    const abs_ = abs(c.url, base);
+    if (!abs_ || !/^https?:/i.test(abs_) || abs_.startsWith("data:") || /\.svg($|\?)/i.test(abs_) || IMAGE_JUNK_RE.test(abs_)) continue;
+    if (seen.has(abs_)) continue;
+    seen.add(abs_);
+    out.push({ ...c, url: abs_ });
+    if (out.length >= 8) break;
+  }
+  return out;
 }
 
 /**
@@ -2318,7 +2359,10 @@ export function generateSite(
   // Agency Quality Pass: normalize the assembled home page (single hero first,
   // footer last, no back-to-back duplicate sections, real photos distributed so
   // none repeats across sections). Identity/content preserving.
-  const qp = qualityPass(blocks.map(sanitizeBlock), analysis.extractedContent.images);
+  const qp = qualityPass(blocks.map(sanitizeBlock), analysis.extractedContent.images, {
+    rich: analysis.extractedContent.imagesRich,
+    industry: analysis.industry,
+  });
   const recommendations = [...plan.recommendations, ...qp.recommendations];
 
   // Design family → published reading rhythm. Only smart mode routes through a
@@ -2484,7 +2528,76 @@ export function generateSiteCrawled(crawl: SiteCrawl, opts: { mode?: GenerationM
  * REAL assets; it never fabricates content. Returns the improved blocks plus a
  * log of what it changed (surfaced internally as recommendations).
  */
-export function qualityPass(blocks: Block[], imagePool: string[]): { blocks: Block[]; recommendations: Recommendation[] } {
+/* -------------------------------------------------------------------------- */
+/*  Semantic image placement — put each photo where it has the most business  */
+/*  and emotional impact (the plated dish in the hero, the room in the about), */
+/*  not just in DOM order. Driven by the DOM signal captured in ScrapedImage.  */
+/* -------------------------------------------------------------------------- */
+
+/** What a section WANTS from an image. hero = the single most commercial/
+ *  emotional shot; about = a who/where-we-are frame; cta = an atmospheric
+ *  closing; generic = any real content photo. */
+type ImageIntent = "hero" | "about" | "cta" | "generic";
+
+/** Per-intent fit for the source ROLE of an image (see ImageKind). */
+const KIND_FIT: Record<ImageIntent, Record<ImageKind, number>> = {
+  hero: { social: 5, hero: 5, background: 3, gallery: 1, content: 1, portrait: -2 },
+  about: { portrait: 4, content: 3, gallery: 1, hero: 1, social: 1, background: 0 },
+  cta: { hero: 4, background: 4, social: 3, gallery: 2, content: 1, portrait: -1 },
+  generic: { gallery: 2, content: 2, hero: 1, social: 1, portrait: 1, background: 1 },
+};
+
+/** Sector "signature" vocabulary — the words whose presence in an image's alt
+ *  text mark it as the emotionally/commercially central shot for that trade.
+ *  Matched against alt (strong) + URL (weak). Keyed by vocab GROUP. */
+const IMAGE_VOCAB: Record<string, Record<string, number>> = {
+  hospitality: { dish: 4, plate: 4, food: 4, cuisine: 4, plat: 4, menu: 2, dining: 3, table: 2, chef: 3, dessert: 3, meal: 3, dine: 2, gastro: 3, wine: 2, vin: 2, cocktail: 2, brunch: 2, restaurant: 1 },
+  property: { villa: 4, house: 3, home: 2, building: 4, facade: 4, architecture: 4, interior: 3, maison: 3, batiment: 4, "bâtiment": 4, espace: 2, exterior: 3, room: 2, structure: 3, property: 3, apartment: 3, kitchen: 2, "salon": 2, project: 2, design: 1 },
+  product: { dashboard: 4, screen: 3, app: 3, product: 3, interface: 3, ui: 2, analytics: 3, platform: 2, software: 2, campaign: 2, brand: 2, work: 1, project: 2 },
+  retail: { product: 3, collection: 3, model: 2, wear: 2, outfit: 2, lookbook: 3, shop: 2, "vêtement": 2, boutique: 2, style: 2 },
+  auto: { car: 4, vehicle: 4, auto: 3, voiture: 4, garage: 3, engine: 3, moteur: 3, atelier: 2, workshop: 3, wheel: 2, tire: 2, repair: 2, mechanic: 3, "mécanic": 3, service: 1 },
+  trade: {},
+};
+const VOCAB_GROUP: Record<string, keyof typeof IMAGE_VOCAB> = {
+  restaurant: "hospitality", hotel: "hospitality",
+  architect: "property", realestate: "property", construction: "property",
+  saas: "product", agency: "product", coach: "product", finance: "product",
+  ecommerce: "retail", fashion: "retail",
+  automotive: "auto",
+};
+const ABOUT_WORDS = ["about", "team", "studio", "story", "people", "founder", "staff", "portrait", "interior", "workshop", "atelier", "équipe", "equipe", "histoire", "notre", "chef", "owner"];
+
+/** How well an image serves an intent, for a sector. Higher = better fit. */
+function scoreImage(img: ScrapedImage, intent: ImageIntent, industry: Industry): number {
+  let s = KIND_FIT[intent][img.kind] ?? 0;
+  const alt = (img.alt || "").toLowerCase();
+  const url = img.url.toLowerCase();
+
+  // Aspect fit from declared dimensions (when present).
+  if (img.w && img.h) {
+    const ar = img.w / img.h;
+    if (intent === "hero" || intent === "cta") s += ar >= 1.5 ? 2 : ar >= 1 ? 0.5 : -1.5; // wide/cinematic
+    else if (intent === "about") s += ar <= 0.95 ? 2 : ar <= 1.25 ? 0.5 : -0.5; // portrait/squarish
+  }
+
+  // Sector signature keywords — the emotional/business core, weighted for the
+  // hero (alt strong, url weak). Half weight for non-hero intents.
+  const vocab = IMAGE_VOCAB[VOCAB_GROUP[industry] ?? "trade"];
+  const factor = intent === "hero" ? 1 : 0.5;
+  for (const [kw, w] of Object.entries(vocab)) {
+    if (alt.includes(kw)) s += w * factor;
+    else if (url.includes(kw)) s += w * 0.4 * factor;
+  }
+  // About wants a who/where frame regardless of sector.
+  if (intent === "about") for (const kw of ABOUT_WORDS) if (alt.includes(kw) || url.includes(kw)) { s += 2; break; }
+  return s;
+}
+
+export function qualityPass(
+  blocks: Block[],
+  imagePool: string[],
+  opts?: { rich?: ScrapedImage[]; industry?: Industry }
+): { blocks: Block[]; recommendations: Recommendation[] } {
   const recommendations: Recommendation[] = [];
   let out = blocks.slice();
 
@@ -2526,92 +2639,110 @@ export function qualityPass(blocks: Block[], imagePool: string[]): { blocks: Blo
   //    rewrites fields that already hold an image (never adds imagery to an
   //    intentionally image-free section), and keeps the hero on the best photo.
   if (imagePool.length > 1) {
-    // A photo appears at most ONCE per page. Cycling the pool with modulo put
-    // the same dining room in the gallery, the feature cards and the About
-    // split within two viewports — instant template feel. Blocks are walked in
-    // page order (hero first, then the gallery showcase), and when the pool
-    // runs dry the image is DROPPED: every consuming variant degrades to its
-    // text/icon layout, which reads far more premium than a repeat.
-    let idx = 0;
-    const next = (): string | undefined => (idx < imagePool.length ? imagePool[idx++] : undefined);
+    // A photo appears at most ONCE per page. SEMANTIC PLACEMENT: the high-value
+    // single-image sinks (hero, about, immersive CTA) each take the best-FITTING
+    // unused photo for their intent + the sector (the plated dish in the hero,
+    // the room in the about) — not just the next in DOM order. Then the image-led
+    // galleries share the diverse rest, and lower-value slots take what's left.
+    // When the pool runs dry a photo is DROPPED (the variant degrades to its
+    // text/icon layout — far more premium than a repeat). No metadata → every
+    // image scores flat, so this reduces to the previous editorial-priority order.
+    const rich: ScrapedImage[] = opts?.rich?.length ? opts.rich : imagePool.map((url) => ({ url, kind: "content" as ImageKind }));
+    const industry = opts?.industry ?? ("generic" as Industry);
+    const used = new Set<string>();
     let changed = false;
-    // EDITORIAL PRIORITY, not array order: the hero keeps the best photo, then
-    // the image-led SHOWCASES (gallery + the image-led FeaturesProcess) SHARE
-    // the pool fairly, then everything else. Without the fair share, the gallery
-    // drained the pool and a downstream image-led process rendered text-only;
-    // without the priority, card sections drained it and the gallery vanished.
     const next2 = out.map((b) => ({ ...b, props: { ...(b.props as Record<string, unknown>) } }));
-    const isShowcase = (b: Block) =>
-      b.type === "portfolio" || b.type === "gallery" ||
-      b.variant === "FeaturesProcess" || b.variant === "CTAImmersive";
-    const served = new Set<number>();
 
-    // Serve one block up to `cap` images (cap = Infinity when unshared).
-    const serveBlock = (b: Block, i: number, cap: number) => {
-      served.add(i);
-      // Team portraits are IDENTITY, not interchangeable decor: swapping a
-      // person's photo for a pool image puts a dining room on the founder's
-      // face. The roster keeps exactly the images extracted per member.
-      if (b.type === "team") return;
-      // A curated collection's per-item photos are the REAL product shots (this
-      // wine, that dish) — never reassign them from the shared pool, or bottle A
-      // gets bottle B's label. Keep exactly what was scraped per item.
-      if (b.variant === "CollectionShowcase") return;
-      const props = b.props as Record<string, unknown>;
-      if (typeof props.image === "string") {
-        const n = next();
-        if (n !== props.image) changed = true;
-        props.image = n;
+    // Team portraits + curated-collection photos are IDENTITY (this founder,
+    // this bottle) — never reassign them from the shared pool.
+    const skip = (b: Block) => b.type === "team" || b.variant === "CollectionShowcase";
+    const isShowcase = (b: Block) =>
+      b.type === "portfolio" || b.type === "gallery" || b.variant === "FeaturesProcess";
+    const intentOf = (b: Block): ImageIntent =>
+      b.type === "hero" ? "hero" : b.type === "about" ? "about" : b.variant === "CTAImmersive" ? "cta" : "generic";
+    const rank = (b: Block) => (b.type === "hero" ? 0 : b.type === "about" ? 1 : b.variant === "CTAImmersive" ? 2 : 3);
+
+    // Best UNUSED image for an intent (ties → earliest in DOM, a stable "main shot" bias).
+    const pickBest = (intent: ImageIntent): string | undefined => {
+      let best: string | undefined, bestScore = -Infinity;
+      for (const im of rich) {
+        if (used.has(im.url)) continue;
+        const sc = scoreImage(im, intent, industry);
+        if (sc > bestScore) { bestScore = sc; best = im.url; }
       }
-      // A second collage photo (HeroCollage) takes its OWN unique pool slot, so
-      // the two hero images never repeat a downstream gallery/feature photo.
-      // Drops to undefined when the pool is spent → the collage degrades to a
-      // single framed tile rather than a repeat.
-      if (typeof props.image2 === "string") {
-        const n = next();
-        if (n !== props.image2) changed = true;
-        props.image2 = n;
-      }
-      if (Array.isArray(props.items)) {
-        const items = props.items as { image?: unknown }[];
-        const imagedKeys = items
-          .map((it, k) => (it && typeof it === "object" && typeof it.image === "string" ? k : -1))
-          .filter((k) => k >= 0);
-        if (imagedKeys.length === 0) return;
-        const remaining = imagePool.length - idx;
-        const want = Math.min(imagedKeys.length, cap);
-        // Card rows are all-or-nothing (a half-imaged row looks broken; a clean
-        // icon/text row looks chosen). Showcases accept a partial set — their
-        // layouts adapt to any count.
-        const fill = isShowcase(b) ? Math.min(want, remaining) : remaining >= want ? want : 0;
-        const fillSet = new Set(imagedKeys.slice(0, fill));
-        props.items = items.map((it, k) => {
-          if (it && typeof it === "object" && typeof it.image === "string") {
-            if (!fillSet.has(k)) { changed = true; return { ...it, image: undefined }; }
-            const n = next();
-            if (n === undefined) { changed = true; return { ...it, image: undefined }; }
-            if (n !== it.image) changed = true;
-            return { ...it, image: n };
-          }
-          return it;
-        });
-      }
+      if (best) used.add(best);
+      return best;
+    };
+    // Next unused image in DOM order (diverse spread for galleries / low-value slots).
+    const nextRest = (): string | undefined => {
+      for (const im of rich) if (!used.has(im.url)) { used.add(im.url); return im.url; }
+      return undefined;
     };
 
-    // Pass 1 — hero keeps the best photo.
-    next2.forEach((b, i) => { if (b.type === "hero") serveBlock(b, i, Infinity); });
-    // Pass 2 — showcases share what remains (fair cap only when >1 competes).
-    const showcases = next2.map((b, i) => ({ b, i })).filter(({ b, i }) => !served.has(i) && isShowcase(b));
-    const cap = showcases.length > 1
-      ? Math.max(3, Math.floor((imagePool.length - idx) / showcases.length))
-      : Infinity;
-    showcases.forEach(({ b, i }) => serveBlock(b, i, cap));
-    // Pass 3 — everything else with whatever is left.
-    next2.forEach((b, i) => { if (!served.has(i)) serveBlock(b, i, Infinity); });
+    const served = new Set<number>();
+    // Phase A — the high-value SINGLE-image sinks, semantic best-fit, by priority
+    // (hero + its collage second frame, then about, then the immersive CTA).
+    next2
+      .map((b, i) => ({ b, i }))
+      .filter(({ b }) => !skip(b) && typeof (b.props as Record<string, unknown>).image === "string" && rank(b) < 3)
+      .sort((a, z) => rank(a.b) - rank(z.b))
+      .forEach(({ b, i }) => {
+        served.add(i);
+        const props = b.props as Record<string, unknown>;
+        const chosen = pickBest(intentOf(b));
+        if (chosen !== props.image) changed = true;
+        props.image = chosen;
+        if (typeof props.image2 === "string") { // HeroCollage's second frame
+          const c2 = pickBest("hero");
+          if (c2 !== props.image2) changed = true;
+          props.image2 = c2;
+        }
+      });
+
+    // Fill a block's item[] images from the REST, all-or-nothing for card rows,
+    // partial-OK for showcases (their layouts adapt to any count).
+    const serveItems = (b: Block, i: number, cap: number) => {
+      served.add(i);
+      const props = b.props as Record<string, unknown>;
+      if (!Array.isArray(props.items)) return;
+      const items = props.items as { image?: unknown }[];
+      const imagedKeys = items.map((it, k) => (it && typeof it === "object" && typeof it.image === "string" ? k : -1)).filter((k) => k >= 0);
+      if (!imagedKeys.length) return;
+      const remaining = rich.length - used.size;
+      const want = Math.min(imagedKeys.length, cap);
+      const fill = isShowcase(b) ? Math.min(want, remaining) : remaining >= want ? want : 0;
+      const fillSet = new Set(imagedKeys.slice(0, fill));
+      props.items = items.map((it, k) => {
+        if (it && typeof it === "object" && typeof it.image === "string") {
+          if (!fillSet.has(k)) { changed = true; return { ...it, image: undefined }; }
+          const n = nextRest();
+          if (n === undefined) { changed = true; return { ...it, image: undefined }; }
+          if (n !== it.image) changed = true;
+          return { ...it, image: n };
+        }
+        return it;
+      });
+    };
+
+    // Phase B — image-led showcases share the diverse REST fairly.
+    const showcases = next2.map((b, i) => ({ b, i })).filter(({ b, i }) => !served.has(i) && !skip(b) && isShowcase(b) && Array.isArray((b.props as Record<string, unknown>).items));
+    const remainAtShowcase = rich.length - used.size;
+    const cap = showcases.length > 1 ? Math.max(3, Math.floor(remainAtShowcase / showcases.length)) : Infinity;
+    showcases.forEach(({ b, i }) => serveItems(b, i, cap));
+
+    // Phase C — everything else with whatever is left: lower-value single images
+    // (positional now — the strong shots already went to hero/about) and any
+    // remaining card rows.
+    next2.forEach((b, i) => {
+      if (served.has(i) || skip(b)) return;
+      const props = b.props as Record<string, unknown>;
+      if (typeof props.image === "string") { const n = nextRest(); if (n !== props.image) changed = true; props.image = n; }
+      if (Array.isArray(props.items)) serveItems(b, i, Infinity);
+    });
 
     out = next2;
     if (changed) {
-      recommendations.push({ action: "Gave every section its own photo", reason: "Repeating the same image across sections looks templated; each photo now appears once, shared fairly between image-led sections, and sections beyond the pool render clean text layouts." });
+      recommendations.push({ action: "Placed each photo where it fits best", reason: "Every image appears once, matched to the section where it carries the most weight — the strongest shot leads the hero, a who/where frame anchors the About, and the rest fill the galleries; sections beyond the pool render clean text layouts." });
     }
   }
 
