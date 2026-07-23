@@ -1,5 +1,10 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-19 — Storytelling restaurant : framing sectoriel narratif (CD #4)
+- Retour CD : storytelling resto (ambiance→chef→expérience→réservation). Racine : sectionTitle sector-blind + eyebrows codés génériques = template.
+- sectionFraming(type,industry,brand) F21-safe (framing structurel, contenu réel intact) : hospitality gallery=The room/A look inside, about=The concept, features=The experience/What to expect (+subtitle sectoriel), team=In the kitchen ; property about=The studio, features=The process ; sinon neutre. featuresSubtitle sectoriel. Câblé services/portfolio/stats/about/features/team.
+- Résultat resto : ambiance→the room→the concept→the experience→in the kitchen→Menu→The table is set. Understated, pas de slop. VÉRIF : storytelling.test.ts (3 : voix resto ; services réels intacts ; saas neutre Approach), capture pleine page, overflow 0, 567 tests (564→567), tsc 0, build 0. LOCAL. Suivant #5 sections thin/vides.
+
 ## 2026-07-19 — Alternance média inter-sections : zigzag des splits (CD #3 pt.2)
 - Retour CD : casser texte-gauche/image-droite répété. Diagnostic captures : le vrai cas = hero-split image-droite (HeroCollage/Editorial/SplitPremium/Bento) + About StatementEditorial image-droite → 2 splits même côté.
 - alternateMediaSides(blocks) : passe déterministe, splits 2-col zigzaguent (côté opposé au précédent). NATURAL_MEDIA_SIDE par variant ; hero ancre (jamais flippé, toujours 1er) → About oppose. Flip = _mediaFlip → lg:[direction:rtl] + lg:[&>*]:[direction:ltr] (1re piste à droite = miroir colonnes, largeurs préservées, contenu LTR). Appliqué home + sous-pages.

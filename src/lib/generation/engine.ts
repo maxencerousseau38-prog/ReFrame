@@ -1986,6 +1986,47 @@ function sectionTitle(type: BlockType, brand: string): string {
   }
 }
 
+/**
+ * Sector-voiced NARRATIVE framing for a section — its eyebrow + title. The real
+ * content underneath is unchanged (F21: this is structural framing, never
+ * fabricated copy); it just lets the page read as a STORY in the trade's own
+ * words — a restaurant as concept → the room → the experience → in the kitchen →
+ * reserve — instead of the generic "About / Gallery / Why choose us". Sectors
+ * without a narrative voice fall back to the neutral labels.
+ */
+function sectionFraming(type: BlockType, industry: Industry, brand: string): { eyebrow: string; title: string } {
+  const DEF_EYEBROW: Partial<Record<BlockType, string>> = {
+    services: "Services", about: "About", team: "Team", gallery: "Gallery",
+    portfolio: "Selected work", products: "Collection", features: "Approach", stats: "",
+  };
+  const def = { eyebrow: DEF_EYEBROW[type] ?? "", title: sectionTitle(type, brand) };
+  const NARRATIVE: Record<string, Partial<Record<BlockType, { eyebrow: string; title: string }>>> = {
+    hospitality: {
+      about:     { eyebrow: "The concept",    title: `About ${brand}` },
+      gallery:   { eyebrow: "The room",       title: "A look inside" },
+      portfolio: { eyebrow: "The room",       title: "A look inside" },
+      features:  { eyebrow: "The experience", title: "What to expect" },
+      services:  { eyebrow: "The experience", title: "What to expect" },
+      team:      { eyebrow: "In the kitchen", title: `The people behind ${brand}` },
+    },
+    property: {
+      about:     { eyebrow: "The studio",  title: `About ${brand}` },
+      features:  { eyebrow: "The process", title: "How we work" },
+      services:  { eyebrow: "The process", title: "How we work" },
+      team:      { eyebrow: "The studio",  title: `The people behind ${brand}` },
+    },
+  };
+  return NARRATIVE[VOCAB_GROUP[industry] ?? ""]?.[type] ?? def;
+}
+
+/** Sector-true one-line intro for the features / experience section (F21: framing). */
+function featuresSubtitle(industry: Industry): string {
+  const g = VOCAB_GROUP[industry];
+  if (g === "hospitality") return "The details that make an evening here.";
+  if (g === "property") return "How a project moves from first sketch to handover.";
+  return "What makes the difference for our clients.";
+}
+
 /** Build one block for a planned slot. Reproduces the proven props per category;
  *  semantic types (about/services/portfolio…) keep their type but render through
  *  the closest available component until dedicated premium components land. */
@@ -2057,8 +2098,9 @@ function buildBlock(
         type: slot.type,
         variant: pickVariant("features", analysis.industry, brand, mood),
         props: {
-          title: sectionTitle(slot.type, brand),
-          subtitle: "What makes the difference for our clients.",
+          eyebrow: sectionFraming(slot.type, analysis.industry, brand).eyebrow,
+          title: sectionFraming(slot.type, analysis.industry, brand).title,
+          subtitle: featuresSubtitle(analysis.industry),
           // Real CTAs reused on each tile (Apple-style "Learn more / Book"),
           // pointing at the same booking/contact next steps as the hero.
           primaryCta: "Learn more",
@@ -2082,8 +2124,8 @@ function buildBlock(
         type: slot.type,
         variant: servicesVariant,
         props: {
-          eyebrow: "Services",
-          title: sectionTitle(slot.type, brand),
+          eyebrow: sectionFraming(slot.type, analysis.industry, brand).eyebrow,
+          title: sectionFraming(slot.type, analysis.industry, brand).title,
           items: c.serviceItems?.length
             ? c.serviceItems.map((s) => ({ title: s.title, description: s.description }))
             : c.services.map((s) => ({ title: s })),
@@ -2105,8 +2147,8 @@ function buildBlock(
         type: slot.type,
         variant: pickVariant("portfolio", analysis.industry, brand, mood),
         props: {
-          eyebrow: slot.type === "products" ? "Collection" : slot.type === "gallery" ? "Gallery" : "Selected work",
-          title: sectionTitle(slot.type, brand),
+          eyebrow: sectionFraming(slot.type, analysis.industry, brand).eyebrow,
+          title: sectionFraming(slot.type, analysis.industry, brand).title,
           items: portfolioItems(analysis),
         },
       };
@@ -2117,7 +2159,7 @@ function buildBlock(
         id: uid("stats"),
         type: slot.type,
         variant: pickVariant("stats", analysis.industry, brand, mood),
-        props: { title: sectionTitle(slot.type, brand), items: c.stats },
+        props: { title: sectionFraming(slot.type, analysis.industry, brand).title, items: c.stats },
       };
     case "about":
       return {
@@ -2125,8 +2167,8 @@ function buildBlock(
         type: slot.type,
         variant: pickVariant("about", analysis.industry, brand, mood),
         props: {
-          eyebrow: "About",
-          title: sectionTitle(slot.type, brand),
+          eyebrow: sectionFraming(slot.type, analysis.industry, brand).eyebrow,
+          title: sectionFraming(slot.type, analysis.industry, brand).title,
           body: c.aboutBody || c.description,
           image: analysis.extractedContent.images[1] || c.heroImageUrl,
           // Real stats only; AboutSplit hides the chip row when absent.
@@ -2300,7 +2342,7 @@ export function generateSite(
       id: uid("team"),
       type: "team",
       variant: "TeamGrid",
-      props: { eyebrow: "Team", title: `The people behind ${analysis.brandName}`, items: team },
+      props: { eyebrow: sectionFraming("team", analysis.industry, analysis.brandName).eyebrow, title: sectionFraming("team", analysis.industry, analysis.brandName).title, items: team },
     };
     const at = blocks.findIndex((b) => b.type === "cta" || b.type === "footer");
     blocks.splice(at >= 0 ? at : blocks.length, 0, teamBlock);

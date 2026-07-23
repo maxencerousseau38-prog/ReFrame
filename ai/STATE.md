@@ -49,6 +49,25 @@
 
 ## Prochaine action
 
+**STORYTELLING RESTAURANT (2026-07-19) — #4 : la page se lit comme une histoire.**
+Retour CD : storytelling resto perceptible (ambiance → chef → expérience →
+réservation). Racine : `sectionTitle` aveugle au secteur + eyebrows codés en dur
+génériques (« About / Gallery / Why choose us ») = template. Fix F21-SAFE (framing
+structurel, ZÉRO fabrication — contenu réel intact) : `sectionFraming(type,
+industry, brand)` → eyebrow+titre à VOIX SECTORIELLE. Hospitality (resto/hôtel) :
+gallery=« The room » / « A look inside », about=« The concept », features=« The
+experience » / « What to expect » (+ subtitle « The details that make an evening
+here. »), team=« In the kitchen ». Property (archi/immo) : about=« The studio »,
+features=« The process » / « How we work ». Secteurs sans voix → labels neutres
+(fallback). Résultat resto : ambiance → the room → the concept → the experience →
+in the kitchen → Menu → « The table is set » (réservation). Understated/éditorial,
+pas de slop marketing. Câblé : services/portfolio/gallery/stats/about/features/
+team via sectionFraming ; featuresSubtitle sectoriel. Preuve : `storytelling.test.ts`
+(3 : voix resto ; services réels intacts F21 ; saas garde « Approach » neutre),
+capture pleine page resto = narratif lisible, overflow-x=0, 567 tests, tsc 0,
+build 0. LOCAL (feature). **Suivant CD** : #5 cohérence inter-pages + sections
+thin/vides (testimonials/team quasi-vides vues sur architecte). **Promotion `main`** : SUR DEMANDE.
+
 **ALTERNANCE MÉDIA INTER-SECTIONS (2026-07-19) — #3 pt.2 : casser le split répété.**
 Retour CD : casser le texte-gauche/image-droite RÉPÉTÉ entre sections. Diagnostic
 (captures resto+architecte) : les pages sont déjà assez variées, mais le vrai cas
