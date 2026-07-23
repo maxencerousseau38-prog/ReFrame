@@ -1890,7 +1890,7 @@ function ServicesAtelier({ props }: { props: any }) {
           {props.title}
         </h2>
 
-        <div className="mt-12 grid items-start gap-10 lg:grid-cols-[5fr_7fr]">
+        <div className={cn("mt-12 grid items-start gap-10 lg:grid-cols-[5fr_7fr]", props._mediaFlip && "lg:[direction:rtl] lg:[&>*]:[direction:ltr]")}>
           {/* Sticky panel: the active service's photo (crossfade) or a monogram plate. */}
           <div className="hidden lg:sticky lg:top-24 lg:block">
             <div className="relative aspect-[4/5] overflow-hidden" style={{ borderRadius: "var(--brand-radius)", boxShadow: "0 30px 80px -40px rgba(0,0,0,0.4), 0 0 0 1px color-mix(in srgb, var(--brand-ink) 8%, transparent)" }}>
@@ -2086,7 +2086,7 @@ function AboutSplit({ props }: { props: any }) {
   return (
     <section className="px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(112) }}>
       <div
-        className={hasImage ? "mx-auto grid items-center gap-[var(--rf-scene-gap,3rem)] lg:grid-cols-[var(--rf-scene-ratio,0.95fr_1.05fr)]" : "mx-auto max-w-2xl text-center"}
+        className={hasImage ? cn("mx-auto grid items-center gap-[var(--rf-scene-gap,3rem)] lg:grid-cols-[var(--rf-scene-ratio,0.95fr_1.05fr)]", props._mediaFlip && "lg:[direction:rtl] lg:[&>*]:[direction:ltr]") : "mx-auto max-w-2xl text-center"}
         style={hasImage ? rfContainer(1152) : undefined}
       >
         {hasImage && (
@@ -2198,7 +2198,7 @@ function StatementEditorial({ props }: { props: any }) {
   const title = (props.title || "") as string;
   return (
     <section className="overflow-hidden px-6" style={{ color: "var(--brand-ink)" , ...rfSectionPad(128) }}>
-      <div className="mx-auto grid gap-[var(--rf-scene-gap,3rem)] lg:grid-cols-[var(--rf-scene-ratio,1.05fr_0.95fr)] lg:gap-[var(--rf-scene-gap,4rem)]" style={rfContainer(1152)}>
+      <div className={cn("mx-auto grid gap-[var(--rf-scene-gap,3rem)] lg:grid-cols-[var(--rf-scene-ratio,1.05fr_0.95fr)] lg:gap-[var(--rf-scene-gap,4rem)]", props._mediaFlip && "lg:[direction:rtl] lg:[&>*]:[direction:ltr]")} style={rfContainer(1152)}>
         {/* statement column */}
         <div className="lg:pt-10">
           {props.eyebrow && (
@@ -2355,7 +2355,7 @@ function AboutAtelier({ props }: { props: any }) {
           {lastWord && <em className="italic" style={{ opacity: 0.55 }}> {lastWord}</em>}
         </motion.h2>
 
-        <div className="mt-14 grid items-start gap-10 lg:grid-cols-[5fr_7fr]">
+        <div className={cn("mt-14 grid items-start gap-10 lg:grid-cols-[5fr_7fr]", props._mediaFlip && "lg:[direction:rtl] lg:[&>*]:[direction:ltr]")}>
           {/* portrait / place image, LEFT (the mirror of StatementEditorial) */}
           <motion.div
             initial={reduce ? false : { opacity: 0, scale: 1.04 }}

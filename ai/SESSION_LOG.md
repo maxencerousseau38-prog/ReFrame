@@ -1,5 +1,10 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-19 — Alternance média inter-sections : zigzag des splits (CD #3 pt.2)
+- Retour CD : casser texte-gauche/image-droite répété. Diagnostic captures : le vrai cas = hero-split image-droite (HeroCollage/Editorial/SplitPremium/Bento) + About StatementEditorial image-droite → 2 splits même côté.
+- alternateMediaSides(blocks) : passe déterministe, splits 2-col zigzaguent (côté opposé au précédent). NATURAL_MEDIA_SIDE par variant ; hero ancre (jamais flippé, toujours 1er) → About oppose. Flip = _mediaFlip → lg:[direction:rtl] + lg:[&>*]:[direction:ltr] (1re piste à droite = miroir colonnes, largeurs préservées, contenu LTR). Appliqué home + sous-pages.
+- VÉRIF : media-alternation.test.ts (5), Playwright Fumo = hero image-droite + About image-gauche (StatementEditorial flippé propre), overflow 0 desktop+mobile, 0 console, 564 tests (559→564), tsc 0, build 0. LOCAL. Suivant : #4 storytelling, #5 sections thin/vides (vues architecte).
+
 ## 2026-07-19 — HeroCanvas immersif : image-free hero = image 1 (CD #3 pt.1)
 - Retour CD : hero doivent ressembler à l'immersif full-bleed (image 1) pas au split panneau-vide (image 2 = HeroCanvas). Le rejet screenshots rend HeroCanvas plus fréquent → sa qualité devient critique.
 - Refonte HeroCanvas : SPLIT → FULL-BLEED immersif dark sur --brand-contrast (wash accent directionnel, orbs aurora, grille masquée, monogramme colossal architectural, grain film, puits texte bas ; titre serif monumental reveal-masqué ancré bas, eyebrow trait accent, subline, CTAs, SCROLL cue). Ajouté à OVERLAY_HEROES (nav transparente). Brand-adaptive (chaud resto / bleu saas).

@@ -49,6 +49,27 @@
 
 ## Prochaine action
 
+**ALTERNANCE MÉDIA INTER-SECTIONS (2026-07-19) — #3 pt.2 : casser le split répété.**
+Retour CD : casser le texte-gauche/image-droite RÉPÉTÉ entre sections. Diagnostic
+(captures resto+architecte) : les pages sont déjà assez variées, mais le vrai cas
+de répétition = hero-split image-DROITE (HeroCollage/Editorial/SplitPremium/Bento)
++ About-split image-DROITE (StatementEditorial) → 2 splits même côté d'affilée.
+Fix SYSTÈME : `alternateMediaSides(blocks)` — passe déterministe qui fait
+ZIGZAGUER les splits 2-colonnes en descendant la page (chaque split au côté opposé
+du précédent). `NATURAL_MEDIA_SIDE` par variant (heros split=droite ; About :
+StatementEditorial=droite, AboutAtelier/AboutSplit=gauche ; ServicesAtelier=
+gauche). Le hero (toujours 1er) ancre sans jamais flipper ; l'About suivant
+oppose. Flip via `_mediaFlip` → `lg:[direction:rtl] lg:[&>*]:[direction:ltr]` sur
+la grille 2-col (place la 1re piste à droite → miroir des colonnes, LARGEURS
+préservées, contenu LTR). Appliqué home + sous-pages. Preuve : régression
+`media-alternation.test.ts` (5 : flip 2e split ; pas de flip si déjà alterné ;
+zigzag ×3 ; hero seed l'About ; ignore non-splits), Playwright Fumo resto =
+hero image-DROITE + About image-GAUCHE (StatementEditorial flippé proprement,
+image gauche/titre+stats droite), overflow-x=0 desktop+mobile, 0 console, 564
+tests, tsc 0, build 0. LOCAL (feature). **Suivant CD** : #4 storytelling resto ;
+#5 cohérence inter-pages (sections thin/vides vues sur architecte). **Promotion
+`main`** : SUR DEMANDE.
+
 **HERO CANVAS IMMERSIF (2026-07-19) — #3 pt.1 : image-free hero = image 1, plus image 2.**
 Retour CD (captures) : les hero doivent ressembler à l'immersif full-bleed
 (image 1), pas au split 50/50 avec panneau de marque vide (image 2 = HeroCanvas).

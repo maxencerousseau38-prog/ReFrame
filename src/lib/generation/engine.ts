@@ -2386,6 +2386,10 @@ export function generateSite(
   });
   const recommendations = [...plan.recommendations, ...qp.recommendations];
 
+  // Zig-zag the two-column split sections so the page never reads as the same
+  // text-left/image-right split repeated (editorial variety, CD #3).
+  alternateMediaSides(qp.blocks);
+
   // Design family → published reading rhythm. Only smart mode routes through a
   // family arc; classic/preserve/explicit keep the neutral V5 rhythm (undefined
   // → the renderer defaults --rf-rhythm to 1), so those modes are unchanged.
@@ -2399,7 +2403,11 @@ export function generateSite(
     theme,
     blocks: qp.blocks,
     pages: pages.length
-      ? pages.map((p) => ({ ...p, blocks: p.blocks.map(sanitizeBlock) }))
+      ? pages.map((p) => {
+          const pb = p.blocks.map(sanitizeBlock);
+          alternateMediaSides(pb);
+          return { ...p, blocks: pb };
+        })
       : undefined,
     mode,
     recommendations: recommendations.length ? recommendations : undefined,
@@ -2620,6 +2628,43 @@ function scoreImage(img: ScrapedImage, intent: ImageIntent, industry: Industry):
   // About wants a who/where frame regardless of sector.
   if (intent === "about") for (const kw of ABOUT_WORDS) if (alt.includes(kw) || url.includes(kw)) { s += 2; break; }
   return s;
+}
+
+/** The side a two-column split section places its IMAGE on by default. Used to
+ *  alternate media sides down the page so splits zig-zag instead of stacking on
+ *  the same side (CD #3 — break the repeated text-left/image-right rhythm). */
+const NATURAL_MEDIA_SIDE: Record<string, "left" | "right"> = {
+  // Copy-left / image-right split heroes: seed the zig-zag so the About that
+  // follows lands on the OPPOSITE side (never two image-right splits in a row).
+  // The hero is always first, so it is never flipped — it only sets the anchor.
+  HeroCollage: "right",
+  HeroEditorial: "right",
+  HeroSplitPremium: "right",
+  HeroBento: "right",
+  // Body splits (these DO flip when their natural side collides).
+  AboutSplit: "left",
+  StatementEditorial: "right",
+  AboutAtelier: "left",
+  ServicesAtelier: "left",
+};
+
+/**
+ * Zig-zag the flippable two-column splits down the page: consecutive splits land
+ * on OPPOSITE sides. The first split keeps its natural side; each subsequent one
+ * flips to the opposite of the previous split (setting `_mediaFlip` when its
+ * natural side differs from the target). Deterministic and render-only — the
+ * component reads `_mediaFlip` and mirrors its columns.
+ */
+export function alternateMediaSides(blocks: Block[]): void {
+  let prev: "left" | "right" | null = null;
+  for (const b of blocks) {
+    const nat = NATURAL_MEDIA_SIDE[b.variant];
+    if (!nat) continue;
+    const target: "left" | "right" = prev === null ? nat : prev === "left" ? "right" : "left";
+    if (target !== nat) (b.props as Record<string, unknown>)._mediaFlip = true;
+    else if ((b.props as Record<string, unknown>)._mediaFlip) delete (b.props as Record<string, unknown>)._mediaFlip;
+    prev = target;
+  }
 }
 
 export function qualityPass(
