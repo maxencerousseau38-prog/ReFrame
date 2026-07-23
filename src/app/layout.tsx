@@ -1,17 +1,20 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import "./globals.css";
-import { LocaleProvider } from "@/lib/i18n";
+import { Geist } from "next/font/google";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
-  title: "ReFrame — win the customers your website is losing",
+  title: "ReFrame - reframe any website into something worth visiting",
   description:
-    "Your old site is quietly costing you customers. Paste your link and ReFrame rebuilds it into one they trust — and buy from — in minutes. Edit it just by chatting.",
+    "Paste a link. ReFrame analyzes your existing website and rebuilds it into a fast, modern site you can edit by chatting with AI. Live in minutes.",
   metadataBase: new URL("https://reframe.design"),
   openGraph: {
     title: "ReFrame",
-    description: "Turn the site you already have into one that wins customers. Live in minutes.",
+    description: "Reframe any website into a fast, modern site you edit with AI.",
     type: "website",
     images: ["/brand/reframe-logo.png"],
   },
@@ -22,27 +25,14 @@ export const metadata: Metadata = {
   other: { google: "notranslate" },
 };
 
-// Make every page (and every recreated client site) fit the device perfectly:
-// scale to the screen width, allow pinch-zoom for accessibility, and extend
-// under the notch / rounded corners on phones (paired with safe-area insets).
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 5,
-  viewportFit: "cover",
-  themeColor: "#000000",
-};
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" translate="no" className={`${GeistSans.variable} ${GeistMono.variable}`}>
-      <body className="grain min-h-screen bg-background font-sans">
-        <LocaleProvider>{children}</LocaleProvider>
-      </body>
+    <html lang="en" translate="no" className={cn(GeistSans.variable, GeistMono.variable, "font-sans", geist.variable)}>
+      <body className="grain min-h-screen bg-background font-sans">{children}</body>
     </html>
   );
 }
