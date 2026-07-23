@@ -1692,6 +1692,115 @@ function ServicesList({ props }: { props: any }) {
 }
 
 /**
+ * ServicesAtelier — an INTERACTIVE editorial services index. Merges two studied
+ * sources, fully reinterpreted in ReFrame grammar (never copied):
+ *  - Archform Services.tsx: a sticky image panel beside a numbered serif index;
+ *    hovering a row crossfades the panel and lights the row (others recede).
+ *  - 21st "lumina-interactive-list" (#9952): the same vertical 01–06 archetype,
+ *    validating it as a premium pattern (its dark-luxury skin was NOT taken).
+ * Deliberately a DIFFERENT architecture from ServicesList (static numbered rows)
+ * and ServicesCards (card grid): one image panel + an index the visitor plays.
+ * Real content only: section image comes from the shared pool via qualityPass
+ * (never fabricated); with no image the panel becomes a calm brand monogram
+ * plate. Active description falls back gracefully when items carry none.
+ */
+function ServicesAtelier({ props }: { props: any }) {
+  const items = (props.items || []) as { title: string; description?: string }[];
+  const reduce = useReducedMotion();
+  const [active, setActive] = React.useState(0);
+  const cur = items[active] ?? items[0];
+  return (
+    <section className="px-6" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)", ...rfSectionPad(112) }}>
+      <div className="mx-auto" style={rfContainer(1200)}>
+        <div className="flex items-center justify-between">
+          {props.eyebrow && (
+            <span className="inline-flex items-center gap-3 text-[0.7rem] font-medium uppercase tracking-[0.28em]" style={{ color: "var(--brand-accent)" }}>
+              <span className="h-px w-9" style={{ background: "var(--brand-accent)" }} />
+              {props.eyebrow}
+            </span>
+          )}
+          <span className="text-[0.7rem] font-medium uppercase tracking-[0.28em]" style={{ opacity: 0.4 }}>
+            {String(items.length).padStart(2, "0")}
+          </span>
+        </div>
+        <h2 className="mt-5 max-w-3xl text-[clamp(2rem,4.5vw,3.25rem)] font-medium leading-[1.05] tracking-[-0.02em]" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>
+          {props.title}
+        </h2>
+
+        <div className="mt-12 grid items-start gap-10 lg:grid-cols-[5fr_7fr]">
+          {/* Sticky panel: the active service's photo (crossfade) or a monogram plate. */}
+          <div className="hidden lg:sticky lg:top-24 lg:block">
+            <div className="relative aspect-[4/5] overflow-hidden" style={{ borderRadius: "var(--brand-radius)", boxShadow: "0 30px 80px -40px rgba(0,0,0,0.4), 0 0 0 1px color-mix(in srgb, var(--brand-ink) 8%, transparent)" }}>
+              {props.image ? (
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={active}
+                    initial={reduce ? false : { opacity: 0, scale: 1.06 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={reduce ? undefined : { opacity: 0 }}
+                    transition={{ duration: 0.6, ease: EASE }}
+                    className="absolute inset-0"
+                  >
+                    <CoverImage image={props.image} gradient="linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))" className="h-full w-full" />
+                    <div className="absolute inset-0" style={{ background: "linear-gradient(to top, color-mix(in srgb, var(--brand-contrast) 55%, transparent), transparent 45%)" }} />
+                    <span className="absolute bottom-5 left-5 text-6xl font-medium" style={{ fontFamily: "var(--brand-font)", color: "var(--brand-contrast-ink)", opacity: 0.9 }}>
+                      {String(active + 1).padStart(2, "0")}
+                    </span>
+                  </motion.div>
+                </AnimatePresence>
+              ) : (
+                <div className="flex h-full w-full items-center justify-center" style={{ background: "color-mix(in srgb, var(--brand-accent) 10%, var(--brand-surface-2))" }}>
+                  <span className="text-7xl font-medium tabular-nums" style={{ fontFamily: "var(--brand-font)", color: "var(--brand-accent)", opacity: 0.45 }}>
+                    {String(active + 1).padStart(2, "0")}
+                  </span>
+                </div>
+              )}
+            </div>
+            {cur?.description && (
+              <p className="mt-6 max-w-md text-[15px] leading-relaxed" style={{ opacity: 0.66 }}>{cur.description}</p>
+            )}
+          </div>
+          {/* The index: serif rows the visitor plays; the active row carries the ink. */}
+          <ul className="divide-y" style={{ borderColor: HAIRLINE }}>
+            {items.map((item, i) => (
+              <li key={i}>
+                <button
+                  type="button"
+                  onMouseEnter={() => setActive(i)}
+                  onFocus={() => setActive(i)}
+                  onClick={() => setActive(i)}
+                  aria-current={i === active}
+                  className="group flex w-full items-baseline gap-6 py-7 text-left transition-[padding] duration-300 hover:pl-2 sm:gap-8"
+                  style={{ borderColor: HAIRLINE }}
+                >
+                  <span className="w-10 shrink-0 text-sm font-medium tabular-nums" style={{ color: "var(--brand-accent)", opacity: i === active ? 1 : 0.55 }}>
+                    {String(i + 1).padStart(2, "0")}/
+                  </span>
+                  <span className="flex-1">
+                    <span
+                      className="block text-2xl font-medium tracking-tight transition-colors duration-300 sm:text-4xl"
+                      style={{ fontFamily: "var(--brand-font)", color: "var(--brand)", opacity: i === active ? 1 : 0.38 }}
+                    >
+                      {item.title}
+                    </span>
+                    {/* Mobile (no sticky panel): the active row reveals its description inline. */}
+                    {item.description && i === active && (
+                      <span className="mt-2 block max-w-md text-sm leading-relaxed lg:hidden" style={{ color: "var(--brand-ink)", opacity: 0.65 }}>
+                        {item.description}
+                      </span>
+                    )}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
  * "Selected work" portfolio. An asymmetric image grid — one monumental lead
  * tile plus a dense run of supporting tiles — with a slow zoom and a caption
  * that lifts on hover. Tiles without a real image fall back to a tonal gradient
@@ -2023,6 +2132,118 @@ function StatementEditorial({ props }: { props: any }) {
             </div>
           </motion.div>
         )}
+      </div>
+    </section>
+  );
+}
+
+/**
+ * AboutAtelier — a studio-magazine about. Merges two studied sources, fully
+ * reinterpreted in ReFrame grammar (never copied):
+ *  - Archform Studio.tsx: the mono-caps meta row, a monumental serif display
+ *    with an italicised closing word, an asymmetric 5/7 grid (portrait left,
+ *    statement + TWO-COLUMN body right), and a quiet underline link.
+ *  - 21st editorial refs (#10098 grayscale-editorial treatments) for restraint.
+ * Deliberately a DIFFERENT architecture from StatementEditorial (ghost-echo
+ * title + tall image on the RIGHT) and AboutSplit (portrait + chips): here the
+ * image sits LEFT and the narrative splits into a two-column magazine body.
+ * Real content only — the body is the site's real about/description; stats render
+ * only when genuinely extracted (inline baseline row, not chips).
+ */
+function AboutAtelier({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  const imgRef = React.useRef<HTMLImageElement>(null);
+  useParallax(imgRef);
+  // Italicise the title's last word (the Studio reference's serif inflection).
+  const words = String(props.title || "").trim().split(/\s+/);
+  const lastWord = words.length > 1 ? words.pop() : undefined;
+  const lead = words.join(" ");
+  // Split the real body into two magazine columns at a sentence boundary.
+  const body = String(props.body || "");
+  const sentences = body.match(/[^.!?]+[.!?]+(\s|$)/g) ?? [body];
+  const mid = Math.ceil(sentences.length / 2);
+  const colA = sentences.slice(0, mid).join("").trim();
+  const colB = sentences.slice(mid).join("").trim();
+  const stats = (props.stats || []) as { value: string; label: string }[];
+  const rise = reduce
+    ? { hidden: { opacity: 1, y: 0 }, visible: { opacity: 1, y: 0 } }
+    : { hidden: { opacity: 0, y: 22 }, visible: { opacity: 1, y: 0 } };
+  return (
+    <section className="px-6" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)", ...rfSectionPad(112) }}>
+      <div className="mx-auto" style={rfContainer(1200)}>
+        {/* mono-caps meta row */}
+        <div className="flex items-center justify-between border-b pb-5" style={{ borderColor: HAIRLINE }}>
+          <span className="text-[0.7rem] font-medium uppercase tracking-[0.28em]" style={{ color: "var(--brand-accent)" }}>
+            {props.eyebrow || "About"}
+          </span>
+          <span aria-hidden className="text-[0.7rem] font-medium uppercase tracking-[0.28em]" style={{ opacity: 0.4 }}>—</span>
+        </div>
+        {/* monumental display with an italic closing word */}
+        <motion.h2
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+          variants={rise}
+          transition={{ duration: 0.7, ease: EASE }}
+          className="mt-10 max-w-4xl text-[clamp(2.4rem,6vw,4.5rem)] font-medium leading-[0.98] tracking-[-0.02em]"
+          style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}
+        >
+          {lead}
+          {lastWord && <em className="italic" style={{ opacity: 0.55 }}> {lastWord}</em>}
+        </motion.h2>
+
+        <div className="mt-14 grid items-start gap-10 lg:grid-cols-[5fr_7fr]">
+          {/* portrait / place image, LEFT (the mirror of StatementEditorial) */}
+          <motion.div
+            initial={reduce ? false : { opacity: 0, scale: 1.04 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            className="relative aspect-[3/4] overflow-hidden"
+            style={{ borderRadius: "var(--brand-radius)", boxShadow: "0 40px 100px -45px rgba(0,0,0,0.45), 0 0 0 1px color-mix(in srgb, var(--brand-ink) 8%, transparent)" }}
+          >
+            <CoverImage
+              image={props.image}
+              gradient="linear-gradient(150deg, var(--brand-surface-2), var(--brand-accent))"
+              overscan
+              parallaxRef={imgRef}
+              className="h-full w-full"
+            />
+          </motion.div>
+          {/* magazine body: two columns of the REAL narrative + quiet link */}
+          <div className="flex min-h-full flex-col">
+            <div className="grid gap-8 sm:grid-cols-2">
+              <motion.p initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={rise} transition={{ duration: 0.6, ease: EASE, delay: 0.05 }} className="text-[15px] leading-relaxed" style={{ opacity: 0.7 }}>
+                {colA}
+              </motion.p>
+              {colB && (
+                <motion.p initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={rise} transition={{ duration: 0.6, ease: EASE, delay: 0.12 }} className="text-[15px] leading-relaxed" style={{ opacity: 0.7 }}>
+                  {colB}
+                </motion.p>
+              )}
+            </div>
+            {stats.length > 0 && (
+              <div className="mt-10 flex flex-wrap gap-x-12 gap-y-6 border-t pt-8" style={{ borderColor: HAIRLINE }}>
+                {stats.map((s, i) => (
+                  <div key={i}>
+                    <div className="text-3xl font-medium tabular-nums" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>{s.value}</div>
+                    <div className="mt-1 text-xs uppercase tracking-[0.18em]" style={{ opacity: 0.5 }}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {props.cta && (
+              <a
+                {...ctaAttrs(props.ctaHref)}
+                className="group mt-auto inline-flex items-center gap-2 self-start pt-10 text-sm font-medium"
+                style={{ color: "var(--brand)" }}
+              >
+                <span className="border-b pb-0.5 transition-colors" style={{ borderColor: "var(--brand-accent)" }}>{props.cta}</span>
+                <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </a>
+            )}
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -4540,6 +4761,7 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   HeroArchform,
   StatementAgencia,
   StatementEditorial,
+  AboutAtelier,
   TeamGrid,
   CTAAsterisk,
   FeaturesGrid1,
@@ -4550,6 +4772,7 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   FeaturesBigType,
   ProcessTimeline,
   ServicesList,
+  ServicesAtelier,
   ServicesCards,
   PortfolioGrid,
   StatsCounter,

@@ -49,6 +49,34 @@
 
 ## Prochaine action
 
+**VARIÉTÉ ARCHI about/services (2026-07-19) — monopoles cassés, 2 modules Atelier.**
+Probe aux vrais moods : about = StatementEditorial verrouillait 7 secteurs warm/
+elegant (1/8) ; services = POOL-DE-UN (ServicesList seul éligible warm/elegant,
+1/8 partout). Racine : écart mood/secteur (+4) > jitter (1.6), sans prefer.
+Minage : **Archform** `Services.tsx` (panneau image sticky + index serif numéroté
+« 01/ », survol = crossfade + rangée allumée) + `Studio.tsx` (meta row mono-caps,
+display serif à mot final italique, grille 5/7 image gauche + corps 2 colonnes) ;
+**21st MCP** comparé (retenu l'archétype #9952 « lumina-interactive-list » =
+validation premium de l'index interactif ; REJETÉ #2749 parallax/compteurs).
+→ **`ServicesAtelier`** (index interactif : panneau sticky photo crossfade +
+numéral monumental, rangées serif jouables, inline desc mobile, monogramme sans
+image) et **`AboutAtelier`** (magazine studio : meta row, titre italique final,
+image GAUCHE + récit scindé 2 colonnes à la phrase + stats baseline inline) —
+architectures DISTINCTES des incumbents (ServicesList rangées statiques /
+StatementEditorial écho fantôme image droite / AboutSplit portrait+chips).
+**Calibration tie exact** (pas de prefer) : ServicesAtelier sectors:"all" moods
+[elegant,warm,minimal] motion 1 = ServicesList → 50/50 jitter ; AboutAtelier
+sectors = ceux de StatementEditorial MOINS agency, moods [elegant,warm] motion 1
+→ tie 8=8. Résultat probe : about 2/8 sur les 7 secteurs, services 2/8 warm/
+elegant+health ; saas/gym/agency gardent leurs signatures bold (voulu). Wiring :
+REGISTRY ×2, catalog ×2, engine (variant services calculé 1×, `image` candidate
+SEULEMENT pour Atelier — qualityPass alloue une photo pool unique sinon plaque
+monogramme). Preuve : 2 marques architect réelles = 2 archis about ET services
+(captures), overflow-x=0, régression `about-services-variety.test.ts` (5),
+engine.test étendu, tsc, **541 tests**, build exit 0. LOCAL (feature).
+**Suivants** : stats variety ; per-page meta crawl ; imagerie architect zpreview.
+**Promotion `main`** : SUR DEMANDE.
+
 **COHÉRENCE : collection curée « nos vins » préservée + showcase image (2026-07-19).**
 Demande : sites recréés plus cohérents — une section « nos vins » doit revenir
 AVEC les vrais vins ; sections de même nom = architectures différentes. Contrainte

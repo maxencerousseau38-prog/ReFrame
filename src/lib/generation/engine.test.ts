@@ -91,8 +91,8 @@ describe("generateSite", () => {
     const byType = Object.fromEntries(
       generateSite(a, { mode: "preserve" }).blocks.map((b) => [b.type, b.variant])
     );
-    expect(["AboutSplit", "StatementAgencia"]).toContain(byType.about);
-    expect(["ServicesList", "ServicesCards"]).toContain(byType.services);
+    expect(["AboutSplit", "StatementAgencia", "StatementEditorial", "AboutAtelier"]).toContain(byType.about);
+    expect(["ServicesList", "ServicesCards", "ServicesAtelier"]).toContain(byType.services);
     // any of the visual-grid gallery variants is valid for a portfolio slot
     expect(["PortfolioGrid", "GalleryMasonry", "GalleryStrip", "GalleryFeature"]).toContain(byType.portfolio);
   });

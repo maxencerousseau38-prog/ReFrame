@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-19 — Variété archi about/services : 2 monopoles cassés, modules Atelier
+- Probe vrais moods : about 1/8 sur 7 secteurs (StatementEditorial), services 1/8 PARTOUT (pool-de-un ServicesList en warm/elegant ; Cards en bold/minimal). Racine : +4 secteur/mood > jitter 1.6, sans prefer.
+- Minage : Archform Services.tsx (panneau sticky + index numéroté interactif) + Studio.tsx (meta row, italique final, 5/7, corps 2 colonnes) ; 21st comparé (archétype #9952 validé ; #2749 rejeté). Réinterprété 100%.
+- `ServicesAtelier` (index interactif photo/crossfade/monogramme, desc inline mobile) + `AboutAtelier` (magazine studio image gauche, récit scindé à la phrase, stats baseline). Calibration TIE exact (sans prefer) : Atelier services sectors:all/moods elegant-warm-minimal/motion 1 = ServicesList ; AboutAtelier = sectors StatementEditorial moins agency → 8=8. Probe après : about 2/8 ×7 secteurs, services 2/8 warm/elegant+health ; saas/gym/agency signatures bold conservées (voulu).
+- Wiring : REGISTRY ×2, catalog ×2, engine (variant 1×, image candidate SEULEMENT Atelier). VÉRIF : 2 marques architect = 2 archis about ET services (captures ; Praxis=Atelier×2, Atelier Nord=incumbents), overflow-x=0, régression about-services-variety.test.ts (5), engine.test étendu, tsc, 541 tests (536→541), build exit 0. LOCAL (feature).
+
 ## 2026-07-19 — Cohérence : collection curée « nos vins » (price-less + photos) préservée
 - Demande : recréations cohérentes (section « nos vins » avec les vrais vins) + sections de même nom d'architecture différente. Contrainte E1 : pas de scrape live en sandbox → preuve par fixtures.
 - Gap concret : une collection curée sans prix ni classe `product` (vins par nom + photo + blurb) tombait entre extractCollection (exige prix) et extractProducts (exige prix/classe) → droppée.

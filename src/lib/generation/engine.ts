@@ -2011,21 +2011,27 @@ function buildBlock(
         },
       };
     }
-    case "services":
+    case "services": {
       // P0/F21: no real services extracted → section omitted.
       if (!c.serviceItems?.length && c.services.length === 0) return null;
+      const servicesVariant = pickVariant("services", analysis.industry, brand, mood);
       return {
         id: uid("services"),
         type: slot.type,
-        variant: pickVariant("services", analysis.industry, brand, mood),
+        variant: servicesVariant,
         props: {
           eyebrow: "Services",
           title: sectionTitle(slot.type, brand),
           items: c.serviceItems?.length
             ? c.serviceItems.map((s) => ({ title: s.title, description: s.description }))
             : c.services.map((s) => ({ title: s })),
+          // Candidate photo for the Atelier's sticky panel ONLY (qualityPass
+          // reallocates it a unique pool image or drops it → monogram plate).
+          // Other services variants never reserve a photo they won't show.
+          ...(servicesVariant === "ServicesAtelier" ? { image: c.images[2] ?? c.images[1] } : {}),
         },
       };
+    }
     case "portfolio":
       // A portfolio/gallery IS its imagery. Need at least a couple of real,
       // loadable images (validated upstream) to form a credible grid; a single
