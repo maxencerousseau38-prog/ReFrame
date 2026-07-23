@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-19 — INCIDENT : divergence main (push externe base-ui) détectée + réparée
+- À la promotion du lot about/services, push main REJETÉ : 2 commits externes sur main (« Optimize Claude context/system » — ~258k insertions, 1578 fichiers) poussés depuis une autre session. Aucun force ; inspection avant action.
+- Dégâts : 9 fichiers EXISTANTS écrasés (layout.tsx + 8 composants ui V3 → base-ui générique) : tsc rouge (10+ erreurs), chrome V3 détruit (argent/16px/asChild), LocaleProvider i18n supprimé, métadonnées marketing remplacées, deps @radix-ui ×5 + @supabase ×2 + tailwindcss-animate SUPPRIMÉES de package.json. main était donc indéployable seul.
+- Réparation (intention externe préservée : skills, sidebar/tooltip/skeleton/separator/avatar/use-mobile + deps base-ui/lucide gardés) : merge origin/main dans la feature (0 conflit), restauration de NOS 9 fichiers, deps supprimées restaurées, taille Button `icon-sm` ajoutée pour leur sidebar. Gate : tsc 0, 541 tests, build 0, smoke / /login /zpreview 200 + layout/i18n confirmés.
+- Promotion : merge 35d9e62 + fix 50a2de3 → main == feature == 50a2de3. LEÇON (prochaines sessions) : toujours `git fetch origin main` + `merge-base --is-ancestor` avant promotion ; en cas de divergence, merger origin/main dans la feature et re-gater AVANT de pousser.
+
 ## 2026-07-19 — Variété archi about/services : 2 monopoles cassés, modules Atelier
 - Probe vrais moods : about 1/8 sur 7 secteurs (StatementEditorial), services 1/8 PARTOUT (pool-de-un ServicesList en warm/elegant ; Cards en bold/minimal). Racine : +4 secteur/mood > jitter 1.6, sans prefer.
 - Minage : Archform Services.tsx (panneau sticky + index numéroté interactif) + Studio.tsx (meta row, italique final, 5/7, corps 2 colonnes) ; 21st comparé (archétype #9952 validé ; #2749 rejeté). Réinterprété 100%.

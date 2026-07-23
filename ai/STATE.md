@@ -49,6 +49,18 @@
 
 ## Prochaine action
 
+**⚠️ INCIDENT RÉSOLU (2026-07-19) : divergence `main` (push externe base-ui).**
+Une autre session a poussé 2 commits sur main (~258k insertions) écrasant 9
+fichiers du chrome V3 (layout+ui), supprimant LocaleProvider, les deps radix/
+supabase/tailwindcss-animate → main était tsc-ROUGE et indéployable. Réparé :
+merge origin/main dans la feature (0 conflit), restauration de nos 9 fichiers +
+deps, ajout Button `icon-sm` pour leur sidebar ; ajouts externes conservés
+(skills, sidebar, tooltip…). Gate complet vert, promu → main == feature ==
+`50a2de3`. **Règle pour chaque promotion : fetch + `merge-base --is-ancestor`
+d'abord ; si divergence → merger origin/main dans la feature, re-gater, PUIS
+pousser. Jamais de force.** Vérifier côté user que l'autre session (Lovable ?)
+ne repoussera pas les mêmes fichiers.
+
 **VARIÉTÉ ARCHI about/services (2026-07-19) — monopoles cassés, 2 modules Atelier.**
 Probe aux vrais moods : about = StatementEditorial verrouillait 7 secteurs warm/
 elegant (1/8) ; services = POOL-DE-UN (ServicesList seul éligible warm/elegant,
