@@ -49,6 +49,24 @@
 
 ## Prochaine action
 
+**HERO CANVAS IMMERSIF (2026-07-19) — #3 pt.1 : image-free hero = image 1, plus image 2.**
+Retour CD (captures) : les hero doivent ressembler à l'immersif full-bleed
+(image 1), pas au split 50/50 avec panneau de marque vide (image 2 = HeroCanvas).
+Or le rejet de screenshots rend HeroCanvas PLUS fréquent (fallback sans photo) →
+sa qualité devient critique. Refonte : `HeroCanvas` passe de SPLIT (copy gauche +
+panneau marque droite + monogramme) à **FULL-BLEED immersif dark** — tout le cadre
+est un canvas de marque atmosphérique sur `--brand-contrast` : wash d'accent
+directionnel, orbs aurora dérivants, grille structurelle masquée, MONOGRAMME
+colossal architectural (bleed droite), grain film, puits de texte au bas ; titre
+serif MONUMENTAL ancré en bas (reveal masqué), eyebrow à trait accent, subline,
+CTAs, cue « SCROLL TO EXPLORE ». Ajouté à `OVERLAY_HEROES` → nav transparente
+immersive (comme image 1). Brand-adaptive prouvé : chaud (resto) / bleu froid
+(saas), monogramme = initiale marque. Preuve : captures resto(shot=all, exact cas
+image 2) + saas(img=0) + mobile = full-bleed immersif, hero image-free confirmé,
+overflow-x=0, 0 console, 559 tests, tsc 0, build 0. LOCAL (feature). **Suivant #3**
+: casser le texte-gauche/image-droite RÉPÉTÉ inter-sections (heros split avec
+photo + about/services) ; puis #4 storytelling resto. **Promotion `main`** : SUR DEMANDE.
+
 **SCREENSHOT DETECTION / PREMIUM IMAGE REJECTION (2026-07-19) — CD priorité validée.**
 Défaut le plus visible sur Mamie Fada : une image type CAPTURE de page (« La carte »)
 menait un slot premium → casse l'illusion agence. Aucun traitement artistique ne

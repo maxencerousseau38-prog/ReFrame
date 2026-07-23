@@ -1,5 +1,10 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-19 — HeroCanvas immersif : image-free hero = image 1 (CD #3 pt.1)
+- Retour CD : hero doivent ressembler à l'immersif full-bleed (image 1) pas au split panneau-vide (image 2 = HeroCanvas). Le rejet screenshots rend HeroCanvas plus fréquent → sa qualité devient critique.
+- Refonte HeroCanvas : SPLIT → FULL-BLEED immersif dark sur --brand-contrast (wash accent directionnel, orbs aurora, grille masquée, monogramme colossal architectural, grain film, puits texte bas ; titre serif monumental reveal-masqué ancré bas, eyebrow trait accent, subline, CTAs, SCROLL cue). Ajouté à OVERLAY_HEROES (nav transparente). Brand-adaptive (chaud resto / bleu saas).
+- VÉRIF : captures resto(shot=all=cas image 2)+saas(img=0)+mobile full-bleed immersif, hero image-free confirmé, overflow 0, 0 console, 559 tests inchangés, tsc 0, build 0. LOCAL. Suivant #3 : casser texte-gauche/image-droite répété inter-sections.
+
 ## 2026-07-19 — Screenshot detection / premium image rejection (CD, Mamie Fada)
 - Défaut le plus visible : une capture de page (« La carte ») menait un slot premium → aucun traitement artistique ne corrige, fix à la source.
 - looksLikeScreenshot (secteur-agnostique) : STRONG url/alt (screenshot/webpage/sitemap/mockup/wireframe/scan/fullpage) + contexte DOM (browser/mockup/device-frame) + document-capture (menu/carte/flyer/poster/brochure/pricing/plan/catalogue EN png/gif ; photos jpg/webp passent). ScrapedImage.screenshot posé à l'extraction.

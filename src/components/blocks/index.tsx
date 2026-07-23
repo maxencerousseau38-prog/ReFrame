@@ -3496,140 +3496,90 @@ function HeroArchform({ props }: { props: any }) {
   );
 }
 
+/**
+ * HeroCanvas — the image-free hero, reimagined as a FULL-BLEED immersive brand
+ * moment (never a split with an empty panel). Used when the source has no usable
+ * photograph — including now that page/menu CAPTURES are barred from the hero — so
+ * its floor has to be dramatic, not a placeholder. The whole viewport is an
+ * atmospheric brand canvas on the dark --brand-contrast ground: a directional
+ * accent wash, drifting aurora orbs, a masked structural grid, a colossal
+ * architectural monogram and a whisper of film grain, with the monumental title
+ * anchored at the base. Reads like an art-directed hero, image or not.
+ */
 function HeroCanvas({ props }: { props: any }) {
   const reduce = useReducedMotion();
-  const monogram = (props.brand || props.title || "•").trim().charAt(0).toUpperCase() || "•";
-  const rise = (delay: number) => ({
-    initial: reduce ? false : { opacity: 0, y: 16 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.6, ease: EASE, delay },
-  });
-  const drift = (dx: number, dy: number) =>
-    reduce ? {} : { animate: { x: [0, dx, 0], y: [0, dy, 0] }, transition: { duration: 14, ease: "easeInOut" as const, repeat: Infinity } };
-
+  const brand = (props.brand || "") as string;
+  const monogram = (brand || props.title || "•").trim().charAt(0).toUpperCase() || "•";
+  const drift = (dx: number, dy: number, d: number) =>
+    reduce ? {} : { animate: { x: [0, dx, 0], y: [0, dy, 0] }, transition: { duration: d, ease: "easeInOut" as const, repeat: Infinity } };
   return (
     <section
-      className="relative overflow-hidden px-6 pb-[var(--rf-scene-pb,6rem)] pt-[var(--rf-scene-pt,8rem)] sm:pb-[var(--rf-scene-pb,7rem)]"
-      style={{ background: "var(--brand-surface)", color: "var(--brand-ink)" }}
+      className="relative flex flex-col overflow-hidden px-6 text-white"
+      style={{ ...rfHeroMinH("92vh"), ...rfHeroPadY("1.75rem", "2.5rem"), background: "var(--brand-contrast)", color: "var(--brand-contrast-ink)" }}
     >
-      {/* overhead accent light + masked grid, for depth */}
-      <div
-        className="pointer-events-none absolute inset-x-0 -top-40 z-0 h-[520px]"
-        style={{ background: "radial-gradient(50% 50% at 50% 0%, color-mix(in srgb, var(--brand-accent) 16%, transparent), transparent 70%)" }}
-      />
-      <div
-        className="pointer-events-none absolute inset-0 z-0 [mask-image:radial-gradient(70%_55%_at_50%_0%,#000,transparent)]"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, color-mix(in srgb, var(--brand-ink) 5%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in srgb, var(--brand-ink) 5%, transparent) 1px, transparent 1px)",
-          backgroundSize: "64px 64px",
-        }}
-      />
+      {/* directional accent wash */}
+      <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(130% 100% at 72% 6%, color-mix(in srgb, var(--brand-accent) 34%, var(--brand-contrast)), var(--brand-contrast) 60%)" }} />
+      {/* drifting aurora orbs — depth */}
+      <motion.div aria-hidden {...drift(30, -22, 16)} className="pointer-events-none absolute -right-24 -top-28 h-[40rem] w-[40rem] rounded-full blur-[130px]" style={{ background: "radial-gradient(circle, color-mix(in srgb, var(--brand-accent) 55%, transparent), transparent 70%)" }} />
+      <motion.div aria-hidden {...drift(-26, 20, 21)} className="pointer-events-none absolute -bottom-32 -left-24 h-[34rem] w-[34rem] rounded-full blur-[130px]" style={{ background: "radial-gradient(circle, color-mix(in srgb, var(--brand) 42%, transparent), transparent 72%)" }} />
+      {/* masked structural grid */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 [mask-image:radial-gradient(85%_75%_at_60%_8%,#000,transparent)]" style={{ backgroundImage: "linear-gradient(to right, color-mix(in srgb, var(--brand-contrast-ink) 6%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in srgb, var(--brand-contrast-ink) 6%, transparent) 1px, transparent 1px)", backgroundSize: "62px 62px" }} />
+      {/* colossal architectural monogram, bleeding off the right edge */}
+      <span aria-hidden className="pointer-events-none absolute -bottom-[0.14em] right-[-0.02em] select-none font-semibold leading-none [font-size:clamp(16rem,42vw,40rem)]" style={{ fontFamily: "var(--brand-font)", color: "var(--brand-contrast-ink)", opacity: 0.05 }}>{monogram}</span>
+      {/* film grain */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-overlay" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")", backgroundSize: "140px" }} />
+      {/* base text well */}
+      <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 44%, color-mix(in srgb, var(--brand-contrast) 72%, transparent))" }} />
 
-      <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
-        {/* Left: message + CTAs */}
-        <div>
-          {props.eyebrow && (
-            <motion.span
-              {...rise(0)}
-              className="inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium"
-              style={{
-                borderColor: "color-mix(in srgb, var(--brand-ink) 12%, transparent)",
-                color: "color-mix(in srgb, var(--brand-ink) 65%, transparent)",
-              }}
-            >
-              {props.eyebrow}
-            </motion.span>
-          )}
+      {/* top meta row — hidden under the immersive overlay nav (nav carries brand) */}
+      {!props._overlayNav && (
+        <div className="relative mx-auto flex w-full max-w-6xl items-center justify-between gap-6">
+          {brand && <span className="truncate text-sm font-semibold uppercase tracking-[0.22em]">{brand}</span>}
+          {props.eyebrow && <span className="hidden shrink-0 text-[0.66rem] font-medium uppercase tracking-[0.28em] text-white/70 sm:block">{props.eyebrow}</span>}
+        </div>
+      )}
+
+      {/* bottom-anchored monumental title */}
+      <div className="relative mx-auto mt-auto w-full max-w-6xl">
+        {props.eyebrow && (
+          <motion.span
+            initial={reduce ? false : { opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: EASE }}
+            className="inline-flex items-center gap-3 text-[0.7rem] font-medium uppercase tracking-[0.28em] text-white/80"
+          >
+            <span className="h-px w-9" style={{ background: "var(--brand-accent)" }} />
+            {props.eyebrow}
+          </motion.span>
+        )}
+        <div className="overflow-hidden pb-[0.08em]">
           <motion.h1
-            {...rise(0.05)}
-            className="mt-6 rf-fluid-display [text-wrap:balance]"
-            style={{ color: "var(--brand)", fontFamily: "var(--brand-font)" }}
+            initial={reduce ? { y: 0 } : { y: "110%" }}
+            animate={{ y: "0%" }}
+            transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
+            className="mt-5 max-w-[15ch] text-[clamp(2.9rem,8vw,7rem)] font-medium leading-[0.98] tracking-[-0.03em] [text-wrap:balance]"
+            style={{ fontFamily: "var(--brand-font)" }}
           >
             {props.title}
           </motion.h1>
-          {props.subtitle && (
-            <motion.p
-              {...rise(0.12)}
-              className="mt-5 max-w-md text-lg leading-relaxed"
-              style={{ color: "var(--brand-ink)", opacity: 0.66 }}
-            >
-              {props.subtitle}
-            </motion.p>
-          )}
-          <motion.div {...rise(0.2)} className="mt-9 flex flex-wrap items-center gap-4">
-            <a
-              {...ctaAttrs(props.primaryHref)}
-              className="group inline-flex items-center gap-1.5 px-7 py-3.5 text-sm font-medium text-white transition-transform active:scale-[0.98]"
-              style={{
-                background: "var(--brand-accent)",
-                color: "var(--brand-accent-ink)",
-                borderRadius: "var(--brand-radius)",
-                boxShadow: "0 14px 36px -12px color-mix(in srgb, var(--brand-accent) 70%, transparent)",
-              }}
-            >
+        </div>
+        <div className="mt-8 flex flex-col gap-6 border-t pt-6 sm:flex-row sm:items-end sm:justify-between" style={{ borderColor: "rgba(255,255,255,0.18)" }}>
+          {props.subtitle && <p className="max-w-md text-[15px] leading-relaxed text-white/80">{props.subtitle}</p>}
+          <div className="flex flex-wrap items-center gap-3">
+            <a {...ctaAttrs(props.primaryHref)} className="group inline-flex items-center gap-1.5 px-6 py-3 text-sm font-medium transition-transform active:scale-[0.98]" style={{ background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)" }}>
               {props.primaryCta || "Get started"}
               <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </a>
             {props.secondaryCta && (
-              <a
-                {...ctaAttrs(props.secondaryHref)}
-                className="text-sm font-medium underline-offset-4 transition-opacity hover:opacity-70"
-                style={{ color: "var(--brand)" }}
-              >
+              <a {...ctaAttrs(props.secondaryHref)} className="inline-flex items-center border px-6 py-3 text-sm font-medium text-white" style={{ borderColor: "rgba(255,255,255,0.5)", borderRadius: "var(--brand-radius)" }}>
                 {props.secondaryCta}
               </a>
             )}
-          </motion.div>
-        </div>
-
-        {/* Right: the brand canvas (stands in for a hero image) */}
-        <motion.div
-          initial={reduce ? false : { opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="relative aspect-[5/4] w-full overflow-hidden border lg:aspect-[4/5]"
-          style={{
-            borderRadius: "calc(var(--brand-radius) * 1.6)",
-            borderColor: "color-mix(in srgb, var(--brand-ink) 10%, transparent)",
-            background: "linear-gradient(140deg, color-mix(in srgb, var(--brand-accent) 22%, var(--brand-surface)), var(--brand-surface-2))",
-            boxShadow: "0 40px 90px -50px color-mix(in srgb, var(--brand-ink) 60%, transparent)",
-          }}
-        >
-          {/* drifting accent orbs */}
-          <motion.div
-            {...drift(24, -18)}
-            className="pointer-events-none absolute -left-10 -top-10 h-56 w-56 rounded-full blur-3xl"
-            style={{ background: "radial-gradient(circle, color-mix(in srgb, var(--brand-accent) 60%, transparent), transparent 70%)" }}
-          />
-          <motion.div
-            {...drift(-20, 16)}
-            className="pointer-events-none absolute -bottom-12 -right-8 h-52 w-52 rounded-full blur-3xl"
-            style={{ background: "radial-gradient(circle, color-mix(in srgb, var(--brand) 45%, transparent), transparent 70%)" }}
-          />
-          {/* fine grid inside the panel */}
-          <div
-            className="pointer-events-none absolute inset-0 opacity-50"
-            style={{
-              backgroundImage:
-                "linear-gradient(to right, color-mix(in srgb, var(--brand-ink) 6%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in srgb, var(--brand-ink) 6%, transparent) 1px, transparent 1px)",
-              backgroundSize: "40px 40px",
-            }}
-          />
-          {/* giant brand monogram, bleeding off the corner */}
-          <span
-            aria-hidden
-            className="pointer-events-none absolute -bottom-[0.2em] right-[0.04em] select-none font-semibold leading-none [font-size:clamp(11rem,26vw,20rem)]"
-            style={{ fontFamily: "var(--brand-font)", color: "var(--brand)", opacity: 0.1 }}
-          >
-            {monogram}
-          </span>
-          {/* hairline frame + brand label */}
-          <div className="absolute left-5 top-5 flex items-center gap-2 text-[12px] font-medium" style={{ color: "color-mix(in srgb, var(--brand-ink) 60%, transparent)" }}>
-            <span className="h-2.5 w-2.5 rounded-full" style={{ background: "var(--brand-accent)" }} />
-            {props.brand || props.caption || ""}
+            <span className="hidden items-center gap-3 text-[0.6rem] uppercase tracking-[0.28em] text-white/60 lg:inline-flex">
+              <span aria-hidden className="h-px w-10 bg-white/50" /> Scroll to explore
+            </span>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );
@@ -5145,7 +5095,7 @@ function BrandLogo({ logo, name, dark }: { logo?: string; name: string; dark?: b
 
 /** Heroes that render as a dark full-bleed image: they get the immersive overlay
  *  nav (transparent → solid on scroll) and hide their own top brand row. */
-const OVERLAY_HEROES = new Set(["HeroArchform", "HeroImageFull", "HeroMonumental"]);
+const OVERLAY_HEROES = new Set(["HeroArchform", "HeroImageFull", "HeroMonumental", "HeroCanvas"]);
 
 function SiteNav({ brand, items, cta, logoUrl, dark, overlay }: { brand: NavItem; items: NavItem[]; cta: NavItem; logoUrl?: string; dark?: boolean; overlay?: boolean }) {
   // Immersive pattern (Archform-grade): over a dark full-bleed hero the nav floats
