@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-19 — Screenshot detection / premium image rejection (CD, Mamie Fada)
+- Défaut le plus visible : une capture de page (« La carte ») menait un slot premium → aucun traitement artistique ne corrige, fix à la source.
+- looksLikeScreenshot (secteur-agnostique) : STRONG url/alt (screenshot/webpage/sitemap/mockup/wireframe/scan/fullpage) + contexte DOM (browser/mockup/device-frame) + document-capture (menu/carte/flyer/poster/brochure/pricing/plan/catalogue EN png/gif ; photos jpg/webp passent). ScrapedImage.screenshot posé à l'extraction.
+- heroImageUrl = 1re vraie photo (sinon undefined → HeroCanvas). scoreImage : capture -1000 premium (hero/about/CTA immersif barré), -4 galerie. pickBest laisse VIDE sous PREMIUM_IMAGE_FLOOR. nextRest sert vraies photos d'abord. Exception produit : dashboard SaaS pas flaggé (mène le hero). Ordre : vraie photo > galerie > no-image > jamais capture.
+- VÉRIF : screenshot-rejection.test.ts (5), Playwright rendu réel zpreview ?shot=1 (capture barrée du hero) / ?shot=all (HeroCanvas image-free propre) / contrôle (vraie photo), overflow 0, 0 console, capture shot-all. 559 tests (554→559), tsc 0, build 0. LOCAL (feature).
+
 ## 2026-07-19 — Direction artistique du hero : traitement cinématique partagé (CD #1)
 - Critique CD utilisateur (Mamie Fada) : placement sémantique = bonne fondation mais pas premium ; hero sans impact émotionnel, scrim plat noir = rendu stock/capture. Attaque priorité #1 au niveau système.
 - CinematicScrim (partagé) : 4 couches teintées --brand-contrast (jamais noir pur) — grade soft-light (unifie vers l'identité), scrim directionnel (puits lisibilité bas), vignette focale radiale (profondeur+contraste+focal point), grain film SVG feTurbulence (0.05, static → reduced-motion safe). Remplace les 3 scrims plats de HeroImageFull/Archform/Monumental (focal par hero).

@@ -213,6 +213,12 @@ export interface ScrapedImage {
   w?: number;
   h?: number;
   kind: ImageKind;
+  /** True when the image reads as a page/document CAPTURE (a menu scan, a website
+   *  screenshot, a mockup frame) rather than a photograph — from URL/alt/context.
+   *  Such images are barred from the premium slots (hero, about, immersive CTA):
+   *  a treated screenshot breaks the "premium agency" illusion, so a real photo,
+   *  then a gallery slot, then NO image is always preferred over one. */
+  screenshot?: boolean;
 }
 
 export interface SiteAnalysis {

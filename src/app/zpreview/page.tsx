@@ -112,19 +112,23 @@ const SECTOR_SIGNATURE_ALT: Partial<Record<Industry, string>> = {
   automotive: "a detailed sports car in the workshop",
   ecommerce: "the product collection lookbook",
 };
-function buildImagesRich(industry: Industry, images: string[]): ScrapedImage[] {
+// shotMode: QA injection of page/document CAPTURES — "one" flags the signature
+// slot as a screenshot (must be barred from the hero), "all" flags everything
+// (hero must go image-free).
+function buildImagesRich(industry: Industry, images: string[], shotMode: "none" | "one" | "all" = "none"): ScrapedImage[] {
   const sig = SECTOR_SIGNATURE_ALT[industry];
   return images.map((url, i) => {
-    // index 0 = a plain content/detail frame; index 2 = the tagged signature
-    // (kind social + strong sector alt) → semantics must pick it for the hero.
+    const shot = shotMode === "all" || (shotMode === "one" && i === 2);
+    if (shot) return { url, alt: "screenshot of the website / la carte", kind: "content", screenshot: true, w: 1200, h: 1500 };
     if (i === 2 && sig) return { url, alt: sig, kind: "social", w: 1600, h: 1000 };
     if (i === 0) return { url, alt: "a quiet interior detail", kind: "content", w: 1600, h: 1000 };
     return { url, alt: undefined, kind: "gallery", w: 1400, h: 1000 };
   });
 }
-function buildAnalysis(industry: Industry, withImages: boolean, brandName = "Northlight", withRich = true): SiteAnalysis {
+function buildAnalysis(industry: Industry, withImages: boolean, brandName = "Northlight", withRich = true, shotMode: "none" | "one" | "all" = "none"): SiteAnalysis {
   const p = INDUSTRY_PROFILES[industry];
   const images = withImages ? INDUSTRY_IMAGES[industry] ?? GENERIC_IMAGES : [];
+  const richForHero = withImages && withRich ? buildImagesRich(industry, images, shotMode) : [];
   return {
     url: `https://demo-${industry}.com`,
     brandName,
@@ -140,9 +144,11 @@ function buildAnalysis(industry: Industry, withImages: boolean, brandName = "Nor
       headline: p.defaults.headline,
       description: p.defaults.description,
       services: p.defaults.services,
-      heroImageUrl: images[0],
+      // Mirror extraction: the hero opens on the first real PHOTOGRAPH (or none
+      // → HeroCanvas) when rich metadata is present.
+      heroImageUrl: withImages && withRich ? richForHero.find((i) => !i.screenshot)?.url : images[0],
       images,
-      ...(withImages && withRich ? { imagesRich: buildImagesRich(industry, images) } : {}),
+      ...(withImages && withRich ? { imagesRich: richForHero } : {}),
       faqItems: [
         { question: "How quickly can you start?", answer: "Most projects begin within a few days of your first message — just reach out." },
         { question: "How is a project priced?", answer: "Every project is quoted transparently up front, with no hidden fees and no surprises." },
@@ -214,7 +220,10 @@ export default function PreviewPage({ searchParams }: { searchParams: Record<str
   // QA: ?rich=0 disables the extracted image metadata → positional fallback,
   // to A/B the semantic placement against DOM order on a real render.
   const withRich = searchParams.rich !== "0";
-  const analysis = buildAnalysis(industry, withImages, brandName, withRich);
+  // QA: ?shot=1 injects a capture at the signature slot (must be barred from the
+  // hero); ?shot=all makes every image a capture (hero must go image-free).
+  const shotMode = searchParams.shot === "all" ? "all" : searchParams.shot === "1" ? "one" : "none";
+  const analysis = buildAnalysis(industry, withImages, brandName, withRich, shotMode);
   // QA: override the brand accent to audit contrast (e.g. ?accent=ffd400 for yellow).
   if (/^[0-9a-fA-F]{6}$/.test(searchParams.accent || "")) {
     analysis.brand = { ...analysis.brand, accentColor: `#${searchParams.accent}` };

@@ -49,6 +49,29 @@
 
 ## Prochaine action
 
+**SCREENSHOT DETECTION / PREMIUM IMAGE REJECTION (2026-07-19) — CD priorité validée.**
+Défaut le plus visible sur Mamie Fada : une image type CAPTURE de page (« La carte »)
+menait un slot premium → casse l'illusion agence. Aucun traitement artistique ne
+corrige ça — il faut le régler à la SOURCE. Livré (moteur) : (1) `looksLikeScreenshot`
+(signaux cheap, secteur-agnostique) : URL/alt STRONG (screenshot/webpage/sitemap/
+mockup/wireframe/scan/full-page), contexte DOM (browser/mockup/device-frame/iframe),
++ document-capture (menu/carte/flyer/poster/brochure/pricing/plan/catalogue EN
+png/gif — les vraies photos jpg/webp passent). `ScrapedImage.screenshot` posé à
+l'extraction. (2) `heroImageUrl` = 1re vraie PHOTO (sinon undefined → HeroCanvas
+image-free, jamais une capture). (3) `scoreImage` : capture = -1000 pour hero/about/
+CTA immersif (barré dur), -4 en galerie (dépriorisé). `pickBest` laisse le slot VIDE
+sous le plancher (pas de capture). `nextRest` sert les vraies photos d'abord, captures
+en dernier recours. **Exception produit** : un dashboard SaaS (« product dashboard »,
+pas « screenshot ») n'est PAS flaggé → peut mener le hero. Ordre respecté : vraie
+photo > galerie secondaire > hero sans image > (jamais) capture traitée. Preuve :
+`screenshot-rejection.test.ts` (5 : détection URL/alt/ctx ; resto plat mène/carte
+barrée ; tout-captures → HeroCanvas ; capture en galerie seulement en dernier ;
+SaaS dashboard mène), Playwright RENDU RÉEL (`?shot=1` capture barrée du hero,
+`?shot=all` → hero image-free HeroCanvas propre, contrôle = vraie photo ; overflow
+0, 0 console), 559 tests, tsc 0, build 0. LOCAL (feature). **Suivant CD** : #3
+variété layouts (casser texte-gauche/image-droite) puis #4 storytelling resto.
+**Promotion `main`** : SUR DEMANDE.
+
 **DIRECTION ARTISTIQUE DU HERO (2026-07-19) — critique CD utilisateur, priorité #1.**
 Retour utilisateur : le placement sémantique est une bonne fondation MAIS pas
 encore « agence premium » — hero sans impact émotionnel, scrim plat = rendu

@@ -427,7 +427,10 @@ export async function analyzeUrl(rawUrl: string): Promise<SiteAnalysis> {
   const liveUrls = new Set(await validateImages(richAll.map((i) => i.url)));
   const imagesRich = richAll.filter((i) => liveUrls.has(i.url));
   const images = imagesRich.map((i) => i.url);
-  const heroImageUrl = images[0];
+  // The hero opens on a real PHOTOGRAPH, never a page/menu capture. If the source
+  // only yielded screenshots, heroImageUrl is undefined → the hero routes to the
+  // image-free brand canvas (HeroCanvas) rather than leading on a treated capture.
+  const heroImageUrl = imagesRich.find((i) => !i.screenshot)?.url;
 
   // Real products (the client's actual catalogue) - kept and modernized, never
   // dropped. Empty unless the page genuinely exposes products.
@@ -683,6 +686,22 @@ export function extractImages(root: HTMLElement, base: string): string[] {
   return extractImagesRich(root, base).map((i) => i.url);
 }
 
+// Screenshot / document-capture detection (sector-agnostic, from cheap signals).
+// A literal screenshot / webpage grab / mockup frame, or a menu/carte/flyer saved
+// as a PNG/GIF (document captures, not photographs). Photos are ~never PNG, so the
+// format gate keeps real food/place photos (jpg/webp) out of this net.
+const SCREENSHOT_STRONG = /(screenshot|screen[-_ ]?shot|screen[-_ ]?grab|screengrab|web[-_ ]?page\b|webpage|\bsitemap\b|\bmock[-_ ]?up\b|wireframe|\bscanned?\b|full[-_ ]?page)/i;
+const SCREENSHOT_CTX = /(screenshot|mock[-_ ]?up|browser|device[-_ ]?frame|iframe|preview[-_ ]?frame|window[-_ ]?frame)/i;
+const DOC_IMAGE = /(\bmenu\b|\bcarte\b|\bflyer\b|\bposter\b|\baffiche\b|\bbrochure\b|\bpricing\b|price[-_ ]?list|\btarifs?\b|\bplan\b|\bcatalogue?\b|\bpdf\b)/i;
+
+function looksLikeScreenshot(url: string, alt: string, ctxClass: string): boolean {
+  const text = `${alt} ${url}`.toLowerCase();
+  if (SCREENSHOT_STRONG.test(text)) return true;
+  if (SCREENSHOT_CTX.test(ctxClass)) return true;
+  if (DOC_IMAGE.test(text) && /\.(png|gif)(\?|$)/i.test(url)) return true;
+  return false;
+}
+
 /** Infer the role the SOURCE markup gave an <img>, from its ancestor classes /
  *  tag chain and declared aspect — the cheap signal that drives placement. */
 function inferImageKind(ctxClass: string, tagChain: string, w?: number, h?: number): ImageKind {
@@ -706,7 +725,7 @@ export function extractImagesRich(root: HTMLElement, base: string): ScrapedImage
   // Social-card images first: usually the single best, hand-picked hero shot.
   for (const sel of ['meta[property="og:image"]', 'meta[name="twitter:image"]', 'meta[property="og:image:url"]']) {
     const c = root.querySelector(sel)?.getAttribute("content");
-    if (c) candidates.push({ url: c, kind: "social" });
+    if (c) candidates.push({ url: c, kind: "social", screenshot: looksLikeScreenshot(c, "", "") });
   }
 
   for (const el of root.querySelectorAll("img")) {
@@ -728,18 +747,20 @@ export function extractImagesRich(root: HTMLElement, base: string): ScrapedImage
     const gp = p?.parentNode as HTMLElement | null;
     const ctxClass = [el, p, gp].map((n) => (n && "getAttribute" in n ? n.getAttribute("class") : "") || "").join(" ").toLowerCase();
     const tagChain = [p?.tagName, gp?.tagName].filter(Boolean).join(" ").toLowerCase();
+    const alt = clean(el.getAttribute("alt") || "");
     candidates.push({
       url: src,
-      alt: clean(el.getAttribute("alt") || "") || undefined,
+      alt: alt || undefined,
       w, h,
       kind: inferImageKind(ctxClass, tagChain, w, h),
+      screenshot: looksLikeScreenshot(src, alt, ctxClass),
     });
   }
 
   // Background-image heroes (inline styles + <style> blocks).
   const styleText = root.querySelectorAll("style").map((s) => s.text).join(" ");
   const inline = root.querySelectorAll("[style]").map((e) => e.getAttribute("style") || "").join(" ");
-  for (const u of backgroundImageUrls(`${styleText} ${inline}`)) candidates.push({ url: u, kind: "background" });
+  for (const u of backgroundImageUrls(`${styleText} ${inline}`)) candidates.push({ url: u, kind: "background", screenshot: looksLikeScreenshot(u, "", "") });
 
   const seen = new Set<string>();
   const out: ScrapedImage[] = [];
@@ -2567,8 +2588,16 @@ const VOCAB_GROUP: Record<string, keyof typeof IMAGE_VOCAB> = {
 };
 const ABOUT_WORDS = ["about", "team", "studio", "story", "people", "founder", "staff", "portrait", "interior", "workshop", "atelier", "équipe", "equipe", "histoire", "notre", "chef", "owner"];
 
+/** Below this, pickBest treats the field as "no acceptable image" and leaves it
+ *  empty — so a premium slot renders image-free rather than on a screenshot. */
+const PREMIUM_IMAGE_FLOOR = -50;
+
 /** How well an image serves an intent, for a sector. Higher = better fit. */
 function scoreImage(img: ScrapedImage, intent: ImageIntent, industry: Industry): number {
+  // A page/menu/document capture is barred from the premium slots (hero, about,
+  // immersive CTA): a treated screenshot breaks the premium illusion, so we would
+  // rather leave the slot image-free. Galleries may still use it, deprioritised.
+  if (img.screenshot) return intent === "generic" ? -4 : -1000;
   let s = KIND_FIT[intent][img.kind] ?? 0;
   const alt = (img.alt || "").toLowerCase();
   const url = img.url.toLowerCase();
@@ -2670,11 +2699,15 @@ export function qualityPass(
         const sc = scoreImage(im, intent, industry);
         if (sc > bestScore) { bestScore = sc; best = im.url; }
       }
-      if (best) used.add(best);
+      // Only screenshots left for a premium slot → leave it EMPTY (no capture).
+      if (!best || bestScore < PREMIUM_IMAGE_FLOOR) return undefined;
+      used.add(best);
       return best;
     };
-    // Next unused image in DOM order (diverse spread for galleries / low-value slots).
+    // Next unused image for galleries / low-value slots: real photos first (DOM
+    // order), screenshots only as a last resort (and dropped past the cap).
     const nextRest = (): string | undefined => {
+      for (const im of rich) if (!used.has(im.url) && !im.screenshot) { used.add(im.url); return im.url; }
       for (const im of rich) if (!used.has(im.url)) { used.add(im.url); return im.url; }
       return undefined;
     };
