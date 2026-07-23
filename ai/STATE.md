@@ -49,6 +49,26 @@
 
 ## Prochaine action
 
+**NAV MOBILE HAMBURGER livrée (2026-07-19) — tête du backlog audit, niveau SYSTÈME.**
+Défaut : sous md, les liens de nav disparaissaient (marque+CTA only) sur TOUS les
+sites générés. Fix dans le composant PARTAGÉ `SiteNav` (SiteRenderer → tous les
+sites, modes solid + overlay) : bouton hamburger (cible 44px, `List`), panneau
+plein écran aux TOKENS DU SITE (--brand-surface/ink/font/accent → chaque design
+system garde sa voix), liens serif à hairlines en grand corps, pill CTA accent en
+pied. **WCAG** : aria-expanded/controls, dialog aria-modal, Escape ferme, focus
+entre au panneau (bouton Close) et REVIENT au déclencheur, scroll body verrouillé,
+reduced-motion instantané. Motion légère : fade 0.22s EASE + stagger 45ms.
+**Bug réel trouvé/corrigé pendant la validation** : le `backdrop-blur` du header
+(filter) en fait le containing block des descendants `fixed` → panneau rogné à
+~64px, liens flottant sans fond. Fix : PORTAL du panneau vers le wrapper
+`[data-rf]` (échappe au containing block, GARDE les vars scopées — document.body
+les perdrait). Preuve Playwright mobile OBLIGATOIRE : 29 checks verts ×2 sites
+(restaurant overlay + saas clair) + tablette 768 (liens visibles, burger caché) —
+ouverture, 4/4 liens visibles, navigation réelle vers Contact, Escape+focus,
+overflow-x=0, 0 erreur console, captures. tsc 0, 546 tests, build exit 0. LOCAL.
+**Backlog suivant** : SEO par page > image↔section > stats/faq variety > OWASP/CWV.
+**Promotion `main`** : SUR DEMANDE (protocole anti-divergence).
+
 **AUDIT PREMIUM (2026-07-19) + monopole du CONTACT tué (dernier « même structure pour tous »).**
 Programme 8 phases lancé (directive utilisateur, skill router .agents/skills/INDEX.md
 — charger UNIQUEMENT les skills utiles). Audit Phases 1-2 livré :

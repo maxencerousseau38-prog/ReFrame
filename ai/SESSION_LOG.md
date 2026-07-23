@@ -1,5 +1,10 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-19 — Nav mobile hamburger : niveau système, WCAG, bug containing-block tué
+- Tête du backlog audit. Fix dans SiteNav (composant partagé → TOUS les sites, solid+overlay) : hamburger 44px, panneau plein écran aux tokens du site, liens serif hairlines, pill CTA. WCAG : aria-expanded/controls, dialog aria-modal, Escape, focus in/out, scroll lock, reduced-motion instantané. Motion 0.22s EASE + stagger 45ms.
+- Bug réel détecté à la CAPTURE (pas au test DOM) : panneau transparent → diagnostic = backdrop-blur du header (filter) = containing block des fixed → inset-0 rogné au header. Fix : portal vers le wrapper [data-rf] (viewport + vars scopées conservées). Leçon : toujours VOIR la capture, un test DOM peut passer sur un rendu cassé.
+- VÉRIF : 29 checks Playwright mobile ×2 sites + tablette (liens/burger inversés à 768), navigation réelle, 0 console, overflow 0 ; tsc 0, 546 tests, build 0. LOCAL (feature).
+
 ## 2026-07-19 — Audit Premium (Phases 1-2) + contact : dernier monopole tué
 - Directive 8 phases + skill router `.agents/skills/INDEX.md` (issu de la poussée externe — l'incident prend sens). Skills Phase 1 chargés seuls. Audit livré : docs/AUDIT_PREMIUM_2026-07-19.md — 33 routes API, SSRF gardé (/api/img), rateLimit ×21, auth getCurrentUser ×15, 0 slop IA (3 points/glass/gradients) dans les blocs générés, backlog priorisé (nav mobile > SEO/page > image↔section > stats/faq variety > OWASP/CWV).
 - Exécution Phase 3 : ContactFormPremium1 était CODÉ EN DUR (engine:2121) → chaque site finissait sur le même formulaire. Fix : `pickVariantFrom(allowed)` (nouveau seam catalog, scoring partagé via best()) contraint aux variantes À FORMULAIRE (invariant leads) + `ContactAtelier` (fusion Archform Contact + 21st ; #2575 rejeté glassmorphism) : bande sombre brand-contrast, canaux réels CALL/WRITE/VISIT/BOOK en dl hairline, formulaire carte claire élevée, même /api/contact.

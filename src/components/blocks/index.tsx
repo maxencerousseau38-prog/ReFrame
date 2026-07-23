@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import * as ReactDOM from "react-dom";
 import { motion, AnimatePresence, useReducedMotion, useInView, MotionConfig } from "framer-motion";
 import {
   Sparkle,
@@ -17,6 +18,8 @@ import {
   CalendarCheck,
   CheckCircle,
   CircleNotch,
+  List,
+  X,
   type Icon as PhosphorIcon,
 } from "@phosphor-icons/react";
 import type { Block, BlockType, SiteSchema, Theme } from "@/lib/generation/types";
@@ -5124,6 +5127,39 @@ function SiteNav({ brand, items, cta, logoUrl, dark, overlay }: { brand: NavItem
   }, [overlay]);
   const onDark = !!overlay && !solid; // transparent-over-hero styling
 
+  // Mobile menu (below md the link row is hidden — without this, nav links were
+  // simply unreachable on phones). Accessible by construction: aria-expanded /
+  // aria-controls on the trigger, dialog semantics on the panel, Escape closes,
+  // focus moves into the panel on open and back to the trigger on close, body
+  // scroll locks while open, and reduced motion renders it instantly.
+  const [open, setOpen] = React.useState(false);
+  const reduce = useReducedMotion();
+  const burgerRef = React.useRef<HTMLButtonElement>(null);
+  const closeRef = React.useRef<HTMLButtonElement>(null);
+  // The panel must escape the header: its backdrop-blur (a filter) makes the
+  // header the containing block for fixed descendants, clipping a fixed panel
+  // to ~64px. Portaling to the .rf-site wrapper keeps viewport positioning AND
+  // the site's scoped --brand-* variables (document.body would lose them).
+  const headerRef = React.useRef<HTMLElement>(null);
+  const [portalEl, setPortalEl] = React.useState<Element | null>(null);
+  React.useEffect(() => {
+    setPortalEl(headerRef.current?.closest("[data-rf]") ?? document.body);
+  }, []);
+  React.useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeRef.current?.focus();
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+      burgerRef.current?.focus();
+    };
+  }, [open]);
+  const closeAnd = (fn?: () => void) => () => { setOpen(false); fn?.(); };
+
   const link = (it: NavItem, key: React.Key) => {
     const cls = cn("transition-opacity hover:opacity-100", onDark ? "text-[0.78rem] uppercase tracking-[0.16em]" : "text-sm hover:opacity-70");
     const style = { color: onDark ? "#fff" : "var(--brand-ink)", opacity: it.active ? 1 : onDark ? 0.82 : 0.72 } as React.CSSProperties;
@@ -5149,6 +5185,7 @@ function SiteNav({ brand, items, cta, logoUrl, dark, overlay }: { brand: NavItem
 
   return (
     <header
+      ref={headerRef}
       className={cn("z-40 transition-colors duration-300", overlay ? "fixed inset-x-0 top-0" : "sticky top-0", !onDark && "backdrop-blur-md")}
       style={{
         background: onDark ? "transparent" : "color-mix(in srgb, var(--brand-surface) 82%, transparent)",
@@ -5168,12 +5205,102 @@ function SiteNav({ brand, items, cta, logoUrl, dark, overlay }: { brand: NavItem
           </button>
         )}
         <nav className="hidden items-center gap-7 md:flex">{items.map(link)}</nav>
-        {cta.href ? (
-          <a href={cta.href} className={ctaCls} style={ctaStyle}>{ctaInner}</a>
-        ) : (
-          <button type="button" onClick={cta.onClick} className={ctaCls} style={ctaStyle}>{ctaInner}</button>
-        )}
+        <div className="flex items-center gap-2">
+          {cta.href ? (
+            <a href={cta.href} className={ctaCls} style={ctaStyle}>{ctaInner}</a>
+          ) : (
+            <button type="button" onClick={cta.onClick} className={ctaCls} style={ctaStyle}>{ctaInner}</button>
+          )}
+          {/* Hamburger — only below md, 44px touch target (DESIGN.md floor). */}
+          {items.length > 0 && (
+            <button
+              ref={burgerRef}
+              type="button"
+              onClick={() => setOpen(true)}
+              aria-label="Open menu"
+              aria-expanded={open}
+              aria-controls="rf-mobile-nav"
+              className="flex h-11 w-11 items-center justify-center md:hidden"
+              style={{ color: onDark ? "#fff" : "var(--brand-ink)" }}
+            >
+              <List weight="bold" className="h-6 w-6" aria-hidden />
+            </button>
+          )}
+        </div>
       </div>
+
+      {/* Full-screen mobile menu — painted with the SITE's own tokens (surface,
+          ink, brand font, accent), so every generated design system keeps its
+          voice. Light entrance: fade + small rise, links staggered; instant
+          under prefers-reduced-motion. Portaled out of the header (see above). */}
+      {portalEl && ReactDOM.createPortal(<AnimatePresence>
+        {open && (
+          <motion.div
+            id="rf-mobile-nav"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu"
+            initial={reduce ? { opacity: 1 } : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, transition: { duration: 0.18 } }}
+            transition={{ duration: 0.22, ease: EASE }}
+            className="fixed inset-0 z-50 flex flex-col md:hidden"
+            style={{ background: "var(--brand-surface)", color: "var(--brand-ink)", paddingTop: "env(safe-area-inset-top)" }}
+          >
+            <div className="flex items-center justify-between px-6 py-3.5">
+              <BrandLogo logo={logoUrl} name={brand.label} dark={dark} />
+              <button
+                ref={closeRef}
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Close menu"
+                className="flex h-11 w-11 items-center justify-center"
+                style={{ color: "var(--brand-ink)" }}
+              >
+                <X weight="bold" className="h-6 w-6" aria-hidden />
+              </button>
+            </div>
+            <nav className="flex flex-1 flex-col justify-center gap-1 px-8" aria-label="Site">
+              {items.map((it, i) => {
+                const linkCls = "block border-b py-4 text-3xl font-medium tracking-tight transition-opacity hover:opacity-70";
+                const linkStyle = {
+                  fontFamily: "var(--brand-font)",
+                  color: "var(--brand)",
+                  opacity: it.active ? 1 : 0.85,
+                  borderColor: HAIRLINE,
+                } as React.CSSProperties;
+                const anim = reduce
+                  ? {}
+                  : {
+                      initial: { opacity: 0, y: 14 },
+                      animate: { opacity: 1, y: 0 },
+                      transition: { duration: 0.3, ease: EASE, delay: 0.05 + i * 0.045 },
+                    };
+                return it.href ? (
+                  <motion.a key={it.label} href={it.href} onClick={closeAnd()} className={linkCls} style={linkStyle} {...anim}>
+                    {it.label}
+                  </motion.a>
+                ) : (
+                  <motion.button key={it.label} type="button" onClick={closeAnd(it.onClick)} className={cn(linkCls, "text-left")} style={linkStyle} {...anim}>
+                    {it.label}
+                  </motion.button>
+                );
+              })}
+            </nav>
+            <div className="px-8 pb-[max(2rem,env(safe-area-inset-bottom))]">
+              {cta.href ? (
+                <a href={cta.href} onClick={closeAnd()} className="inline-flex w-full items-center justify-center px-6 py-3.5 text-sm font-medium transition-transform active:scale-[0.98]" style={{ background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)" }}>
+                  {cta.label}
+                </a>
+              ) : (
+                <button type="button" onClick={closeAnd(cta.onClick)} className="inline-flex w-full items-center justify-center px-6 py-3.5 text-sm font-medium transition-transform active:scale-[0.98]" style={{ background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)" }}>
+                  {cta.label}
+                </button>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>, portalEl)}
     </header>
   );
 }
