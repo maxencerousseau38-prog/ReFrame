@@ -65,7 +65,7 @@ import type {
   IntegrationCategory,
 } from "./types";
 import { INDUSTRY_PROFILES, detectIndustry } from "./industries";
-import { pickVariant } from "./catalog";
+import { pickVariant, pickVariantFrom } from "./catalog";
 import { detectStructure, renderableCategory } from "./structure";
 import { planClassic, planPreserve, planSmart, planExplicit, familyOf, FAMILY_RHYTHM, type Slot } from "./planner";
 import { canRender, renderHtml } from "@/lib/server/render";
@@ -2115,10 +2115,14 @@ function buildBlock(
       return {
         id: uid("contact"),
         type: "contact",
-        // Default to the form so every site captures leads (feeds the leads
-        // inbox / value dashboard). The premium no-form variants
-        // (ContactDetailsCard / ContactBanner) stay available via the AI editor.
-        variant: "ContactFormPremium1",
+        // Business invariant: the generated contact section is always FORM-
+        // bearing so every site captures leads (feeds the leads inbox / value
+        // dashboard). Within that constraint the ARCHITECTURE varies per brand
+        // (light two-column form vs the dark editorial enquiry desk) — the last
+        // section no longer reads identically on every ReFrame site. The
+        // no-form variants (ContactDetailsCard / ContactBanner) stay available
+        // via the AI editor.
+        variant: pickVariantFrom(["ContactFormPremium1", "ContactAtelier"], analysis.industry, brand, mood),
         props: {
           title: "Contact us",
           subtitle: "We typically reply within one business day.",

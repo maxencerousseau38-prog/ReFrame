@@ -1315,6 +1315,128 @@ function ContactFormPremium1({ props }: { props: any }) {
   );
 }
 
+/**
+ * ContactAtelier — the dark editorial "enquiry desk". Merges two studied sources,
+ * fully reinterpreted in ReFrame grammar (never copied):
+ *  - Archform Contact.tsx: a full-width dark closing that treats getting in touch
+ *    as an editorial moment (mono-caps eyebrow, serif invite, quiet detail rows).
+ *  - 21st comparison: "Contact 2" (#2199) = the classic light split we already
+ *    have; "Premium Contact" (#2575) REJECTED (glassmorphism/gradient slop).
+ * Architecturally DISTINCT from ContactFormPremium1 (light two-column): a
+ * brand-contrast band, the REAL contact channels as a hairline list, and the
+ * form on an elevated light card so the lead-capture invariant is preserved.
+ * Same /api/contact delivery — the leads inbox keeps working.
+ */
+function ContactAtelier({ props }: { props: any }) {
+  const reduce = useReducedMotion();
+  const contact = (props.contact || {}) as { phone?: string; email?: string; address?: string; bookingUrl?: string };
+  const [form, setForm] = React.useState({ name: "", email: "", message: "" });
+  const [status, setStatus] = React.useState<"idle" | "sending" | "sent" | "error">("idle");
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (status === "sending") return;
+    setStatus("sending");
+    try {
+      const m = typeof window !== "undefined" ? window.location.pathname.match(/^\/s\/([^/]+)/) : null;
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: m ? m[1] : "", host: typeof window !== "undefined" ? window.location.host : "", ...form }),
+      });
+      setStatus(res.ok ? "sent" : "error");
+    } catch {
+      setStatus("error");
+    }
+  }
+  const rows: { label: string; value: string; href?: string }[] = [];
+  if (contact.phone) rows.push({ label: "Call", value: contact.phone, href: `tel:${contact.phone.replace(/\s+/g, "")}` });
+  if (contact.email) rows.push({ label: "Write", value: contact.email, href: `mailto:${contact.email}` });
+  if (contact.address) rows.push({ label: "Visit", value: contact.address, href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contact.address)}` });
+  if (contact.bookingUrl) rows.push({ label: "Book", value: "Reserve online", href: contact.bookingUrl });
+  const field =
+    "border bg-transparent px-4 text-sm outline-none transition-colors placeholder:text-[color:color-mix(in_srgb,var(--brand-ink)_45%,transparent)] focus:border-[color:var(--brand-accent)]";
+  const hair = "color-mix(in srgb, var(--brand-contrast-ink) 16%, transparent)";
+  return (
+    <section id="contact" className="px-6" style={{ background: "var(--brand-contrast)", color: "var(--brand-contrast-ink)", ...rfSectionPad(112) }}>
+      <div className="mx-auto grid items-start gap-12 lg:grid-cols-[1fr_1fr]" style={rfContainer(1152)}>
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6, ease: EASE }}
+        >
+          <span className="inline-flex items-center gap-3 text-[0.7rem] font-medium uppercase tracking-[0.28em]" style={{ color: "var(--brand-accent)" }}>
+            <span className="h-px w-9" style={{ background: "var(--brand-accent)" }} />
+            {props.eyebrow || "Get in touch"}
+          </span>
+          <h2 className="mt-6 text-[clamp(2.2rem,5vw,3.75rem)] font-medium leading-[1.02] tracking-[-0.02em] [text-wrap:balance]" style={{ fontFamily: "var(--brand-font)" }}>
+            {props.title}
+          </h2>
+          {props.subtitle && (
+            <p className="mt-5 max-w-md text-[15px] leading-relaxed" style={{ opacity: 0.7 }}>{props.subtitle}</p>
+          )}
+          {rows.length > 0 && (
+            <dl className="mt-10 border-t" style={{ borderColor: hair }}>
+              {rows.map((r) => (
+                <div key={r.label} className="flex items-baseline gap-6 border-b py-4" style={{ borderColor: hair }}>
+                  <dt className="w-14 shrink-0 text-[0.68rem] font-medium uppercase tracking-[0.22em]" style={{ opacity: 0.5 }}>{r.label}</dt>
+                  <dd className="min-w-0">
+                    {r.href ? (
+                      <a href={r.href} target={r.href.startsWith("http") ? "_blank" : undefined} rel={r.href.startsWith("http") ? "noreferrer" : undefined} className="text-sm transition-opacity hover:opacity-70" style={{ opacity: 0.9 }}>
+                        {r.value}
+                      </a>
+                    ) : (
+                      <span className="text-sm" style={{ opacity: 0.9 }}>{r.value}</span>
+                    )}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          )}
+        </motion.div>
+        {/* The form rides an elevated LIGHT card on the dark ground — the leads
+            invariant kept, the architecture unmistakably different. */}
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.7, ease: EASE, delay: 0.08 }}
+        >
+          {status === "sent" ? (
+            <div className="flex flex-col items-center justify-center gap-3 px-7 py-16 text-center sm:p-10" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)", borderRadius: "calc(var(--brand-radius) * 1.4)", boxShadow: "0 40px 90px -40px rgba(0,0,0,0.5)" }}>
+              <CheckCircle weight="fill" className="h-10 w-10" style={{ color: "var(--brand-accent)" }} />
+              <p className="text-base font-medium" style={{ color: "var(--brand)" }}>Thanks, your message was sent.</p>
+              <p className="text-sm" style={{ opacity: 0.6 }}>We&apos;ll get back to you shortly.</p>
+            </div>
+          ) : (
+            <form
+              onSubmit={submit}
+              className="space-y-4 p-7 sm:p-8"
+              style={{ background: "var(--brand-surface)", color: "var(--brand-ink)", borderRadius: "calc(var(--brand-radius) * 1.4)", boxShadow: "0 40px 90px -40px rgba(0,0,0,0.5)" }}
+            >
+              <div className="grid gap-4 sm:grid-cols-2">
+                <input required placeholder="Name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className={cn("h-12", field)} style={{ borderRadius: "var(--brand-radius)", borderColor: HAIRLINE }} />
+                <input required placeholder="Email" type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} className={cn("h-12", field)} style={{ borderRadius: "var(--brand-radius)", borderColor: HAIRLINE }} />
+              </div>
+              <textarea required placeholder="How can we help?" rows={4} value={form.message} onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))} className={cn("w-full py-3", field)} style={{ borderRadius: "var(--brand-radius)", borderColor: HAIRLINE }} />
+              {status === "error" && <p className="text-sm text-red-600">Something went wrong. Please try again.</p>}
+              <button
+                type="submit"
+                disabled={status === "sending"}
+                className="group inline-flex w-full items-center justify-center gap-1.5 px-6 py-3.5 text-sm font-medium transition-transform active:scale-[0.98] disabled:opacity-70 sm:w-auto"
+                style={{ background: "var(--brand-accent)", color: "var(--brand-accent-ink)", borderRadius: "var(--brand-radius)", boxShadow: "0 12px 34px -10px color-mix(in srgb, var(--brand-accent) 70%, transparent)" }}
+              >
+                {status === "sending" ? <CircleNotch weight="bold" className="h-4 w-4 animate-spin" /> : "Send message"}
+                {status !== "sending" && <ArrowRight weight="bold" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />}
+              </button>
+            </form>
+          )}
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Footer                                                                    */
 /* -------------------------------------------------------------------------- */
@@ -4790,6 +4912,7 @@ const REGISTRY: Record<string, React.ComponentType<{ props: any }>> = {
   CollectionGrid,
   CollectionShowcase,
   ContactFormPremium1,
+  ContactAtelier,
   Footer1,
 };
 

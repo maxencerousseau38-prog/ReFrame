@@ -1,5 +1,11 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-19 — Audit Premium (Phases 1-2) + contact : dernier monopole tué
+- Directive 8 phases + skill router `.agents/skills/INDEX.md` (issu de la poussée externe — l'incident prend sens). Skills Phase 1 chargés seuls. Audit livré : docs/AUDIT_PREMIUM_2026-07-19.md — 33 routes API, SSRF gardé (/api/img), rateLimit ×21, auth getCurrentUser ×15, 0 slop IA (3 points/glass/gradients) dans les blocs générés, backlog priorisé (nav mobile > SEO/page > image↔section > stats/faq variety > OWASP/CWV).
+- Exécution Phase 3 : ContactFormPremium1 était CODÉ EN DUR (engine:2121) → chaque site finissait sur le même formulaire. Fix : `pickVariantFrom(allowed)` (nouveau seam catalog, scoring partagé via best()) contraint aux variantes À FORMULAIRE (invariant leads) + `ContactAtelier` (fusion Archform Contact + 21st ; #2575 rejeté glassmorphism) : bande sombre brand-contrast, canaux réels CALL/WRITE/VISIT/BOOK en dl hairline, formulaire carte claire élevée, même /api/contact.
+- Routing : Premium1 moods étendus à universel ; Atelier [elegant,warm] motion 1 → warm/elegant se partagent par marque (~9/1), minimal/bold restent Premium1 (fit). Piège evité : 2 éléments id="contact" (SceneShell wrapper + section) — détection Playwright corrigée sur section#contact.
+- VÉRIF Phase 8 : contact-variety.test.ts (5), 546 tests (541→546), tsc 0, build 0, Playwright 1440/768/390 overflow-x=0 + 0 erreur console, captures 3 largeurs. LOCAL (feature).
+
 ## 2026-07-19 — INCIDENT : divergence main (push externe base-ui) détectée + réparée
 - À la promotion du lot about/services, push main REJETÉ : 2 commits externes sur main (« Optimize Claude context/system » — ~258k insertions, 1578 fichiers) poussés depuis une autre session. Aucun force ; inspection avant action.
 - Dégâts : 9 fichiers EXISTANTS écrasés (layout.tsx + 8 composants ui V3 → base-ui générique) : tsc rouge (10+ erreurs), chrome V3 détruit (argent/16px/asChild), LocaleProvider i18n supprimé, métadonnées marketing remplacées, deps @radix-ui ×5 + @supabase ×2 + tailwindcss-animate SUPPRIMÉES de package.json. main était donc indéployable seul.

@@ -49,6 +49,22 @@
 
 ## Prochaine action
 
+**AUDIT PREMIUM (2026-07-19) + monopole du CONTACT tué (dernier « même structure pour tous »).**
+Programme 8 phases lancé (directive utilisateur, skill router .agents/skills/INDEX.md
+— charger UNIQUEMENT les skills utiles). Audit Phases 1-2 livré :
+`docs/AUDIT_PREMIUM_2026-07-19.md` (architecture OK, SSRF gardé, rate-limit 21
+routes, 0 slop IA dans les blocs, backlog priorisé : nav mobile hamburger > SEO
+par page > image↔section > stats/faq/gallery variety > OWASP/CWV > ensureSlot
+retail). Exécution : l'engine codait ContactFormPremium1 EN DUR → chaque site
+finissait identique. Fix : helper `pickVariantFrom(allowed[])` (catalog — même
+scoring/jitter, contraint à une allow-list) + `ContactAtelier` (bureau d'enquête
+sombre : bande brand-contrast, canaux réels en dl hairline, formulaire sur carte
+claire élevée, même /api/contact → LEADS INTACTS ; fusion Archform Contact + 21st
+comparé #2575 rejeté slop). Warm/elegant ≈ se partagent par marque ; minimal/bold
+gardent le clair. Vérif Phase 8 : 5 tests, 546 tests, tsc 0, build 0, Playwright
+1440/768/390 overflow=0, 0 erreur console, captures. LOCAL (feature). **Promotion
+`main`** : SUR DEMANDE (rappel : fetch + is-ancestor d'abord, incident du 19/07).
+
 **⚠️ INCIDENT RÉSOLU (2026-07-19) : divergence `main` (push externe base-ui).**
 Une autre session a poussé 2 commits sur main (~258k insertions) écrasant 9
 fichiers du chrome V3 (layout+ui), supprimant LocaleProvider, les deps radix/

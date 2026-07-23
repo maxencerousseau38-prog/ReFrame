@@ -107,7 +107,8 @@ export const BLOCK_CATALOG: BlockMeta[] = [
   { variant: "CTABanner", category: "cta", sectors: "all", moods: ["minimal", "bold", "warm"], motion: 1, license: "ReFrame original", when: "Compact horizontal CTA band (headline left, button right) on a brand-tinted surface." },
   { variant: "CTAGradient", category: "cta", sectors: ["saas", "agency", "ecommerce", "generic"], moods: ["bold", "minimal"], motion: 1, license: "ReFrame original (Stripe/Vercel-inspired)", when: "Full-bleed accent-gradient closing panel with an ambient glow and a colossal headline." },
   { variant: "CTAImmersive", category: "cta", sectors: ["restaurant", "hotel", "realestate", "architect", "fashion", "automotive", "construction"], prefer: ["restaurant", "hotel", "realestate", "architect"], moods: ["warm", "elegant", "bold"], motion: 2, license: "ReFrame original (mined: architectural-studio full-bleed closing + premium CTA skeleton, tokenised)", when: "Monumental closing: full-bleed brand photo (or the brand's dark contrast surface) + colossal serif statement + a baseline lead/CTA row with a dotted pill. The last-impression finish for image-led warm/elegant brands." },
-  { variant: "ContactFormPremium1", category: "contact", sectors: "all", moods: ["minimal", "bold"], motion: 0, license: "ReFrame original", when: "Two-column contact form." },
+  { variant: "ContactFormPremium1", category: "contact", sectors: "all", moods: ["minimal", "bold", "elegant", "warm"], motion: 0, license: "ReFrame original", when: "Two-column light contact form — the universal lead-capture default." },
+  { variant: "ContactAtelier", category: "contact", sectors: "all", moods: ["elegant", "warm"], motion: 1, license: "ReFrame original (Archform Contact closing, reinterpreted)", when: "Dark editorial enquiry desk: brand-contrast band, real contact rows as a hairline list, the form on an elevated light card. Form-bearing (lead capture preserved); favours warm/elegant brands, Premium1 keeps minimal/bold." },
   { variant: "ContactDetailsCard", category: "contact", sectors: "all", moods: ["elegant", "warm", "minimal"], motion: 0, license: "ReFrame original", when: "Centered premium card with real email/phone/address + a primary action; no form." },
   { variant: "ContactBanner", category: "contact", sectors: ["agency", "saas", "ecommerce", "generic"], moods: ["bold"], motion: 1, license: "ReFrame original", when: "Full-bleed brand-contrast closing band with email/call/book buttons." },
   { variant: "Footer1", category: "footer", sectors: "all", motion: 0, license: "ReFrame original", when: "Editorial footer." },
@@ -180,6 +181,28 @@ export function pickVariant(
 ): string {
   const pool = poolFor(category, industry);
   if (pool.length === 0) return `${category}`;
+  return best(pool, industry, seed, mood);
+}
+
+/**
+ * Like pickVariant, but constrained to an explicit allow-list — for slots where
+ * a business invariant limits the candidates (e.g. the contact section must be
+ * FORM-bearing so every site keeps capturing leads). Same scoring + brand jitter,
+ * so constrained slots still vary per brand. Falls back to the first allowed
+ * name if none is catalogued (never returns outside the allow-list).
+ */
+export function pickVariantFrom(
+  allowed: string[],
+  industry: Industry,
+  seed: string,
+  mood: Mood = "minimal"
+): string {
+  const pool = BLOCK_CATALOG.filter((b) => allowed.includes(b.variant));
+  if (pool.length === 0) return allowed[0];
+  return best(pool, industry, seed, mood);
+}
+
+function best(pool: BlockMeta[], industry: Industry, seed: string, mood: Mood): string {
   const scored = pool.map((b) => ({
     variant: b.variant,
     score: scoreVariant(b, industry, mood) + ((hash(seed + b.variant) % 1024) / 1024) * JITTER_MAX,
