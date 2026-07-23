@@ -439,6 +439,44 @@ function CoverImage({
   );
 }
 
+/**
+ * CinematicScrim — the art-direction layer that turns a raw scraped photo into
+ * an intentional editorial FRAME (not a flat stock/screenshot look). Four
+ * stacked layers, all brand-tinted so a warm restaurant reads warm and a cool
+ * studio reads cool (never a generic pure-black wash):
+ *  1. a soft-light brand grade → unifies the photo toward the identity,
+ *  2. a directional scrim → a deep legibility well at the base, whisper up top,
+ *  3. a radial FOCAL vignette → depth + contrast, drawing the eye to the subject,
+ *  4. a whisper of film GRAIN → premium texture (static, reduced-motion safe).
+ * Sits between the image and the copy; purely decorative (aria-hidden, no events).
+ */
+function CinematicScrim({ focal = "50% 40%" }: { focal?: string }) {
+  return (
+    <>
+      <div aria-hidden className="pointer-events-none absolute inset-0 mix-blend-soft-light" style={{ background: "var(--brand-contrast)", opacity: 0.3 }} />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{ background: "linear-gradient(to bottom, color-mix(in srgb, var(--brand-contrast) 58%, transparent), transparent 28%, color-mix(in srgb, var(--brand-contrast) 12%, transparent) 56%, var(--brand-contrast) 99%)" }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{ background: `radial-gradient(120% 82% at ${focal}, transparent 40%, color-mix(in srgb, var(--brand-contrast) 46%, transparent) 100%)` }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-overlay"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+          backgroundSize: "140px",
+        }}
+      />
+    </>
+  );
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Hero blocks                                                               */
 /* -------------------------------------------------------------------------- */
@@ -2767,12 +2805,8 @@ function HeroImageFull({ props }: { props: any }) {
           className="h-full w-full"
         />
       </div>
-      {/* Dual scrim: a whisper up top so the meta row stays legible, a deep well
-          at the base so the editorial title sits on near-solid ink. */}
-      <div
-        className="absolute inset-0"
-        style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.55), rgba(0,0,0,0.04) 26%, rgba(0,0,0,0.12) 52%, rgba(0,0,0,0.86))" }}
-      />
+      {/* Cinematic, brand-tinted treatment (focal point low-left, under the title). */}
+      <CinematicScrim focal="42% 38%" />
 
       {/* top meta row — brand wordmark left, sector label right. Hidden when the
           immersive overlay nav is present (the nav already carries the brand). */}
@@ -3040,7 +3074,7 @@ function HeroMonumental({ props }: { props: any }) {
           className="h-full w-full"
         />
       </div>
-      <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.06) 34%, rgba(0,0,0,0.8))" }} />
+      <CinematicScrim focal="50% 40%" />
 
       {/* top meta row */}
       <div className="relative mx-auto flex w-full max-w-6xl items-start justify-between gap-8">
@@ -3412,7 +3446,7 @@ function HeroArchform({ props }: { props: any }) {
           className="h-full w-full"
         />
       </div>
-      <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.04) 30%, rgba(0,0,0,0.1) 55%, rgba(0,0,0,0.88))" }} />
+      <CinematicScrim focal="42% 40%" />
 
       {/* top meta row — hidden under the immersive overlay nav (nav carries brand). */}
       {!props._overlayNav && (

@@ -49,6 +49,28 @@
 
 ## Prochaine action
 
+**DIRECTION ARTISTIQUE DU HERO (2026-07-19) — critique CD utilisateur, priorité #1.**
+Retour utilisateur : le placement sémantique est une bonne fondation MAIS pas
+encore « agence premium » — hero sans impact émotionnel, scrim plat = rendu
+« stock/capture » (pas photographie éditoriale). Attaque de la priorité #1
+(composition/profondeur/contraste/focal point) au niveau SYSTÈME. Racine : les 3
+heros full-bleed (HeroImageFull/Archform/Monumental) posaient un scrim NOIR PUR
+linéaire → générique. Livré : `CinematicScrim` (composant partagé, 4 couches
+TEINTÉES MARQUE via `--brand-contrast`, jamais noir pur) : (1) grade soft-light
+(unifie la photo vers l'identité — chaud pour resto, froid pour studio), (2)
+scrim directionnel (puits de lisibilité au bas, whisper en haut), (3) VIGNETTE
+focale radiale (profondeur + contraste + attire l'œil sur le sujet), (4) GRAIN
+film fin (feTurbulence SVG data-URI, opacity 0.05, static → reduced-motion safe).
+Appliqué aux 3 heros (focal par hero). Preuve : captures resto (le plat DEVIENT
+le hero, chaud éditorial) + architecte (paysage cinématique, glow/brume/
+profondeur), 1440 + mobile 390, overflow-x=0, 0 erreur console, reduced-motion OK,
+554 tests, tsc 0, build 0. LOCAL (feature). **HONNÊTE — reste du gap CD (prochaines
+itérations)** : #2 rejeter les images type screenshot (le traitement embellit une
+photo, ne transforme pas une capture de menu) ; #3 variété de layouts (casser
+texte-gauche/image-droite répété) ; #4 storytelling resto (ambiance/chef/
+expérience/réservation) ; #5 cohérence inter-pages. Pas encore niveau Awwwards —
+c'est une marche, pas la preuve. **Promotion `main`** : SUR DEMANDE.
+
 **PLACEMENT IMAGE↔SECTION SÉMANTIQUE livré (2026-07-19) — backlog audit #3.**
 Défaut : distribution 100% POSITIONNELLE (extractImages jetait tout le signal DOM,
 qualityPass popait le pool en ordre) → une salle pouvait mener le hero, un plat

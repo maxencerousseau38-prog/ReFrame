@@ -1,5 +1,10 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-19 — Direction artistique du hero : traitement cinématique partagé (CD #1)
+- Critique CD utilisateur (Mamie Fada) : placement sémantique = bonne fondation mais pas premium ; hero sans impact émotionnel, scrim plat noir = rendu stock/capture. Attaque priorité #1 au niveau système.
+- CinematicScrim (partagé) : 4 couches teintées --brand-contrast (jamais noir pur) — grade soft-light (unifie vers l'identité), scrim directionnel (puits lisibilité bas), vignette focale radiale (profondeur+contraste+focal point), grain film SVG feTurbulence (0.05, static → reduced-motion safe). Remplace les 3 scrims plats de HeroImageFull/Archform/Monumental (focal par hero).
+- VÉRIF : captures resto (le plat devient le hero, chaud éditorial) + architecte (paysage cinématique profondeur), 1440+mobile 390, overflow-x=0, 0 console, reduced-motion OK, 554 tests inchangés, tsc 0, build 0. LOCAL. Honnête : reste #2 rejet screenshots, #3 variété layouts, #4 storytelling, #5 cohérence inter-pages — pas encore Awwwards, une marche.
+
 ## 2026-07-19 — Placement image↔section sémantique (moteur, 4 secteurs)
 - Défaut : distribution positionnelle (extractImages jetait le signal DOM ; qualityPass en ordre). Correctif moteur, module profond.
 - ScrapedImage {url,alt,w,h,kind} + extractImagesRich (kind inféré des classes ancêtres/aspect : social/hero/gallery/portrait/content/background ; alt+dims capturés) ; extractImages = wrapper .map(url) (back-compat) ; imagesRich threadé sur extractedContent (validation préserve la meta).
