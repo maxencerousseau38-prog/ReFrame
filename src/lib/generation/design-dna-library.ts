@@ -19,6 +19,7 @@ import type { Industry, Theme } from "./types";
 import type { ArtDirection } from "./art-direction";
 import type { BusinessProfile } from "./business";
 import type { SiteAnalysis } from "./types";
+import type { BrandPersonality } from "./brand-personality";
 
 /* -------------------------------------------------------------------------- */
 /*  Types                                                                     */
@@ -359,10 +360,33 @@ function moodAffinity(a: Theme["mood"], b: Theme["mood"]): number {
  * forbids. Deterministic: same business → same DNA, different businesses → the
  * DNA that actually suits them.
  */
+/**
+ * How well a DNA category fits a brand's temperament (0..3). This is what makes
+ * two same-mood restaurants pick different grammars: a serene, sophisticated one
+ * leans Luxury Editorial / Calm Minimal, an energetic bold one leans Performance
+ * / Bold Fintech — from the SAME sector and mood.
+ */
+function personalityCategoryFit(category: DnaCategory, p: BrandPersonality): number {
+  const s = p.sophistication, e = p.energy, b = p.boldness, w = p.warmth, calm = 100 - e;
+  const norm = (n: number) => Math.max(0, n) / 100 * 3;
+  switch (category) {
+    case "luxury-editorial": return norm(s * 0.6 + calm * 0.4 - e * 0.2);
+    case "calm-minimal": return norm(calm * 0.6 + s * 0.3 - b * 0.2);
+    case "performance": return norm(e * 0.5 + b * 0.5 - s * 0.2);
+    case "bold-fintech": return norm(b * 0.5 + e * 0.4);
+    case "human-warmth": return norm(w * 0.7 - b * 0.2);
+    case "craft-provenance": return norm(w * 0.4 + s * 0.3 + calm * 0.2);
+    case "product-innovation": return norm(s * 0.35 + e * 0.3 + (100 - w) * 0.2);
+    case "technical-editorial": return norm(s * 0.35 + calm * 0.25 + (100 - w) * 0.2);
+    default: return 0;
+  }
+}
+
 export function selectDesignDNA(
   analysis: SiteAnalysis,
   profile: BusinessProfile,
   mood: Theme["mood"],
+  personality?: BrandPersonality,
 ): DesignDNASelection {
   const industry = analysis.industry;
   const scored = DESIGN_DNA_LIBRARY.map((dna) => {
@@ -375,6 +399,9 @@ export function selectDesignDNA(
     if (dna.ideal_business_types.includes(industry)) score += 5;
     // Style fit: the DNA should agree with the business-derived mood.
     score += moodAffinity(dna.mechanisms.mood, mood) * 4;
+    // Temperament fit: the brand's personality is a strong grammar signal — this
+    // is what separates two same-sector, same-mood brands.
+    if (personality) score += personalityCategoryFit(dna.category, personality);
     // Tier fit: luxury lifts editorial/craft, budget lifts warmth/calm.
     if (profile.tier === "luxury" && (dna.category === "luxury-editorial" || dna.category === "craft-provenance")) score += 2;
     if (profile.tier === "premium" && (dna.category === "product-innovation" || dna.category === "technical-editorial")) score += 1;

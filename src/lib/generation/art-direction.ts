@@ -24,6 +24,7 @@ import { INDUSTRY_PROFILES } from "./industries";
 import { planSmart, type Plan } from "./planner";
 import { renderableCategory } from "./structure";
 import type { DesignDNAProfile } from "./design-dna-library";
+import type { BrandPersonality } from "./brand-personality";
 
 /* -------------------------------------------------------------------------- */
 /*  ArtDirection type                                                         */
@@ -72,6 +73,10 @@ export interface ArtDirection {
   designDnaName?: string;
   /** The named narrative arc the page executes (from the Design DNA). */
   creativeDirection?: string;
+  /** Compact signature of the brand personality that steered this direction. */
+  personalitySignature?: string;
+  /** The brand's character archetype (e.g. "The Curator", "The Challenger"). */
+  personalityCharacter?: string;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -913,6 +918,8 @@ function preferBias<T>(base: T, preferred: T, seed: number, salt: string, streng
   return seededFloat(seed, salt) < strength ? preferred : base;
 }
 
+const clamp0100 = (n: number) => Math.max(0, Math.min(100, Math.round(n)));
+
 export function artDirect(
   profile: BusinessProfile,
   dna: DesignDNA,
@@ -920,12 +927,18 @@ export function artDirect(
   analysis: SiteAnalysis,
   plan: Plan,
   designDNA?: DesignDNAProfile,
+  personality?: BrandPersonality,
 ): ArtDirection {
   const seed = generateSeed(analysis.brandName, analysis.url, analysis.industry);
   const industry = analysis.industry;
   // Business-derived STYLE, carried on the DNA — never the industry default.
   const mood = dna.mood;
   const m = designDNA?.mechanisms;
+  // The brand's temperament is the strongest prior of all: it decides the tempo,
+  // energy and breathing that make two same-DNA brands feel like different
+  // studios. Applied AFTER the DNA bias so personality wins conflicts.
+  const pl = personality?.levers;
+  const pStr = personality ? 0.72 : 0;
   const visualDna = analysis.visualDna;
   const hasImages = analysis.extractedContent.images.length > 0 || !!analysis.extractedContent.heroImageUrl;
   const hasTestimonials = !!analysis.extractedContent.testimonials?.length;
@@ -935,26 +948,28 @@ export function artDirect(
   // as a creative-direction prior on the decisions that carry a brand's
   // signature — narrative, hero, contrast, motion, image rhythm — so the page
   // executes an intentional direction instead of assembling neutral defaults.
-  const pageStorytelling = preferBias(directPageStorytelling(profile, seed), m?.narrative ?? "journey", seed, "dnaNarr", m ? 0.6 : 0);
-  const sectionRhythm = directSectionRhythm(profile, dna, seed);
+  const pageStorytelling = preferBias(preferBias(directPageStorytelling(profile, seed), m?.narrative ?? "journey", seed, "dnaNarr", m ? 0.6 : 0), pl?.narrative ?? "journey", seed, "pNarr", pl ? pStr : 0);
+  const sectionRhythm = preferBias(directSectionRhythm(profile, dna, seed), pl?.rhythm ?? "steady", seed, "pRhythm", pl ? pStr : 0);
   const visualHierarchy = directVisualHierarchy(profile, dna, seed);
   const editorialFlow = directEditorialFlow(profile, visualDna, mood, seed);
-  const heroPhilosophy = preferBias(directHeroPhilosophy(profile, dna, visualDna, seed), m?.heroPhilosophy ?? "editorial", seed, "dnaHero", m ? 0.55 : 0);
-  const whitespaceStrategy = directWhitespace(profile, dna, seed);
+  const heroPhilosophy = preferBias(preferBias(directHeroPhilosophy(profile, dna, visualDna, seed), m?.heroPhilosophy ?? "editorial", seed, "dnaHero", m ? 0.55 : 0), pl?.hero ?? "editorial", seed, "pHero", pl ? pStr : 0);
+  const whitespaceStrategy = preferBias(directWhitespace(profile, dna, seed), pl?.whitespace ?? "balanced", seed, "pWs", pl ? pStr : 0);
   // Only let the DNA raise the image rhythm when the source actually has enough
   // images to honour it — never invent a gallery the brand can't fill.
   const imageCount = analysis.extractedContent.images.length;
   const imageRhythm = preferBias(directImageRhythm(analysis, visualDna, seed), m?.imageRhythm ?? "alternating", seed, "dnaImg", m && imageCount >= 3 ? 0.5 : 0);
   const compositionStyle = directCompositionStyle(profile, visualDna, mood, seed);
   const asymmetryDir = directAsymmetry(profile, visualDna, seed);
-  const typographyRhythm = directTypographyRhythm(dna, visualDna, seed);
-  const ctaHierarchy = directCtaHierarchy(profile, dna, seed);
-  const contrastStrategy = preferBias(directContrastStrategy(dna, visualDna, seed), m?.contrast ?? "alternating", seed, "dnaContrast", m ? 0.55 : 0);
+  const typographyRhythm = preferBias(directTypographyRhythm(dna, visualDna, seed), pl?.typography ?? "uniform", seed, "pTypo", pl ? pStr : 0);
+  const ctaHierarchy = preferBias(directCtaHierarchy(profile, dna, seed), pl?.cta ?? "dual-balanced", seed, "pCta", pl ? pStr : 0);
+  const contrastStrategy = preferBias(preferBias(directContrastStrategy(dna, visualDna, seed), m?.contrast ?? "alternating", seed, "dnaContrast", m ? 0.55 : 0), pl?.contrast ?? "alternating", seed, "pContrast", pl ? pStr : 0);
   const emotionalDirection = directEmotionalDirection(mood, seed);
-  const luxuryLevel = directLuxuryLevel(profile, dna, visualDna);
+  // Sophistication lifts the perceived luxury (drives section breathing); density
+  // is mostly the brand's own energy, not the tier default.
+  const luxuryLevel = personality ? clamp0100(Math.round(directLuxuryLevel(profile, dna, visualDna) * 0.5 + personality.sophistication * 0.5)) : directLuxuryLevel(profile, dna, visualDna);
   const minimalismLevel = directMinimalismLevel(profile, dna, visualDna);
-  const visualDensityVal = directVisualDensity(profile, dna, seed);
-  const motionPhilosophy = preferBias(directMotionPhilosophy(dna, visualDna, seed), m?.motion ?? "purposeful", seed, "dnaMotion", m ? 0.55 : 0);
+  const visualDensityVal = pl ? clamp0100(Math.round(directVisualDensity(profile, dna, seed) * 0.35 + pl.density * 0.65)) : directVisualDensity(profile, dna, seed);
+  const motionPhilosophy = preferBias(preferBias(directMotionPhilosophy(dna, visualDna, seed), m?.motion ?? "purposeful", seed, "dnaMotion", m ? 0.55 : 0), pl?.motion ?? "purposeful", seed, "pMotion", pl ? pStr : 0);
 
   // 12 layout decisions
   const heroVariant = pickHeroVariant(heroPhilosophy, dna, visualDna, industry, hasImages, seed);
@@ -1017,5 +1032,7 @@ export function artDirect(
     signature,
     designDnaName: designDNA?.name,
     creativeDirection: designDNA?.creative_direction,
+    personalitySignature: personality?.signature,
+    personalityCharacter: personality?.character,
   };
 }

@@ -29,6 +29,7 @@ import { compose } from "./composer";
 import { evaluateQuality } from "./quality-gate";
 import { selectDesignDNA, type DesignDNASelection } from "./design-dna-library";
 import { scoreCreativeDirection, type CreativeDirectorScore } from "./creative-director-score";
+import { deriveBrandPersonality, type BrandPersonality } from "./brand-personality";
 import { INDUSTRY_PROFILES } from "./industries";
 import { planSmart } from "./planner";
 import { resolveTree } from "@/lib/dna/resolver";
@@ -57,6 +58,8 @@ export interface PipelineResult {
   artDirection: ArtDirection;
   /** Quality scores from the gate. */
   quality: QualityScore;
+  /** The brand personality that steered the whole generation. */
+  personality: BrandPersonality;
   /** The Design DNA the Design Intelligence layer chose for this business. */
   designDNA: DesignDNASelection;
   /** The automated Creative Director review (6 axes /10). */
@@ -90,6 +93,12 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
 
   // Phase 1: Business Intelligence
   const profile = analyzeBusinessProfile(analysis, mood);
+
+  // Phase 1.5: Brand Personality Engine — WHO the brand is (temperament, energy,
+  // boldness, sophistication, warmth), derived from the business itself. It sits
+  // ahead of Design Intelligence and steers the whole generation, so two
+  // same-sector, same-DNA brands become genuinely different worlds.
+  const personality = deriveBrandPersonality(analysis, profile, mood);
 
   // Phase 2: Plan sections (to know what the moodboard needs to cover).
   // F14: the plan knows whether a real FAQ exists — it never plans a section
@@ -149,10 +158,12 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
   // whose mechanisms fit this business, and refuse the ones it must never wear.
   // This is the intelligence ABOVE the Art Director: it decides what KIND of
   // experience to build before a single component is assembled.
-  const designDNA = selectDesignDNA(analysis, profile, mood);
+  const designDNA = selectDesignDNA(analysis, profile, mood, personality);
 
   // Phase 4.75: Art Director — produces the creative brief, biased by the DNA
-  const artDirection = artDirect(profile, dna, moodboard, analysis, plan, designDNA.dna);
+  // grammar AND, more strongly, by the brand's personality (tempo, energy,
+  // breathing, hero, contrast, CTA, typography, narration).
+  const artDirection = artDirect(profile, dna, moodboard, analysis, plan, designDNA.dna, personality);
 
   // Phase 5: Compose (executes the Art Direction)
   let schema = compose(analysis, { dna, profile, moodboard, artDirection });
@@ -170,7 +181,7 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
   while ((!quality.passes || !creativeDirector.passes) && iterations < MAX_ITERATIONS) {
     iterations++;
     const adjustedDNA = applyQualityFixes(dna, quality);
-    const adjustedAD = artDirect(profile, adjustedDNA, moodboard, analysis, plan, designDNA.dna);
+    const adjustedAD = artDirect(profile, adjustedDNA, moodboard, analysis, plan, designDNA.dna, personality);
     const adjustedSchema = compose(analysis, { dna: adjustedDNA, profile, moodboard, artDirection: adjustedAD });
     const adjustedQuality = evaluateQuality(adjustedSchema, adjustedDNA, profile, analysis, adjustedAD);
     const adjustedCD = scoreCreativeDirection(adjustedQuality, adjustedAD, designDNA.dna, adjustedSchema);
@@ -191,6 +202,7 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
     dna,
     moodboard,
     artDirection: activeAD,
+    personality,
     quality,
     designDNA,
     creativeDirector,

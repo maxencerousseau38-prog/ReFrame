@@ -102,6 +102,16 @@ export async function POST(req: Request) {
           creativeDirection: result.artDirection.creativeDirection,
           cdScore: result.creativeDirector.overall,
           cdPasses: result.creativeDirector.passes,
+          // Brand Personality: WHO the brand is + its temperament.
+          personality: {
+            character: result.personality.character,
+            temperament: result.personality.temperament,
+            boldness: result.personality.boldness,
+            energy: result.personality.energy,
+            sophistication: result.personality.sophistication,
+            warmth: result.personality.warmth,
+            emotionalWorld: result.personality.emotionalWorld,
+          },
         },
       });
     }

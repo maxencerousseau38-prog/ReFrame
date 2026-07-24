@@ -42,6 +42,10 @@ function basePad(ad: ArtDirection): number {
   let p = byWs[ad.whitespaceStrategy] ?? 84;
   // Airier (higher luxury) brands breathe a little more; capped so it can't void.
   p += Math.round(((ad.luxuryLevel ?? 50) - 50) / 50 * 10);
+  // The brand's own visual density (an energy signal from the Brand Personality
+  // Engine) tightens or opens the whole page — a fierce, kinetic brand scrolls
+  // fast, a serene one breathes — independent of the whitespace enum.
+  p += Math.round((50 - (ad.visualDensity ?? 50)) / 50 * 16);
   return p;
 }
 
