@@ -15,6 +15,10 @@ const buttonVariants = cva(
         // primary CTA (V3): silver fill #F5F5F5, near-black label #090909, radius 16px
         default:
           "bg-primary text-primary-foreground hover:bg-primary/90",
+        // The ONE signature CTA — the lime brand accent, used rarely (the single
+        // most important action on a surface). Dark ink on lime, soft brand glow.
+        brand:
+          "bg-brand text-brand-foreground hover:bg-brand/90 shadow-[0_10px_34px_-12px_hsl(var(--brand)/0.5)]",
         light: "bg-white text-neutral-950 hover:bg-white/90 shadow-[0_8px_30px_-8px_rgba(255,255,255,0.25)]",
         outline:
           "border border-white/8 bg-transparent text-white hover:border-white/16 hover:bg-white/5",

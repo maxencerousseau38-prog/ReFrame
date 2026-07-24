@@ -20,6 +20,12 @@
 - **Brand Personality Engine fait** : `brand-personality.ts` (Phase 1.5, avant Design Intelligence). 5 traits + levers déduits du business ; biaise `selectDesignDNA` + `artDirect` (prior 0.72) + `narrative-rhythm` (density). Deux marques même secteur/mood = deux mondes (Gavroche serene/Curator vs Brut fierce/Challenger). Surfacé result+route. Guard `brand-personality.test.ts`. 598 tests + build OK.
 - **Motion Design Intelligence fait** : `motion-design.ts` (Phase 4.7). `MotionDirection` dérivée de la personnalité (energy→vitesse, boldness→distance, soph→easing). Posée sur `schema.motion` ; renderer = `MotionCtx`/`useMotion()` + `MotionConfig` défaut + CSS vars `--rf-*` ; reveals phares recâblés (Testimonials/Features×2/Portfolio). Curator lent/doux vs Challenger rapide/fort. Guard `motion-design.test.ts`. 602 tests + build + Playwright OK.
 - **Reste directive Motion+** : #2 Direction Photographique, #3 Component Morphing structurel (largement fait), #4 Visual Composition Intelligence, #5 CD Vision Review (screenshots→critique, nécessite navigateur/harness).
+
+## Chantier NOUVEAU (2026-07-24) — REFONTE DESIGN DU SAAS ReFrame (pas les sites générés)
+
+> Objectif : ReFrame lui-même (landing/dashboard/éditeur/chrome) au niveau Framer/Linear/Stripe. Référence exécution : principes Nike (hiérarchie/rythme/contraste/impact) adaptés B2B, jamais un clone. Identité propre, accent rare, motion intentionnel, Design System homogène.
+- **Phase 1 FAITE — reset tokens (keystone)** : `globals.css` était cassé (valeurs oklch vs config `hsl(var(--x))` → ~250 utilitaires DEAD, accent lime mort, `--brand`/états/`--rf-ease` absents). Réécrit en triplets HSL premium : canvas off-black brand-tinted, échelle de surfaces, accent signature lime `--brand`, primary near-white, états, sidebar steppée, ease premium. Button variante `brand`. tsc+602 tests+build+Playwright OK.
+- **Reste** : dashboard (contenu, densité, moments d'accent), landing (composition/accent), éditeur, paramètres, états vides/chargements, harmonisation composant par composant, motion produit.
 - **Reste** : auto-repair des sections thin (regénérer) ; `varySectionOrder` par creative_direction ; HeroEditorial trop plat pour resto luxe ; captions galerie.
 
 ## Où on en est (2026-07-10)

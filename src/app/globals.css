@@ -16,39 +16,61 @@
 */
 
 @layer base {
+  /*
+    ReFrame product tokens — dark-always, HSL triplets (consumed as
+    `hsl(var(--x))` by tailwind.config.ts). One signature accent: lime `--brand`,
+    used rarely as punctuation (focus, active, key CTA). Canvas is a faintly
+    cool brand-tinted off-black (never pure #000); surfaces step up in small
+    increments; depth comes from translucent layers + hairlines, not hard borders.
+  */
   :root {
-    --background: oklch(1 0 0);            /* pure black — full OLED */
-    --foreground: oklch(0.145 0 0);          /* pure white */
-    --card: oklch(1 0 0);                  /* crisply elevated panels */
-    --card-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);            /* electric lime, peak vivid */
-    --accent-foreground: oklch(0.205 0 0);
-    --border: oklch(0.922 0 0);              /* neutral hairline */
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --radius: 0.625rem;
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    /* Canvas + surface ladder */
+    --background: 220 18% 5%;              /* #0a0c11 — brand-tinted off-black */
+    --foreground: 210 24% 97%;             /* near-white, faint cool */
+    --card: 220 14% 8%;                    /* elevated panels */
+    --card-foreground: 210 24% 97%;
+    --popover: 220 15% 7%;
+    --popover-foreground: 210 24% 97%;
+    --muted: 220 12% 12%;
+    --muted-foreground: 218 11% 64%;       /* secondary text (AA on canvas) */
+    --secondary: 220 12% 13%;              /* subtle control surface */
+    --secondary-foreground: 210 24% 97%;
+    --accent: 220 12% 14%;                 /* subtle hover surface */
+    --accent-foreground: 210 24% 97%;
+
+    /* Primary = confident near-white action (Linear/Vercel grammar) */
+    --primary: 210 24% 97%;
+    --primary-foreground: 220 24% 6%;
+
+    /* Signature accent — the ONE colour. Lime, used sparingly. */
+    --brand: 79 74% 56%;                   /* ~#a8e24d */
+    --brand-foreground: 120 40% 7%;        /* dark ink on lime */
+
+    /* Hairlines + focus */
+    --border: 0 0% 100% / 0.08;
+    --input: 0 0% 100% / 0.12;
+    --ring: 79 74% 56%;                    /* lime focus ring */
+    --radius: 0.75rem;
+
+    /* Functional state palette — feedback only, never decorative */
+    --success: 145 63% 45%;
+    --warning: 38 92% 55%;
+    --destructive: 0 72% 56%;
+    --destructive-foreground: 0 0% 100%;
+    --info: 210 90% 62%;
+
+    /* Sidebar — stepped up from the canvas so the chrome reads as a frame */
+    --sidebar: 220 16% 6.5%;
+    --sidebar-foreground: 210 14% 78%;
+    --sidebar-primary: 79 74% 56%;
+    --sidebar-primary-foreground: 120 40% 7%;
+    --sidebar-accent: 220 12% 13%;
+    --sidebar-accent-foreground: 210 24% 97%;
+    --sidebar-border: 0 0% 100% / 0.06;
+    --sidebar-ring: 79 74% 56%;
+
+    /* Motion — one premium ease across the product */
+    --rf-ease: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   * {
@@ -71,47 +93,16 @@
     text-rendering: optimizeLegibility;
   }
 
+  /* The signature accent punctuates selection. */
   ::selection {
-    background: hsl(var(--accent));
-    color: hsl(var(--accent-foreground));
+    background: hsl(var(--brand) / 0.9);
+    color: hsl(var(--brand-foreground));
   }
   .theme {
     --font-heading: var(--font-sans);
     --font-sans: var(--font-sans);
   }
-  .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
-  }
+  /* Dark-always: `:root` already carries the dark palette; `.dark` inherits it. */
 }
 
 @layer utilities {
@@ -149,11 +140,11 @@
      low opacity, never as a neon default. */
   .ambient {
     background:
-      radial-gradient(42% 46% at 22% 18%, hsl(var(--accent) / 0.14) 0%, transparent 70%),
-      radial-gradient(38% 42% at 82% 28%, hsl(0 0% 100% / 0.06) 0%, transparent 70%);
+      radial-gradient(42% 46% at 22% 18%, hsl(var(--brand) / 0.12) 0%, transparent 70%),
+      radial-gradient(38% 42% at 82% 28%, hsl(0 0% 100% / 0.05) 0%, transparent 70%);
   }
   .ambient-soft {
-    background: radial-gradient(50% 55% at 50% 40%, hsl(var(--accent) / 0.12) 0%, transparent 70%);
+    background: radial-gradient(50% 55% at 50% 40%, hsl(var(--brand) / 0.1) 0%, transparent 70%);
   }
 
   /* Faint dotted grid */
