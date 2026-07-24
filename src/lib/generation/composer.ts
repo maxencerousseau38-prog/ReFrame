@@ -38,6 +38,7 @@ import { label } from "./labels";
 import { buildContentModel, realHeading, type ContentModel } from "@/lib/understand/content-model";
 import { compileTokens, type CompiledTokens } from "@/lib/dna/tokens";
 import { compileSceneSpecs } from "@/lib/compose/scene-spec";
+import { applyNarrativeRhythm } from "@/lib/compose/narrative-rhythm";
 
 /* -------------------------------------------------------------------------- */
 /*  Helpers                                                                   */
@@ -296,7 +297,9 @@ function buildBlockProps(
         ...dnaProps,
         sectionTitle: title("features", "features"),
         title: title("features", "features"),
-        features: services,
+        // Every Features* renderer reads `items` — emitting `features` here left
+        // the whole section empty (a lone title over a void) on the live path.
+        items: services,
         image,
       };
     }
@@ -307,7 +310,9 @@ function buildBlockProps(
         ...dnaProps,
         sectionTitle: title("testimonials", "testimonials"),
         title: title("testimonials", "testimonials"),
-        testimonials: c.testimonials.slice(0, 6).map((t) => ({
+        // Testimonials* renderers read `items` — `testimonials` left the section
+        // empty, so it self-omitted (return null on no items) and vanished.
+        items: c.testimonials.slice(0, 6).map((t) => ({
           quote: cleanText(t.quote),
           name: cleanText(t.name),
           role: cleanText(t.role),
@@ -319,7 +324,9 @@ function buildBlockProps(
       if (!c.stats?.length) return null; // never fabricate
       return {
         ...dnaProps,
-        stats: c.stats.map((s) => ({
+        // StatsCounter reads `items` (StatementEditorial's inline stats keep the
+        // `stats` prop — that one is correct and stays below).
+        items: c.stats.map((s) => ({
           value: cleanText(s.value),
           label: cleanText(s.label),
         })),
@@ -332,7 +339,9 @@ function buildBlockProps(
         ...dnaProps,
         sectionTitle: title("portfolio", "portfolio"),
         title: title("portfolio", "portfolio"),
-        images: c.images.slice(0, 8),
+        // Gallery/Portfolio renderers read `items` of {image}, not a bare URL
+        // array — `images` left every gallery empty (self-omitted on no items).
+        items: c.images.slice(0, 8).map((url) => ({ image: url })),
         galleryStyle: dna.galleryDirection.style,
         galleryColumns: dna.galleryDirection.columns,
         galleryGap: dna.galleryDirection.gap,
@@ -380,7 +389,9 @@ function buildBlockProps(
         ...dnaProps,
         sectionTitle: title("services", "services"),
         title: title("services", "services"),
-        services: services.map((s) => ({
+        // Services* renderers read `items` too — same empty-section bug as
+        // features if this stays `services`.
+        items: services.map((s) => ({
           title: cleanText("title" in s ? String(s.title) : String(s)),
           description: cleanText("description" in s ? String(s.description) : undefined),
         })),
@@ -558,10 +569,18 @@ export function compose(analysis: SiteAnalysis, opts: ComposeOptions): SiteSchem
   // 4. Quality pass: ensure hero first, footer last, no dupes — then attach
   // composition decisions per scene (C7a/C7d): measured scenes first, premium
   // direction as fill-only. No usable source → untouched (V5 identical).
-  const finalBlocks = compileSceneSpecs(qualityPassBlocks(blocks), {
-    measured: analysis.measuredScenes,
-    dna,
-  });
+  // CD #3/#4 — the creative direction drives the page's scroll architecture:
+  // after the measured/premium scene layer, fill the remaining silence with a
+  // narrative rhythm (varied per-section breathing + grid density) so a Luxury
+  // Editorial page and a Performance page genuinely scroll differently. Fill
+  // only — measured rhythm always wins (I1).
+  const finalBlocks = applyNarrativeRhythm(
+    compileSceneSpecs(qualityPassBlocks(blocks), {
+      measured: analysis.measuredScenes,
+      dna,
+    }),
+    { artDirection },
+  );
 
   // 5. Build the schema
   const schema: SiteSchema = {

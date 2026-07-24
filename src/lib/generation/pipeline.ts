@@ -164,7 +164,7 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
   // EITHER bar fails — applying the same conservative DNA fixes, which lift the
   // craft/composition/conversion axes the CD reads from — up to MAX_ITERATIONS.
   let quality = evaluateQuality(schema, dna, profile, analysis, artDirection);
-  let creativeDirector = scoreCreativeDirection(quality, artDirection, designDNA.dna);
+  let creativeDirector = scoreCreativeDirection(quality, artDirection, designDNA.dna, schema);
   let iterations = 0;
 
   while ((!quality.passes || !creativeDirector.passes) && iterations < MAX_ITERATIONS) {
@@ -173,7 +173,7 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
     const adjustedAD = artDirect(profile, adjustedDNA, moodboard, analysis, plan, designDNA.dna);
     const adjustedSchema = compose(analysis, { dna: adjustedDNA, profile, moodboard, artDirection: adjustedAD });
     const adjustedQuality = evaluateQuality(adjustedSchema, adjustedDNA, profile, analysis, adjustedAD);
-    const adjustedCD = scoreCreativeDirection(adjustedQuality, adjustedAD, designDNA.dna);
+    const adjustedCD = scoreCreativeDirection(adjustedQuality, adjustedAD, designDNA.dna, adjustedSchema);
     // Only keep the retry if it genuinely improved the CD verdict — never ship a
     // regression from an over-eager fix.
     if (adjustedCD.overall >= creativeDirector.overall) {

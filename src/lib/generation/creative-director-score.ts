@@ -17,6 +17,7 @@
 import type { QualityScore } from "./quality-gate";
 import type { ArtDirection } from "./art-direction";
 import type { DesignDNAProfile } from "./design-dna-library";
+import type { SiteSchema } from "./types";
 
 export interface CreativeDirectorScore {
   /** Does it feel like THIS business? (brand fidelity) */
@@ -45,6 +46,44 @@ const PASS = 8.5;
 const to10 = (s: number) => Math.round(s) / 10;
 const clamp10 = (n: number) => Math.max(0, Math.min(10, Math.round(n * 10) / 10));
 
+/** Section types whose renderers live or die by a populated `items` array. */
+const ITEMS_SECTIONS = new Set(["features", "services", "portfolio", "gallery", "products", "testimonials", "stats"]);
+
+interface Substance {
+  /** Content sections that render as a lone title over a void (items missing/empty). */
+  thin: string[];
+  /** Repetition: a variant reused across unrelated section types. */
+  repeatedVariants: string[];
+}
+
+/**
+ * A human CD's first read is "is anything actually ON the page?" — an empty
+ * features grid or a vanished gallery is the loudest "AI-generated" tell. Read
+ * the built schema for content sections that came out substance-less, and for
+ * lazy repetition of the same variant.
+ */
+function inspectSubstance(schema?: SiteSchema): Substance {
+  const thin: string[] = [];
+  const variantUse = new Map<string, string[]>();
+  if (!schema) return { thin, repeatedVariants: [] };
+  for (const b of schema.blocks) {
+    const props = (b.props ?? {}) as Record<string, unknown>;
+    if (ITEMS_SECTIONS.has(b.type)) {
+      const items = Array.isArray(props.items) ? props.items.length : 0;
+      if (items === 0) thin.push(b.type);
+    }
+    if (b.variant) {
+      const arr = variantUse.get(b.variant) ?? [];
+      arr.push(b.type);
+      variantUse.set(b.variant, arr);
+    }
+  }
+  const repeatedVariants = Array.from(variantUse.entries())
+    .filter(([, types]) => new Set(types).size > 1)
+    .map(([v]) => v);
+  return { thin, repeatedVariants };
+}
+
 /**
  * How faithfully the produced Art Direction executed the chosen Design DNA —
  * the fraction of signature mechanisms (hero, narrative, contrast, motion) that
@@ -67,25 +106,30 @@ export function scoreCreativeDirection(
   quality: QualityScore,
   artDirection?: ArtDirection,
   designDNA?: DesignDNAProfile,
+  schema?: SiteSchema,
 ): CreativeDirectorScore {
   const q = quality;
+  const { thin, repeatedVariants } = inspectSubstance(schema);
 
-  const identity = to10(q.brandFidelity.score);
-  const originality = to10(q.layoutOriginality.score);
-  const visualQuality = clamp10(to10(q.premiumScore.score) * 0.6 + to10(q.editorialQuality.score) * 0.4);
+  // A void section is the loudest AI tell — penalise HARD, per empty section.
+  const thinPenalty = Math.min(thin.length * 1.6, 5);
+  const repeatPenalty = Math.min(repeatedVariants.length * 0.6, 1.5);
+
+  const identity = clamp10(to10(q.brandFidelity.score) - thinPenalty * 0.4);
+  const originality = clamp10(to10(q.layoutOriginality.score) - repeatPenalty);
+  const visualQuality = clamp10(to10(q.premiumScore.score) * 0.6 + to10(q.editorialQuality.score) * 0.4 - thinPenalty);
 
   // Coherence blends the gate's composition score with how well the page
   // executed its creative direction (adherence to the Design DNA).
   const adherence = artDirection ? directionAdherence(artDirection, designDNA) : 0.5;
   const brandCoherence = clamp10(to10(q.compositionQuality.score) * 0.55 + to10(q.brandFidelity.score) * 0.2 + adherence * 10 * 0.25);
 
-  const premiumAgency = to10(q.total);
+  const premiumAgency = clamp10(to10(q.total) - thinPenalty * 0.8);
 
-  // Template risk is high when the layout is generic AND it resembles the
-  // stock Framer template shape. framerSimilarity.score is high when DISTINCT,
-  // so both are "safety" signals; risk is their inverse.
-  const templateSafety = to10(q.layoutOriginality.score) * 0.55 + to10(q.framerSimilarity.score) * 0.45;
-  const templateRisk = clamp10(10 - templateSafety);
+  // Template risk is high when the layout is generic, resembles the stock Framer
+  // shape, OR carries empty sections (nothing reads more "generated" than a void).
+  const templateSafety = to10(q.layoutOriginality.score) * 0.5 + to10(q.framerSimilarity.score) * 0.5;
+  const templateRisk = clamp10(10 - templateSafety + thinPenalty + repeatPenalty);
 
   const overall = clamp10(
     identity * 0.18 +
@@ -98,11 +142,11 @@ export function scoreCreativeDirection(
 
   const axes: { axis: string; score: number; why: string }[] = [
     { axis: "identity", score: identity, why: "the page doesn't feel specific to this business" },
-    { axis: "originality", score: originality, why: "the layout is too close to a default arrangement" },
-    { axis: "visualQuality", score: visualQuality, why: "the craft doesn't read as premium yet" },
+    { axis: "originality", score: originality, why: repeatedVariants.length ? `a variant is reused across sections (${repeatedVariants.join(", ")})` : "the layout is too close to a default arrangement" },
+    { axis: "visualQuality", score: visualQuality, why: thin.length ? `empty/thin sections: ${thin.join(", ")}` : "the craft doesn't read as premium yet" },
     { axis: "brandCoherence", score: brandCoherence, why: "decisions don't all agree with the brand's direction" },
     { axis: "premiumAgency", score: premiumAgency, why: "overall it wouldn't command an agency price" },
-    { axis: "templateRisk", score: 10 - templateRisk, why: "it still reads as an AI template" },
+    { axis: "templateRisk", score: 10 - templateRisk, why: thin.length ? "empty sections read as machine-generated" : "it still reads as an AI template" },
   ];
   const weakest = axes.filter((a) => a.score < 8).sort((a, b) => a.score - b.score);
 

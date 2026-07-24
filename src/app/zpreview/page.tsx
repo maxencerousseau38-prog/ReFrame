@@ -1,5 +1,6 @@
 import { SiteRenderer } from "@/components/blocks";
 import { generateSite } from "@/lib/generation/engine";
+import { runPipeline } from "@/lib/generation/pipeline";
 import { INDUSTRY_PROFILES } from "@/lib/generation/industries";
 import type { SiteAnalysis, BlockType, Industry, GenerationMode, ScrapedImage } from "@/lib/generation/types";
 
@@ -228,7 +229,11 @@ export default function PreviewPage({ searchParams }: { searchParams: Record<str
   if (/^[0-9a-fA-F]{6}$/.test(searchParams.accent || "")) {
     analysis.brand = { ...analysis.brand, accentColor: `#${searchParams.accent}` };
   }
-  const schema = generateSite(analysis, { mode });
+  // CD #6: validate the REAL product path. "smart" (the dashboard default)
+  // routes through runPipeline → selectDesignDNA → artDirect → compose, exactly
+  // like production; only classic/preserve still render the legacy engine, so
+  // the harness can A/B the two paths (?mode=classic for legacy).
+  const schema = mode === "smart" ? runPipeline(analysis).schema : generateSite(analysis, { mode });
   // QA: force a specific variant for a given block type (e.g. ?bvariant=features:FeaturesSticky).
   const bv = (searchParams.bvariant || "").split(":");
   if (bv.length === 2) {

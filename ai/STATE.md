@@ -16,7 +16,8 @@
 - **CD #1 fait** : fin du hero-template. Pool union dans `pickHeroVariant` + `HeroCollage` câblé + `fmix32` dans `seededPick` (fix avalanche FNV bits bas). 3 marques même secteur → 3 heros distincts. Guard `hero-variety.test.ts`.
 - **CD #2 fait** : `mood` dérivé du business (`deriveMood`, business.ts), porté comme champ `DesignDNA` = source unique de vérité (fin des 3 re-dérivations secteur dans artDirect/compose/buildTheme). Même secteur, contenus ≠ → styles ≠ (Gavroche elegant / Mamie warm / Brut bold). Guard `mood-from-business.test.ts`.
 - **Design Intelligence Engine fait** : `design-dna-library.ts` (8 DNA = mécanismes premium distillés, schéma complet + `mechanisms` exploitables + forbidden/avoid). `selectDesignDNA` (fit + refus dur) câblé Phase 4.6 de `runPipeline`, prior `preferBias` dans `artDirect` (narrative/hero/contrast/motion/image). `creative-director-score.ts` (6 axes /10, seuil 8.5, adaptateur sur quality-gate + adhérence DNA) + boucle auto-repair no-regression. `ArtDirection.creativeDirection/designDnaName`. Diagnostics route. Guard `design-intelligence.test.ts`.
-- **Reste** : #3 rythme/hiérarchie (`visualHierarchy` non lu par composer) ; auto-repair originality/templateRisk ; narrations par creative_direction ; harness zpreview→runPipeline.
+- **CD #3/#4/#5/#6 fait** : `narrative-rhythm.ts` (rythme de scroll piloté par la direction, fill-only) ; `zpreview`→`runPipeline` (vrai chemin) ; **fix contrat composer→renderer** (`items` partout : features/services/portfolio/gallery/testimonials/stats rendaient VIDES sur le chemin live) ; CD score pénalise sections vides/thin + répétition. Guards `prop-contract.test.ts`, `narrative-rhythm`, `cd-score-substance.test.ts`. Validé Playwright sur le vrai chemin.
+- **Reste** : auto-repair des sections thin (regénérer) ; `varySectionOrder` par creative_direction ; HeroEditorial trop plat pour resto luxe ; captions galerie.
 
 ## Où on en est (2026-07-10)
 
