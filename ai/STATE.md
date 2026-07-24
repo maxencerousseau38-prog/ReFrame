@@ -5,6 +5,17 @@
 > `graphify query/explain/path` — jamais de lecture exploratoire du dépôt.
 > Propriétaire : Claude. Mis à jour AVANT le dernier commit de chaque session/sous-lot.
 
+## Focus courant (2026-07-24) — QUALITÉ DU MOTEUR DE GÉNÉRATION
+
+> Directive CD : ne PAS toucher au backlog technique (SEO/OWASP/CWV) tant que le
+> moteur n'est pas quasi niveau agence premium. Priorités : (1) variété de
+> composition, (2) direction artistique dérivée du business, (3) hiérarchie
+> visuelle/rythme, (4) moteur de décision, (5) audit CD après génération.
+
+- **Chemin de prod RÉEL** = `runPipeline → artDirect → compose` (`mode="smart"`, défaut dashboard). `generateSite`/engine.ts = legacy (classic/preserve). `zpreview` rend le legacy → à repointer.
+- **CD #1 fait** : fin du hero-template. Pool union dans `pickHeroVariant` + `HeroCollage` câblé + `fmix32` dans `seededPick` (fix avalanche FNV bits bas). 3 marques même secteur → 3 heros distincts. Guard `hero-variety.test.ts`.
+- **Reste** : #2 mood/style depuis le business (aujourd'hui verrouillé `INDUSTRY_PROFILES[industry].theme.mood`) ; #3 `visualHierarchy` non lu par composer ; audit zpreview→runPipeline.
+
 ## Où on en est (2026-07-10)
 
 - **Branche** : `claude/siterevive-ai-saas-a9sxzw` (remote renommé → `maxencerousseau38-prog/ReFrame`, redirect OK).

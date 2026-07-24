@@ -88,13 +88,30 @@ export function generateSeed(brandName: string, url: string, industry: string): 
   return fnv1a(`${brandName.toLowerCase().trim()}|${domain.toLowerCase()}|${industry}`);
 }
 
+/**
+ * Avalanche finalizer (Murmur3 fmix32). FNV-1a has weak low-bit avalanche: two
+ * different seeds hashed with the same salt can share their low bits, so a bare
+ * `% n` collapsed same-sector brands onto the same seeded choice (three
+ * restaurants all opened on the same hero). Mixing the bits before the modulo
+ * decorrelates the low bits and restores real per-brand variety on EVERY seeded
+ * decision — hero, rhythm, flow, contrast, gallery, cta, about, footer.
+ */
+function fmix32(h: number): number {
+  h ^= h >>> 16;
+  h = Math.imul(h, 0x7feb352d);
+  h ^= h >>> 15;
+  h = Math.imul(h, 0x846ca68b);
+  h ^= h >>> 16;
+  return h >>> 0;
+}
+
 function seededPick<T>(options: readonly T[], seed: number, salt: string): T {
-  const h = fnv1a(seed.toString() + salt);
+  const h = fmix32(fnv1a(seed.toString() + salt));
   return options[h % options.length];
 }
 
 function seededFloat(seed: number, salt: string): number {
-  return (fnv1a(seed.toString() + salt) % 10000) / 10000;
+  return (fmix32(fnv1a(seed.toString() + salt)) % 10000) / 10000;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -102,9 +119,12 @@ function seededFloat(seed: number, salt: string): number {
 /* -------------------------------------------------------------------------- */
 
 const HERO_STYLE_VARIANTS: Record<string, string[]> = {
-  fullbleed: ["HeroImageFull", "HeroArchform", "HeroMonumental"],
-  split: ["HeroSplitPremium", "HeroPremium2"],
-  editorial: ["HeroEditorial"],
+  // HeroCollage is a split editorial-collage first impression — it exists so two
+  // same-sector brands don't both open on the same full-bleed photo. It must be
+  // reachable from the image-led philosophies, not just the legacy pickVariant.
+  fullbleed: ["HeroImageFull", "HeroArchform", "HeroMonumental", "HeroCollage"],
+  split: ["HeroSplitPremium", "HeroPremium2", "HeroCollage"],
+  editorial: ["HeroEditorial", "HeroCollage"],
   monumental: ["HeroMonumental", "HeroArchform"],
   cinematic: ["HeroAurora", "HeroAgencia", "HeroBeam", "HeroSpotlight"],
   minimal: ["HeroPremium1", "HeroCanvas", "HeroBento"],
@@ -473,20 +493,27 @@ function pickHeroVariant(
     }
   }
 
-  // 2. Map hero philosophy to compatible styles, then to variants
+  // 2. Map hero philosophy to compatible styles, then to variants.
+  // The whole UNION of eligible variants across the philosophy's styles is the
+  // candidate pool — not the first non-empty style. The old fixed-order loop
+  // collapsed every "immersive" brand onto the `fullbleed` group (and, for
+  // image-led sectors, onto a single variant), so three restaurants all opened
+  // on the same hero. Pooling across styles + a real seed makes the single most
+  // visible element diverge brand-to-brand — the biggest "AI template" tell.
   const styles = HERO_PHILOSOPHY_STYLES[heroPhilosophy] || ["split"];
+  const pool: string[] = [];
   for (const style of styles) {
-    const candidates = HERO_STYLE_VARIANTS[style] || [];
-    const available = candidates.filter((v) => {
+    for (const v of HERO_STYLE_VARIANTS[style] || []) {
+      if (pool.includes(v)) continue;
       const meta = BLOCK_CATALOG.find((b) => b.variant === v);
-      if (!meta) return false;
-      if (meta.sectors !== "all" && !(meta.sectors as Industry[]).includes(industry)) return false;
-      // Don't pick fullbleed/monumental without images
-      if (!hasImages && (v.includes("ImageFull") || v.includes("Monumental") || v.includes("Archform"))) return false;
-      return true;
-    });
-    if (available.length > 0) return seededPick(available, seed, "heroVariant:" + style);
+      if (!meta) continue;
+      if (meta.sectors !== "all" && !(meta.sectors as Industry[]).includes(industry)) continue;
+      // Don't pick a photo-led hero without images to fill it.
+      if (!hasImages && (v.includes("ImageFull") || v.includes("Monumental") || v.includes("Archform") || v.includes("Collage"))) continue;
+      pool.push(v);
+    }
   }
+  if (pool.length > 0) return seededPick(pool, seed, "heroVariant:" + heroPhilosophy);
 
   // 3. Fallback to the DNA style
   const dnaStyle = dna.heroDirection.style;
