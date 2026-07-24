@@ -462,7 +462,9 @@ function buildTheme(
     accent: analysis.brand?.accentColor || baseTheme.accent,
     radius: baseTheme.radius,
     font: analysis.fontHint || baseTheme.font,
-    mood: baseTheme.mood,
+    // Business-derived STYLE (DNA), not the industry default — this is what
+    // flows into deriveScheme() so the palette temperature matches the brand.
+    mood: dna.mood,
   };
 
   // Apply DNA color strategy
@@ -511,7 +513,8 @@ export interface ComposeOptions {
 export function compose(analysis: SiteAnalysis, opts: ComposeOptions): SiteSchema {
   const { dna, profile, moodboard, artDirection } = opts;
   const industry = analysis.industry;
-  const mood = INDUSTRY_PROFILES[industry].theme.mood;
+  // The business-derived STYLE lives on the DNA — never re-derive from industry.
+  const mood = dna.mood;
 
   // 2. Build theme from DNA + analysis. compileTokens ALWAYS runs so the DNA's
   // composition decisions (spacing, container, type scale) reach the renderer

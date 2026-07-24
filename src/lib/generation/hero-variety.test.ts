@@ -71,7 +71,7 @@ describe("hero variety across same-sector brands", () => {
       // At least 3 distinct heroes across 12 same-sector brands, and no single
       // hero may dominate more than ~⅔ of the batch.
       expect(distinct.size).toBeGreaterThanOrEqual(3);
-      const maxShare = Math.max(...[...distinct].map((h) => heroes.filter((x) => x === h).length));
+      const maxShare = Math.max(...Array.from(distinct).map((h) => heroes.filter((x) => x === h).length));
       expect(maxShare).toBeLessThanOrEqual(Math.ceil(heroes.length * 0.67));
     });
   }

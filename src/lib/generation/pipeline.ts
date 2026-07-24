@@ -21,7 +21,7 @@ import type { DesignDNA } from "./dna";
 import type { Moodboard } from "./references";
 import type { QualityScore } from "./quality-gate";
 import type { ArtDirection } from "./art-direction";
-import { analyzeBusinessProfile } from "./business";
+import { analyzeBusinessProfile, deriveMood } from "./business";
 import { compileDNA } from "./dna";
 import { buildMoodboard } from "./references";
 import { artDirect } from "./art-direction";
@@ -77,7 +77,10 @@ const MAX_ITERATIONS = 2;
  */
 export function runPipeline(analysis: SiteAnalysis): PipelineResult {
   const industryProfile = INDUSTRY_PROFILES[analysis.industry];
-  const mood: Theme["mood"] = industryProfile.theme.mood;
+  // The STYLE is chosen from the business, not just its industry: mood is the
+  // root of the design system (colour, DNA rhythm, moodboard), so deriving it
+  // per brand is what makes two same-sector sites read as different studios.
+  const mood: Theme["mood"] = deriveMood(analysis, analysis.industry);
 
   // Phase 1: Business Intelligence
   const profile = analyzeBusinessProfile(analysis, mood);

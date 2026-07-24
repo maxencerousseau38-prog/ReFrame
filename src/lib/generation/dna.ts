@@ -115,6 +115,10 @@ export interface DesignDNA {
   /** Unique signature for debugging/tracing. */
   signature: string;
 
+  /** The chosen STYLE — business-derived, not industry-locked. Single source of
+   *  truth for every downstream mood read (art direction, composer, theme). */
+  mood: Theme["mood"];
+
   /** Global section rhythm. */
   rhythm: SectionRhythm;
 
@@ -282,6 +286,7 @@ export function compileDNA(input: CompileInput): DesignDNA {
 
   return {
     signature,
+    mood,
     rhythm,
     typeScale,
     cardSystem,

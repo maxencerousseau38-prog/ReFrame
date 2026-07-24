@@ -75,6 +75,89 @@ const BUDGET_KEYWORDS = [
   "pas cher", "économique", "gratuit", "promo", "solde",
 ];
 
+/* -------------------------------------------------------------------------- */
+/*  Business-derived STYLE (mood)                                             */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Vocabulary that betrays a brand's actual art direction, EN + FR. The mood is
+ * the root of the whole design system (colour, DNA rhythm, moodboard), so this
+ * is what lets two same-sector brands read as different studios: a Michelin
+ * "gastronomique" room resolves elegant, a "brut/industriel" studio resolves
+ * bold, an "épuré/essentiel" practice resolves minimal — instead of every
+ * restaurant being warm and every architect elegant by industry default.
+ */
+const STYLE_WORDS: Record<Theme["mood"], string[]> = {
+  minimal: [
+    "minimalist", "minimal", "understated", "essential", "pure", "clean lines",
+    "épuré", "minimaliste", "sobre", "essentiel", "zen", "less is more",
+  ],
+  bold: [
+    "bold", "brutalist", "industrial", "raw", "striking", "avant-garde",
+    "statement", "edgy", "vibrant", "audacieux", "brut", "industriel",
+    "graphique", "contemporain", "moderne", "punchy", "street",
+  ],
+  elegant: [
+    "elegant", "refined", "timeless", "couture", "bespoke", "sophisticated",
+    "gastronomic", "gastronomique", "étoilé", "michelin", "haute", "luxe",
+    "raffiné", "élégant", "intemporel", "prestige", "fine dining", "d'exception",
+  ],
+  warm: [
+    "family", "artisan", "artisanal", "homemade", "cozy", "welcoming",
+    "convivial", "chaleureux", "familial", "fait maison", "authentique",
+    "authentic", "traditionnel", "traditional", "heartfelt", "généreux", "local",
+  ],
+};
+
+/**
+ * Choose the STYLE (mood) from the business itself, not just its industry.
+ * Content keywords are the primary signal; tier is a sector-safe nudge; the
+ * industry baseline keeps home-field advantage so a single stray word never
+ * flips a brand's whole identity. Deterministic — no seed, pure analysis.
+ */
+export function deriveMood(analysis: SiteAnalysis, industry: Industry): Theme["mood"] {
+  const base = INDUSTRY_PROFILES[industry].theme.mood;
+  const text = [
+    analysis.extractedContent.headline,
+    analysis.extractedContent.description,
+    analysis.brandName,
+    ...(analysis.extractedContent.services || []),
+    analysis.extractedContent.aboutBody || "",
+    ...(analysis.extractedContent.testimonials || []).map((t) => t.quote || ""),
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  const scores: Record<Theme["mood"], number> = { minimal: 0, bold: 0, elegant: 0, warm: 0 };
+  (Object.keys(scores) as Theme["mood"][]).forEach((m) => {
+    scores[m] = STYLE_WORDS[m].filter((k) => text.includes(k)).length;
+  });
+
+  // Home-field weight: the shift must beat a real-signal threshold, not a fluke.
+  scores[base] += 0.5;
+
+  // Tier nudge, kept sector-coherent: a luxury craft/hospitality/fashion brand
+  // reads elegant; a luxury tech brand reads more minimal (never "elegant");
+  // a budget brand leans warm/approachable.
+  const tier = detectTier(analysis);
+  if (tier === "luxury") {
+    if (base === "minimal") scores.minimal += 1.25;
+    else scores.elegant += 1.5;
+  } else if (tier === "budget") {
+    scores.warm += 0.75;
+  }
+
+  let best: Theme["mood"] = base;
+  let bestScore = -1;
+  (Object.keys(scores) as Theme["mood"][]).forEach((m) => {
+    if (scores[m] > bestScore) {
+      bestScore = scores[m];
+      best = m;
+    }
+  });
+  return best;
+}
+
 function detectTier(analysis: SiteAnalysis): BusinessProfile["tier"] {
   const text = [
     analysis.extractedContent.headline,

@@ -222,8 +222,7 @@ function directSectionRhythm(
     warm: ["wave", "steady", "crescendo"],
     minimal: ["steady", "wave", "editorial-pause"],
   };
-  const mood = INDUSTRY_PROFILES[profile.industry].theme.mood;
-  return seededPick(moodRhythms[mood], seed, "sectionRhythm");
+  return seededPick(moodRhythms[dna.mood], seed, "sectionRhythm");
 }
 
 function directVisualHierarchy(
@@ -244,6 +243,7 @@ function directVisualHierarchy(
 function directEditorialFlow(
   profile: BusinessProfile,
   visualDna: VisualDNA | undefined,
+  mood: Mood,
   seed: number,
 ): ArtDirection["editorialFlow"] {
   if (visualDna?.layout.asymmetry) return seededPick(["asymmetric", "zigzag", "magazine"] as const, seed, "flow");
@@ -255,7 +255,6 @@ function directEditorialFlow(
     warm: ["linear", "centered", "zigzag"],
     minimal: ["centered", "linear", "zigzag"],
   };
-  const mood = INDUSTRY_PROFILES[profile.industry].theme.mood;
   return seededPick(moodFlows[mood], seed, "editorialFlow");
 }
 
@@ -322,6 +321,7 @@ function directImageRhythm(
 function directCompositionStyle(
   profile: BusinessProfile,
   visualDna: VisualDNA | undefined,
+  mood: Mood,
   seed: number,
 ): ArtDirection["compositionStyle"] {
   if (visualDna?.layout.asymmetry) return seededPick(["asymmetric", "editorial-grid"] as const, seed, "comp");
@@ -334,7 +334,6 @@ function directCompositionStyle(
     warm: ["symmetric", "fluid", "structured"],
     minimal: ["structured", "symmetric", "editorial-grid"],
   };
-  const mood = INDUSTRY_PROFILES[profile.industry].theme.mood;
   return seededPick(moodComp[mood], seed, "composition");
 }
 
@@ -400,16 +399,17 @@ function directContrastStrategy(
 }
 
 function directEmotionalDirection(
-  profile: BusinessProfile,
+  mood: Mood,
   seed: number,
 ): ArtDirection["emotionalDirection"] {
   const moodEmotion: Record<Mood, ArtDirection["emotionalDirection"][]> = {
+    // Elegant leads with restraint (dropping "warm-inviting", which misfired on
+    // stone-grey luxury brands); the mood now genuinely steers the emotion.
     warm: ["warm-inviting", "playful-energetic"],
-    elegant: ["elegant-restrained", "warm-inviting"],
+    elegant: ["elegant-restrained", "cool-professional"],
     bold: ["bold-confident", "cool-professional"],
     minimal: ["cool-professional", "elegant-restrained"],
   };
-  const mood = INDUSTRY_PROFILES[profile.industry].theme.mood;
   return seededPick(moodEmotion[mood], seed, "emotion");
 }
 
@@ -906,7 +906,8 @@ export function artDirect(
 ): ArtDirection {
   const seed = generateSeed(analysis.brandName, analysis.url, analysis.industry);
   const industry = analysis.industry;
-  const mood = INDUSTRY_PROFILES[industry].theme.mood;
+  // Business-derived STYLE, carried on the DNA — never the industry default.
+  const mood = dna.mood;
   const visualDna = analysis.visualDna;
   const hasImages = analysis.extractedContent.images.length > 0 || !!analysis.extractedContent.heroImageUrl;
   const hasTestimonials = !!analysis.extractedContent.testimonials?.length;
@@ -916,16 +917,16 @@ export function artDirect(
   const pageStorytelling = directPageStorytelling(profile, seed);
   const sectionRhythm = directSectionRhythm(profile, dna, seed);
   const visualHierarchy = directVisualHierarchy(profile, dna, seed);
-  const editorialFlow = directEditorialFlow(profile, visualDna, seed);
+  const editorialFlow = directEditorialFlow(profile, visualDna, mood, seed);
   const heroPhilosophy = directHeroPhilosophy(profile, dna, visualDna, seed);
   const whitespaceStrategy = directWhitespace(profile, dna, seed);
   const imageRhythm = directImageRhythm(analysis, visualDna, seed);
-  const compositionStyle = directCompositionStyle(profile, visualDna, seed);
+  const compositionStyle = directCompositionStyle(profile, visualDna, mood, seed);
   const asymmetryDir = directAsymmetry(profile, visualDna, seed);
   const typographyRhythm = directTypographyRhythm(dna, visualDna, seed);
   const ctaHierarchy = directCtaHierarchy(profile, dna, seed);
   const contrastStrategy = directContrastStrategy(dna, visualDna, seed);
-  const emotionalDirection = directEmotionalDirection(profile, seed);
+  const emotionalDirection = directEmotionalDirection(mood, seed);
   const luxuryLevel = directLuxuryLevel(profile, dna, visualDna);
   const minimalismLevel = directMinimalismLevel(profile, dna, visualDna);
   const visualDensityVal = directVisualDensity(profile, dna, seed);
