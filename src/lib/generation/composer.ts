@@ -513,6 +513,8 @@ export interface ComposeOptions {
   profile: BusinessProfile;
   moodboard?: Moodboard;
   artDirection?: ArtDirection;
+  /** Personality-derived motion system (Motion Design Intelligence). */
+  motion?: import("./motion-design").MotionDirection;
 }
 
 /**
@@ -522,7 +524,7 @@ export interface ComposeOptions {
  * every spacing choice is dictated by the DNA.
  */
 export function compose(analysis: SiteAnalysis, opts: ComposeOptions): SiteSchema {
-  const { dna, profile, moodboard, artDirection } = opts;
+  const { dna, profile, moodboard, artDirection, motion } = opts;
   const industry = analysis.industry;
   // The business-derived STYLE lives on the DNA — never re-derive from industry.
   const mood = dna.mood;
@@ -607,6 +609,8 @@ export function compose(analysis: SiteAnalysis, opts: ComposeOptions): SiteSchem
       },
     ],
     animations: dna.motion.level > 0 ? true : false,
+    // Motion Design Intelligence: the personality-derived animation system.
+    ...(motion ? { motion } : {}),
     // Preserve integrations from the analysis
     ...(analysis.integrations?.length
       ? {

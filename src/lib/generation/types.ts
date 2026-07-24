@@ -155,6 +155,13 @@ export interface SiteSchema {
    */
   animations?: boolean;
   /**
+   * Motion Design Intelligence: the animation system derived from the brand's
+   * personality (durations, easing, travel, stagger, hover). Published as CSS
+   * vars + a framer default so reveals/hover/transitions express the temperament
+   * — a serene brand moves slowly and softly, a fierce one fast and far.
+   */
+  motion?: import("./motion-design").MotionDirection;
+  /**
    * The design family the sector was routed to (editorial / hospitality /
    * product / retail / trust). Drives the narrative arc (planner) and the
    * reading rhythm; undefined for generic sectors with no family flow.

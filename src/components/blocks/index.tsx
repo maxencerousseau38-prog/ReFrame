@@ -379,6 +379,48 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 // Hairline derived from the brand ink, for borders and grid gaps on any canvas.
 const HAIRLINE = "color-mix(in srgb, var(--brand-ink) 8%, transparent)";
 
+/* -------------------------------------------------------------------------- */
+/*  Motion Design Intelligence — personality-driven animation, via context    */
+/* -------------------------------------------------------------------------- */
+
+type MotionSpec = import("@/lib/generation/motion-design").MotionDirection;
+
+// The house default (used in the editor/tests when no personality motion was
+// attached) — matches the historical hardcoded reveal (0.5s, EASE, 18px).
+const DEFAULT_MOTION: MotionSpec = {
+  intensity: "balanced",
+  duration: 0.5,
+  hoverDuration: 0.16,
+  ease: [0.16, 1, 0.3, 1],
+  easeCss: "cubic-bezier(0.16,1,0.3,1)",
+  revealDistance: 18,
+  stagger: 0.06,
+  hoverLift: 4,
+  hoverScale: 1.02,
+  parallax: false,
+};
+
+const MotionCtx = React.createContext<MotionSpec>(DEFAULT_MOTION);
+/** Personality-derived motion for the current site (reveals/hover/transitions). */
+function useMotion(): MotionSpec {
+  return React.useContext(MotionCtx);
+}
+/** The reveal transition every entrance shares, in the brand's tempo. */
+function revealTransition(mo: MotionSpec, index = 0): { duration: number; ease: readonly number[]; delay: number } {
+  return { duration: mo.duration, ease: mo.ease, delay: (index % 4) * mo.stagger };
+}
+/** Motion tokens published as CSS vars, for CSS-based hover/transitions. */
+function motionVars(mo: MotionSpec): Record<string, string> {
+  return {
+    "--rf-ease": mo.easeCss,
+    "--rf-dur": `${mo.duration}s`,
+    "--rf-hover-dur": `${mo.hoverDuration}s`,
+    "--rf-hover-lift": `${mo.hoverLift}px`,
+    "--rf-hover-scale": String(mo.hoverScale),
+    "--rf-reveal-dist": `${mo.revealDistance}px`,
+  };
+}
+
 // Keep the gradient as a fallback layer beneath the image: CSS stacks
 // background layers top-to-bottom, and a broken/blocked image paints nothing,
 // so the gradient below shows through instead of a blank box. Extracted client
@@ -1971,6 +2013,7 @@ function ServicesAtelier({ props }: { props: any }) {
  */
 function PortfolioGrid({ props }: { props: any }) {
   const reduce = useReducedMotion();
+  const mo = useMotion();
   const items = (props.items || []) as { image?: string; title: string; tag?: string }[];
   // Only use the rich image gallery when there are enough real images to fill
   // it; otherwise a clean card grid (avoids half-empty / invisible tiles).
@@ -2006,10 +2049,10 @@ function PortfolioGrid({ props }: { props: any }) {
             {items.map((p, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 14 }}
+                initial={{ opacity: 0, y: mo.revealDistance }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: mo.duration, delay: i * mo.stagger, ease: mo.ease }}
                 className="border p-6 transition-colors hover:bg-[var(--brand-surface)]"
                 style={{ borderColor: HAIRLINE, borderRadius: "var(--brand-radius)" }}
               >
@@ -2035,7 +2078,7 @@ function PortfolioGrid({ props }: { props: any }) {
               initial={{ opacity: 0, scale: reduce ? 1 : 0.98 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: mo.duration * 1.15, delay: i * mo.stagger, ease: mo.ease }}
               className={cn(
                 "group relative overflow-hidden",
                 i === 0 && "col-span-2 row-span-2"
@@ -2882,6 +2925,7 @@ function HeroImageFull({ props }: { props: any }) {
  * grid; strong for services and SaaS narratives.
  */
 function FeaturesAlternating({ props }: { props: any }) {
+  const mo = useMotion();
   const items = (props.items || []) as any[];
   // Measured starting side (C7c): the source scene's media sat on the LEFT →
   // invert the alternation parity. Without a scene, V5 parity (odd rows flip).
@@ -2901,10 +2945,10 @@ function FeaturesAlternating({ props }: { props: any }) {
           {items.map((item, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 18 }}
+              initial={{ opacity: 0, y: mo.revealDistance }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.5, ease: EASE, delay: i * 0.04 }}
+              transition={{ duration: mo.duration, ease: mo.ease, delay: i * mo.stagger }}
               className={`grid items-center gap-[var(--rf-scene-gap,2rem)] border-t py-10 sm:grid-cols-[var(--rf-scene-ratio,1fr_1.4fr)] ${(i % 2 === 1) !== flip ? "sm:[&>*:first-child]:order-last" : ""}`}
               style={{ borderColor: HAIRLINE }}
             >
@@ -2997,6 +3041,7 @@ function ServicesCards({ props }: { props: any }) {
  * slider and the editorial press layout.
  */
 function TestimonialsGrid({ props }: { props: any }) {
+  const mo = useMotion();
   const items = (props.items || []) as any[];
   if (!items.length) return null;
   const initials = (n: string) =>
@@ -3021,10 +3066,10 @@ function TestimonialsGrid({ props }: { props: any }) {
           {items.slice(0, 6).map((t, i) => (
             <motion.figure
               key={i}
-              initial={{ opacity: 0, y: 18 }}
+              initial={{ opacity: 0, y: mo.revealDistance }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.5, ease: EASE, delay: i * 0.06 }}
+              transition={{ duration: mo.duration, ease: mo.ease, delay: i * mo.stagger }}
               className="flex flex-col border rf-card p-7"
               style={{ borderColor: HAIRLINE, borderRadius: "calc(var(--brand-radius) * 1.1)" }}
             >
@@ -4270,6 +4315,7 @@ function FeaturesSticky({ props }: { props: any }) {
  */
 function FeaturesShowcase({ props }: { props: any }) {
   const reduce = useReducedMotion();
+  const mo = useMotion();
   const items = (props.items || []) as any[];
   // The tall image-tile layout only earns its space when there are REAL photos
   // to fill it. With no imagery (and, honestly, no fabricated blurbs) it becomes
@@ -4288,10 +4334,10 @@ function FeaturesShowcase({ props }: { props: any }) {
           {items.map((item, i) => (
             <motion.div
               key={i}
-              initial={reduce ? false : { opacity: 0, y: 18 }}
+              initial={reduce ? false : { opacity: 0, y: mo.revealDistance }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.5, delay: (i % 3) * 0.06, ease: EASE }}
+              transition={{ duration: mo.duration, delay: (i % 3) * mo.stagger, ease: mo.ease }}
               className={cn("group flex flex-col overflow-hidden border transition-colors duration-300", hasImages ? "" : "p-7 hover:border-[color:color-mix(in_srgb,var(--brand-accent)_45%,transparent)]")}
               style={{ borderColor: HAIRLINE, borderRadius: "calc(var(--brand-radius) * 1.1)" }}
             >
@@ -5388,6 +5434,9 @@ export function SiteRenderer({
   // reducedMotion="always" stops framer motion; data-animate kills CSS
   // animations AND forces framer's inline reveal states (opacity:0) visible.
   const animationsOn = published ? schema.animations === true : schema.animations !== false;
+  // Motion Design Intelligence: the personality-derived animation system for this
+  // site. Drives framer reveals (via context) AND CSS hover/transitions (vars).
+  const motion = schema.motion ?? DEFAULT_MOTION;
 
   const themeScope = React.useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const fontLink = fontGoogleUrl(schema.theme.font);
@@ -5397,7 +5446,8 @@ export function SiteRenderer({
   const overlayNav = OVERLAY_HEROES.has((current.blocks[0]?.variant as string) || "");
 
   return (
-    <MotionConfig reducedMotion={animationsOn ? "user" : "always"}>
+    <MotionConfig reducedMotion={animationsOn ? "user" : "always"} transition={revealTransition(motion)}>
+     <MotionCtx.Provider value={motion}>
       {fontLink && <link rel="stylesheet" href={fontLink} />}
       <style dangerouslySetInnerHTML={{ __html: themeCss(schema.theme, themeScope, schema.tokens) }} />
       <div
@@ -5411,6 +5461,8 @@ export function SiteRenderer({
           // Per-family reading rhythm (editorial breathes, product stays dense).
           // Published as a CSS var consumed by every section via rfSectionPad.
           ...(schema.rhythm ? { ["--rf-rhythm" as string]: String(schema.rhythm) } : {}),
+          // Motion tokens for CSS-based hover/transitions.
+          ...(motionVars(motion) as React.CSSProperties),
         }}
       >
         <SiteNav brand={brand} items={items} cta={cta} logoUrl={schema.brand.logo} dark={schema.theme.dark === true} overlay={overlayNav} />
@@ -5420,6 +5472,7 @@ export function SiteRenderer({
           </SceneShell>
         ))}
       </div>
+     </MotionCtx.Provider>
     </MotionConfig>
   );
 }

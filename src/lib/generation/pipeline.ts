@@ -30,6 +30,7 @@ import { evaluateQuality } from "./quality-gate";
 import { selectDesignDNA, type DesignDNASelection } from "./design-dna-library";
 import { scoreCreativeDirection, type CreativeDirectorScore } from "./creative-director-score";
 import { deriveBrandPersonality, type BrandPersonality } from "./brand-personality";
+import { deriveMotionDirection, type MotionDirection } from "./motion-design";
 import { INDUSTRY_PROFILES } from "./industries";
 import { planSmart } from "./planner";
 import { resolveTree } from "@/lib/dna/resolver";
@@ -60,6 +61,8 @@ export interface PipelineResult {
   quality: QualityScore;
   /** The brand personality that steered the whole generation. */
   personality: BrandPersonality;
+  /** The personality-derived motion system (Motion Design Intelligence). */
+  motion: MotionDirection;
   /** The Design DNA the Design Intelligence layer chose for this business. */
   designDNA: DesignDNASelection;
   /** The automated Creative Director review (6 axes /10). */
@@ -160,13 +163,17 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
   // experience to build before a single component is assembled.
   const designDNA = selectDesignDNA(analysis, profile, mood, personality);
 
+  // Phase 4.7: Motion Design Intelligence — the animation system that expresses
+  // the personality (slow/soft for a serene brand, fast/far for a fierce one).
+  const motion = deriveMotionDirection(personality, dna.motion.level);
+
   // Phase 4.75: Art Director — produces the creative brief, biased by the DNA
   // grammar AND, more strongly, by the brand's personality (tempo, energy,
   // breathing, hero, contrast, CTA, typography, narration).
   const artDirection = artDirect(profile, dna, moodboard, analysis, plan, designDNA.dna, personality);
 
   // Phase 5: Compose (executes the Art Direction)
-  let schema = compose(analysis, { dna, profile, moodboard, artDirection });
+  let schema = compose(analysis, { dna, profile, moodboard, artDirection, motion });
   let activeAD = artDirection;
 
   // Phase 6/7: Quality Gate + Creative Director review, with one iteration loop.
@@ -182,7 +189,7 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
     iterations++;
     const adjustedDNA = applyQualityFixes(dna, quality);
     const adjustedAD = artDirect(profile, adjustedDNA, moodboard, analysis, plan, designDNA.dna, personality);
-    const adjustedSchema = compose(analysis, { dna: adjustedDNA, profile, moodboard, artDirection: adjustedAD });
+    const adjustedSchema = compose(analysis, { dna: adjustedDNA, profile, moodboard, artDirection: adjustedAD, motion });
     const adjustedQuality = evaluateQuality(adjustedSchema, adjustedDNA, profile, analysis, adjustedAD);
     const adjustedCD = scoreCreativeDirection(adjustedQuality, adjustedAD, designDNA.dna, adjustedSchema);
     // Only keep the retry if it genuinely improved the CD verdict — never ship a
@@ -203,6 +210,7 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
     moodboard,
     artDirection: activeAD,
     personality,
+    motion,
     quality,
     designDNA,
     creativeDirector,

@@ -112,6 +112,13 @@ export async function POST(req: Request) {
             warmth: result.personality.warmth,
             emotionalWorld: result.personality.emotionalWorld,
           },
+          // Motion Design Intelligence: the animation system's shape.
+          motion: {
+            intensity: result.motion.intensity,
+            duration: result.motion.duration,
+            revealDistance: result.motion.revealDistance,
+            ease: result.motion.easeCss,
+          },
         },
       });
     }
