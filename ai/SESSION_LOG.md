@@ -1,5 +1,10 @@
 # Journal des sessions (append-only — 3 à 5 lignes par entrée, le plus récent en haut)
 
+## 2026-07-19 — Cohérence / sections thin : FeaturesProcess dégradation dense (CD #5)
+- Retour CD #5 (pages inégales) + sections thin/vides. Diagnostic DOM honnête (architecte) : sections PAS vides (testimonials 6, team 4 imgs, stats OK) — le « vide » précédent = artefact capture fullPage lazy. Vrai défaut : FeaturesProcess image-led sans images = rythme space-y-28 effondré en blocs épars + zones vides + moitié droite blanche (h=1161).
+- Fix composant : imaged < ceil(n/2) → grille numérotée DENSE (3col lg/2col sm, gap-y-12, hairline) au lieu du rythme image-led. Section intentionnelle quelle que soit la dispo d'images.
+- VÉRIF : « How we work » h=1161→671px (grille 01–04 dense), overflow 0 desktop+mobile, 0 console, capture. 567 tests inchangés, tsc 0, build 0. LOCAL. Ordre CD terminé (#1–#5). Résiduel : plaque ServicesAtelier trop claire (marques grises).
+
 ## 2026-07-19 — Storytelling restaurant : framing sectoriel narratif (CD #4)
 - Retour CD : storytelling resto (ambiance→chef→expérience→réservation). Racine : sectionTitle sector-blind + eyebrows codés génériques = template.
 - sectionFraming(type,industry,brand) F21-safe (framing structurel, contenu réel intact) : hospitality gallery=The room/A look inside, about=The concept, features=The experience/What to expect (+subtitle sectoriel), team=In the kitchen ; property about=The studio, features=The process ; sinon neutre. featuresSubtitle sectoriel. Câblé services/portfolio/stats/about/features/team.

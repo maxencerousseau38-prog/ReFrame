@@ -49,6 +49,26 @@
 
 ## Prochaine action
 
+**COHÉRENCE / SECTIONS THIN (2026-07-19) — #5 : qualité constante, fin du défaut « vide ».**
+Retour CD : « certaines pages restent inégales » (#5) + sections thin/vides que
+j'avais repérées. Diagnostic DOM honnête (architecte Praxis) : les sections ne
+sont PAS vides (testimonials 6 items, team 4 imgs, stats OK, pricing 6) — le
+« vide » précédent était un ARTEFACT de capture pleine page (lazy non chargé). Le
+VRAI défaut : `FeaturesProcess` (« How we work », image-led numéroté) quand le
+pool d'images est épuisé (hero+galerie+about le vident sur un petit site) → rythme
+image-led (space-y-28 = 112px) qui s'effondre en blocs texte épars + zones image
+VIDES + moitié droite blanche (h=1161px pour 4 items). Fix composant : si moins de
+la moitié des étapes ont une photo (`imaged < ceil(n/2)`), DÉGRADATION en GRILLE
+NUMÉROTÉE DENSE (3 col lg / 2 col sm, gap-y-12, hairline) — éditorial, zéro zone
+vide, la section a l'air INTENTIONNELLE quelle que soit la dispo d'images. Preuve :
+« How we work » architecte h=1161→**671px** (grille 01–04 dense propre), overflow-x=0
+desktop+mobile, 0 console, capture avant/après. Stats/testimonials/team confirmés
+OK (non vides). 567 tests, tsc 0, build 0. LOCAL (feature). **Ordre CD terminé**
+(#1 art direction hero, #2 rejet screenshots, #3 immersif+alternance, #4
+storytelling, #5 cohérence/thin). **Défauts résiduels notés** : ServicesAtelier
+plaque monogramme trop claire pour marques grises ; élargir la dégradation dense
+à d'autres sections image-led au besoin. **Promotion `main`** : SUR DEMANDE.
+
 **STORYTELLING RESTAURANT (2026-07-19) — #4 : la page se lit comme une histoire.**
 Retour CD : storytelling resto perceptible (ambiance → chef → expérience →
 réservation). Racine : `sectionTitle` aveugle au secteur + eyebrows codés en dur

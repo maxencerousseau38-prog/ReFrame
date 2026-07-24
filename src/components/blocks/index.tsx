@@ -4409,18 +4409,55 @@ function FeaturesProcess({ props }: { props: any }) {
   const reduce = useReducedMotion();
   const items = ((props.items || []) as any[]).slice(0, 5);
   if (!items.length) return null;
+  // The image-led rhythm (tall steps, big breathing room) only reads as premium
+  // when MOST steps actually have a photo. When the image pool ran dry (a small
+  // source site, or the hero + gallery consumed it), that same rhythm collapses
+  // into sparse text blocks separated by huge empty gaps — the "thin section"
+  // defect. Below the threshold, degrade to a DENSE numbered grid: consistent,
+  // editorial, no empty zones — the section looks intentional either way.
+  const imaged = items.filter((it) => it.image).length;
+  const imageLed = imaged >= Math.ceil(items.length / 2);
+  const Header = (
+    <div className="flex items-end justify-between gap-6">
+      <div className="max-w-2xl">
+        <div className="mb-3 text-xs font-medium uppercase tracking-[0.28em]" style={{ color: "var(--brand-accent)" }}>Process</div>
+        <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>{props.title}</h2>
+      </div>
+      <span className="hidden shrink-0 pb-2 font-mono text-xs uppercase tracking-[0.2em] sm:block" style={{ color: "color-mix(in srgb, var(--brand-ink) 45%, transparent)" }}>
+        — {String(items.length).padStart(2, "0")}
+      </span>
+    </div>
+  );
+  if (!imageLed) {
+    return (
+      <section className="px-6" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)", ...rfSectionPad(112) }}>
+        <div className="mx-auto" style={rfContainer(1200)}>
+          {Header}
+          <div className="mt-14 grid gap-x-10 gap-y-12 border-t pt-12 sm:grid-cols-2 lg:grid-cols-3" style={{ borderColor: HAIRLINE }}>
+            {items.map((it, i) => (
+              <motion.div
+                key={i}
+                initial={reduce ? false : { opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.5, ease: EASE, delay: Math.min(i, 6) * 0.05 }}
+              >
+                <div className="text-4xl font-semibold tracking-tight" style={{ fontFamily: "var(--brand-font)", color: "color-mix(in srgb, var(--brand-ink) 30%, transparent)" }}>
+                  {String(i + 1).padStart(2, "0")} <span style={{ color: "var(--brand-accent)" }}>/</span>
+                </div>
+                <h3 className="mt-3 text-2xl font-medium leading-tight tracking-tight" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>{it.title}</h3>
+                {it.description && <p className="mt-3 text-[15px] leading-relaxed" style={{ color: "var(--brand-ink)", opacity: 0.62 }}>{it.description}</p>}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
   return (
     <section className="px-6" style={{ background: "var(--brand-surface)", color: "var(--brand-ink)", ...rfSectionPad(120) }}>
       <div className="mx-auto" style={rfContainer(1200)}>
-        <div className="flex items-end justify-between gap-6">
-          <div className="max-w-2xl">
-            <div className="mb-3 text-xs font-medium uppercase tracking-[0.28em]" style={{ color: "var(--brand-accent)" }}>Process</div>
-            <h2 className="rf-fluid-h2 [text-wrap:balance]" style={{ fontFamily: "var(--brand-font)", color: "var(--brand)" }}>{props.title}</h2>
-          </div>
-          <span className="hidden shrink-0 pb-2 font-mono text-xs uppercase tracking-[0.2em] sm:block" style={{ color: "color-mix(in srgb, var(--brand-ink) 45%, transparent)" }}>
-            — {String(items.length).padStart(2, "0")}
-          </span>
-        </div>
+        {Header}
         <div className="mt-20 space-y-24 sm:space-y-28">
           {items.map((it, i) => {
             const flip = i % 2 === 1;
