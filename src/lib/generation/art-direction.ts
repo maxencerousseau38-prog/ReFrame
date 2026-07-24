@@ -23,6 +23,7 @@ import { BLOCK_CATALOG } from "./catalog";
 import { INDUSTRY_PROFILES } from "./industries";
 import { planSmart, type Plan } from "./planner";
 import { renderableCategory } from "./structure";
+import type { DesignDNAProfile } from "./design-dna-library";
 
 /* -------------------------------------------------------------------------- */
 /*  ArtDirection type                                                         */
@@ -66,6 +67,11 @@ export interface ArtDirection {
   footerComposition: "columns" | "minimal" | "editorial";
 
   variantMap: Record<string, string>;
+
+  /** The Design DNA chosen by the Design Intelligence layer (if any). */
+  designDnaName?: string;
+  /** The named narrative arc the page executes (from the Design DNA). */
+  creativeDirection?: string;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -897,40 +903,58 @@ function buildVariantMap(
 /*  Main entry point                                                          */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Bias a base decision toward a Design DNA's mechanism. The DNA is a strong
+ * *prior*, not a dictator: with probability `strength` the intentional value
+ * wins, otherwise the business-derived base stands — so a creative direction is
+ * honoured while same-sector brands keep diverging.
+ */
+function preferBias<T>(base: T, preferred: T, seed: number, salt: string, strength = 0.6): T {
+  return seededFloat(seed, salt) < strength ? preferred : base;
+}
+
 export function artDirect(
   profile: BusinessProfile,
   dna: DesignDNA,
   moodboard: Moodboard,
   analysis: SiteAnalysis,
   plan: Plan,
+  designDNA?: DesignDNAProfile,
 ): ArtDirection {
   const seed = generateSeed(analysis.brandName, analysis.url, analysis.industry);
   const industry = analysis.industry;
   // Business-derived STYLE, carried on the DNA — never the industry default.
   const mood = dna.mood;
+  const m = designDNA?.mechanisms;
   const visualDna = analysis.visualDna;
   const hasImages = analysis.extractedContent.images.length > 0 || !!analysis.extractedContent.heroImageUrl;
   const hasTestimonials = !!analysis.extractedContent.testimonials?.length;
   const hasFaq = !!analysis.extractedContent.faqItems?.length;
 
-  // 17 artistic properties
-  const pageStorytelling = directPageStorytelling(profile, seed);
+  // 17 artistic properties. When a Design DNA was selected, its mechanisms act
+  // as a creative-direction prior on the decisions that carry a brand's
+  // signature — narrative, hero, contrast, motion, image rhythm — so the page
+  // executes an intentional direction instead of assembling neutral defaults.
+  const pageStorytelling = preferBias(directPageStorytelling(profile, seed), m?.narrative ?? "journey", seed, "dnaNarr", m ? 0.6 : 0);
   const sectionRhythm = directSectionRhythm(profile, dna, seed);
   const visualHierarchy = directVisualHierarchy(profile, dna, seed);
   const editorialFlow = directEditorialFlow(profile, visualDna, mood, seed);
-  const heroPhilosophy = directHeroPhilosophy(profile, dna, visualDna, seed);
+  const heroPhilosophy = preferBias(directHeroPhilosophy(profile, dna, visualDna, seed), m?.heroPhilosophy ?? "editorial", seed, "dnaHero", m ? 0.55 : 0);
   const whitespaceStrategy = directWhitespace(profile, dna, seed);
-  const imageRhythm = directImageRhythm(analysis, visualDna, seed);
+  // Only let the DNA raise the image rhythm when the source actually has enough
+  // images to honour it — never invent a gallery the brand can't fill.
+  const imageCount = analysis.extractedContent.images.length;
+  const imageRhythm = preferBias(directImageRhythm(analysis, visualDna, seed), m?.imageRhythm ?? "alternating", seed, "dnaImg", m && imageCount >= 3 ? 0.5 : 0);
   const compositionStyle = directCompositionStyle(profile, visualDna, mood, seed);
   const asymmetryDir = directAsymmetry(profile, visualDna, seed);
   const typographyRhythm = directTypographyRhythm(dna, visualDna, seed);
   const ctaHierarchy = directCtaHierarchy(profile, dna, seed);
-  const contrastStrategy = directContrastStrategy(dna, visualDna, seed);
+  const contrastStrategy = preferBias(directContrastStrategy(dna, visualDna, seed), m?.contrast ?? "alternating", seed, "dnaContrast", m ? 0.55 : 0);
   const emotionalDirection = directEmotionalDirection(mood, seed);
   const luxuryLevel = directLuxuryLevel(profile, dna, visualDna);
   const minimalismLevel = directMinimalismLevel(profile, dna, visualDna);
   const visualDensityVal = directVisualDensity(profile, dna, seed);
-  const motionPhilosophy = directMotionPhilosophy(dna, visualDna, seed);
+  const motionPhilosophy = preferBias(directMotionPhilosophy(dna, visualDna, seed), m?.motion ?? "purposeful", seed, "dnaMotion", m ? 0.55 : 0);
 
   // 12 layout decisions
   const heroVariant = pickHeroVariant(heroPhilosophy, dna, visualDna, industry, hasImages, seed);
@@ -987,5 +1011,11 @@ export function artDirect(
   const variantMap = buildVariantMap(partialAd, industry, mood, seed);
   const signature = `ad:${industry}:${profile.tier}:${mood}:${seed.toString(16).slice(0, 6)}`;
 
-  return { ...partialAd, variantMap, signature };
+  return {
+    ...partialAd,
+    variantMap,
+    signature,
+    designDnaName: designDNA?.name,
+    creativeDirection: designDNA?.creative_direction,
+  };
 }

@@ -27,6 +27,8 @@ import { buildMoodboard } from "./references";
 import { artDirect } from "./art-direction";
 import { compose } from "./composer";
 import { evaluateQuality } from "./quality-gate";
+import { selectDesignDNA, type DesignDNASelection } from "./design-dna-library";
+import { scoreCreativeDirection, type CreativeDirectorScore } from "./creative-director-score";
 import { INDUSTRY_PROFILES } from "./industries";
 import { planSmart } from "./planner";
 import { resolveTree } from "@/lib/dna/resolver";
@@ -55,6 +57,10 @@ export interface PipelineResult {
   artDirection: ArtDirection;
   /** Quality scores from the gate. */
   quality: QualityScore;
+  /** The Design DNA the Design Intelligence layer chose for this business. */
+  designDNA: DesignDNASelection;
+  /** The automated Creative Director review (6 axes /10). */
+  creativeDirector: CreativeDirectorScore;
   /** Number of quality iterations performed (0 = passed first try). */
   iterations: number;
   /** Provenance of every DNA field: why this value, what was rejected (V2). */
@@ -139,22 +145,44 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
   );
   const dna = resolved.value;
 
-  // Phase 4.75: Art Director — produces the creative brief
-  const artDirection = artDirect(profile, dna, moodboard, analysis, plan);
+  // Phase 4.6: Design Intelligence — choose the Design DNA (creative direction)
+  // whose mechanisms fit this business, and refuse the ones it must never wear.
+  // This is the intelligence ABOVE the Art Director: it decides what KIND of
+  // experience to build before a single component is assembled.
+  const designDNA = selectDesignDNA(analysis, profile, mood);
+
+  // Phase 4.75: Art Director — produces the creative brief, biased by the DNA
+  const artDirection = artDirect(profile, dna, moodboard, analysis, plan, designDNA.dna);
 
   // Phase 5: Compose (executes the Art Direction)
   let schema = compose(analysis, { dna, profile, moodboard, artDirection });
+  let activeAD = artDirection;
 
-  // Phase 6: Quality Gate (with iteration loop)
+  // Phase 6/7: Quality Gate + Creative Director review, with one iteration loop.
+  // The senior-CD verdict (6 axes /10) is a stricter bar than the gate: a page
+  // can pass the gate yet still not command an agency price. We re-generate while
+  // EITHER bar fails — applying the same conservative DNA fixes, which lift the
+  // craft/composition/conversion axes the CD reads from — up to MAX_ITERATIONS.
   let quality = evaluateQuality(schema, dna, profile, analysis, artDirection);
+  let creativeDirector = scoreCreativeDirection(quality, artDirection, designDNA.dna);
   let iterations = 0;
 
-  while (!quality.passes && iterations < MAX_ITERATIONS) {
+  while ((!quality.passes || !creativeDirector.passes) && iterations < MAX_ITERATIONS) {
     iterations++;
     const adjustedDNA = applyQualityFixes(dna, quality);
-    const adjustedAD = artDirect(profile, adjustedDNA, moodboard, analysis, plan);
-    schema = compose(analysis, { dna: adjustedDNA, profile, moodboard, artDirection: adjustedAD });
-    quality = evaluateQuality(schema, adjustedDNA, profile, analysis, adjustedAD);
+    const adjustedAD = artDirect(profile, adjustedDNA, moodboard, analysis, plan, designDNA.dna);
+    const adjustedSchema = compose(analysis, { dna: adjustedDNA, profile, moodboard, artDirection: adjustedAD });
+    const adjustedQuality = evaluateQuality(adjustedSchema, adjustedDNA, profile, analysis, adjustedAD);
+    const adjustedCD = scoreCreativeDirection(adjustedQuality, adjustedAD, designDNA.dna);
+    // Only keep the retry if it genuinely improved the CD verdict — never ship a
+    // regression from an over-eager fix.
+    if (adjustedCD.overall >= creativeDirector.overall) {
+      schema = adjustedSchema;
+      quality = adjustedQuality;
+      creativeDirector = adjustedCD;
+      activeAD = adjustedAD;
+    }
+    if (quality.passes && creativeDirector.passes) break;
   }
 
   return {
@@ -162,8 +190,10 @@ export function runPipeline(analysis: SiteAnalysis): PipelineResult {
     profile,
     dna,
     moodboard,
-    artDirection,
+    artDirection: activeAD,
     quality,
+    designDNA,
+    creativeDirector,
     iterations,
     // F15: DNA provenance + content provenance (language, headings, CTA) —
     // "why this heading?" is now answerable from the same trace. C7d adds the

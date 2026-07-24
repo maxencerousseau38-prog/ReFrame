@@ -97,6 +97,11 @@ export async function POST(req: Request) {
           iterations: result.iterations,
           tier: result.profile.tier,
           direction: result.moodboard.direction,
+          // Design Intelligence: the chosen creative direction + CD verdict.
+          designDna: result.designDNA.dna.name,
+          creativeDirection: result.artDirection.creativeDirection,
+          cdScore: result.creativeDirector.overall,
+          cdPasses: result.creativeDirector.passes,
         },
       });
     }

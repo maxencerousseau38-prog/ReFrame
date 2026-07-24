@@ -15,7 +15,8 @@
 - **Chemin de prod RÉEL** = `runPipeline → artDirect → compose` (`mode="smart"`, défaut dashboard). `generateSite`/engine.ts = legacy (classic/preserve). `zpreview` rend le legacy → à repointer.
 - **CD #1 fait** : fin du hero-template. Pool union dans `pickHeroVariant` + `HeroCollage` câblé + `fmix32` dans `seededPick` (fix avalanche FNV bits bas). 3 marques même secteur → 3 heros distincts. Guard `hero-variety.test.ts`.
 - **CD #2 fait** : `mood` dérivé du business (`deriveMood`, business.ts), porté comme champ `DesignDNA` = source unique de vérité (fin des 3 re-dérivations secteur dans artDirect/compose/buildTheme). Même secteur, contenus ≠ → styles ≠ (Gavroche elegant / Mamie warm / Brut bold). Guard `mood-from-business.test.ts`.
-- **Reste** : #3 rythme/hiérarchie (`visualHierarchy` non lu par composer) ; #4 moteur de décision ; #5 audit CD ; harness zpreview→runPipeline.
+- **Design Intelligence Engine fait** : `design-dna-library.ts` (8 DNA = mécanismes premium distillés, schéma complet + `mechanisms` exploitables + forbidden/avoid). `selectDesignDNA` (fit + refus dur) câblé Phase 4.6 de `runPipeline`, prior `preferBias` dans `artDirect` (narrative/hero/contrast/motion/image). `creative-director-score.ts` (6 axes /10, seuil 8.5, adaptateur sur quality-gate + adhérence DNA) + boucle auto-repair no-regression. `ArtDirection.creativeDirection/designDnaName`. Diagnostics route. Guard `design-intelligence.test.ts`.
+- **Reste** : #3 rythme/hiérarchie (`visualHierarchy` non lu par composer) ; auto-repair originality/templateRisk ; narrations par creative_direction ; harness zpreview→runPipeline.
 
 ## Où on en est (2026-07-10)
 
